@@ -3,6 +3,8 @@ import { useEffect } from 'react';
 interface ShortcutProps {
   onNext: () => void;
   onPrev: () => void;
+  onNextSection?: () => void;
+  onPrevSection?: () => void;
   onToggleFullscreen: () => void;
   onToggleOverview: () => void;
   onToggleDark: () => void;
@@ -15,6 +17,8 @@ interface ShortcutProps {
 export const useNavShortcuts = ({
   onNext,
   onPrev,
+  onNextSection,
+  onPrevSection,
   onToggleFullscreen,
   onToggleOverview,
   onToggleDark,
@@ -28,6 +32,12 @@ export const useNavShortcuts = ({
       } else if (e.key === 'ArrowLeft' || e.key === 'Backspace') {
         e.preventDefault();
         onPrev();
+      } else if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        onNextSection?.();
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        onPrevSection?.();
       } else if (e.key === 'f' && e.ctrlKey) {
         e.preventDefault();
         onToggleFullscreen();
@@ -45,7 +55,16 @@ export const useNavShortcuts = ({
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [onNext, onPrev, onToggleFullscreen, onToggleOverview, onToggleDark, onTogglePresenter]);
+  }, [
+    onNext,
+    onPrev,
+    onNextSection,
+    onPrevSection,
+    onToggleFullscreen,
+    onToggleOverview,
+    onToggleDark,
+    onTogglePresenter,
+  ]);
 };
 
 export default useNavShortcuts;

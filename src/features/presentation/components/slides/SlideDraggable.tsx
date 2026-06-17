@@ -1,6 +1,6 @@
 import React from 'react';
-import Draggable from '../Draggable';
-import DraggableArrow from '../DraggableArrow';
+import Draggable from '../interactive/Draggable';
+import DraggableArrow from '../interactive/DraggableArrow';
 
 export const SlideDraggable: React.FC = () => {
   return (

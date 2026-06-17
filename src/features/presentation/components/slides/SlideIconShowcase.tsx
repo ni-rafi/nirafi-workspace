@@ -1,5 +1,5 @@
 import React from 'react';
-import SlideIcon from '../SlideIcon';
+import SlideIcon from '../elements/SlideIcon';
 
 export const SlideIconShowcase: React.FC = () => {
   return (

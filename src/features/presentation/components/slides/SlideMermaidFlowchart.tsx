@@ -1,5 +1,5 @@
 import React from 'react';
-import MermaidDiagram from '../MermaidDiagram';
+import MermaidDiagram from '../elements/MermaidDiagram';
 
 export const SlideMermaidFlowchart: React.FC = () => {
   const definition = `graph TD

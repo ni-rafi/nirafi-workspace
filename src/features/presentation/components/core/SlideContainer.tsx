@@ -1,6 +1,6 @@
 import React, { useRef } from 'react';
-import type { SlideDimensions } from '../types';
-import { useSlideScale } from '../hooks/useSlideScale';
+import type { SlideDimensions } from '../../types';
+import { useSlideScale } from '../../hooks/useSlideScale';
 
 interface SlideContainerProps {
   children: React.ReactNode;

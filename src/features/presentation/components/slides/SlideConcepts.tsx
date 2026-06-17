@@ -1,5 +1,5 @@
 import React from 'react';
-import ClickRevealGroup from '../ClickRevealGroup';
+import ClickRevealGroup from '../elements/ClickRevealGroup';
 
 interface SlideConceptsProps {
   slideNo: number;

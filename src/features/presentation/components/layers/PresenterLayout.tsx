@@ -1,6 +1,6 @@
 import React from 'react';
 import { Play, Pause, RotateCcw } from 'lucide-react';
-import SlideContainer from '../SlideContainer';
+import SlideContainer from '../core/SlideContainer';
 import SlideRenderer from '../slides/SlideRenderer';
 import { ClickStepsProvider, ClickStepsContext, useClickStepsContext } from '../../context/ClickStepsContext';
 

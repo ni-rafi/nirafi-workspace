@@ -1,5 +1,5 @@
 import React from 'react';
-import CodePlayground from '../CodePlayground';
+import CodePlayground from '../elements/CodePlayground';
 
 export const SlideMonacoSandbox: React.FC = () => {
   const calculationsCode = `// Quantity Surveying concrete slab volume formula

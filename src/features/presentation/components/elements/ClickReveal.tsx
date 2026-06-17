@@ -1,5 +1,5 @@
 import React, { useId, useEffect, useState } from 'react';
-import { useClickStepsContext } from '../context/ClickStepsContext';
+import { useClickStepsContext } from '../../context/ClickStepsContext';
 
 interface ClickRevealProps {
   children: React.ReactNode;

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useId, useMemo } from 'react';
-import { useClickStepsContext } from '../context/ClickStepsContext';
+import { useClickStepsContext } from '../../context/ClickStepsContext';
 import CodeBlock from './CodeBlock';
 
 interface CodeMagicMoveProps {

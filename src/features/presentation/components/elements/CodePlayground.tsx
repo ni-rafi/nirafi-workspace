@@ -2,7 +2,7 @@ import React, { useState, useEffect, useId, useMemo } from 'react';
 import Editor, { DiffEditor } from '@monaco-editor/react';
 import { Play, RotateCcw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useClickStepsContext } from '../context/ClickStepsContext';
+import { useClickStepsContext } from '../../context/ClickStepsContext';
 
 interface CodePlaygroundProps {
   code: string;

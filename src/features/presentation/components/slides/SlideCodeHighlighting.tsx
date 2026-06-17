@@ -1,6 +1,6 @@
 import React from 'react';
-import CodeBlock from '../CodeBlock';
-import CodeMagicMove from '../CodeMagicMove';
+import CodeBlock from '../elements/CodeBlock';
+import CodeMagicMove from '../elements/CodeMagicMove';
 
 export const SlideCodeHighlighting: React.FC = () => {
   const codeExample = `function computeVolume(a: number, b: number) {

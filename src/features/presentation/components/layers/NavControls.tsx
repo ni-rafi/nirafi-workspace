@@ -38,6 +38,8 @@ interface NavControlsProps {
   onToggleDark: () => void;
   isPresenterView: boolean;
   onTogglePresenter: () => void;
+  onNextSection?: () => void;
+  onPrevSection?: () => void;
 
   // Drawing Tools (Passed to DrawingDrawer)
   isPenActive: boolean;
@@ -77,6 +79,8 @@ export const NavControls: React.FC<NavControlsProps> = ({
   onToggleDark,
   isPresenterView,
   onTogglePresenter,
+  onNextSection,
+  onPrevSection,
   isPenActive,
   onPenActiveChange,
   penColor,
@@ -94,6 +98,8 @@ export const NavControls: React.FC<NavControlsProps> = ({
   useNavShortcuts({
     onNext,
     onPrev,
+    onNextSection,
+    onPrevSection,
     onToggleFullscreen,
     onToggleOverview,
     onToggleDark,

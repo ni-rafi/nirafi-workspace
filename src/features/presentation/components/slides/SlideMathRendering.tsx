@@ -1,5 +1,5 @@
 import React from 'react';
-import LatexFormula from '../LatexFormula';
+import LatexFormula from '../elements/LatexFormula';
 
 export const SlideMathRendering: React.FC = () => {
   return (

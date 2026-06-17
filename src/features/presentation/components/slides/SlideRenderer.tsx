@@ -1,13 +1,12 @@
 import React from 'react';
 import type { Subject, Lecture, Session } from '@/config/lectures';
-import SlideCover from './SlideCover';
 import SlideConcepts from './SlideConcepts';
-import SlideDraggable from './SlideDraggable';
-import SlideCodeHighlighting from './SlideCodeHighlighting';
-import SlideMonacoSandbox from './SlideMonacoSandbox';
-import SlideMathRendering from './SlideMathRendering';
-import SlideMermaidFlowchart from './SlideMermaidFlowchart';
-import SlideIconShowcase from './SlideIconShowcase';
+
+// Import all constructed lecture slide decks
+import * as ConcreteLecture from '@/lectures/quantity-surveying/session-2026/lecture-1-concrete/lecture';
+import * as BrickworkLecture from '@/lectures/quantity-surveying/session-2026/lecture-2-brickwork/lecture';
+import * as SteelLecture from '@/lectures/quantity-surveying/session-2026/lecture-3-steel/lecture';
+import * as SlidevIntroLecture from '@/lectures/web-development/session-2026/lecture-1-slidev-intro/lecture';
 
 interface SlideRendererProps {
   slideNo: number;
@@ -19,104 +18,74 @@ interface SlideRendererProps {
 export interface SlideMetadata {
   title: string;
   type: string;
+  section: string;
 }
 
+// Master registry of active lecture decks
+const LECTURE_DECKS: Record<string, {
+  slides: Record<number, React.ComponentType<any>>;
+  slideMetadata: Record<number, { title: string; type: string; section: string }>;
+}> = {
+  'concrete': ConcreteLecture,
+  'brickwork': BrickworkLecture,
+  'steel': SteelLecture,
+  'slidev_intro': SlidevIntroLecture,
+};
+
+const getLectureDeck = (lectureId: string) => {
+  return LECTURE_DECKS[lectureId] || SlidevIntroLecture;
+};
+
 /**
- * Returns slide metadata (title and type) dynamically based on slide number and lecture context.
+ * Returns slide metadata (title, type, and section) dynamically based on active lecture deck configurations.
  */
 export const getSlideMetadata = (
   slideNo: number,
   subject: Subject,
   lecture: Lecture
 ): SlideMetadata => {
-  if (slideNo === 1) {
+  const deck = getLectureDeck(lecture.id);
+  const meta = deck.slideMetadata[slideNo];
+  if (!meta) {
     return {
-      title: lecture.title,
-      type: `${subject.code} Cover`,
+      title: `Slide ${slideNo}`,
+      type: 'Concept Details',
+      section: 'Introduction',
     };
   }
-  if (slideNo === 3) {
-    return {
-      title: 'Interactive Positioning Elements',
-      type: 'Visual Sandbox',
-    };
-  }
-  if (slideNo === 4) {
-    return {
-      title: 'Syntax Highlighting',
-      type: 'Code & Theme',
-    };
-  }
-  if (slideNo === 5) {
-    return {
-      title: 'Monaco Playground',
-      type: 'Live Compiler',
-    };
-  }
-  if (slideNo === 6) {
-    return {
-      title: 'KaTeX Formulations',
-      type: 'Mathematics',
-    };
-  }
-  if (slideNo === 7) {
-    return {
-      title: 'Mermaid Diagrams',
-      type: 'Algorithms',
-    };
-  }
-  if (slideNo === 8) {
-    return {
-      title: 'Iconify Library',
-      type: 'Vector Icons',
-    };
-  }
-  if (slideNo === 9) {
-    return {
-      title: 'Rounding Precision Rules',
-      type: 'Lecture Recap',
-    };
-  }
-  if (slideNo === 10) {
-    return {
-      title: 'Conclusion & Vitest',
-      type: 'Review Summary',
-    };
-  }
+
   return {
-    title: `Slide ${slideNo}: Core Concepts`,
-    type: 'Concept Details',
+    title: typeof meta.title === 'function' ? (meta.title as any)(lecture) : meta.title,
+    type: typeof meta.type === 'function' ? (meta.type as any)(subject) : meta.type,
+    section: meta.section,
   };
 };
 
+/**
+ * Returns total number of slides for a given lecture.
+ */
+export const getLectureSlideCount = (lectureId: string): number => {
+  const deck = getLectureDeck(lectureId);
+  return Object.keys(deck.slides).length;
+};
+
+/**
+ * SlideRenderer dynamically returns the slide component matching the active slide number.
+ * Decouples rendering imports from presentation container components.
+ */
 export const SlideRenderer: React.FC<SlideRendererProps> = ({
   slideNo,
   subject,
   lecture,
   session,
 }) => {
-  if (slideNo === 1) {
-    return <SlideCover subject={subject} lecture={lecture} session={session} />;
+  const deck = getLectureDeck(lecture.id);
+  const SlideComponent = deck.slides[slideNo];
+  if (!SlideComponent) {
+    return <SlideConcepts slideNo={slideNo} />;
   }
-  if (slideNo === 3) {
-    return <SlideDraggable />;
-  }
-  if (slideNo === 4) {
-    return <SlideCodeHighlighting />;
-  }
-  if (slideNo === 5) {
-    return <SlideMonacoSandbox />;
-  }
-  if (slideNo === 6) {
-    return <SlideMathRendering />;
-  }
-  if (slideNo === 7) {
-    return <SlideMermaidFlowchart />;
-  }
-  if (slideNo === 8) {
-    return <SlideIconShowcase />;
-  }
-  return <SlideConcepts slideNo={slideNo} />;
+
+  return <SlideComponent slideNo={slideNo} subject={subject} lecture={lecture} session={session} />;
 };
 
 export default SlideRenderer;
