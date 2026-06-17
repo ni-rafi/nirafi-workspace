@@ -1,10 +1,10 @@
 import React, { useState, useMemo } from 'react';
-import { ChevronLeft, ChevronRight, Play, X, ChevronDown } from 'lucide-react';
+import { ChevronDown, Play } from 'lucide-react';
 import type { Subject, Lecture, Session } from '@/config/lectures';
-import SlideContainer from './SlideContainer';
 import SlideRenderer, { getSlideMetadata } from '../slides/SlideRenderer';
-import { ClickStepsProvider, useClickStepsContext } from '../../context/ClickStepsContext';
+import { ClickStepsProvider } from '../../context/ClickStepsContext';
 import { PresentationContext, ViewMode, Theme } from '../../context/PresentationContext';
+import { SimulationModal, ClickTracker } from './SimulationModal';
 
 interface TwoWayGridOrchestratorProps {
   subject: Subject;
@@ -17,155 +17,64 @@ interface TwoWayGridOrchestratorProps {
   currentSlide?: number;
 }
 
-/**
- * SlideCardInner consumes ClickStepsContext to handle local animation stepping in play mode.
- */
-const SlideCardInner: React.FC<{
-  slideNo: number;
-  subject: Subject;
-  lecture: Lecture;
-  session?: Session;
-  isPlayMode: boolean;
-  setIsPlayMode: (val: boolean) => void;
-  localStep: number;
-  setLocalStep: React.Dispatch<React.SetStateAction<number>>;
-  onSelect: () => void;
-}> = ({
-  slideNo,
-  subject,
-  lecture,
-  session,
-  isPlayMode,
-  setIsPlayMode,
-  localStep,
-  setLocalStep,
-  onSelect,
-}) => {
-  const { totalClicks } = useClickStepsContext();
-  const meta = getSlideMetadata(slideNo, subject, lecture);
-
-  const handleNext = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (localStep < totalClicks) {
-      setLocalStep((prev) => prev + 1);
-    }
-  };
-
-  const handlePrev = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (localStep > 0) {
-      setLocalStep((prev) => prev - 1);
-    }
-  };
-
-  const startPlayMode = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setIsPlayMode(true);
-    setLocalStep(0);
-  };
-
-  const stopPlayMode = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setIsPlayMode(false);
-  };
-
-  return (
-    <div
-      onClick={onSelect}
-      className="group flex flex-col gap-2 rounded-xl border border-border/80 bg-card p-4 transition-all duration-300 hover:border-primary/80 hover:shadow-lg cursor-pointer w-full select-none"
-    >
-      <div className="relative flex aspect-[16/10] items-center justify-center rounded-lg bg-background border border-border/50 overflow-hidden">
-        <SlideContainer scaleMode="fit" isThumbnail={true}>
-          <SlideRenderer slideNo={slideNo} subject={subject} lecture={lecture} session={session} />
-        </SlideContainer>
-
-        {/* Local Play Controls Overlay */}
-        {isPlayMode ? (
-          <div className="absolute inset-0 bg-black/60 flex items-center justify-between p-4 z-20 pointer-events-auto">
-            <button
-              onClick={handlePrev}
-              disabled={localStep === 0}
-              className="p-1 rounded bg-background/80 hover:bg-background text-foreground disabled:opacity-30 disabled:pointer-events-none cursor-pointer"
-            >
-              <ChevronLeft className="h-4 w-4" />
-            </button>
-            <span className="text-[10px] text-white font-mono bg-black/75 px-2 py-0.5 rounded">
-              Step {localStep} / {totalClicks}
-            </span>
-            <button
-              onClick={handleNext}
-              disabled={localStep === totalClicks}
-              className="p-1 rounded bg-background/80 hover:bg-background text-foreground disabled:opacity-30 disabled:pointer-events-none cursor-pointer"
-            >
-              <ChevronRight className="h-4 w-4" />
-            </button>
-            <button
-              onClick={stopPlayMode}
-              className="absolute top-2 right-2 p-1 rounded bg-red-500/80 hover:bg-red-500 text-white cursor-pointer"
-            >
-              <X className="h-3 w-3" />
-            </button>
-          </div>
-        ) : (
-          totalClicks > 0 && (
-            <button
-              onClick={startPlayMode}
-              className="absolute bottom-2 left-2 z-20 p-1.5 rounded-lg bg-primary/95 hover:bg-primary text-white shadow-md flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider transition-colors pointer-events-auto cursor-pointer"
-            >
-              <Play className="h-3 w-3 fill-white" />
-              Play
-            </button>
-          )
-        )}
-
-        <span className="absolute bottom-2 right-2 z-10 rounded bg-black/60 px-1.5 py-0.5 font-mono text-[10px] font-bold text-white">
-          Slide {slideNo}
-        </span>
-      </div>
-
-      <div className="flex flex-col text-left">
-        <span className="truncate text-xs font-bold text-foreground group-hover:text-primary transition-colors">
-          {meta.title}
-        </span>
-        <span className="text-[10px] text-muted-foreground">{meta.type}</span>
-      </div>
-    </div>
-  );
-};
-
-/**
- * SlideCard wraps the SlideCardInner with ClickStepsProvider to track step reveal counts.
- */
 const SlideCard: React.FC<{
   slideNo: number;
   subject: Subject;
   lecture: Lecture;
   session?: Session;
   onSelect: () => void;
-}> = ({ slideNo, subject, lecture, session, onSelect }) => {
-  const [isPlayMode, setIsPlayMode] = useState(false);
-  const [localStep, setLocalStep] = useState(0);
+  onPlaySimulation: () => void;
+}> = ({ slideNo, subject, lecture, session, onSelect, onPlaySimulation }) => {
+  const meta = getSlideMetadata(slideNo, subject, lecture);
+  const [localTotalClicks, setLocalTotalClicks] = useState(0);
 
   return (
-    <ClickStepsProvider currentClickOverride={isPlayMode ? localStep : 999}>
-      <SlideCardInner
+    <div className="relative group w-full bg-card rounded-2xl border border-border shadow-xs hover:shadow-md transition-shadow duration-300 animate-in fade-in duration-300">
+      <ClickTracker
         slideNo={slideNo}
         subject={subject}
         lecture={lecture}
         session={session}
-        isPlayMode={isPlayMode}
-        setIsPlayMode={setIsPlayMode}
-        localStep={localStep}
-        setLocalStep={setLocalStep}
-        onSelect={onSelect}
+        onCountResolved={setLocalTotalClicks}
       />
-    </ClickStepsProvider>
+
+      <div className="flex items-center justify-between border-b border-border/60 bg-muted/20 px-6 py-3.5 rounded-t-2xl select-none">
+        <div className="flex flex-col text-left">
+          <span className="text-[10px] font-bold text-primary font-mono uppercase tracking-wider">Slide {slideNo} • {meta.type}</span>
+          <h4 className="text-sm font-bold text-foreground leading-tight">{meta.title}</h4>
+        </div>
+        
+        <div className="flex items-center gap-2">
+          {localTotalClicks > 0 && (
+            <button
+              onClick={onPlaySimulation}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary/10 hover:bg-primary/20 text-primary text-xs font-bold transition-colors cursor-pointer"
+              title="Play step-by-step simulation"
+            >
+              <Play className="h-3.5 w-3.5 fill-primary" />
+              <span>Play Steps</span>
+            </button>
+          )}
+
+          <button
+            onClick={onSelect}
+            className="inline-flex items-center justify-center p-2 rounded-lg hover:bg-accent text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+            title="Present from this slide"
+          >
+            <Play className="h-4 w-4 fill-current" />
+          </button>
+        </div>
+      </div>
+      
+      <div className="p-6 md:p-8 select-text w-full">
+        <ClickStepsProvider currentClickOverride={999}>
+          <SlideRenderer slideNo={slideNo} subject={subject} lecture={lecture} session={session} />
+        </ClickStepsProvider>
+      </div>
+    </div>
   );
 };
 
-/**
- * TwoWayGridOrchestrator manages Scrollable snapping layout vs Presenter canvas mode layout.
- */
 export const TwoWayGridOrchestrator: React.FC<TwoWayGridOrchestratorProps> = ({
   subject,
   lecture,
@@ -176,10 +85,10 @@ export const TwoWayGridOrchestrator: React.FC<TwoWayGridOrchestratorProps> = ({
   onSelectSlide,
 }) => {
   const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>({});
+  const [activeSimulationSlide, setActiveSimulationSlide] = useState<number | null>(null);
 
   const slides = useMemo(() => Array.from({ length: totalSlides }, (_, i) => i + 1), [totalSlides]);
 
-  // Group slide numbers by section
   const sections = useMemo(() => {
     const groups: Record<string, number[]> = {};
     slides.forEach((num) => {
@@ -195,18 +104,17 @@ export const TwoWayGridOrchestrator: React.FC<TwoWayGridOrchestratorProps> = ({
     setCollapsedSections((prev) => ({ ...prev, [sectionName]: !prev[sectionName] }));
   };
 
-  // 1. Scrollable Mode: Vertical sections list + Horizontal snap-scrolling tracks
   if (viewMode === 'scroll') {
     return (
       <PresentationContext.Provider value={{ theme, viewMode, activeSubStep: 0 }}>
-        <div className="mx-auto w-full max-w-6xl flex flex-col gap-8 pb-12 p-8">
+        <div className="mx-auto w-full max-w-4xl flex flex-col gap-8 pb-12 p-8 animate-in fade-in duration-300">
           {Object.entries(sections).map(([sectionName, slideNumbers]) => {
             const isCollapsed = !!collapsedSections[sectionName];
             return (
               <div key={sectionName} className="flex flex-col gap-4">
                 <button
                   onClick={() => toggleSection(sectionName)}
-                  className="flex items-center gap-2 text-left border-b pb-2 hover:text-primary transition-colors group/sec w-full cursor-pointer"
+                  className="flex items-center gap-2 text-left border-b pb-2 hover:text-primary transition-colors group/sec w-full cursor-pointer select-none"
                 >
                   <ChevronDown
                     className={`h-4 w-4 text-muted-foreground group-hover/sec:text-primary transition-transform duration-200 ${
@@ -222,15 +130,16 @@ export const TwoWayGridOrchestrator: React.FC<TwoWayGridOrchestratorProps> = ({
                 </button>
 
                 {!isCollapsed && (
-                  <div className="flex overflow-x-auto gap-6 pb-6 snap-x scroll-smooth scrollbar-thin">
+                  <div className="flex flex-col gap-8 items-center w-full">
                     {slideNumbers.map((num) => (
-                      <div key={num} className="min-w-[280px] sm:min-w-[320px] lg:min-w-[380px] snap-start flex-shrink-0">
+                      <div key={num} className="w-full max-w-3xl">
                         <SlideCard
                           slideNo={num}
                           subject={subject}
                           lecture={lecture}
                           session={session}
                           onSelect={() => onSelectSlide(num)}
+                          onPlaySimulation={() => setActiveSimulationSlide(num)}
                         />
                       </div>
                     ))}
@@ -240,11 +149,20 @@ export const TwoWayGridOrchestrator: React.FC<TwoWayGridOrchestratorProps> = ({
             );
           })}
         </div>
+
+        {activeSimulationSlide !== null && (
+          <SimulationModal
+            slideNo={activeSimulationSlide}
+            subject={subject}
+            lecture={lecture}
+            session={session}
+            onClose={() => setActiveSimulationSlide(null)}
+          />
+        )}
       </PresentationContext.Provider>
     );
   }
 
-  // 2. Presentation Mode (Slide-Viewer presentation state handled by parent canvas)
   return null;
 };
 

@@ -50,6 +50,14 @@ export const AppRoutes: React.FC = () => {
           </ClickStepsProvider>
         }
       />
+      <Route
+        path={ROUTE_PATHS.LECTURE_VIEW}
+        element={
+          <ClickStepsProvider>
+            <SlideViewer />
+          </ClickStepsProvider>
+        }
+      />
 
       {/* PageLayout wraps all authenticated routes with app sidebar and headers */}
       <Route element={<PageLayout />}>

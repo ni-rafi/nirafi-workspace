@@ -1,5 +1,5 @@
 import React from 'react';
-import { ChevronLeft, ChevronRight, Home } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Home, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 
@@ -8,6 +8,7 @@ interface SlideNavigationProps {
   total: number;
   onPrev: () => void;
   onNext: () => void;
+  onExit?: () => void;
 }
 
 /**
@@ -18,9 +19,25 @@ export const SlideNavigation: React.FC<SlideNavigationProps> = ({
   total,
   onPrev,
   onNext,
+  onExit,
 }) => {
   return (
     <div className="flex items-center gap-1 select-none">
+      {onExit && (
+        <>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={onExit}
+            className="h-8 w-8 rounded-full text-muted-foreground hover:text-foreground"
+            title="Exit Presentation"
+          >
+            <X className="h-4 w-4" />
+          </Button>
+          <div className="h-4 w-px bg-border mx-0.5" />
+        </>
+      )}
+
       <Button
         asChild
         variant="ghost"

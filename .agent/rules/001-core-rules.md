@@ -33,4 +33,13 @@ description: Core Architecture and File Size Rules
 - **Hooks**: Name in `camelCase` with the `use` prefix (e.g. `useUserContext.ts`).
 - **Validation Schemas**: Put Zod schemas in `{serviceName}.schemas.ts` files, deriving types using `z.infer`.
 
+## 5. Slide Layouts & Presentational Elements
+- **Layout Consistency**: All slide layouts (e.g., `TitleLayout`, `FullWidthLayout`, `TwoColumnLayout`, `GridLayout` under `src/shared/layouts/`) must delegate their headers and footers to the dedicated `<LayoutHeader>` and `<LayoutFooter>` components in `src/shared/layouts/components/` to guarantee smooth, synchronized transition animations (using `.slide-header-title` and `.slide-layout-footer`).
+- **Content Elements**: Standardize content representation inside slide structures. Avoid using raw HTML tags (`<ul>`, `<li>`, `<p>`, `shadowed borders`) for presentation slides. Instead, use semantic presentational elements under `src/features/presentation/components/elements/`:
+  - Use `<SlideBullet>` for lists and bullets.
+  - Use `<SlideParagraph>` for slide paragraph styling.
+  - Use `<SlideEquation>` or `<LatexFormula>` for mathematical equations, adhering to flat, unshadowed container styles.
+- **Lecture Organization**: Organise slide decks under `src/lectures/{subjectCode}/session-{year}/` to enforce year-specific division. Keep slide structure presentation-only, importing estimate calculators or quizzes from `src/features/`.
+
+
 

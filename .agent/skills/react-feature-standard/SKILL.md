@@ -22,17 +22,17 @@ src/features/{featureName}/
 ```
 
 #### Reusable Features Examples:
-- **`presentation`**: Aspect-ratio slideshow viewer, keyboard arrows hook (`useKeyboardNav`), full-screen button, and layout wrapper templates (`TheoryLayout`, `QuizLayout`, `TitleLayout`).
+- **`presentation`**: Aspect-ratio slideshow viewer, keyboard shortcuts (`useNavShortcuts`), overlays, and element layout templates (`SlideBullet`, `SlideParagraph`, `SlideEquation`, `SlideTable`, `SlideList`, `LatexFormula`).
 - **`gate`**: Roll number validation dialog and guest log-in forms.
 - **`quiz`**: Real-time Interactive Quiz card (submits scores to Firestore).
 - **`qs-calculators`**: Civil Engineering math estimators (Concrete Wizard steps, BoQ spreadsheet).
 
 ### 1.2 Lectures (`src/lectures/`)
-Slide decks are composed strictly of components, widgets, and layouts imported from `src/features/`. They are organized by subject code and session:
+Slide decks are composed strictly of components, widgets, and layouts imported from `src/features/` and `src/shared/layouts/`. They are organized by subject and session:
 ```text
-src/lectures/{subjectCode}/session-{year}/
-├── {lectureId}.tsx   # Lecture slide configurations and text content composed in JSX
-└── index.ts          # Expose slide deck components
+src/lectures/{subjectName}/session-{year}/{lectureName}/
+├── lecture.tsx   # Lecture slide configurations and text content composed in JSX
+└── ...           # Lecture-specific assets or helper configurations
 ```
 
 ---
@@ -45,10 +45,20 @@ src/lectures/{subjectCode}/session-{year}/
 * No API calls, Firebase initialization, or global subscriptions should occur inside presentation components.
 
 ### 2.2 Reusable Slide Layouts
-To ensure a consistent visual look across all lectures, define layouts inside `src/features/presentation/components/layouts/`:
-* **`TitleLayout`**: Widescreen cover page with title, subtitle, and backgrounds.
-* **`TheoryLayout`**: Content view presenting headings, bullet points, text, and optional equations.
-* **`SplitLayout`**: Double column layout for showing notes on the left and a calculator or quiz on the right.
+To ensure a consistent visual look and unified view transition effects across all lectures, slide layout templates are structured inside `src/shared/layouts/`:
+* **`TitleLayout`**: Centered cover/section slide.
+* **`FullWidthLayout`**: Standard widescreen slide width for general content.
+* **`TwoColumnLayout`**: Dual side-by-side columns (e.g. calculation parameter panels alongside outputs).
+* **`GridLayout`**: Matrix structures for quiz elements or galleries.
+
+*Note*: Layout files MUST delegate title and footer rendering to the standalone `<LayoutHeader>` and `<LayoutFooter>` components (from `src/shared/layouts/components/`) to automatically inherit `.slide-header-title` and `.slide-layout-footer` CSS transition classes.
+
+### 2.3 Semantic Presentational Elements
+Avoid using raw HTML list tags, standard paragraph tags, or unstyled tables. Use the slide elements located in `src/features/presentation/components/elements/`:
+* `<SlideBullet>`: Renders items with icon overrides or circle indicators.
+* `<SlideParagraph>`: Renders copy/information blocks.
+* `<SlideEquation>`: Flat, borderless rendering of LaTeX formulations.
+* `<SlideContent>`: Helper component that accepts a `blocks` configuration array and maps them to `<SlideBullet>`, `<SlideParagraph>`, `<SlideEquation>` etc.
 
 ---
 
@@ -56,54 +66,65 @@ To ensure a consistent visual look across all lectures, define layouts inside `s
 
 ### Lecture Component Definition in JSX:
 ```tsx
-// src/lectures/quantity-surveying/session-2026/ConcreteVolume.tsx
-import React from 'react';
-import { SlideDeck, Slide, TheoryLayout, SplitLayout } from '@/features/presentation';
-import { StepConcrete, BoQSpreadsheet } from '@/features/qs-calculators';
-import { InteractiveQuiz } from '@/features/quiz';
+// src/lectures/quantity-surveying/session-2026/lecture-2-brickwork/lecture.tsx
+import React, { useState } from 'react';
+import { TitleLayout } from '@/shared/layouts/TitleLayout';
+import { TwoColumnLayout } from '@/shared/layouts/TwoColumnLayout';
+import { SlideContent } from '@/features/presentation';
+import { calculateBrickwork } from '../calculations/brickwork';
 
-export const ConcreteVolumeLecture: React.FC = () => {
-  return (
-    <SlideDeck title="Concrete Volumetric Estimations">
-      {/* Slide 1 */}
-      <Slide layout="title">
-        <TheoryLayout 
-          title="Concrete Volumetric Estimations" 
-          subtitle="CE-QS | Fall 2026 Semester"
-          bullets={[
-            "Learn volumetric calculations for concrete beams and columns",
-            "Understand wastage coefficients",
-            "Perform calculations in real-time"
-          ]}
-        />
-      </Slide>
+// Slide 1: Cover Slide
+const Slide1: React.FC<any> = ({ subject, lecture }) => (
+  <TitleLayout
+    title={lecture.title}
+    subtitle={`${subject.code} Series • Session 2026`}
+    description={lecture.description}
+    footer="CE-QS Academic Department"
+  />
+);
 
-      {/* Slide 2 */}
-      <Slide layout="interactive">
-        <SplitLayout
-          left={
-            <div>
-              <h3 className="text-lg font-bold">Calculation Wizard</h3>
-              <p className="text-xs text-slate-500">Fill in dimensions in standard meters.</p>
-              <StepConcrete />
-            </div>
-          }
-          right={
-            <BoQSpreadsheet />
-          }
-        />
-      </Slide>
+// Slide 2: Theoretical Overview
+const Slide2: React.FC = () => (
+  <TwoColumnLayout
+    title="Masonry Estimating Theory"
+    bgVariant="default"
+    leftWidth="45%"
+    leftContent={
+      <SlideContent
+        blocks={[
+          {
+            type: 'paragraph',
+            text: 'Brickwork estimation determines the number of raw bricks and the volume of wet mortar joint filling needed.',
+          },
+          {
+            type: 'equation',
+            math: '\\text{Mortar Vol} = \\text{Wall Vol} - (\\text{Bricks} \\times \\text{Brick Vol})',
+            revealAt: 1,
+          },
+        ]}
+      />
+    }
+    rightContent={
+      <SlideContent
+        blocks={[
+          { type: 'paragraph', text: 'Standard brick dimensions in SI metrics:' },
+          { type: 'bullet', text: 'Length: 0.240m (240mm)' },
+          { type: 'bullet', text: 'Width: 0.115m (115mm)' },
+          { type: 'bullet', text: 'Height: 0.070m (70mm)' },
+          { type: 'bullet', text: 'Standard mortar joint width: 0.010m (10mm)' },
+        ]}
+      />
+    }
+  />
+);
 
-      {/* Slide 3 */}
-      <Slide layout="assessment">
-        <InteractiveQuiz 
-          quizId="qs_2026_concrete_q1"
-          question="What is the concrete volume for L=10m, W=0.3m, H=0.4m, and 5% wastage?"
-          options={["1.200 m³", "1.260 m³", "1.320 m³", "1.140 m³"]}
-          correctIndex={1}
-        />
-      </Slide>
-    </SlideDeck>
-  );
+export const slides: Record<number, React.ComponentType<any>> = {
+  1: Slide1,
+  2: Slide2,
+};
+
+export const slideMetadata: Record<number, { title: string; type: string; section: string }> = {
+  1: { title: 'Brickwork Cover', type: 'Cover Slide', section: 'Introduction' },
+  2: { title: 'Masonry Principles', type: 'Theory Overview', section: 'Introduction' },
 };
 ```

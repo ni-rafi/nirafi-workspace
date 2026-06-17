@@ -56,7 +56,7 @@ export const SlideContainer: React.FC<SlideContainerProps> = ({
       <div
         style={canvasStyle}
         className={`relative bg-background text-foreground overflow-hidden flex flex-col justify-between select-none ${
-          isThumbnail ? '' : 'shadow-2xl rounded-2xl border transition-shadow duration-300 hover:shadow-primary/5'
+          isThumbnail ? '' : 'rounded-2xl border'
         }`}
         data-slide-canvas
       >

@@ -40,6 +40,7 @@ interface NavControlsProps {
   onTogglePresenter: () => void;
   onNextSection?: () => void;
   onPrevSection?: () => void;
+  onExit?: () => void;
 
   // Drawing Tools (Passed to DrawingDrawer)
   isPenActive: boolean;
@@ -81,6 +82,7 @@ export const NavControls: React.FC<NavControlsProps> = ({
   onTogglePresenter,
   onNextSection,
   onPrevSection,
+  onExit,
   isPenActive,
   onPenActiveChange,
   penColor,
@@ -152,6 +154,7 @@ export const NavControls: React.FC<NavControlsProps> = ({
             total={total}
             onPrev={onPrev}
             onNext={onNext}
+            onExit={onExit}
           />
 
           <div className="h-4 w-px bg-border mx-0.5" />

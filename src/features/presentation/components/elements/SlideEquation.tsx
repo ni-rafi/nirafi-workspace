@@ -18,7 +18,7 @@ export const SlideEquation: React.FC<SlideEquationProps> = ({
   className = '',
 }) => {
   const content = (
-    <div className={`my-3 flex flex-col items-center justify-center p-4 bg-primary/5 border-l-2 border-primary rounded-xl transition-all duration-300 hover:shadow-md ${className}`}>
+    <div className={`my-3 flex flex-col items-center justify-center p-4 bg-muted/40 rounded-xl ${className}`}>
       {label && (
         <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider mb-2">
           {label}

@@ -58,7 +58,7 @@ export const LecturePortal: React.FC = () => {
                 
                 <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                   {session.lectures.map((lecture) => {
-                    const deckUrl = `/${subject.id}/${session.id}/${lecture.id}/1`;
+                    const deckUrl = `/${subject.id}/${session.id}/${lecture.id}`;
                     
                     return (
                       <div

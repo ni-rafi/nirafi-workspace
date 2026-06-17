@@ -1,10 +1,13 @@
-import React from 'react';
-import MorphingBackground from '../components/MorphingBackground';
+import React, { useContext } from 'react';
+import { PresentationContext } from '../../features/presentation/context/PresentationContext';
+import LayoutHeader from './components/LayoutHeader';
+import LayoutFooter from './components/LayoutFooter';
 
 interface FullWidthLayoutProps {
   title: React.ReactNode;
   children: React.ReactNode;
   bgVariant?: 'default' | 'calculation' | 'gallery';
+  footer?: React.ReactNode;
 }
 
 /**
@@ -14,21 +17,36 @@ interface FullWidthLayoutProps {
 export const FullWidthLayout: React.FC<FullWidthLayoutProps> = ({
   title,
   children,
-  bgVariant = 'default',
+  footer,
 }) => {
+  const presentation = useContext(PresentationContext);
+  const viewMode = presentation?.viewMode || 'present';
+
+  if (viewMode === 'scroll') {
+    return (
+      <div className="relative flex flex-col w-full p-6 md:p-8 bg-card border border-border/60 rounded-2xl shadow-xs select-text text-foreground animate-in fade-in duration-200 min-h-[300px] justify-between">
+        <div>
+          <LayoutHeader title={title} />
+          <main className="w-full">
+            {children}
+          </main>
+        </div>
+        <LayoutFooter footer={footer} />
+      </div>
+    );
+  }
+
   return (
-    <div className="relative flex flex-col h-full w-full p-8 bg-background text-foreground overflow-hidden select-text">
-      <MorphingBackground variant={bgVariant} />
-      
-      <div className="relative z-10 flex flex-col h-full w-full min-h-0">
-        <header className="slide-header text-xl font-bold tracking-tight text-foreground mb-4">
-          {title}
-        </header>
+    <div className="relative flex flex-col justify-between h-full w-full p-8 bg-transparent text-foreground overflow-hidden select-text">
+      <div className="relative z-10 flex flex-col h-full w-full min-h-0 flex-1">
+        <LayoutHeader title={title} />
         
         <main className="flex-1 w-full min-h-0 overflow-y-auto">
           {children}
         </main>
       </div>
+      
+      <LayoutFooter footer={footer} />
     </div>
   );
 };

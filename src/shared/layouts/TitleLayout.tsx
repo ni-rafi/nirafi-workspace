@@ -1,5 +1,7 @@
-import React from 'react';
-import MorphingBackground from '../components/MorphingBackground';
+import React, { useContext } from 'react';
+import { PresentationContext } from '../../features/presentation/context/PresentationContext';
+import LayoutHeader from './components/LayoutHeader';
+import LayoutFooter from './components/LayoutFooter';
 
 interface TitleLayoutProps {
   title: React.ReactNode;
@@ -17,19 +19,37 @@ export const TitleLayout: React.FC<TitleLayoutProps> = ({
   description,
   footer,
 }) => {
+  const presentation = useContext(PresentationContext);
+  const viewMode = presentation?.viewMode || 'present';
+
+  if (viewMode === 'scroll') {
+    return (
+      <div className="relative flex flex-col items-center justify-center text-center max-w-2xl mx-auto py-10 px-6 gap-4 bg-card border border-border/60 rounded-2xl shadow-xs w-full">
+        {subtitle && (
+          <span className="text-[10px] tracking-widest text-primary uppercase font-mono font-bold">
+            {subtitle}
+          </span>
+        )}
+        <LayoutHeader title={title} variant="title" />
+        {description && (
+          <p className="text-sm text-muted-foreground max-w-lg mx-auto leading-relaxed">
+            {description}
+          </p>
+        )}
+        <LayoutFooter footer={footer} variant="title" />
+      </div>
+    );
+  }
+
   return (
-    <div className="relative flex flex-col justify-between h-full w-full p-12 bg-background text-foreground overflow-hidden">
-      <MorphingBackground variant="cover" />
-      
+    <div className="relative flex flex-col justify-between h-full w-full p-12 bg-transparent text-foreground overflow-hidden">
       <div className="relative z-10 flex-1 flex flex-col justify-center items-center text-center max-w-3xl mx-auto gap-4">
         {subtitle && (
           <span className="text-[10px] tracking-widest text-primary uppercase font-mono font-bold animate-pulse">
             {subtitle}
           </span>
         )}
-        <h1 className="text-4xl font-extrabold tracking-tight text-foreground sm:text-5xl leading-tight">
-          {title}
-        </h1>
+        <LayoutHeader title={title} variant="title" />
         {description && (
           <p className="text-sm text-muted-foreground max-w-lg mx-auto leading-relaxed">
             {description}
@@ -37,11 +57,7 @@ export const TitleLayout: React.FC<TitleLayoutProps> = ({
         )}
       </div>
       
-      {footer && (
-        <div className="relative z-10 text-[10px] font-semibold text-muted-foreground font-mono text-center">
-          {footer}
-        </div>
-      )}
+      <LayoutFooter footer={footer} variant="title" />
     </div>
   );
 };
