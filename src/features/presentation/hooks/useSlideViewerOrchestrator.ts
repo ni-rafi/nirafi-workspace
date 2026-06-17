@@ -2,19 +2,12 @@ import { useState, useMemo, useEffect, useCallback } from 'react';
 import { flushSync } from 'react-dom';
 import { useParams, useNavigate, NavigateOptions } from 'react-router-dom';
 import { SUBJECTS } from '@/config/lectures';
-import { getSlideMetadata, getLectureSlideCount } from '../components/slides/SlideRenderer';
+import { getSlideMetadata, getLectureSlideCount, getBgVariant } from '../components/slides/SlideRenderer';
 import { useSlideViewerState } from './useSlideViewerState';
 import { usePresenterFeatures } from './usePresenterFeatures';
 import { useClickSteps } from './useClickSteps';
 import { ViewMode, Theme } from '../context/PresentationContext';
 
-const getBgVariant = (type: string): 'default' | 'calculation' | 'gallery' | 'cover' => {
-  const t = type.toLowerCase();
-  if (t.includes('cover') || t.includes('title')) return 'cover';
-  if (t.includes('sandbox') || t.includes('calculation') || t.includes('calculator') || t.includes('formula')) return 'calculation';
-  if (t.includes('spreadsheet') || t.includes('table') || t.includes('grid') || t.includes('quiz') || t.includes('gallery')) return 'gallery';
-  return 'default';
-};
 
 export const useSlideViewerOrchestrator = () => {
   const { subjectId, sessionId, lectureId, slideNo } = useParams<Record<string, string>>();

@@ -1,15 +1,16 @@
 import React from 'react';
+import { MorphingPath } from './MorphingPath';
 
 interface MorphingBackgroundProps {
   variant?: 'default' | 'calculation' | 'gallery' | 'cover';
 }
 
-// CSS `d` property path strings — must use path('...') syntax for CSS transitions
+// Clean raw SVG path data — the MorphingPath component handles wrapping it in path('...') for CSS transitions
 const PATHS: Record<string, string> = {
-  calculation: "path('M0,0 L100,0 L100,100 L0,85 Z')",
-  gallery: "path('M0,0 L100,0 L90,100 L10,100 Z')",
-  cover: "path('M0,0 L100,0 L100,100 L0,100 Z')",
-  default: "path('M0,0 L100,0 L100,90 L0,100 Z')",
+  calculation: 'M0,0 L100,0 L100,100 L0,85 Z',
+  gallery: 'M0,0 L100,0 L90,100 L10,100 Z',
+  cover: 'M0,0 L100,0 L100,100 L0,100 Z',
+  default: 'M0,0 L100,0 L100,90 L0,100 Z',
 };
 
 const FILLS: Record<string, string> = {
@@ -21,10 +22,7 @@ const FILLS: Record<string, string> = {
 
 /**
  * MorphingBackground renders an SVG shape that smoothly morphs between slide variants.
- *
- * The CSS `d` property (set via style) enables native CSS transitions on SVG path data.
- * The `d` HTML attribute alone is NOT animatable by CSS — it must be a CSS property.
- * Both paths share the same M/L/Z command count so interpolation is seamless.
+ * Uses the reusable MorphingPath component under the hood.
  */
 export const MorphingBackground: React.FC<MorphingBackgroundProps> = ({ variant = 'default' }) => {
   const key = variant in PATHS ? variant : 'default';
@@ -36,13 +34,12 @@ export const MorphingBackground: React.FC<MorphingBackgroundProps> = ({ variant 
         viewBox="0 0 100 100"
         preserveAspectRatio="none"
       >
-        <path
-          style={{
-            // Set via CSS property so the browser can interpolate between values
-            d: PATHS[key],
-            fill: FILLS[key],
-            transition: 'd 300ms ease-in-out, fill 300ms ease-in-out',
-          }}
+        <MorphingPath
+          d={PATHS[key]!}
+          fill={FILLS[key]}
+          duration={300}
+          easing="ease-in-out"
+          animateProps={['fill']}
         />
       </svg>
     </div>

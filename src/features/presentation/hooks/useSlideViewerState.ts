@@ -42,6 +42,32 @@ export const useSlideViewerState = ({
   };
   const [clearTrigger, setClearTrigger] = useState(0);
 
+  const [areDrawingsHidden, setAreDrawingsHidden] = useState(false);
+  const hiddenKey = `cee_drawings_hidden_${lectureId || 'mock'}`;
+
+  // Load initial visibility state
+  useEffect(() => {
+    const saved = localStorage.getItem(hiddenKey);
+    setAreDrawingsHidden(saved === 'true');
+  }, [hiddenKey]);
+
+  // Sync visibility changes across windows
+  useEffect(() => {
+    const handleStorage = (e: StorageEvent) => {
+      if (e.key === hiddenKey) {
+        setAreDrawingsHidden(e.newValue === 'true');
+      }
+    };
+    window.addEventListener('storage', handleStorage);
+    return () => window.removeEventListener('storage', handleStorage);
+  }, [hiddenKey]);
+
+  const handleToggleDrawingsHidden = () => {
+    const nextVal = !areDrawingsHidden;
+    setAreDrawingsHidden(nextVal);
+    localStorage.setItem(hiddenKey, String(nextVal));
+  };
+
   const [isCameraOpen, setIsCameraOpen] = useState(false);
   const [isTimerOpen, setIsTimerOpen] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
@@ -188,6 +214,8 @@ export const useSlideViewerState = ({
     setActiveTool,
     clearTrigger,
     setClearTrigger,
+    areDrawingsHidden,
+    handleToggleDrawingsHidden,
     isCameraOpen,
     setIsCameraOpen,
     isTimerOpen,

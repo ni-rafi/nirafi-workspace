@@ -37,6 +37,17 @@ const getLectureDeck = (lectureId: string) => {
 };
 
 /**
+ * Returns background variant layout based on slide type metadata.
+ */
+export const getBgVariant = (type: string): 'default' | 'calculation' | 'gallery' | 'cover' => {
+  const t = type.toLowerCase();
+  if (t.includes('cover') || t.includes('title')) return 'cover';
+  if (t.includes('sandbox') || t.includes('calculation') || t.includes('calculator') || t.includes('formula')) return 'calculation';
+  if (t.includes('spreadsheet') || t.includes('table') || t.includes('grid') || t.includes('quiz') || t.includes('gallery')) return 'gallery';
+  return 'default';
+};
+
+/**
  * Returns slide metadata (title, type, and section) dynamically based on active lecture deck configurations.
  */
 export const getSlideMetadata = (

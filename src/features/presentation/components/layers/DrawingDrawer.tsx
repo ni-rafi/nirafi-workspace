@@ -8,6 +8,8 @@ import {
   Square,
   Circle as CircleIcon,
   Trash2,
+  Eye,
+  EyeOff,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -21,6 +23,8 @@ interface DrawingDrawerProps {
   activeTool: ToolType;
   onActiveToolChange: (tool: ToolType) => void;
   onClearDrawing: () => void;
+  areDrawingsHidden: boolean;
+  onToggleDrawingsHidden: () => void;
 }
 
 const COLORS = [
@@ -47,6 +51,8 @@ export const DrawingDrawer: React.FC<DrawingDrawerProps> = ({
   activeTool,
   onActiveToolChange,
   onClearDrawing,
+  areDrawingsHidden,
+  onToggleDrawingsHidden,
 }) => {
 
   return (
@@ -183,6 +189,17 @@ export const DrawingDrawer: React.FC<DrawingDrawerProps> = ({
       </div>
 
       <div className="h-4 w-px bg-border mx-0.5" />
+
+      {/* Toggle Drawings Visibility */}
+      <Button
+        variant={areDrawingsHidden ? 'secondary' : 'ghost'}
+        size="icon"
+        className="h-7 w-7 rounded-full text-muted-foreground hover:text-foreground"
+        onClick={onToggleDrawingsHidden}
+        title={areDrawingsHidden ? 'Show Drawings' : 'Hide Drawings'}
+      >
+        {areDrawingsHidden ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
+      </Button>
 
       {/* Clear Board */}
       <Button

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, Play, X } from 'lucide-react';
 import type { Subject, Lecture, Session } from '@/config/lectures';
 import SlideContainer from './SlideContainer';
-import SlideRenderer, { getSlideMetadata } from '../slides/SlideRenderer';
+import SlideRenderer, { getSlideMetadata, getBgVariant } from '../slides/SlideRenderer';
 import { ClickStepsProvider, useClickStepsContext } from '../../context/ClickStepsContext';
 import MorphingBackground from '../../../../shared/components/MorphingBackground';
 
@@ -14,13 +14,6 @@ interface SimulationModalProps {
   onClose: () => void;
 }
 
-const getBgVariant = (type: string): 'default' | 'calculation' | 'gallery' | 'cover' => {
-  const t = type.toLowerCase();
-  if (t.includes('cover') || t.includes('title')) return 'cover';
-  if (t.includes('sandbox') || t.includes('calculation') || t.includes('calculator') || t.includes('formula')) return 'calculation';
-  if (t.includes('spreadsheet') || t.includes('table') || t.includes('grid') || t.includes('quiz') || t.includes('gallery')) return 'gallery';
-  return 'default';
-};
 
 const ClickTrackerInner: React.FC<{
   slideNo: number;

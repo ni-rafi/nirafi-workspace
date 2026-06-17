@@ -2,8 +2,9 @@ import React, { useEffect, useState, useMemo } from 'react';
 import { X, ChevronDown } from 'lucide-react';
 import type { Subject, Lecture, Session } from '@/config/lectures';
 import SlideContainer from '../core/SlideContainer';
-import SlideRenderer, { getSlideMetadata } from '../slides/SlideRenderer';
+import SlideRenderer, { getSlideMetadata, getBgVariant } from '../slides/SlideRenderer';
 import { ClickStepsProvider } from '../../context/ClickStepsContext';
+import { MorphingBackground } from '@/shared/components';
 
 interface OverviewModalProps {
   isOpen: boolean;
@@ -108,7 +109,8 @@ export const OverviewModal: React.FC<OverviewModalProps> = ({
                       <div className="relative flex aspect-[16/10] items-center justify-center rounded-lg bg-background border border-border/50 group-hover:bg-accent/30 group-hover:border-primary/50 transition-all duration-300 overflow-hidden select-none pointer-events-none">
                         <div className="absolute inset-0 w-full h-full flex items-center justify-center">
                           <SlideContainer scaleMode="fit" isThumbnail={true}>
-                            <div className="flex-1 flex flex-col justify-center items-center w-full h-full">
+                            <MorphingBackground variant={getBgVariant(meta.type)} />
+                            <div className="flex-1 flex flex-col justify-center items-center w-full h-full relative z-10">
                               <ClickStepsProvider currentClickOverride={0}>
                                 <SlideRenderer slideNo={num} subject={activeSub} lecture={activeLec} session={activeSession} />
                               </ClickStepsProvider>

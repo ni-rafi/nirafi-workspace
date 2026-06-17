@@ -52,6 +52,8 @@ interface NavControlsProps {
   activeTool: 'select' | 'pencil' | 'eraser' | 'line' | 'arrow' | 'rect' | 'circle';
   onActiveToolChange: (tool: 'select' | 'pencil' | 'eraser' | 'line' | 'arrow' | 'rect' | 'circle') => void;
   onClearDrawing: () => void;
+  areDrawingsHidden: boolean;
+  onToggleDrawingsHidden: () => void;
 }
 
 /**
@@ -92,6 +94,8 @@ export const NavControls: React.FC<NavControlsProps> = ({
   activeTool,
   onActiveToolChange,
   onClearDrawing,
+  areDrawingsHidden,
+  onToggleDrawingsHidden,
 }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [isHoveredSensor, setIsHoveredSensor] = useState(false);
@@ -144,6 +148,8 @@ export const NavControls: React.FC<NavControlsProps> = ({
             activeTool={activeTool}
             onActiveToolChange={onActiveToolChange}
             onClearDrawing={onClearDrawing}
+            areDrawingsHidden={areDrawingsHidden}
+            onToggleDrawingsHidden={onToggleDrawingsHidden}
           />
         )}
 

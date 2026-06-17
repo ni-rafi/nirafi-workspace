@@ -11,6 +11,7 @@ interface DrawingBoardProps {
   lectureId: string;
   slideNo: number;
   clearTrigger: number;
+  areDrawingsHidden: boolean;
 }
 
 const WIDTH = 980;
@@ -58,13 +59,15 @@ export const DrawingBoard: React.FC<DrawingBoardProps> = (props) => {
       }}
       className="overflow-visible"
     >
-      <SvgElementsRenderer
-        elements={elements}
-        currentElement={currentElement}
-        activeTool={props.activeTool}
-        selectedId={selectedId}
-        onElementDown={handleElementDown}
-      />
+      {!props.areDrawingsHidden && (
+        <SvgElementsRenderer
+          elements={elements}
+          currentElement={currentElement}
+          activeTool={props.activeTool}
+          selectedId={selectedId}
+          onElementDown={handleElementDown}
+        />
+      )}
     </svg>
   );
 };

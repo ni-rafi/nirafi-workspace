@@ -53,7 +53,7 @@ export const PresentationModeView: React.FC<PresentationModeViewProps> = ({ orch
             <SlideRenderer slideNo={activeSlide} subject={activeSub} lecture={activeLec} session={activeSession} />
           </div>
           <DrawingBoard
-            isActive={viewerState.isPenActive && !viewerState.isProjectionView}
+            isActive={viewerState.isPenActive && !viewerState.isProjectionView && !viewerState.areDrawingsHidden}
             color={viewerState.penColor}
             brushWidth={viewerState.penWidth}
             activeTool={viewerState.activeTool}
@@ -61,6 +61,7 @@ export const PresentationModeView: React.FC<PresentationModeViewProps> = ({ orch
             lectureId={lectureId || 'mock'}
             slideNo={activeSlide}
             clearTrigger={viewerState.clearTrigger}
+            areDrawingsHidden={viewerState.areDrawingsHidden}
           />
           <GlobalBottom current={activeSlide} total={totalSlidesCount} hide={isCoverPage} />
         </SlideContainer>
@@ -129,6 +130,8 @@ export const PresentationModeView: React.FC<PresentationModeViewProps> = ({ orch
           activeTool={viewerState.activeTool}
           onActiveToolChange={viewerState.setActiveTool}
           onClearDrawing={() => viewerState.setClearTrigger((c) => c + 1)}
+          areDrawingsHidden={viewerState.areDrawingsHidden}
+          onToggleDrawingsHidden={viewerState.handleToggleDrawingsHidden}
           onNextSection={handleNextSection}
           onPrevSection={handlePrevSection}
           onExit={() => navigateWithTransition(`/${activeSub.id}/${activeSession?.id}/${activeLec.id}`)}
