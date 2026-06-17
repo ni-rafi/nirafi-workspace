@@ -3,6 +3,7 @@ import { Routes, Route, Navigate, useParams } from 'react-router-dom';
 import { ROUTE_PATHS } from './paths';
 import { useUserContext } from '@/context/UserContext';
 import { PageLayout } from '@/shared/components/Layout/PageLayout';
+import { ClickStepsProvider } from '@/features/presentation/context/ClickStepsContext';
 import LecturePortal from '@/features/portal';
 import SlideViewer from '@/features/presentation';
 import RollNumberGate from '@/features/gate/components/RollNumberGate';
@@ -47,7 +48,14 @@ export const AppRoutes: React.FC = () => {
         <Route path={ROUTE_PATHS.PORTAL_LEGACY} element={<Navigate to={ROUTE_PATHS.PORTAL} replace />} />
 
         {/* Slide Deck Views */}
-        <Route path={ROUTE_PATHS.SLIDE_NESTED} element={<SlideViewer />} />
+        <Route
+          path={ROUTE_PATHS.SLIDE_NESTED}
+          element={
+            <ClickStepsProvider>
+              <SlideViewer />
+            </ClickStepsProvider>
+          }
+        />
         <Route path={ROUTE_PATHS.SLIDE_FLAT} element={<FlatSlideRedirect />} />
 
         {/* Global Fallback Redirect to Dashboard */}
