@@ -30,10 +30,12 @@ export type FeedbackPayload = z.infer<typeof FeedbackPayloadSchema>;
 export const UserPayloadSchema = z.object({
   id: z.string().optional(),
   name: z.string().min(1, 'Name is required'),
-  registration: z.string().min(1, 'Registration is required'),
-  session: z.string().min(1, 'Session is required'),
+  registration: z.string().optional().nullable(),
+  session: z.string().optional().nullable(),
   role: z.enum(['student', 'admin']),
+  isGuest: z.boolean().optional(),
 });
 
 export type UserPayload = z.infer<typeof UserPayloadSchema>;
+
 

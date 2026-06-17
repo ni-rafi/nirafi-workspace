@@ -1,11 +1,11 @@
-# Slidev Lecture Slides & Quantity Surveying Platform
+# Slidev Civil Engineering Lecture Slides & Calculations Platform
 
-A centralized platform containing interactive Slidev lecture decks for civil engineering/quantity surveying topics, backed by a modular, unit-tested calculations engine and Firebase Firestore integration.
+A centralized platform containing interactive Slidev lecture decks for civil engineering topics, backed by a modular, unit-tested calculation engine and Firebase Firestore integration.
 
 ## Key Features
 
 - **Slidev Presentations**: Responsive, code-enabled slide decks for student lectures.
-- **Quantity Surveying Core Engine**: Highly precise mathematical modules under `src/cores/quantity-surveying` for:
+- **Civil Engineering Calculation Engine**: Highly precise mathematical modules under `src/cores/quantity-surveying` for:
   - **Concrete**: Volume calculation with custom wastage factor support.
   - **Brickwork**: Raw brick counts and mortar volume calculations.
   - **Steel**: Reinforcement bar weight calculation.

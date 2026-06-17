@@ -28,7 +28,7 @@
     "noPropertyAccessFromIndexSignature": true,
     "exactOptionalPropertyTypes": true,
 
-    "jsx": "preserve",
+    "jsx": "react-jsx",
     "sourceMap": true,
     "resolveJsonModule": true,
     "esModuleInterop": true,
@@ -36,6 +36,6 @@
     "lib": ["esnext", "dom"],
     "types": ["vite/client"]
   },
-  "include": ["**/*.ts", "**/*.vue", "**/*.d.ts"],
+  "include": ["**/*.ts", "**/*.tsx", "**/*.d.ts"],
   "exclude": ["node_modules", "dist", "docs-slidev", "docs"]
 }

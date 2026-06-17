@@ -24,11 +24,13 @@ describe('FirebaseService Core Auth', () => {
   });
 
   test('should authenticate user anonymously and return uid', async () => {
+    import.meta.env['VITE_FIREBASE_API_KEY'] = 'test-api-key';
     const authService = new FirebaseService();
     authService.initializeFirebase();
     const uid = await authService.anonymousSignIn();
 
     expect(uid).toBe('mock_anonymous_uid');
     expect(signInAnonymously).toHaveBeenCalled();
+    import.meta.env['VITE_FIREBASE_API_KEY'] = 'MOCK_API_KEY';
   });
 });
