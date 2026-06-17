@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { ChevronLeft, ChevronRight, Maximize2, Minimize2, Home } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Maximize2, Minimize2, Home, Camera, Timer, Video } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 
@@ -10,11 +10,17 @@ interface NavControlsProps {
   onNext: () => void;
   isFullscreen: boolean;
   onToggleFullscreen: () => void;
+  isCameraOpen: boolean;
+  onToggleCamera: () => void;
+  isTimerOpen: boolean;
+  onToggleTimer: () => void;
+  isRecording: boolean;
+  onToggleRecording: () => void;
 }
 
 /**
  * NavControls renders a floating presenter dashboard overlay enabling slides transition,
- * fullscreen toggling, and binds general arrow key controls on mount.
+ * fullscreen toggling, webcam activation, recording, and keyboard binds.
  */
 export const NavControls: React.FC<NavControlsProps> = ({
   current,
@@ -23,6 +29,12 @@ export const NavControls: React.FC<NavControlsProps> = ({
   onNext,
   isFullscreen,
   onToggleFullscreen,
+  isCameraOpen,
+  onToggleCamera,
+  isTimerOpen,
+  onToggleTimer,
+  isRecording,
+  onToggleRecording,
 }) => {
   // Bind standard presentation keyboard controls
   useEffect(() => {
@@ -47,7 +59,7 @@ export const NavControls: React.FC<NavControlsProps> = ({
 
   return (
     <div
-      className="absolute bottom-6 left-1/2 z-40 flex -translate-x-1/2 items-center gap-2 rounded-full border bg-background/80 px-4 py-2 shadow-xl backdrop-blur-md transition-all duration-300 hover:bg-background/95 select-none"
+      className="absolute bottom-6 left-1/2 z-40 flex -translate-x-1/2 items-center gap-2 rounded-full border bg-background/80 px-4 py-2 shadow-lg backdrop-blur-md transition-all duration-300 hover:bg-background/95 select-none"
       data-nav-controls
     >
       {/* Return to Portal dashboard shortcut */}
@@ -92,6 +104,45 @@ export const NavControls: React.FC<NavControlsProps> = ({
         title="Next Slide (Right Arrow)"
       >
         <ChevronRight className="h-4 w-4" />
+      </Button>
+
+      <div className="h-4 w-px bg-border mx-1" />
+
+      {/* Toggle Presenter Timer */}
+      <Button
+        variant={isTimerOpen ? 'secondary' : 'ghost'}
+        size="icon"
+        onClick={onToggleTimer}
+        className="h-8 w-8 rounded-full text-muted-foreground hover:text-foreground"
+        title="Toggle Lecture Timer"
+      >
+        <Timer className="h-4 w-4" />
+      </Button>
+
+      {/* Toggle Webcam Overlay */}
+      <Button
+        variant={isCameraOpen ? 'secondary' : 'ghost'}
+        size="icon"
+        onClick={onToggleCamera}
+        className="h-8 w-8 rounded-full text-muted-foreground hover:text-foreground"
+        title="Toggle Camera Overlay"
+      >
+        <Camera className="h-4 w-4" />
+      </Button>
+
+      {/* Toggle Presentation Screen Recording */}
+      <Button
+        variant={isRecording ? 'default' : 'ghost'}
+        size="icon"
+        onClick={onToggleRecording}
+        className={`h-8 w-8 rounded-full ${
+          isRecording
+            ? 'bg-red-500 hover:bg-red-600 text-white animate-pulse'
+            : 'text-muted-foreground hover:text-foreground'
+        }`}
+        title={isRecording ? 'Stop Recording' : 'Start Screen Recording'}
+      >
+        <Video className="h-4 w-4" />
       </Button>
 
       <div className="h-4 w-px bg-border mx-1" />

@@ -50,22 +50,22 @@ This document outlines the presentation features to be migrated and implemented 
 ---
 
 ## 4. Mathematics & Diagram Rendering
-- [ ] **LaTeX Formulas**
+- [x] **LaTeX Formulas**
   - High-fidelity formatting of mathematical formulas (crucial for structural calculations).
-  - Details: [latex.md](../../docs-slidev/features/latex.md)
-- [ ] **Mermaid Diagram Flowcharts**
+  - Details: [latex.md](../../docs-slidev/features/latex.md) (Implemented: `LatexFormula.tsx` via KaTeX)
+- [x] **Mermaid Diagram Flowcharts**
   - Render dynamic layouts and flowcharts.
-  - Details: [mermaid.md](../../docs-slidev/features/mermaid.md)
-- [ ] **Icon Libraries**
+  - Details: [mermaid.md](../../docs-slidev/features/mermaid.md) (Implemented: `MermaidDiagram.tsx` flowcharts)
+- [x] **Icon Libraries**
   - Integrate icons sets directly in Markdown layouts.
-  - Details: [icons.md](../../docs-slidev/features/icons.md)
+  - Details: [icons.md](../../docs-slidev/features/icons.md) (Implemented: `SlideIcon.tsx` via Iconify)
 
 ---
 
 ## 5. Presenter Tools
-- [ ] **Presentation Timer**
+- [x] **Presentation Timer**
   - Elapsed and budget countdown trackers for lecturers.
-  - Details: [timer.md](../../docs-slidev/features/timer.md)
-- [ ] **Screen & Audio Recorder**
+  - Details: [timer.md](../../docs-slidev/features/timer.md) (Implemented: `PresentationTimer.tsx`)
+- [x] **Screen & Audio Recorder**
   - Save lectures as webm records directly from the viewer dashboard.
-  - Details: [recording.md](../../docs-slidev/features/recording.md)
+  - Details: [recording.md](../../docs-slidev/features/recording.md) (Implemented: `PresentationRecorder.tsx` & `CameraOverlay.tsx`)

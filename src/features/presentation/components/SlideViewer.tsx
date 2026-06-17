@@ -15,6 +15,12 @@ import SlideConcepts from './slides/SlideConcepts';
 import SlideDraggable from './slides/SlideDraggable';
 import SlideCodeHighlighting from './slides/SlideCodeHighlighting';
 import SlideMonacoSandbox from './slides/SlideMonacoSandbox';
+import SlideMathRendering from './slides/SlideMathRendering';
+import SlideMermaidFlowchart from './slides/SlideMermaidFlowchart';
+import SlideIconShowcase from './slides/SlideIconShowcase';
+import PresentationTimer from './PresentationTimer';
+import CameraOverlay from './CameraOverlay';
+import PresentationRecorder from './PresentationRecorder';
 
 /**
  * SlideViewer manages interactive slide deck presentation navigation,
@@ -40,6 +46,11 @@ export const SlideViewer: React.FC = () => {
   const [penWidth, setPenWidth] = useState(3);
   const [isEraser, setIsEraser] = useState(false);
   const [clearTrigger, setClearTrigger] = useState(0);
+
+  // Presenter tools states
+  const [isCameraOpen, setIsCameraOpen] = useState(false);
+  const [isTimerOpen, setIsTimerOpen] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
 
   // Retrieve subject & lecture metadata
   const activeSub = SUBJECTS.find((sub) => sub.id === subjectId);
@@ -136,6 +147,18 @@ export const SlideViewer: React.FC = () => {
       return <SlideMonacoSandbox />;
     }
 
+    if (currentSlideInt === 6) {
+      return <SlideMathRendering />;
+    }
+
+    if (currentSlideInt === 7) {
+      return <SlideMermaidFlowchart />;
+    }
+
+    if (currentSlideInt === 8) {
+      return <SlideIconShowcase />;
+    }
+
     return <SlideConcepts slideNo={currentSlideInt} />;
   };
 
@@ -194,6 +217,12 @@ export const SlideViewer: React.FC = () => {
         onNext={handleNext}
         isFullscreen={isFullscreen}
         onToggleFullscreen={handleToggleFullscreen}
+        isCameraOpen={isCameraOpen}
+        onToggleCamera={() => setIsCameraOpen(!isCameraOpen)}
+        isTimerOpen={isTimerOpen}
+        onToggleTimer={() => setIsTimerOpen(!isTimerOpen)}
+        isRecording={isRecording}
+        onToggleRecording={() => setIsRecording(!isRecording)}
       />
 
       {/* Floating Drawing Panel Adjuster */}
@@ -207,6 +236,19 @@ export const SlideViewer: React.FC = () => {
         isEraser={isEraser}
         onEraserChange={setIsEraser}
         onClear={() => setClearTrigger((c) => c + 1)}
+      />
+
+      {/* Floating Webcam stream view */}
+      <CameraOverlay isOpen={isCameraOpen} />
+
+      {/* Presenter stopwatch/countdown timer panel */}
+      <PresentationTimer durationMins={activeLec.durationMins} isOpen={isTimerOpen} />
+
+      {/* Screen & microphone recording engine */}
+      <PresentationRecorder
+        isRecording={isRecording}
+        onRecordingChange={setIsRecording}
+        lectureId={lectureId || 'mock'}
       />
     </div>
   );
