@@ -56,7 +56,7 @@ export const DrawingDrawer: React.FC<DrawingDrawerProps> = ({
 }) => {
 
   return (
-    <div className="flex items-center gap-2 rounded-full border bg-background/90 px-3.5 py-1.5 shadow-md backdrop-blur-md animate-in slide-in-from-bottom-2 duration-200 select-none">
+    <div className="flex flex-wrap items-center gap-1.5 rounded-2xl md:rounded-full border bg-background/90 px-3 py-1.5 md:px-3.5 shadow-md backdrop-blur-md animate-in slide-in-from-bottom-2 duration-200 select-none">
       {/* Interaction Mode Tools */}
       <div className="flex items-center gap-0.5">
         {/* Select Tool */}
@@ -93,7 +93,7 @@ export const DrawingDrawer: React.FC<DrawingDrawerProps> = ({
         </Button>
       </div>
 
-      <div className="h-4 w-px bg-border mx-0.5" />
+      <div className="hidden md:block h-4 w-px bg-border mx-0.5" />
 
       {/* Vector Shape Tools */}
       <div className="flex items-center gap-0.5">
@@ -142,7 +142,7 @@ export const DrawingDrawer: React.FC<DrawingDrawerProps> = ({
         </Button>
       </div>
 
-      <div className="h-4 w-px bg-border mx-0.5" />
+      <div className="hidden md:block h-4 w-px bg-border mx-0.5" />
 
       {/* Color Selectors */}
       <div className="flex items-center gap-1.5 px-1">
@@ -168,7 +168,7 @@ export const DrawingDrawer: React.FC<DrawingDrawerProps> = ({
         })}
       </div>
 
-      <div className="h-4 w-px bg-border mx-0.5" />
+      <div className="hidden md:block h-4 w-px bg-border mx-0.5" />
 
       {/* Brush sizes selector */}
       <div className="flex items-center gap-0.5">
@@ -188,7 +188,7 @@ export const DrawingDrawer: React.FC<DrawingDrawerProps> = ({
         })}
       </div>
 
-      <div className="h-4 w-px bg-border mx-0.5" />
+      <div className="hidden md:block h-4 w-px bg-border mx-0.5" />
 
       {/* Toggle Drawings Visibility */}
       <Button

@@ -1,5 +1,5 @@
 import React from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
 import { BookOpen, GraduationCap, LayoutDashboard, LogOut, Presentation, ChevronLeft } from 'lucide-react';
 import {
   Sidebar,
@@ -29,6 +29,7 @@ export const AppSidebar: React.FC = () => {
     slideNo?: string;
   }>();
   const navigate = useNavigate();
+  const location = useLocation();
   const { rollNumber, session, logout } = useUserContext();
   const { setOpenMobile } = useSidebar();
 
@@ -116,34 +117,54 @@ export const AppSidebar: React.FC = () => {
           </SidebarGroup>
         ) : (
           // Main Portal Dashboard view list
-          <SidebarGroup>
-            <SidebarGroupLabel className="px-2 font-semibold">
-              Subjects
-            </SidebarGroupLabel>
-            <SidebarGroupContent className="mt-2">
-              <SidebarMenu>
-                <SidebarMenuItem>
-                  <SidebarMenuButton asChild isActive={true}>
-                    <Link to="/">
-                      <LayoutDashboard className="h-4 w-4 shrink-0" />
-                      <span>Workspace Dashboard</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-
-                {SUBJECTS.map((sub) => (
-                  <SidebarMenuItem key={sub.id}>
-                    <SidebarMenuButton asChild className="hover:bg-accent text-xs">
-                      <a href={`#subject-${sub.id}`}>
-                        <BookOpen className="h-4 w-4 shrink-0" />
-                        <span className="truncate">{sub.courseTitle}</span>
-                      </a>
+          <>
+            <SidebarGroup>
+              <SidebarGroupLabel className="px-2 font-semibold">
+                Navigation
+              </SidebarGroupLabel>
+              <SidebarGroupContent className="mt-2">
+                <SidebarMenu>
+                  <SidebarMenuItem>
+                    <SidebarMenuButton asChild isActive={location.pathname === '/'}>
+                      <Link to="/" onClick={() => setOpenMobile(false)}>
+                        <LayoutDashboard className="h-4 w-4 shrink-0" />
+                        <span>Workspace Dashboard</span>
+                      </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
-                ))}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
+
+                  <SidebarMenuItem>
+                    <SidebarMenuButton asChild isActive={location.pathname === '/docs'}>
+                      <Link to="/docs" onClick={() => setOpenMobile(false)}>
+                        <BookOpen className="h-4 w-4 shrink-0" />
+                        <span>Documentation</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
+
+            <SidebarGroup>
+              <SidebarGroupLabel className="px-2 font-semibold">
+                Subjects
+              </SidebarGroupLabel>
+              <SidebarGroupContent className="mt-2">
+                <SidebarMenu>
+                  {SUBJECTS.map((sub) => (
+                    <SidebarMenuItem key={sub.id}>
+                      <SidebarMenuButton asChild className="hover:bg-accent text-xs">
+                        <a href={`/#subject-${sub.id}`}>
+                          <BookOpen className="h-4 w-4 shrink-0" />
+                          <span className="truncate">{sub.courseTitle}</span>
+                        </a>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))}
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
+          </>
         )}
       </SidebarContent>
 

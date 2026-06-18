@@ -8,6 +8,7 @@ import LecturePortal from '@/features/portal';
 import SlideViewer from '@/features/presentation';
 import RollNumberGate from '@/features/gate/components/RollNumberGate';
 import AdminClassDashboard from '@/features/portal/components/AdminClassDashboard';
+import SlideCustomizationDocs from '@/features/presentation/components/docs/SlideCustomizationDocs';
 
 /**
  * Handles legacy Slidev flat slide number requests (e.g. /5) by
@@ -101,6 +102,7 @@ export const AppRoutes: React.FC = () => {
         <Route path={ROUTE_PATHS.ADMIN_DASHBOARD} element={<AdminClassDashboard />} />
         <Route path={ROUTE_PATHS.PORTAL_LEGACY} element={<Navigate to={ROUTE_PATHS.PORTAL} replace />} />
         <Route path={ROUTE_PATHS.SLIDE_FLAT} element={<FlatSlideRedirect />} />
+        <Route path={ROUTE_PATHS.DOCS} element={<SlideCustomizationDocs />} />
 
         {/* Global Fallback Redirect to Dashboard */}
         <Route path="*" element={<Navigate to={ROUTE_PATHS.PORTAL} replace />} />

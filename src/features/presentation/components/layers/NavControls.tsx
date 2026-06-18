@@ -58,6 +58,7 @@ interface NavControlsProps {
 
   isThemePlaygroundOpen?: boolean;
   onToggleThemePlayground?: () => void;
+  className?: string;
 }
 
 /**
@@ -102,6 +103,7 @@ export const NavControls: React.FC<NavControlsProps> = ({
   onToggleDrawingsHidden,
   isThemePlaygroundOpen = false,
   onToggleThemePlayground,
+  className,
 }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [isHoveredSensor, setIsHoveredSensor] = useState(false);
@@ -137,7 +139,7 @@ export const NavControls: React.FC<NavControlsProps> = ({
       <div
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
-        className={`fixed bottom-4 left-4 z-40 flex flex-col gap-2 items-start transition-all duration-300 ease-in-out ${
+        className={className || `fixed bottom-4 left-4 z-40 flex flex-col gap-2 items-start transition-all duration-300 ease-in-out ${
           showToolbar
             ? 'translate-y-0 opacity-100 scale-100'
             : 'translate-y-[calc(100%+24px)] opacity-0 scale-95 pointer-events-none'
@@ -160,7 +162,7 @@ export const NavControls: React.FC<NavControlsProps> = ({
         )}
 
         {/* Main controls bar */}
-        <div className="flex items-center gap-2 rounded-full border bg-background/80 px-4 py-2 shadow-lg backdrop-blur-md transition-all duration-300 hover:bg-background/95">
+        <div className="flex flex-wrap items-center gap-1.5 rounded-2xl md:rounded-full border bg-background/80 px-3 py-1.5 md:px-4 md:py-2 shadow-lg backdrop-blur-md transition-all duration-300 hover:bg-background/95">
           <SlideNavigation
             current={current}
             total={total}
@@ -169,14 +171,14 @@ export const NavControls: React.FC<NavControlsProps> = ({
             onExit={onExit}
           />
 
-          <div className="h-4 w-px bg-border mx-0.5" />
+          <div className="hidden md:block h-4 w-px bg-border mx-0.5" />
 
           {/* Toggle Quick Overview */}
           <Button
             variant={isOverviewOpen ? 'secondary' : 'ghost'}
             size="icon"
             onClick={onToggleOverview}
-            className="h-8 w-8 rounded-full text-muted-foreground hover:text-foreground"
+            className="h-7 w-7 md:h-8 md:w-8 rounded-full text-muted-foreground hover:text-foreground"
             title="Overview (O)"
           >
             <LayoutGrid className="h-4 w-4" />
@@ -187,7 +189,7 @@ export const NavControls: React.FC<NavControlsProps> = ({
             variant={isPenActive ? 'secondary' : 'ghost'}
             size="icon"
             onClick={() => onPenActiveChange(!isPenActive)}
-            className="h-8 w-8 rounded-full text-muted-foreground hover:text-foreground"
+            className="h-7 w-7 md:h-8 md:w-8 rounded-full text-muted-foreground hover:text-foreground"
             title="Toggle Drawing Pen"
           >
             <PenTool className="h-4 w-4" />
@@ -198,7 +200,7 @@ export const NavControls: React.FC<NavControlsProps> = ({
             variant="ghost"
             size="icon"
             onClick={onToggleDark}
-            className="h-8 w-8 rounded-full text-muted-foreground hover:text-foreground"
+            className="h-7 w-7 md:h-8 md:w-8 rounded-full text-muted-foreground hover:text-foreground"
             title="Toggle Dark Mode (D)"
           >
             {isDark ? <Sun className="h-4 w-4 text-amber-500" /> : <Moon className="h-4 w-4" />}
@@ -209,7 +211,7 @@ export const NavControls: React.FC<NavControlsProps> = ({
             variant={isTimerOpen ? 'secondary' : 'ghost'}
             size="icon"
             onClick={onToggleTimer}
-            className="h-8 w-8 rounded-full text-muted-foreground hover:text-foreground"
+            className="h-7 w-7 md:h-8 md:w-8 rounded-full text-muted-foreground hover:text-foreground"
             title="Lecture Timer"
           >
             <Timer className="h-4 w-4" />
@@ -220,7 +222,7 @@ export const NavControls: React.FC<NavControlsProps> = ({
             variant={isCameraOpen ? 'secondary' : 'ghost'}
             size="icon"
             onClick={onToggleCamera}
-            className="h-8 w-8 rounded-full text-muted-foreground hover:text-foreground"
+            className="h-7 w-7 md:h-8 md:w-8 rounded-full text-muted-foreground hover:text-foreground"
             title="Camera Overlay"
           >
             <Camera className="h-4 w-4" />
@@ -231,7 +233,7 @@ export const NavControls: React.FC<NavControlsProps> = ({
             variant={isRecording ? 'default' : 'ghost'}
             size="icon"
             onClick={onToggleRecording}
-            className={`h-8 w-8 rounded-full ${
+            className={`h-7 w-7 md:h-8 md:w-8 rounded-full ${
               isRecording
                 ? 'bg-red-500 hover:bg-red-600 text-white animate-pulse'
                 : 'text-muted-foreground hover:text-foreground'
@@ -246,7 +248,7 @@ export const NavControls: React.FC<NavControlsProps> = ({
             variant={isPresenterView ? 'secondary' : 'ghost'}
             size="icon"
             onClick={onTogglePresenter}
-            className="h-8 w-8 rounded-full text-muted-foreground hover:text-foreground"
+            className="h-7 w-7 md:h-8 md:w-8 rounded-full text-muted-foreground hover:text-foreground"
             title={isPresenterView ? 'Exit Presenter View (P)' : 'Enter Presenter View (P)'}
           >
             <Presentation className="h-4 w-4" />
@@ -258,7 +260,7 @@ export const NavControls: React.FC<NavControlsProps> = ({
               variant={isThemePlaygroundOpen ? 'secondary' : 'ghost'}
               size="icon"
               onClick={onToggleThemePlayground}
-              className="h-8 w-8 rounded-full text-muted-foreground hover:text-foreground"
+              className="h-7 w-7 md:h-8 md:w-8 rounded-full text-muted-foreground hover:text-foreground"
               title="Customize Theme"
             >
               <Palette className="h-4 w-4" />
@@ -270,21 +272,21 @@ export const NavControls: React.FC<NavControlsProps> = ({
             variant={isSettingsOpen ? 'secondary' : 'ghost'}
             size="icon"
             onClick={onToggleSettings}
-            className="h-8 w-8 rounded-full text-muted-foreground hover:text-foreground"
+            className="h-7 w-7 md:h-8 md:w-8 rounded-full text-muted-foreground hover:text-foreground"
             title="More Options"
             data-settings-btn
           >
             <SlidersHorizontal className="h-4 w-4" />
           </Button>
 
-          <div className="h-4 w-px bg-border mx-0.5" />
+          <div className="hidden md:block h-4 w-px bg-border mx-0.5" />
 
           {/* Fullscreen */}
           <Button
             variant="ghost"
             size="icon"
             onClick={onToggleFullscreen}
-            className="h-8 w-8 rounded-full text-muted-foreground hover:text-foreground"
+            className="h-7 w-7 md:h-8 md:w-8 rounded-full text-muted-foreground hover:text-foreground"
             title={isFullscreen ? 'Exit Fullscreen' : 'Enter Fullscreen'}
           >
             {isFullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
