@@ -12,6 +12,7 @@ import {
 import TwoWayGridOrchestrator from './TwoWayGridOrchestrator';
 import { useSlideViewerOrchestrator } from '../../hooks/useSlideViewerOrchestrator';
 import ThemePlaygroundPanel from '../tools/ThemePlaygroundPanel';
+import OnThisPage from '../layers/OnThisPage';
 
 interface ScrollModeViewProps {
   orchestrator: ReturnType<typeof useSlideViewerOrchestrator>;
@@ -20,6 +21,8 @@ interface ScrollModeViewProps {
 export const ScrollModeView: React.FC<ScrollModeViewProps> = ({ orchestrator }) => {
   const navigate = useNavigate();
   const [isThemePlaygroundOpen, setIsThemePlaygroundOpen] = React.useState(false);
+  const [collapsedSections, setCollapsedSections] = React.useState<Record<string, boolean>>({});
+  const scrollContainerRef = React.useRef<HTMLDivElement | null>(null);
 
   const {
     activeSub,
@@ -38,9 +41,9 @@ export const ScrollModeView: React.FC<ScrollModeViewProps> = ({ orchestrator }) 
   if (!activeSub || !activeLec) return null;
 
   return (
-    <div className="relative flex min-h-screen w-full flex-col bg-background animate-in fade-in duration-300">
+    <div className="relative flex h-screen w-full flex-col bg-background overflow-hidden animate-in fade-in duration-300">
       <PageMetadata title={activeLec.title} subjectCode={activeSub.courseCode} slideNo={activeSlide} />
-      
+
       {/* Sticky blurred header panel */}
       <header className="sticky top-0 z-50 flex h-16 w-full items-center justify-between border-b bg-background/80 px-6 backdrop-blur-md">
         <div className="flex items-center gap-3">
@@ -85,7 +88,7 @@ export const ScrollModeView: React.FC<ScrollModeViewProps> = ({ orchestrator }) 
             {presenterFeatures.isDark ? <Sun className="h-4 w-4 text-amber-500" /> : <Moon className="h-4 w-4" />}
           </Button>
 
-           <DropdownMenu>
+          <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
                 variant="outline"
@@ -135,20 +138,36 @@ export const ScrollModeView: React.FC<ScrollModeViewProps> = ({ orchestrator }) 
         </div>
       </header>
 
-      <main className="flex-1 w-full overflow-y-auto">
-        <TwoWayGridOrchestrator
-          subject={activeSub}
-          lecture={activeLec}
-          session={activeSession}
-          viewMode="scroll"
-          theme={activeTheme}
-          totalSlides={totalSlidesCount}
-          onSelectSlide={(num) => {
-            navigateWithTransition(`/${subjectId}/${sessionId}/${lectureId}/${num}`);
-          }}
-          currentSlide={activeSlide}
-        />
-      </main>
+      <div className="flex-1 flex w-full min-h-0 overflow-hidden">
+        <main ref={scrollContainerRef} className="flex-1 overflow-y-auto relative">
+          <TwoWayGridOrchestrator
+            subject={activeSub}
+            lecture={activeLec}
+            session={activeSession}
+            viewMode="scroll"
+            theme={activeTheme}
+            totalSlides={totalSlidesCount}
+            onSelectSlide={(num) => {
+              navigateWithTransition(`/${subjectId}/${sessionId}/${lectureId}/${num}`);
+            }}
+            currentSlide={activeSlide}
+            collapsedSections={collapsedSections}
+            setCollapsedSections={setCollapsedSections}
+          />
+        </main>
+        <aside className="hidden xl:block w-72 shrink-0 border-l border-border bg-card/30 p-6 flex flex-col min-h-0 overflow-hidden">
+          <OnThisPage
+            subject={activeSub}
+            lecture={activeLec}
+            session={activeSession}
+            totalSlides={totalSlidesCount}
+            activeSlide={activeSlide}
+            scrollContainerRef={scrollContainerRef}
+            collapsedSections={collapsedSections}
+            setCollapsedSections={setCollapsedSections}
+          />
+        </aside>
+      </div>
 
       <ThemePlaygroundPanel
         isOpen={isThemePlaygroundOpen}

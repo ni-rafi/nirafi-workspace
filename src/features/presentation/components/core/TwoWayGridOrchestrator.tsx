@@ -16,6 +16,8 @@ interface TwoWayGridOrchestratorProps {
   totalSlides: number;
   onSelectSlide: (num: number) => void;
   currentSlide?: number;
+  collapsedSections: Record<string, boolean>;
+  setCollapsedSections: React.Dispatch<React.SetStateAction<Record<string, boolean>>>;
 }
 
 const SlideCard: React.FC<{
@@ -124,8 +126,9 @@ export const TwoWayGridOrchestrator: React.FC<TwoWayGridOrchestratorProps> = ({
   theme,
   totalSlides,
   onSelectSlide,
+  collapsedSections,
+  setCollapsedSections,
 }) => {
-  const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>({});
   const [activeSimulationSlide, setActiveSimulationSlide] = useState<number | null>(null);
 
   const slides = useMemo(() => Array.from({ length: totalSlides }, (_, i) => i + 1), [totalSlides]);
@@ -151,9 +154,11 @@ export const TwoWayGridOrchestrator: React.FC<TwoWayGridOrchestratorProps> = ({
         <div className="mx-auto w-full max-w-4xl flex flex-col gap-8 pb-12 p-8 animate-in fade-in duration-300">
           {Object.entries(sections).map(([sectionName, slideNumbers]) => {
             const isCollapsed = !!collapsedSections[sectionName];
+            const sectionSlug = sectionName.toLowerCase().replace(/[^a-z0-9]+/g, '-');
             return (
               <div key={sectionName} className="flex flex-col gap-4">
                 <button
+                  id={`section-${sectionSlug}`}
                   onClick={() => toggleSection(sectionName)}
                   className="flex items-center gap-2 text-left border-b pb-2 hover:text-primary transition-colors group/sec w-full cursor-pointer select-none"
                 >
@@ -173,7 +178,7 @@ export const TwoWayGridOrchestrator: React.FC<TwoWayGridOrchestratorProps> = ({
                 {!isCollapsed && (
                   <div className="flex flex-col gap-8 items-center w-full">
                     {slideNumbers.map((num) => (
-                      <div key={num} className="w-full max-w-3xl">
+                      <div key={num} id={`slide-card-${num}`} className="w-full max-w-3xl">
                         <SlideCard
                           slideNo={num}
                           subject={subject}
