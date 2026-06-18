@@ -1,0 +1,121 @@
+/* Theme-aware Bklit UI Charting Styling */
+
+:root, .theme-neutral {
+  /* Chart Color Palette (Neutral Theme Default) */
+  --chart-1: oklch(0.865 0.127 207.08);
+  --chart-2: oklch(0.715 0.143 215.22);
+  --chart-3: oklch(0.609 0.126 221.72);
+  --chart-4: oklch(0.520 0.105 223.13);
+  --chart-5: oklch(0.450 0.085 224.28);
+
+  /* Chart component semantic colors */
+  --chart-background: oklch(1 0 0);
+  --chart-foreground: oklch(0.145 0.004 285);
+  --chart-foreground-muted: oklch(0.550 0.014 260);
+  --chart-line-primary: var(--chart-1);
+  --chart-line-secondary: var(--chart-2);
+  --chart-crosshair: oklch(0.400 0.1828 274.34);
+  --chart-grid: oklch(0.922 0 0); /* matches --border */
+  --chart-brush-border: var(--chart-grid);
+  --chart-tooltip-background: oklch(0.210 0.006 285 / 0.85);
+  --chart-tooltip-foreground: oklch(0.985 0 0);
+  --chart-tooltip-muted: oklch(0.650 0.010 260);
+  --chart-indicator-color: oklch(0.210 0.006 285);
+  --chart-indicator-secondary-color: oklch(1 0 0);
+  --chart-marker-background: oklch(0.970 0.005 260);
+  --chart-marker-border: oklch(0.850 0.010 260);
+  --chart-marker-foreground: oklch(0.300 0.010 260);
+  --chart-marker-badge-background: oklch(0 0 0);
+  --chart-marker-badge-foreground: oklch(1 0 0);
+
+  /* Segment selection colors */
+  --chart-segment-background: oklch(0.500 0 0 / 0.06);
+  --chart-segment-line: oklch(0.500 0 0 / 0.25);
+
+  /* Ring chart colors */
+  --chart-ring-background: oklch(0.900 0.005 260 / 0.25);
+
+  /* Chart label color */
+  --chart-label: oklch(0.450 0.010 260);
+
+  /* Legend colors (matches card) */
+  --legend: oklch(1 0 0);
+  --legend-foreground: oklch(0.145 0 0);
+  --legend-muted: oklch(0.970 0 0);
+  --legend-muted-foreground: oklch(0.556 0 0);
+  --legend-track: oklch(0.970 0 0);
+}
+
+.dark, .theme-neutral.dark {
+  /* Chart component dark variables */
+  --chart-background: oklch(0.145 0 0);
+  --chart-foreground: oklch(0.985 0 0);
+  --chart-foreground-muted: oklch(0.708 0 0);
+  --chart-crosshair: oklch(0.720 0.0158 281.84);
+  --chart-grid: oklch(1 0 0 / 10%); /* matches --border */
+  --chart-brush-border: var(--chart-grid);
+  --chart-indicator-color: oklch(1 0 0);
+  --chart-indicator-secondary-color: oklch(0.145 0 0);
+  --chart-marker-background: oklch(0.250 0.010 260);
+  --chart-marker-border: oklch(0.400 0.010 260);
+  --chart-marker-foreground: oklch(0.900 0 0);
+  --chart-marker-badge-background: oklch(1 0 0);
+  --chart-marker-badge-foreground: oklch(0.150 0 0);
+
+  /* Segment selection dark colors */
+  --chart-segment-background: oklch(1 0 0 / 0.06);
+  --chart-segment-line: oklch(1 0 0 / 0.25);
+
+  /* Ring chart dark colors */
+  --chart-ring-background: oklch(0.350 0.010 260 / 0.25);
+
+  /* Chart label dark color */
+  --chart-label: oklch(0.750 0.010 260);
+
+  /* Legend dark colors (matches card) */
+  --legend: oklch(0.205 0 0);
+  --legend-foreground: oklch(0.985 0 0);
+  --legend-muted: oklch(0.269 0 0);
+  --legend-muted-foreground: oklch(0.708 0 0);
+  --legend-track: oklch(0.269 0 0);
+}
+
+/* Blue Theme (Web Development) Specific Color Overrides */
+.theme-blue {
+  --chart-1: oklch(0.550 0.180 250);     /* Blue primary */
+  --chart-2: oklch(0.650 0.150 210);     /* Teal-ish blue */
+  --chart-3: oklch(0.750 0.120 180);     /* Cyan */
+  --chart-4: oklch(0.850 0.090 150);     /* Light green-cyan */
+  --chart-5: oklch(0.450 0.200 280);     /* Indigo/purple */
+}
+
+.theme-blue.dark {
+  --chart-1: oklch(0.650 0.200 250);     /* Bright blue primary */
+  --chart-2: oklch(0.700 0.160 210);
+  --chart-3: oklch(0.780 0.130 180);
+  --chart-4: oklch(0.850 0.100 150);
+  --chart-5: oklch(0.550 0.220 280);
+}
+
+/* Green Theme (Quantity Surveying) Specific Color Overrides */
+.theme-green {
+  --chart-1: oklch(0.550 0.150 140);     /* Green primary */
+  --chart-2: oklch(0.650 0.160 110);     /* Lime green */
+  --chart-3: oklch(0.750 0.140 80);      /* Yellowish green */
+  --chart-4: oklch(0.850 0.120 60);      /* Soft orange/yellow */
+  --chart-5: oklch(0.450 0.150 160);     /* Forest green */
+}
+
+.theme-green.dark {
+  --chart-1: oklch(0.650 0.180 140);     /* Bright green primary */
+  --chart-2: oklch(0.720 0.180 110);
+  --chart-3: oklch(0.800 0.160 80);
+  --chart-4: oklch(0.870 0.140 60);
+  --chart-5: oklch(0.520 0.180 160);
+}
+
+/* Legend hover effect using CSS :has() */
+.legend-container:has([data-hovered]) > *:not([data-hovered]) {
+  opacity: 0.5;
+  transition: opacity 0.2s ease;
+}

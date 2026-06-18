@@ -5,6 +5,7 @@ import { FullWidthLayout } from '@/shared/layouts/FullWidthLayout';
 import { ThankYouLayout } from '@/shared/layouts/ThankYouLayout';
 import { calculateConcreteVolume } from '../calculations/concrete';
 import { SlideContent, SlideTable, ClickHighlight, LatexFormula, InteractiveCard, ParameterSlider, CalculationOutput } from '@/features/presentation';
+import SlideBklitChart from '@/features/presentation/components/slides/SlideBklitChart';
 
 // Slide 1: Cover Slide
 const Slide1: React.FC<any> = ({ subject, lecture }) => (
@@ -189,8 +190,8 @@ const Slide4: React.FC = () => {
   );
 };
 
-// Slide 5: Thank You Slide
-const Slide5: React.FC = () => (
+// Slide 5: Thank You Slide (shifted to Slide 6)
+const Slide6: React.FC = () => (
   <ThankYouLayout
     title="Thank You"
     subtitle="Do you have any question?"
@@ -202,7 +203,8 @@ export const slides: Record<number, React.ComponentType<any>> = {
   2: Slide2,
   3: Slide3,
   4: Slide4,
-  5: Slide5,
+  5: SlideBklitChart,
+  6: Slide6,
 };
 
 export const slideMetadata: Record<number, { title: string; type: string; section: string }> = {
@@ -210,5 +212,6 @@ export const slideMetadata: Record<number, { title: string; type: string; sectio
   2: { title: 'Calculation Principles', type: 'Theory Overview', section: 'Introduction' },
   3: { title: 'Volumetric Calculator', type: 'Live Sandbox', section: 'Calculations' },
   4: { title: 'Bill of Quantities', type: 'Spreadsheet View', section: 'BoQ Summary' },
-  5: { title: 'Conclusion', type: 'Thank You Slide', section: 'Conclusion' },
+  5: { title: 'Casting Trend Chart', type: 'Data Visualization', section: 'Casting Trend' },
+  6: { title: 'Conclusion', type: 'Thank You Slide', section: 'Conclusion' },
 };

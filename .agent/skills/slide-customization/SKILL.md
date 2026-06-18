@@ -97,3 +97,12 @@ Instead of editing mathematical strings in raw LaTeX (which breaks KaTeX parser)
 > * Use `<CalculationOutput>` for rendering the calculation results.
 >
 > Refer to the [reusable-components skill guide](file:///.agent/skills/reusable-components/SKILL.md) for detailed components interfaces and mode adaptation patterns.
+
+---
+
+## 4. Chart Components (Bklit UI)
+
+To incorporate high-fidelity, animated charts from the Bklit UI library without editing the copied source files under `src/features/presentation/components/elements/bklit/`:
+* **Aspect Ratio & Height Bounds**: Wrap the chart (e.g. `<CurvedLineChart>`) in a width-constrained container (e.g. `<div className="w-full max-w-[700px] mx-auto">`). Because the chart enforces a `2:1` aspect ratio internally, limiting its parent width automatically limits its height (e.g., to `350px`), preventing bottom viewport overflow on standard 16:9 screens.
+* **Theme Color Consistency**: Chart colors automatically map to `--chart-1` through `--chart-5` custom variables. These variables are defined dynamically per-theme in `src/styles/charts.css` to match active lecture styles (e.g., green for Quantity Surveying, blue for Web Development). Do not hardcode colors in the chart invocation.
+

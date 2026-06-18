@@ -7,6 +7,7 @@ import SlideMonacoSandbox from '@/features/presentation/components/slides/SlideM
 import SlideMathRendering from '@/features/presentation/components/slides/SlideMathRendering';
 import SlideMermaidFlowchart from '@/features/presentation/components/slides/SlideMermaidFlowchart';
 import SlideIconShowcase from '@/features/presentation/components/slides/SlideIconShowcase';
+import SlideBklitChart from '@/features/presentation/components/slides/SlideBklitChart';
 
 export const slides: Record<number, React.ComponentType<any>> = {
   1: SlideCover,
@@ -17,8 +18,9 @@ export const slides: Record<number, React.ComponentType<any>> = {
   6: SlideMathRendering,
   7: SlideMermaidFlowchart,
   8: SlideIconShowcase,
-  9: (props) => <SlideConcepts {...props} slideNo={9} />,
+  9: SlideBklitChart,
   10: (props) => <SlideConcepts {...props} slideNo={10} />,
+  11: (props) => <SlideConcepts {...props} slideNo={11} />,
 };
 
 export const slideMetadata: Record<number, { title: string; type: string; section: string }> = {
@@ -30,6 +32,7 @@ export const slideMetadata: Record<number, { title: string; type: string; sectio
   6: { title: 'KaTeX Formulations', type: 'Mathematics', section: 'Advanced Features' },
   7: { title: 'Mermaid Diagrams', type: 'Algorithms', section: 'Advanced Features' },
   8: { title: 'Iconify SVG Library', type: 'Vector Icons', section: 'Advanced Features' },
-  9: { title: 'Rounding Precision Rules', type: 'Lecture Recap', section: 'Summary & Review' },
-  10: { title: 'Conclusion & Vitest', type: 'Review Summary', section: 'Summary & Review' },
+  9: { title: 'Interactive Charts', type: 'Data Visualization', section: 'Advanced Features' },
+  10: { title: 'Rounding Precision Rules', type: 'Lecture Recap', section: 'Summary & Review' },
+  11: { title: 'Conclusion & Vitest', type: 'Review Summary', section: 'Summary & Review' },
 };
