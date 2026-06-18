@@ -17,7 +17,14 @@ export const ClickStepsContext = createContext<ClickStepsContextType | null>(nul
 export const useClickStepsContext = (): ClickStepsContextType => {
   const context = useContext(ClickStepsContext);
   if (!context) {
-    throw new Error('useClickStepsContext must be used within a ClickStepsProvider');
+    return {
+      currentClick: 999, // default to high number to reveal all elements in non-presentation context
+      totalClicks: 0,
+      registerClick: () => 0,
+      deregisterClick: () => {},
+      setClick: () => {},
+      resetClicks: () => {},
+    };
   }
   return context;
 };

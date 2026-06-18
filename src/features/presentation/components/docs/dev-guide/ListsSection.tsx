@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { SlideList } from '@/features/presentation/components/elements/SlideList';
-import { ClickHighlight, HighlightVariant } from '@/features/presentation/components/elements/ClickHighlight';
 import { ClickStepsProvider } from '@/features/presentation';
 import { Button } from '@/components/ui/button';
 import { PlaygroundSection } from './PlaygroundSection';
@@ -8,37 +7,26 @@ import { PlaygroundSection } from './PlaygroundSection';
 export const ListsSection: React.FC = () => {
   const [listTitle, setListTitle] = useState('Measurement Guidelines');
   const [variant, setVariant] = useState<'default' | 'plain'>('default');
+  const [revealMode, setRevealMode] = useState<'each-click' | 'all-click' | 'auto-stagger' | 'none'>('each-click');
+  const [delayMs, setDelayMs] = useState(250);
   
-  // Item 1 variables
-  const [item1Title, setItem1Title] = useState('Thickness bounds:');
-  const [item1Highlight, setItem1Highlight] = useState<HighlightVariant>('paint');
-  const [item1At, setItem1At] = useState(1);
-  const [item1HighlightText, setItem1HighlightText] = useState('0.150m minimum');
-
-  // Item 2 variables
-  const [item2Title, setItem2Title] = useState('Precision:');
-  const [item2Text, setItem2Text] = useState('Round outputs to exactly 3 decimal places.');
-
-  const [activeStep, setActiveStep] = useState(1);
-
+  // List items
   const items = [
     {
-      title: item1Title || undefined,
-      text: (
-        <span>
-          Maintain{' '}
-          <ClickHighlight at={item1At} variant={item1Highlight}>
-            {item1HighlightText || ' '}
-          </ClickHighlight>{' '}
-          for all floor slabs.
-        </span>
-      ),
+      title: 'Structural Thickness:',
+      text: 'Maintain a 0.150m minimum bound for all floor slabs to resist shear load.',
     },
     {
-      title: item2Title || undefined,
-      text: item2Text,
+      title: 'Calculation Precision:',
+      text: 'Round intermediate values to 4 decimals, and final outputs to exactly 3 decimals.',
+    },
+    {
+      title: 'Material Grading:',
+      text: 'Ensure concrete grade is minimum C25/30 for load-bearing structures.',
     },
   ];
+
+  const [activeStep, setActiveStep] = useState(1);
 
   const preview = (
     <div className="flex flex-col gap-4 w-full">
@@ -53,15 +41,31 @@ export const ListsSection: React.FC = () => {
             onClick={() => setActiveStep(0)}
             className="h-6 text-[9px] font-mono cursor-pointer"
           >
-            Step 0
+            Step 0 (Initial)
           </Button>
           <Button
             size="xs"
-            variant={activeStep >= item1At ? 'default' : 'outline'}
-            onClick={() => setActiveStep(item1At)}
+            variant={activeStep === 1 ? 'default' : 'outline'}
+            onClick={() => setActiveStep(1)}
             className="h-6 text-[9px] font-mono cursor-pointer"
           >
-            Step {item1At} (Highlight)
+            Step 1
+          </Button>
+          <Button
+            size="xs"
+            variant={activeStep === 2 ? 'default' : 'outline'}
+            onClick={() => setActiveStep(2)}
+            className="h-6 text-[9px] font-mono cursor-pointer"
+          >
+            Step 2
+          </Button>
+          <Button
+            size="xs"
+            variant={activeStep === 3 ? 'default' : 'outline'}
+            onClick={() => setActiveStep(3)}
+            className="h-6 text-[9px] font-mono cursor-pointer"
+          >
+            Step 3
           </Button>
         </div>
       </div>
@@ -71,6 +75,8 @@ export const ListsSection: React.FC = () => {
           <SlideList
             title={listTitle || undefined}
             variant={variant}
+            revealMode={revealMode}
+            delayMs={delayMs}
             items={items}
           />
         </ClickStepsProvider>
@@ -78,125 +84,100 @@ export const ListsSection: React.FC = () => {
     </div>
   );
 
-  const codeText = `import { SlideList, ClickHighlight } from '@/features/presentation';
+  const codeText = `import { SlideList } from '@/features/presentation';
 
 <SlideList
   title="${listTitle}"
   variant="${variant}"
+  revealMode="${revealMode}"
+  delayMs={${delayMs}}
   items={[
     {
-      title: "${item1Title}",
-      text: (
-        <span>
-          Maintain{' '}
-          <ClickHighlight at={${item1At}} variant="${item1Highlight}">
-            ${item1HighlightText}
-          </ClickHighlight>{' '}
-          for all floor slabs.
-        </span>
-      ),
+      title: "Structural Thickness:",
+      text: "Maintain a 0.150m minimum bound for all floor slabs to resist shear load.",
     },
     {
-      title: "${item2Title}",
-      text: "${item2Text}",
+      title: "Calculation Precision:",
+      text: "Round intermediate values to 4 decimals, and final outputs to exactly 3 decimals.",
+    },
+    {
+      title: "Material Grading:",
+      text: "Ensure concrete grade is minimum C25/30 for load-bearing structures.",
     },
   ]}
 />`;
 
   const editorContent = (
-    <div className="text-slate-300">
-      <span className="text-purple-400">import</span> {'{ SlideList, ClickHighlight }'} <span className="text-purple-400">from</span> <span className="text-amber-300">"@/features/presentation"</span>;{"\n\n"}
-      <span className="text-blue-400">&lt;SlideList</span>{"\n"}
-      {"  "}<span className="text-teal-400">title</span>=<span className="text-amber-300">"</span>
-      <input
-        type="text"
-        value={listTitle}
-        onChange={(e) => setListTitle(e.target.value)}
-        className="bg-slate-900 border border-white/10 rounded px-1.5 py-0.5 text-amber-300 focus:outline-none focus:border-primary/50 w-44 font-mono text-[11px] inline-block font-bold"
-      />
-      <span className="text-amber-300">"</span>{"\n"}
-      {"  "}<span className="text-teal-400">variant</span>=<span className="text-amber-300">"</span>
-      <select
-        value={variant}
-        onChange={(e) => setVariant(e.target.value as any)}
-        className="bg-slate-900 border border-white/10 rounded px-1.5 py-0.5 text-teal-400 focus:outline-none focus:border-primary/50 font-mono text-[11px] inline-block cursor-pointer"
-      >
-        <option value="default">default</option>
-        <option value="plain">plain</option>
-      </select>
-      <span className="text-amber-300">"</span>{"n"}
-      {"  "}<span className="text-teal-400">items</span>=<span className="text-pink-400">&#123;</span><span className="text-slate-400">[</span>{"\n"}
-      {"    "}<span className="text-slate-400">&#123;</span>{"\n"}
-      {"      "}<span className="text-teal-400">title</span>: <span className="text-amber-300">"</span>
-      <input
-        type="text"
-        value={item1Title}
-        onChange={(e) => setItem1Title(e.target.value)}
-        className="bg-slate-900 border border-white/10 rounded px-1.5 py-0.5 text-amber-300 focus:outline-none focus:border-primary/50 w-32 font-mono text-[11px] inline-block"
-      />
-      <span className="text-amber-300">"</span>,{"\n"}
-      {"      "}<span className="text-teal-400">text</span>: ({"\n"}
-      {"        "}<span className="text-blue-400">&lt;span&gt;</span>{"\n"}
-      {"          "}Maintain&#123;' '&#125;{"\n"}
-      {"          "}<span className="text-blue-400">&lt;ClickHighlight</span> <span className="text-teal-400">at</span>=<span className="text-pink-400">&#123;</span>
-      <input
-        type="number"
-        value={item1At}
-        min={0}
-        max={10}
-        onChange={(e) => setItem1At(parseInt(e.target.value) || 1)}
-        className="bg-slate-900 border border-white/10 rounded px-1.5 py-0.5 text-orange-400 focus:outline-none focus:border-primary/50 w-10 font-mono text-[11px] inline-block"
-      />
-      <span className="text-pink-400">&#125;</span> <span className="text-teal-400">variant</span>=<span className="text-amber-300">"</span>
-      <select
-        value={item1Highlight}
-        onChange={(e) => setItem1Highlight(e.target.value as HighlightVariant)}
-        className="bg-slate-900 border border-white/10 rounded px-1.5 py-0.5 text-teal-400 focus:outline-none focus:border-primary/50 font-mono text-[11px] inline-block cursor-pointer"
-      >
-        <option value="paint">paint</option>
-        <option value="marker">marker</option>
-        <option value="rect">rect</option>
-        <option value="text">text</option>
-        <option value="bold">bold</option>
-        <option value="strike">strike</option>
-        <option value="scale">scale</option>
-        <option value="bg">bg</option>
-        <option value="all">all</option>
-      </select>
-      <span className="text-amber-300">"</span><span className="text-blue-400">&gt;</span>{"\n"}
-      {"            "}
-      <input
-        type="text"
-        value={item1HighlightText}
-        onChange={(e) => setItem1HighlightText(e.target.value)}
-        className="bg-slate-900 border border-white/10 rounded px-1.5 py-0.5 text-slate-100 focus:outline-none focus:border-primary/50 w-36 font-mono text-[11px] inline-block"
-      />
-      {"\n"}
-      {"          "}<span className="text-blue-400">&lt;/ClickHighlight&gt;</span>{"\n"}
-      {"          "}&#123;' '&#125;for all floor slabs.{"\n"}
-      {"        "}<span className="text-blue-400">&lt;/span&gt;</span>{"\n"}
-      {"      "}),{"\n"}
-      {"    "}<span className="text-slate-400">&#125;</span>,{"\n"}
-      {"    "}<span className="text-slate-400">&#123;</span>{"\n"}
-      {"      "}<span className="text-teal-400">title</span>: <span className="text-amber-300">"</span>
-      <input
-        type="text"
-        value={item2Title}
-        onChange={(e) => setItem2Title(e.target.value)}
-        className="bg-slate-900 border border-white/10 rounded px-1.5 py-0.5 text-amber-300 focus:outline-none focus:border-primary/50 w-24 font-mono text-[11px] inline-block"
-      />
-      <span className="text-amber-300">"</span>,{"\n"}
-      {"      "}<span className="text-teal-400">text</span>: <span className="text-amber-300">"</span>
-      <input
-        type="text"
-        value={item2Text}
-        onChange={(e) => setItem2Text(e.target.value)}
-        className="bg-slate-900 border border-white/10 rounded px-1.5 py-0.5 text-amber-300 focus:outline-none focus:border-primary/50 w-52 font-mono text-[11px] inline-block"
-      />
-      <span className="text-amber-300">"</span>,{"\n"}
-      {"    "}<span className="text-slate-400">&#125;</span>,{"\n"}
-      {"  "}<span className="text-slate-400">]</span><span className="text-pink-400">&#125;</span>{"\n"}
-      <span className="text-blue-400">/&gt;</span>
+    <div className="text-slate-300 space-y-2 text-[11px] font-mono">
+      <div>
+        <span className="text-purple-400">import</span> {'{ SlideList }'} <span className="text-purple-400">from</span> <span className="text-amber-300">"@/features/presentation"</span>;
+      </div>
+      <div>
+        <span className="text-blue-400">&lt;SlideList</span>
+      </div>
+      <div className="pl-4">
+        <span className="text-teal-400">title</span>=<span className="text-amber-300">"</span>
+        <input
+          type="text"
+          value={listTitle}
+          onChange={(e) => setListTitle(e.target.value)}
+          className="bg-slate-900 border border-white/10 rounded px-1.5 py-0.5 text-amber-300 focus:outline-none focus:border-primary/50 w-44 font-mono text-[11px] inline-block font-bold"
+        />
+        <span className="text-amber-300">"</span>
+      </div>
+      <div className="pl-4">
+        <span className="text-teal-400">variant</span>=<span className="text-amber-300">"</span>
+        <select
+          value={variant}
+          onChange={(e) => setVariant(e.target.value as any)}
+          className="bg-slate-900 border border-white/10 rounded px-1.5 py-0.5 text-teal-400 focus:outline-none focus:border-primary/50 font-mono text-[11px] inline-block cursor-pointer"
+        >
+          <option value="default">default</option>
+          <option value="plain">plain</option>
+        </select>
+        <span className="text-amber-300">"</span>
+      </div>
+      <div className="pl-4">
+        <span className="text-teal-400">revealMode</span>=<span className="text-amber-300">"</span>
+        <select
+          value={revealMode}
+          onChange={(e) => {
+            const nextMode = e.target.value as any;
+            setRevealMode(nextMode);
+            setActiveStep(1);
+          }}
+          className="bg-slate-900 border border-white/10 rounded px-1.5 py-0.5 text-teal-400 focus:outline-none focus:border-primary/50 font-mono text-[11px] inline-block cursor-pointer font-bold"
+        >
+          <option value="each-click">each-click (default)</option>
+          <option value="all-click">all-click</option>
+          <option value="auto-stagger">auto-stagger</option>
+          <option value="none">none</option>
+        </select>
+        <span className="text-amber-300">"</span>
+      </div>
+
+      {revealMode === 'auto-stagger' && (
+        <div className="pl-4">
+          <span className="text-teal-400">delayMs</span>=<span className="text-pink-400">&#123;</span>
+          <input
+            type="number"
+            value={delayMs}
+            min={100}
+            max={2000}
+            step={50}
+            onChange={(e) => setDelayMs(parseInt(e.target.value) || 250)}
+            className="bg-slate-900 border border-white/10 rounded px-1.5 py-0.5 text-orange-400 focus:outline-none focus:border-primary/50 w-16 font-mono text-[11px] inline-block"
+          />
+          <span className="text-pink-400">&#125;</span>
+        </div>
+      )}
+
+      <div className="pl-4">
+        <span className="text-teal-400">items</span>=<span className="text-pink-400">&#123;</span><span className="text-slate-400">[ ...ItemsData ]</span><span className="text-pink-400">&#125;</span>
+      </div>
+      <div>
+        <span className="text-blue-400">/&gt;</span>
+      </div>
     </div>
   );
 
@@ -205,7 +186,7 @@ export const ListsSection: React.FC = () => {
       title="Lists & Bullets"
       description={
         <span>
-          Use <code>&lt;SlideList&gt;</code> and <code>&lt;SlideBullet&gt;</code> to render lists. Highlight specific markers or details by nesting <code>&lt;ClickHighlight&gt;</code> inside bullet text arrays.
+          Use <code>&lt;SlideList&gt;</code> and <code>&lt;SlideBullet&gt;</code> to render styled lists in slides. Customize list activation using <code>revealMode</code>: <code>each-click</code> (reveal item-by-item on clicks), <code>all-click</code> (reveal list content all at once), and <code>auto-stagger</code> (reveal items staggered with an inline CSS transition-delay).
         </span>
       }
       preview={preview}

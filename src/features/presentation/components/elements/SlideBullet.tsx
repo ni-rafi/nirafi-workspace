@@ -8,6 +8,7 @@ interface SlideBulletProps extends SlideElementProps {
   text?: React.ReactNode;
   children?: React.ReactNode;
   icon?: React.ReactNode;
+  style?: React.CSSProperties;
 }
 
 export const SlideBullet: React.FC<SlideBulletProps> = ({
@@ -18,6 +19,7 @@ export const SlideBullet: React.FC<SlideBulletProps> = ({
   revealPreset,
   icon,
   className = '',
+  style,
 }) => {
   let theme;
   try {
@@ -27,8 +29,8 @@ export const SlideBullet: React.FC<SlideBulletProps> = ({
   }
 
   const renderBulletMarker = () => {
-    const style = theme?.resolvedTheme?.bulletStyle || 'dot';
-    switch (style) {
+    const styleName = theme?.resolvedTheme?.bulletStyle || 'dot';
+    switch (styleName) {
       case 'square':
         return <span className="mt-2 h-1.5 w-1.5 shrink-0 bg-primary" />;
       case 'check':
@@ -58,7 +60,10 @@ export const SlideBullet: React.FC<SlideBulletProps> = ({
   };
 
   const content = (
-    <li className={`text-xs md:text-sm leading-relaxed text-muted-foreground select-text list-none flex items-start gap-2 ${className}`}>
+    <li 
+      className={`text-xs md:text-sm leading-relaxed text-muted-foreground select-text list-none flex items-start gap-2 ${className}`}
+      style={revealAt === undefined ? style : undefined}
+    >
       {icon ? (
         <span className="mt-1 shrink-0 text-primary">{icon}</span>
       ) : (
@@ -72,7 +77,7 @@ export const SlideBullet: React.FC<SlideBulletProps> = ({
   );
 
   if (revealAt !== undefined) {
-    return <ClickReveal at={revealAt} preset={revealPreset}>{content}</ClickReveal>;
+    return <ClickReveal at={revealAt} preset={revealPreset} style={style}>{content}</ClickReveal>;
   }
 
   return content;

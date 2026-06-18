@@ -4,8 +4,12 @@ import { SlideBullet } from './SlideBullet';
 import { SlideEquation } from './SlideEquation';
 import { SlideTable } from './SlideTable';
 import { SlideList } from './SlideList';
+import { SlideTwoColumns } from './SlideTwoColumns';
+import { SlideGrid } from './SlideGrid';
+import { SlideQuote } from './SlideQuote';
+import { SlideImage } from './SlideImage';
 
-export { SlideParagraph, SlideBullet, SlideEquation, SlideTable, SlideList };
+export { SlideParagraph, SlideBullet, SlideEquation, SlideTable, SlideList, SlideTwoColumns, SlideGrid, SlideQuote, SlideImage };
 
 export type ContentBlockType =
   | { type: 'paragraph'; title?: string; text: React.ReactNode; revealAt?: number | string; revealPreset?: 'fade' | 'fade-in' | 'up' | 'down' | 'scale' | 'none'; variant?: 'info' | 'warning' | 'error' | 'success' | 'callout' | 'plain' | 'default' }

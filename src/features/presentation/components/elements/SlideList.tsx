@@ -1,6 +1,7 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect, useState, useId } from 'react';
 import { SlideBullet } from './SlideBullet';
 import { PresentationContext } from '../../context/PresentationContext';
+import { useClickStepsContext } from '../../context/ClickStepsContext';
 
 interface SlideListProps {
   title?: string;
@@ -14,6 +15,10 @@ interface SlideListProps {
   }>;
   variant?: 'default' | 'plain';
   className?: string;
+  revealMode?: 'each-click' | 'all-click' | 'auto-stagger' | 'none';
+  delayMs?: number;
+  revealAt?: number | string;
+  revealPreset?: 'fade' | 'fade-in' | 'up' | 'down' | 'scale' | 'none';
 }
 
 export const SlideList: React.FC<SlideListProps> = ({
@@ -22,9 +27,27 @@ export const SlideList: React.FC<SlideListProps> = ({
   items,
   variant = 'default',
   className = '',
+  revealMode = 'each-click',
+  delayMs = 200,
+  revealAt,
+  revealPreset = 'fade-in',
 }) => {
   const presentation = useContext(PresentationContext);
   const isBlog = presentation?.viewMode === 'blog';
+  const { registerClick, deregisterClick } = useClickStepsContext();
+  const id = useId();
+  const [listStep, setListStep] = useState<number | null>(null);
+
+  // Register a single click step at the list level if performing group reveals (all-click or auto-stagger)
+  useEffect(() => {
+    if (!isBlog && (revealMode === 'all-click' || revealMode === 'auto-stagger')) {
+      const step = registerClick(id, revealAt ?? '+1');
+      setListStep(step);
+      return () => {
+        deregisterClick(id);
+      };
+    }
+  }, [id, revealMode, revealAt, registerClick, deregisterClick, isBlog]);
 
   let listClasses = '';
   if (isBlog) {
@@ -55,16 +78,35 @@ export const SlideList: React.FC<SlideListProps> = ({
           {description}
         </li>
       )}
-      {items.map((item, idx) => (
-        <SlideBullet
-          key={idx}
-          title={item.title}
-          text={item.text}
-          revealAt={item.revealAt}
-          revealPreset={item.revealPreset}
-          icon={item.icon}
-        />
-      ))}
+      {items.map((item, idx) => {
+        let bulletRevealAt: number | string | undefined = undefined;
+        let bulletStyle: React.CSSProperties | undefined = undefined;
+
+        if (!isBlog) {
+          if (revealMode === 'each-click') {
+            bulletRevealAt = item.revealAt ?? '+1';
+          } else if (revealMode === 'all-click') {
+            bulletRevealAt = listStep ?? undefined;
+          } else if (revealMode === 'auto-stagger') {
+            bulletRevealAt = listStep ?? undefined;
+            bulletStyle = {
+              transitionDelay: `${idx * delayMs}ms`,
+            };
+          }
+        }
+
+        return (
+          <SlideBullet
+            key={idx}
+            title={item.title}
+            text={item.text}
+            revealAt={bulletRevealAt}
+            revealPreset={item.revealPreset ?? revealPreset}
+            icon={item.icon}
+            style={bulletStyle}
+          />
+        );
+      })}
     </ul>
   );
 };

@@ -12,6 +12,8 @@ export interface SlideSettings {
   hueRotate: number;
   hideIdleCursor: boolean;
   wakeLock: boolean;
+  transitionType: 'fade' | 'slide' | 'zoom' | 'none';
+  transitionDuration: number;
 }
 
 interface SettingsPopoverProps {
@@ -31,6 +33,8 @@ export const DEFAULT_SETTINGS: SlideSettings = {
   hueRotate: 0,
   hideIdleCursor: false,
   wakeLock: false,
+  transitionType: 'fade',
+  transitionDuration: 300,
 };
 
 /**
@@ -133,6 +137,38 @@ export const SettingsPopover: React.FC<SettingsPopoverProps> = ({
             className="h-3.5 w-7 cursor-pointer appearance-none rounded-full bg-muted checked:bg-primary relative before:absolute before:h-2.5 before:w-2.5 before:rounded-full before:bg-background before:top-0.5 before:left-0.5 checked:before:left-4 before:transition-all"
           />
         </label>
+      </div>
+
+      {/* Slide Transitions */}
+      <div className="flex flex-col gap-2.5 py-2.5 border-b border-border/40">
+        <div className="flex items-center justify-between">
+          <span className="font-semibold text-muted-foreground">Slide Transition</span>
+          <select
+            value={settings.transitionType}
+            onChange={(e) => onSettingsChange({ transitionType: e.target.value as any })}
+            className="bg-accent/40 border border-border/80 rounded px-1.5 py-0.5 text-[10px] font-bold text-foreground focus:outline-none cursor-pointer"
+          >
+            <option value="fade">Fade</option>
+            <option value="slide">Slide</option>
+            <option value="zoom">Zoom</option>
+            <option value="none">None</option>
+          </select>
+        </div>
+        <div className="flex flex-col gap-1">
+          <div className="flex justify-between text-[10px] text-muted-foreground">
+            <span>Transition Speed</span>
+            <span>{settings.transitionDuration}ms</span>
+          </div>
+          <input
+            type="range"
+            min="100"
+            max="1000"
+            step="50"
+            value={settings.transitionDuration}
+            onChange={(e) => onSettingsChange({ transitionDuration: parseInt(e.target.value, 10) })}
+            className="h-1 w-full bg-secondary rounded-lg appearance-none cursor-pointer accent-primary"
+          />
+        </div>
       </div>
 
       {/* CSS Filters */}

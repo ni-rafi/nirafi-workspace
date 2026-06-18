@@ -1,6 +1,6 @@
 import React from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Type, List, Sliders, BarChart3, Binary, Table, Eye, Share2, Code2, Hexagon, Activity, Palette, Terminal, Layout, Layers } from 'lucide-react';
+import { Type, List, Sliders, BarChart3, Binary, Table, Eye, Share2, Code2, Hexagon, Activity, Palette, Terminal, Layout, Layers, ClipboardCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import ParagraphsSection from './dev-guide/ParagraphsSection';
 import ListsSection from './dev-guide/ListsSection';
@@ -17,6 +17,7 @@ import IconsSection from './dev-guide/IconsSection';
 import CodeplaySection from './dev-guide/CodeplaySection';
 import LayoutsSection from './dev-guide/LayoutsSection';
 import ComposingSection from './dev-guide/ComposingSection';
+import QuizzesSection from './dev-guide/QuizzesSection';
 
 type SubSection =
   | 'paragraphs'
@@ -32,6 +33,7 @@ type SubSection =
   | 'physics'
   | 'icons'
   | 'codeplay'
+  | 'quizzes'
   | 'layouts'
   | 'composing';
 
@@ -52,6 +54,7 @@ export const DevGuideTab: React.FC = () => {
     'physics',
     'icons',
     'codeplay',
+    'quizzes',
     'layouts',
     'composing'
   ].includes(subParam)
@@ -80,6 +83,7 @@ export const DevGuideTab: React.FC = () => {
     { id: 'physics' as SubSection, label: 'Draggable Physics Canvas', icon: Activity },
     { id: 'icons' as SubSection, label: 'Icons & Graphics', icon: Palette },
     { id: 'codeplay' as SubSection, label: 'Code & Playgrounds', icon: Terminal },
+    { id: 'quizzes' as SubSection, label: 'Interactive Quizzes', icon: ClipboardCheck },
     { id: 'layouts' as SubSection, label: 'Slide Layouts', icon: Layout },
     { id: 'composing' as SubSection, label: 'Lecture Composition', icon: Layers },
   ];
@@ -112,6 +116,8 @@ export const DevGuideTab: React.FC = () => {
         return <IconsSection />;
       case 'codeplay':
         return <CodeplaySection />;
+      case 'quizzes':
+        return <QuizzesSection />;
       case 'layouts':
         return <LayoutsSection />;
       case 'composing':

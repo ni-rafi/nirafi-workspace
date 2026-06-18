@@ -10,6 +10,7 @@ interface ClickRevealProps {
   /** Built-in animation preset style */
   preset?: 'fade' | 'fade-in' | 'up' | 'down' | 'scale' | 'none';
   className?: string;
+  style?: React.CSSProperties;
 }
 
 /**
@@ -22,6 +23,7 @@ export const ClickReveal: React.FC<ClickRevealProps> = ({
   hide = false,
   preset = 'fade-in',
   className = '',
+  style,
 }) => {
   const id = useId();
   const { currentClick, registerClick, deregisterClick } = useClickStepsContext();
@@ -39,7 +41,7 @@ export const ClickReveal: React.FC<ClickRevealProps> = ({
 
   // If not yet registered/initialized, hide the element initially to prevent flash
   if (activationStep === null) {
-    return <div className="opacity-0 pointer-events-none">{children}</div>;
+    return <div className="opacity-0 pointer-events-none" style={style}>{children}</div>;
   }
 
   // Determine active visibility based on click step and hide modifier
@@ -52,6 +54,7 @@ export const ClickReveal: React.FC<ClickRevealProps> = ({
   return (
     <div
       className={`slidev-vclick-target ${animationClass} ${hiddenClass} ${className}`}
+      style={style}
       data-click-reveal
       data-step={activationStep}
     >

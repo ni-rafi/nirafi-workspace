@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { PlaygroundSection } from './PlaygroundSection';
+import LayoutElementsSection from './LayoutElementsSection';
 
 type LayoutType = 'title' | 'twocolumn' | 'fullwidth' | 'grid' | 'thankyou';
 
@@ -72,7 +73,7 @@ export const LayoutsSection: React.FC = () => {
     switch (layoutType) {
       case 'title':
         return `import { TitleLayout } from '@/shared/layouts/TitleLayout';
-
+ 
 <TitleLayout
   title="${title}"
   subtitle="Course Session 2026-27"
@@ -81,7 +82,7 @@ export const LayoutsSection: React.FC = () => {
 />`;
       case 'twocolumn':
         return `import { TwoColumnLayout } from '@/shared/layouts/TwoColumnLayout';
-
+ 
 <TwoColumnLayout
   title="${title}"
   bgVariant="${bgVariant}"
@@ -92,7 +93,7 @@ export const LayoutsSection: React.FC = () => {
 />`;
       case 'fullwidth':
         return `import { FullWidthLayout } from '@/shared/layouts/FullWidthLayout';
-
+ 
 <FullWidthLayout
   title="${title}"
   bgVariant="${bgVariant}"
@@ -102,7 +103,7 @@ export const LayoutsSection: React.FC = () => {
 </FullWidthLayout>`;
       case 'grid':
         return `import { GridLayout } from '@/shared/layouts/GridLayout';
-
+ 
 <GridLayout
   title="${title}"
   cols={2}
@@ -115,7 +116,7 @@ export const LayoutsSection: React.FC = () => {
 </GridLayout>`;
       case 'thankyou':
         return `import { ThankYouLayout } from '@/shared/layouts/ThankYouLayout';
-
+ 
 <ThankYouLayout
   title="Thank You"
   subtitle="Questions & Answers session"
@@ -140,7 +141,7 @@ export const LayoutsSection: React.FC = () => {
         <option value="thankyou">ThankYouLayout</option>
       </select>
       <span className="text-amber-300">"</span> /&gt;{"\n\n"}
-
+ 
       <span className="text-muted-foreground">// Tweak Props:</span>{"\n"}
       {"  "}<span className="text-teal-400">title</span>=<span className="text-amber-300">"</span>
       <input
@@ -165,17 +166,20 @@ export const LayoutsSection: React.FC = () => {
   );
 
   return (
-    <PlaygroundSection
-      title="Slide Layouts & Wireframes"
-      description={
-        <span>
-          Layouts under <code>src/shared/layouts/</code> arrange slide grids. They consume the presentation context to automatically switch styling between PowerPoint-style presentations and continuous vertical Blog Articles.
-        </span>
-      }
-      preview={renderWireframe()}
-      codeText={getCodeText()}
-      editorContent={editorContent}
-    />
+    <div className="flex flex-col gap-12">
+      <PlaygroundSection
+        title="Slide Layouts & Wireframes"
+        description={
+          <span>
+            Layouts under <code>src/shared/layouts/</code> arrange slide grids. They consume the presentation context to automatically switch styling between PowerPoint-style presentations and continuous vertical Blog Articles.
+          </span>
+        }
+        preview={renderWireframe()}
+        codeText={getCodeText()}
+        editorContent={editorContent}
+      />
+      <LayoutElementsSection />
+    </div>
   );
 };
 
