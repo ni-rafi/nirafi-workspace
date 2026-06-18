@@ -5,6 +5,7 @@ import { FullWidthLayout } from '@/shared/layouts/FullWidthLayout';
 import { ThankYouLayout } from '@/shared/layouts/ThankYouLayout';
 import { calculateSteelWeight } from '../calculations/steel';
 import { SlideContent, SlideTable, ClickHighlight, LatexFormula, InteractiveCard, ParameterSlider, CalculationOutput } from '@/features/presentation';
+import { QuizCardOrchestrator } from '@/features/quiz';
 
 // Slide 1: Cover Slide
 const Slide1: React.FC<any> = ({ subject, lecture }) => (
@@ -178,8 +179,20 @@ const Slide4: React.FC = () => {
   );
 };
 
-// Slide 5: Thank You Slide
+// Slide 5: Quiz Slide
 const Slide5: React.FC = () => (
+  <FullWidthLayout title="Rebar Steel Weight Check" bgVariant="gallery">
+    <QuizCardOrchestrator
+      quizId="qs_2026_lec3_quiz1"
+      questionText="Calculate total weight (kg) for 150m of 16mm rebar (round output to 3 decimal places)."
+      correctAnswer="237.037"
+      quizType="numeric-input"
+    />
+  </FullWidthLayout>
+);
+
+// Slide 6: Thank You Slide
+const Slide6: React.FC = () => (
   <ThankYouLayout
     title="Thank You"
     subtitle="Do you have any question?"
@@ -192,6 +205,7 @@ export const slides: Record<number, React.ComponentType<any>> = {
   3: Slide3,
   4: Slide4,
   5: Slide5,
+  6: Slide6,
 };
 
 export const slideMetadata: Record<number, { title: string; type: string; section: string }> = {
@@ -199,5 +213,6 @@ export const slideMetadata: Record<number, { title: string; type: string; sectio
   2: { title: 'Steel Weight Principles', type: 'Theory Overview', section: 'Introduction' },
   3: { title: 'Rebar Calculator', type: 'Live Sandbox', section: 'Calculations' },
   4: { title: 'Reinforcement BoQ', type: 'Spreadsheet View', section: 'BoQ Summary' },
-  5: { title: 'Conclusion', type: 'Thank You Slide', section: 'Conclusion' },
+  5: { title: 'Rebar Quiz', type: 'Quiz Slide', section: 'Quiz' },
+  6: { title: 'Conclusion', type: 'Thank You Slide', section: 'Conclusion' },
 };

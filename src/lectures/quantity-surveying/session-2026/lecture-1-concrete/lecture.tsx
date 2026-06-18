@@ -6,6 +6,7 @@ import { ThankYouLayout } from '@/shared/layouts/ThankYouLayout';
 import { calculateConcreteVolume } from '../calculations/concrete';
 import { SlideContent, SlideTable, ClickHighlight, LatexFormula, InteractiveCard, ParameterSlider, CalculationOutput } from '@/features/presentation';
 import SlideBklitChart from '@/features/presentation/components/slides/SlideBklitChart';
+import { QuizCardOrchestrator } from '@/features/quiz';
 
 // Slide 1: Cover Slide
 const Slide1: React.FC<any> = ({ subject, lecture }) => (
@@ -190,8 +191,20 @@ const Slide4: React.FC = () => {
   );
 };
 
-// Slide 5: Thank You Slide (shifted to Slide 6)
+// Slide 6: Quiz Slide
 const Slide6: React.FC = () => (
+  <FullWidthLayout title="Concrete Estimation Check" bgVariant="gallery">
+    <QuizCardOrchestrator
+      quizId="qs_2026_lec1_quiz1"
+      questionText="Calculate volume of concrete with dimensions: L=12m, W=0.4m, H=0.5m (wastage = 5%)."
+      correctAnswer="2.520"
+      quizType="numeric-input"
+    />
+  </FullWidthLayout>
+);
+
+// Slide 7: Thank You Slide
+const Slide7: React.FC = () => (
   <ThankYouLayout
     title="Thank You"
     subtitle="Do you have any question?"
@@ -205,6 +218,7 @@ export const slides: Record<number, React.ComponentType<any>> = {
   4: Slide4,
   5: SlideBklitChart,
   6: Slide6,
+  7: Slide7,
 };
 
 export const slideMetadata: Record<number, { title: string; type: string; section: string }> = {
@@ -213,5 +227,6 @@ export const slideMetadata: Record<number, { title: string; type: string; sectio
   3: { title: 'Volumetric Calculator', type: 'Live Sandbox', section: 'Calculations' },
   4: { title: 'Bill of Quantities', type: 'Spreadsheet View', section: 'BoQ Summary' },
   5: { title: 'Casting Trend Chart', type: 'Data Visualization', section: 'Casting Trend' },
-  6: { title: 'Conclusion', type: 'Thank You Slide', section: 'Conclusion' },
+  6: { title: 'Estimation Quiz', type: 'Quiz Slide', section: 'Quiz' },
+  7: { title: 'Conclusion', type: 'Thank You Slide', section: 'Conclusion' },
 };

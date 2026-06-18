@@ -67,7 +67,11 @@ export const firestoreService = {
   /**
    * Adds a new document with validation.
    */
-  async create<T extends { id?: string | undefined }>(def: FirestoreDefinition<T>, data: Omit<T, 'id'>): Promise<T> {
+  async create<T extends { id?: string | undefined }>(
+    def: FirestoreDefinition<T>,
+    data: Omit<T, 'id'>,
+    collectionPathOverride?: string
+  ): Promise<T> {
     await this.checkGuard(def, 'write');
 
     // Validate data using Zod schema
@@ -76,7 +80,8 @@ export const firestoreService = {
     delete validatedData['id'];
 
     const db = this.getDb();
-    const docRef = await addDoc(collection(db, def.collectionPath), validatedData);
+    const path = collectionPathOverride || def.collectionPath;
+    const docRef = await addDoc(collection(db, path), validatedData);
 
     return {
       id: docRef.id,
@@ -87,14 +92,20 @@ export const firestoreService = {
   /**
    * Sets/creates a document with a specific ID.
    */
-  async set<T extends { id?: string | undefined }>(def: FirestoreDefinition<T>, id: string, data: Omit<T, 'id'>): Promise<T> {
+  async set<T extends { id?: string | undefined }>(
+    def: FirestoreDefinition<T>,
+    id: string,
+    data: Omit<T, 'id'>,
+    collectionPathOverride?: string
+  ): Promise<T> {
     await this.checkGuard(def, 'write');
 
     const validatedData = def.schema.parse({ ...data, id }) as DocumentData;
     delete validatedData['id'];
 
     const db = this.getDb();
-    const docRef = doc(db, def.collectionPath, id);
+    const path = collectionPathOverride || def.collectionPath;
+    const docRef = doc(db, path, id);
     await setDoc(docRef, validatedData);
 
     return {
@@ -107,11 +118,16 @@ export const firestoreService = {
   /**
    * Retrieves a document by ID.
    */
-  async getById<T extends { id?: string | undefined }>(def: FirestoreDefinition<T>, id: string): Promise<T | null> {
+  async getById<T extends { id?: string | undefined }>(
+    def: FirestoreDefinition<T>,
+    id: string,
+    collectionPathOverride?: string
+  ): Promise<T | null> {
     await this.checkGuard(def, 'read');
 
     const db = this.getDb();
-    const docSnap = await getDoc(doc(db, def.collectionPath, id));
+    const path = collectionPathOverride || def.collectionPath;
+    const docSnap = await getDoc(doc(db, path, id));
 
     if (!docSnap.exists()) {
       return null;
@@ -124,11 +140,15 @@ export const firestoreService = {
   /**
    * Retrieves all documents in a collection.
    */
-  async getAll<T extends { id?: string | undefined }>(def: FirestoreDefinition<T>): Promise<T[]> {
+  async getAll<T extends { id?: string | undefined }>(
+    def: FirestoreDefinition<T>,
+    collectionPathOverride?: string
+  ): Promise<T[]> {
     await this.checkGuard(def, 'read');
 
     const db = this.getDb();
-    const querySnapshot = await getDocs(collection(db, def.collectionPath));
+    const path = collectionPathOverride || def.collectionPath;
+    const querySnapshot = await getDocs(collection(db, path));
     
     const results: T[] = [];
     querySnapshot.forEach((docSnap) => {
@@ -142,11 +162,17 @@ export const firestoreService = {
   /**
    * Updates fields of an existing document.
    */
-  async update<T>(def: FirestoreDefinition<T>, id: string, data: Partial<Omit<T, 'id'>>): Promise<void> {
+  async update<T>(
+    def: FirestoreDefinition<T>,
+    id: string,
+    data: Partial<Omit<T, 'id'>>,
+    collectionPathOverride?: string
+  ): Promise<void> {
     await this.checkGuard(def, 'write');
 
     const db = this.getDb();
-    const docRef = doc(db, def.collectionPath, id);
+    const path = collectionPathOverride || def.collectionPath;
+    const docRef = doc(db, path, id);
     
     // Validate partial data shape if needed, or update directly.
     await updateDoc(docRef, data as DocumentData);
@@ -155,24 +181,34 @@ export const firestoreService = {
   /**
    * Deletes a document by ID.
    */
-  async delete<T>(def: FirestoreDefinition<T>, id: string): Promise<void> {
+  async delete<T>(
+    def: FirestoreDefinition<T>,
+    id: string,
+    collectionPathOverride?: string
+  ): Promise<void> {
     await this.checkGuard(def, 'write');
 
     const db = this.getDb();
-    await deleteDoc(doc(db, def.collectionPath, id));
+    const path = collectionPathOverride || def.collectionPath;
+    await deleteDoc(doc(db, path, id));
   },
 
   /**
    * Subscribes to collection snapshots in real-time.
    */
-  subscribe<T extends { id?: string | undefined }>(def: FirestoreDefinition<T>, callback: (items: T[]) => void): () => void {
+  subscribe<T extends { id?: string | undefined }>(
+    def: FirestoreDefinition<T>,
+    callback: (items: T[]) => void,
+    collectionPathOverride?: string
+  ): () => void {
     // Subscription requires read permission
     this.checkGuard(def, 'read').catch((err) => {
       console.error('[FirestoreService] Subscription unauthorized:', err);
     });
 
     const db = this.getDb();
-    return onSnapshot(collection(db, def.collectionPath), (querySnapshot) => {
+    const path = collectionPathOverride || def.collectionPath;
+    return onSnapshot(collection(db, path), (querySnapshot) => {
       const results: T[] = [];
       querySnapshot.forEach((docSnap) => {
         try {
@@ -184,7 +220,7 @@ export const firestoreService = {
       });
       callback(results);
     }, (error) => {
-      console.warn(`[FirestoreService] Real-time subscription failed for ${def.collectionPath}:`, error);
+      console.warn(`[FirestoreService] Real-time subscription failed for ${path}:`, error);
     });
   }
 };

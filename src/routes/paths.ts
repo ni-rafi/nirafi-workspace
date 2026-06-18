@@ -5,4 +5,5 @@ export const ROUTE_PATHS = {
   LECTURE_VIEW: '/:subjectId/:sessionId/:lectureId',
   BLOG_VIEW: '/:subjectId/:sessionId/:lectureId/blog',
   SLIDE_FLAT: '/:slideNo(\\d+)', // Matches a flat slide number
+  ADMIN_DASHBOARD: '/:subjectId/:sessionId/admin',
 };

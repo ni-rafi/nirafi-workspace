@@ -7,6 +7,7 @@ import { ClickStepsProvider } from '@/features/presentation/context/ClickStepsCo
 import LecturePortal from '@/features/portal';
 import SlideViewer from '@/features/presentation';
 import RollNumberGate from '@/features/gate/components/RollNumberGate';
+import AdminClassDashboard from '@/features/portal/components/AdminClassDashboard';
 
 /**
  * Handles legacy Slidev flat slide number requests (e.g. /5) by
@@ -97,6 +98,7 @@ export const AppRoutes: React.FC = () => {
       <Route element={<PageLayout />}>
         {/* Main Lecture Portal Dashboard */}
         <Route path={ROUTE_PATHS.PORTAL} element={<LecturePortal />} />
+        <Route path={ROUTE_PATHS.ADMIN_DASHBOARD} element={<AdminClassDashboard />} />
         <Route path={ROUTE_PATHS.PORTAL_LEGACY} element={<Navigate to={ROUTE_PATHS.PORTAL} replace />} />
         <Route path={ROUTE_PATHS.SLIDE_FLAT} element={<FlatSlideRedirect />} />
 

@@ -90,3 +90,32 @@ export const SessionStatusPayloadSchema = z.object({
 
 export type SessionStatusPayload = z.infer<typeof SessionStatusPayloadSchema>;
 
+export const QuizStateSchema = z.object({
+  id: z.string().optional(),
+  status: z.enum(['hidden', 'placeholder', 'active', 'closed']),
+  activatedAt: z.union([z.date(), z.number()]).nullable().optional(),
+  durationSeconds: z.number().int().nonnegative().default(300),
+  quizType: z.string().default('numeric-input'),
+});
+
+export type QuizState = z.infer<typeof QuizStateSchema>;
+
+export const StudentQuizAnswerSchema = z.object({
+  answer: z.string().min(1),
+  isCorrect: z.boolean(),
+  submittedAt: z.number(),
+});
+
+export type StudentQuizAnswer = z.infer<typeof StudentQuizAnswerSchema>;
+
+export const SubjectSubmissionsSchema = z.object({
+  id: z.string().optional(), // studentUid
+  studentUid: z.string().min(1),
+  studentName: z.string().min(1),
+  studentRegistration: z.string().min(1),
+  answers: z.record(z.string(), StudentQuizAnswerSchema), // keyed by quizId
+});
+
+export type SubjectSubmissions = z.infer<typeof SubjectSubmissionsSchema>;
+
+

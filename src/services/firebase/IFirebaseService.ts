@@ -1,6 +1,6 @@
-import type { QuizResponsePayload, FeedbackPayload, UserPayload, ThemeConfigPayload, ThemePreferences, SessionStatusPayload } from './firebase.schemas';
+import type { QuizResponsePayload, FeedbackPayload, UserPayload, ThemeConfigPayload, ThemePreferences, SessionStatusPayload, QuizState, SubjectSubmissions } from './firebase.schemas';
 
-export type { QuizResponsePayload, FeedbackPayload, UserPayload, ThemeConfigPayload, ThemePreferences, SessionStatusPayload };
+export type { QuizResponsePayload, FeedbackPayload, UserPayload, ThemeConfigPayload, ThemePreferences, SessionStatusPayload, QuizState, SubjectSubmissions };
 
 export interface IFirebaseService {
   initializeFirebase(): void;
@@ -15,4 +15,11 @@ export interface IFirebaseService {
   getSessionStatus(id: string): Promise<SessionStatusPayload | null>;
   setSessionStatus(id: string, payload: Omit<SessionStatusPayload, 'id'>): Promise<SessionStatusPayload>;
   subscribeSessionStatuses(callback: (statuses: SessionStatusPayload[]) => void): () => void;
+  getQuizState(quizId: string): Promise<QuizState | null>;
+  setQuizState(quizId: string, state: Omit<QuizState, 'id'>): Promise<QuizState>;
+  subscribeQuizState(quizId: string, callback: (state: QuizState | null) => void): () => void;
+  getSubjectSubmissions(subjectId: string, sessionId: string, studentUid: string): Promise<SubjectSubmissions | null>;
+  submitQuizAnswer(subjectId: string, sessionId: string, studentUid: string, studentInfo: { name: string; reg: string }, questionId: string, answer: string, isCorrect: boolean): Promise<void>;
+  getAllSubmissions(subjectId: string, sessionId: string): Promise<SubjectSubmissions[]>;
 }
+

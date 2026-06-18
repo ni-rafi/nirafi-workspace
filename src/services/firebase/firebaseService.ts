@@ -1,13 +1,15 @@
 import { initializeApp, type FirebaseApp } from 'firebase/app';
 import { getAuth, signInAnonymously, type Auth } from 'firebase/auth';
-import type { IFirebaseService, QuizResponsePayload, FeedbackPayload, UserPayload, ThemeConfigPayload, SessionStatusPayload } from './IFirebaseService';
+import type { IFirebaseService, QuizResponsePayload, FeedbackPayload, UserPayload, ThemeConfigPayload, SessionStatusPayload, QuizState, SubjectSubmissions } from './IFirebaseService';
 import { SubmissionsRepository } from './repositories/submissions/SubmissionsRepository';
 import { FeedbackRepository } from './repositories/feedback/FeedbackRepository';
 import { UsersRepository } from './repositories/users/UsersRepository';
 import { ThemesRepository } from './repositories/themes/ThemesRepository';
 import { SessionStatusRepository } from './repositories/lectures/SessionStatusRepository';
+import { QuizStatesRepository } from './repositories/quiz-states/QuizStatesRepository';
+import { SubjectSubmissionsRepository } from './repositories/submissions/SubjectSubmissionsRepository';
 import { firestoreService } from './firestoreService';
-import { SessionStatusDefinition } from './firebase.definitions';
+import { SessionStatusDefinition, QuizStatesDefinition } from './firebase.definitions';
 
 export class FirebaseService implements IFirebaseService {
   private app: FirebaseApp | null = null;
@@ -18,6 +20,8 @@ export class FirebaseService implements IFirebaseService {
   private usersRepository: UsersRepository | null = null;
   private themesRepository: ThemesRepository | null = null;
   private sessionStatusRepository: SessionStatusRepository | null = null;
+  private quizStatesRepository: QuizStatesRepository | null = null;
+  private subjectSubmissionsRepository: SubjectSubmissionsRepository | null = null;
   private isOfflineMode = false;
 
 
@@ -48,6 +52,8 @@ export class FirebaseService implements IFirebaseService {
       this.usersRepository = new UsersRepository();
       this.themesRepository = new ThemesRepository();
       this.sessionStatusRepository = new SessionStatusRepository();
+      this.quizStatesRepository = new QuizStatesRepository();
+      this.subjectSubmissionsRepository = new SubjectSubmissionsRepository();
     } catch (e) {
       console.warn('[FirebaseService] Firebase failed to initialize. Running in mock/offline mode:', e);
       this.isOfflineMode = true;
@@ -267,5 +273,171 @@ export class FirebaseService implements IFirebaseService {
     }
 
     return firestoreService.subscribe(SessionStatusDefinition, callback);
+  }
+
+  public async getQuizState(quizId: string): Promise<QuizState | null> {
+    if (this.isOfflineMode || !this.quizStatesRepository) {
+      const saved = localStorage.getItem(`offline_quiz_state_${quizId}`);
+      if (saved) {
+        return { id: quizId, ...JSON.parse(saved) } as QuizState;
+      }
+      return null;
+    }
+    try {
+      return await this.quizStatesRepository.getById(quizId);
+    } catch (error) {
+      console.warn('[FirebaseService] Failed to load quiz state, trying offline cache:', error);
+      const saved = localStorage.getItem(`offline_quiz_state_${quizId}`);
+      if (saved) {
+        return { id: quizId, ...JSON.parse(saved) } as QuizState;
+      }
+      return null;
+    }
+  }
+
+  public async setQuizState(quizId: string, state: Omit<QuizState, 'id'>): Promise<QuizState> {
+    if (this.isOfflineMode || !this.quizStatesRepository) {
+      console.warn('[FirebaseService] [Offline Mode] Saving quiz state locally:', quizId, state);
+      localStorage.setItem(`offline_quiz_state_${quizId}`, JSON.stringify(state));
+      window.dispatchEvent(new StorageEvent('storage', { key: `offline_quiz_state_${quizId}`, newValue: JSON.stringify(state) }));
+      return { id: quizId, ...state };
+    }
+    try {
+      return await this.quizStatesRepository.set(quizId, state);
+    } catch (error) {
+      console.warn('[FirebaseService] Failed to save quiz state in Firestore, saving locally:', error);
+      localStorage.setItem(`offline_quiz_state_${quizId}`, JSON.stringify(state));
+      return { id: quizId, ...state };
+    }
+  }
+
+  public subscribeQuizState(quizId: string, callback: (state: QuizState | null) => void): () => void {
+    if (this.isOfflineMode) {
+      const getOfflineState = (): QuizState | null => {
+        const saved = localStorage.getItem(`offline_quiz_state_${quizId}`);
+        return saved ? ({ id: quizId, ...JSON.parse(saved) } as QuizState) : null;
+      };
+
+      callback(getOfflineState());
+
+      const handleStorageChange = (e: StorageEvent) => {
+        if (e.key === `offline_quiz_state_${quizId}`) {
+          callback(getOfflineState());
+        }
+      };
+
+      window.addEventListener('storage', handleStorageChange);
+      return () => {
+        window.removeEventListener('storage', handleStorageChange);
+      };
+    }
+
+    return firestoreService.subscribe(QuizStatesDefinition, (items) => {
+      const match = items.find((item) => item.id === quizId);
+      callback(match || null);
+    });
+  }
+
+  public async getSubjectSubmissions(
+    subjectId: string,
+    sessionId: string,
+    studentUid: string
+  ): Promise<SubjectSubmissions | null> {
+    if (this.isOfflineMode || !this.subjectSubmissionsRepository) {
+      const saved = localStorage.getItem(`offline_submissions_${subjectId}_${sessionId}_${studentUid}`);
+      if (saved) {
+        return JSON.parse(saved) as SubjectSubmissions;
+      }
+      return null;
+    }
+    try {
+      return await this.subjectSubmissionsRepository.getStudentSubmission(subjectId, sessionId, studentUid);
+    } catch (error) {
+      console.warn('[FirebaseService] Failed to load subject submissions, trying offline cache:', error);
+      const saved = localStorage.getItem(`offline_submissions_${subjectId}_${sessionId}_${studentUid}`);
+      if (saved) {
+        return JSON.parse(saved) as SubjectSubmissions;
+      }
+      return null;
+    }
+  }
+
+  public async submitQuizAnswer(
+    subjectId: string,
+    sessionId: string,
+    studentUid: string,
+    studentInfo: { name: string; reg: string },
+    questionId: string,
+    answer: string,
+    isCorrect: boolean
+  ): Promise<void> {
+    let submission = await this.getSubjectSubmissions(subjectId, sessionId, studentUid);
+    if (!submission) {
+      submission = {
+        studentUid,
+        studentName: studentInfo.name,
+        studentRegistration: studentInfo.reg,
+        answers: {},
+      };
+    }
+    submission.answers[questionId] = {
+      answer,
+      isCorrect,
+      submittedAt: Date.now(),
+    };
+
+    if (this.isOfflineMode || !this.subjectSubmissionsRepository) {
+      localStorage.setItem(`offline_submissions_${subjectId}_${sessionId}_${studentUid}`, JSON.stringify(submission));
+      return;
+    }
+    try {
+      await this.subjectSubmissionsRepository.saveStudentSubmission(subjectId, sessionId, studentUid, {
+        studentUid: submission.studentUid,
+        studentName: submission.studentName,
+        studentRegistration: submission.studentRegistration,
+        answers: submission.answers,
+      });
+    } catch (error) {
+      console.warn('[FirebaseService] Failed to save submissions in Firestore, saving locally:', error);
+      localStorage.setItem(`offline_submissions_${subjectId}_${sessionId}_${studentUid}`, JSON.stringify(submission));
+    }
+  }
+
+  public async getAllSubmissions(subjectId: string, sessionId: string): Promise<SubjectSubmissions[]> {
+    if (this.isOfflineMode || !this.subjectSubmissionsRepository) {
+      const results: SubjectSubmissions[] = [];
+      const prefix = `offline_submissions_${subjectId}_${sessionId}_`;
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && key.startsWith(prefix)) {
+          try {
+            const data = JSON.parse(localStorage.getItem(key) || '{}');
+            results.push(data);
+          } catch (e) {
+            console.warn('Failed to parse offline submission:', key, e);
+          }
+        }
+      }
+      return results;
+    }
+    try {
+      return await this.subjectSubmissionsRepository.getAllSessionSubmissions(subjectId, sessionId);
+    } catch (error) {
+      console.warn('[FirebaseService] Failed to fetch all submissions, falling back to local storage prefix search:', error);
+      const results: SubjectSubmissions[] = [];
+      const prefix = `offline_submissions_${subjectId}_${sessionId}_`;
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && key.startsWith(prefix)) {
+          try {
+            const data = JSON.parse(localStorage.getItem(key) || '{}');
+            results.push(data);
+          } catch (e) {
+            console.warn('Failed to parse offline submission:', key, e);
+          }
+        }
+      }
+      return results;
+    }
   }
 }

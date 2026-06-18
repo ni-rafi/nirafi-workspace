@@ -51,4 +51,23 @@
     print-color-adjust: exact;
     -webkit-print-color-adjust: exact;
   }
+
+  /* Hide presenter controls, live timers, play icons, and drawing overlays */
+  .presenter-control-deck,
+  .inline-play-simulation-btn,
+  .canvas-annotation-layer,
+  .timer-countdown-badge,
+  .quiz-interactive-inputs,
+  button,
+  select,
+  input {
+    display: none !important;
+  }
+
+  /* Force display of the static placeholder block */
+  .quiz-print-placeholder {
+    display: block !important;
+    visibility: visible !important;
+    page-break-inside: avoid;
+  }
 }

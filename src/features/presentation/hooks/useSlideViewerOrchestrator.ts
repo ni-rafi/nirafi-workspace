@@ -7,6 +7,8 @@ import { useSlideViewerState } from './useSlideViewerState';
 import { usePresenterFeatures } from './usePresenterFeatures';
 import { useClickSteps } from './useClickSteps';
 import { ViewMode, Theme } from '../context/PresentationContext';
+import { useFirebase } from '@/context/FirebaseContext';
+import type { QuizState } from '@/services/firebase/IFirebaseService';
 
 
 export const useSlideViewerOrchestrator = () => {
@@ -23,6 +25,27 @@ export const useSlideViewerOrchestrator = () => {
 
   // Active slide local state for synchronous rendering transitions
   const [activeSlide, setActiveSlide] = useState(currentSlideInt);
+
+  const firebaseService = useFirebase();
+  const [activeQuizState, setActiveQuizState] = useState<QuizState | null>(null);
+
+  const quizId = useMemo(() => {
+    if (!activeLec) return null;
+    if (activeLec.id === 'concrete' && activeSlide === 6) return 'qs_2026_lec1_quiz1';
+    if (activeLec.id === 'brickwork' && activeSlide === 5) return 'qs_2026_lec2_quiz1';
+    if (activeLec.id === 'steel' && activeSlide === 5) return 'qs_2026_lec3_quiz1';
+    return null;
+  }, [activeLec, activeSlide]);
+
+  useEffect(() => {
+    if (quizId) {
+      return firebaseService.subscribeQuizState(quizId, (state) => {
+        setActiveQuizState(state);
+      });
+    } else {
+      setActiveQuizState(null);
+    }
+  }, [quizId, firebaseService]);
 
   // Initial background resolution
   const initialMeta = activeLec && activeSub ? getSlideMetadata(currentSlideInt, activeSub, activeLec) : null;
@@ -136,6 +159,10 @@ export const useSlideViewerOrchestrator = () => {
   }, [navigate]);
 
   const handleNextSection = useCallback(() => {
+    if (activeQuizState?.status === 'active') {
+      alert('Cannot advance slide while the live quiz is actively collecting responses. Please close the quiz first.');
+      return;
+    }
     if (!activeSub || !activeLec) return;
     const currentMeta = getSlideMetadata(activeSlide, activeSub, activeLec);
     const sectionNames = Object.keys(sections);
@@ -152,7 +179,7 @@ export const useSlideViewerOrchestrator = () => {
         }
       }
     }
-  }, [activeSlide, activeSub, activeLec, sections, changeSlideWithTransition]);
+  }, [activeSlide, activeSub, activeLec, sections, changeSlideWithTransition, activeQuizState]);
 
   const handlePrevSection = useCallback(() => {
     if (!activeSub || !activeLec) return;
@@ -180,10 +207,14 @@ export const useSlideViewerOrchestrator = () => {
   }, [activeSlide, changeSlideWithTransition]);
 
   const handleNextSlide = useCallback(() => {
+    if (activeQuizState?.status === 'active') {
+      alert('Cannot advance slide while the live quiz is actively collecting responses. Please close the quiz first.');
+      return;
+    }
     if (activeSlide < totalSlidesCount) {
       changeSlideWithTransition(activeSlide + 1);
     }
-  }, [activeSlide, totalSlidesCount, changeSlideWithTransition]);
+  }, [activeSlide, totalSlidesCount, changeSlideWithTransition, activeQuizState]);
 
   const clickSteps = useClickSteps(handlePrevSlide, handleNextSlide);
 

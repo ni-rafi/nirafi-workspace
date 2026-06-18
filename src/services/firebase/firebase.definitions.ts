@@ -5,11 +5,15 @@ import {
   UserPayloadSchema,
   ThemeConfigPayloadSchema,
   SessionStatusPayloadSchema,
+  QuizStateSchema,
+  SubjectSubmissionsSchema,
   type QuizResponsePayload,
   type FeedbackPayload,
   type UserPayload,
   type ThemeConfigPayload,
-  type SessionStatusPayload
+  type SessionStatusPayload,
+  type QuizState,
+  type SubjectSubmissions
 } from './firebase.schemas';
 
 export const SubmissionsDefinition: FirestoreDefinition<QuizResponsePayload> = {
@@ -56,6 +60,25 @@ export const SessionStatusDefinition: FirestoreDefinition<SessionStatusPayload> 
     write: ['admin']
   }
 };
+
+export const QuizStatesDefinition: FirestoreDefinition<QuizState> = {
+  collectionPath: 'quiz_states',
+  schema: QuizStateSchema,
+  roles: {
+    read: ['student', 'admin'],
+    write: ['admin']
+  }
+};
+
+export const SubjectSubmissionsDefinition: FirestoreDefinition<SubjectSubmissions> = {
+  collectionPath: 'quiz_submissions',
+  schema: SubjectSubmissionsSchema,
+  roles: {
+    read: ['student', 'admin'],
+    write: ['student', 'admin']
+  }
+};
+
 
 
 

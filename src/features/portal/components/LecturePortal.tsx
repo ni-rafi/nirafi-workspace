@@ -1,5 +1,6 @@
 import React from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { useUserContext } from '@/context/UserContext';
 import { Sparkles } from 'lucide-react';
 import { SUBJECTS } from '@/config/lectures';
 import {
@@ -16,6 +17,9 @@ import LectureCard from './LectureCard';
  */
 export const LecturePortal: React.FC = () => {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { userProfile } = useUserContext();
+  const isAdmin = userProfile?.role === 'admin';
   const [alertMessage, setAlertMessage] = React.useState<string | null>(null);
 
   React.useEffect(() => {
@@ -127,6 +131,17 @@ export const LecturePortal: React.FC = () => {
                     <span className="text-xs font-bold uppercase tracking-wider text-foreground">
                       {session.label}
                     </span>
+                    {isAdmin && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate(`/${subject.id}/${session.id}/admin`);
+                        }}
+                        className="mr-4 px-2.5 py-1 text-[10px] font-bold bg-primary/10 hover:bg-primary/20 text-primary border border-primary/25 rounded-md cursor-pointer transition-colors"
+                      >
+                        Admin Dashboard
+                      </button>
+                    )}
                   </AccordionTrigger>
                   <AccordionContent className="px-5 pt-5 pb-5">
                     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
