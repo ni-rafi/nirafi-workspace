@@ -71,7 +71,7 @@ export const PresentationModeView: React.FC<PresentationModeViewProps> = ({ orch
   const currentNotes = SPEAKER_NOTES[activeSlide] || 'No presenter notes defined for this slide.';
 
   const mainSlideContent = (
-    <PresentationContext.Provider value={{ theme: activeTheme, viewMode, activeSubStep: clickSteps.currentClick }}>
+    <PresentationContext.Provider value={{ theme: activeTheme, viewMode, activeSubStep: clickSteps.currentClick, slideNo: activeSlide }}>
       <div className="flex-1 w-full h-full relative" style={{ filter: presenterFeatures.filterStyle || undefined }}>
         <SlideContainer zoom={viewerState.isPresenterView ? 0.95 : 1} scaleMode={presenterFeatures.settings.scale}>
           <MorphingBackground variant={bgVariant} />

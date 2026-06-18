@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useContext } from 'react';
 import { ChevronDown } from 'lucide-react';
 import type { Subject, Lecture, Session } from '@/config/lectures';
 import SlideRenderer, { getSlideMetadata } from '../slides/SlideRenderer';
@@ -24,6 +24,14 @@ const BlogSlideCard: React.FC<{
   session?: Session;
 }> = ({ slideNo, subject, lecture, session }) => {
   const meta = getSlideMetadata(slideNo, subject, lecture);
+  const presentation = useContext(PresentationContext);
+
+  const cardContextValue = useMemo(() => ({
+    theme: presentation?.theme || 'light',
+    viewMode: presentation?.viewMode || 'blog',
+    activeSubStep: 0,
+    slideNo,
+  }), [presentation, slideNo]);
 
   let resolvedTheme: any = null;
   try {
@@ -39,20 +47,22 @@ const BlogSlideCard: React.FC<{
   };
 
   return (
-    <div
-      id={`slide-card-${slideNo}`}
-      style={containerStyle}
-      className="w-full select-text py-2 text-foreground bg-transparent overflow-hidden flex flex-col gap-3"
-    >
-      {slideNo > 1 && meta.title && (
-        <h3 className="text-lg font-bold text-primary tracking-tight select-none border-b border-border/20 pb-1 mt-4">
-          {meta.title}
-        </h3>
-      )}
-      <ClickStepsProvider currentClickOverride={999}>
-        <SlideRenderer slideNo={slideNo} subject={subject} lecture={lecture} session={session} />
-      </ClickStepsProvider>
-    </div>
+    <PresentationContext.Provider value={cardContextValue}>
+      <div
+        id={`slide-card-${slideNo}`}
+        style={containerStyle}
+        className="w-full select-text py-2 text-foreground bg-transparent overflow-hidden flex flex-col gap-3"
+      >
+        {slideNo > 1 && meta.title && (
+          <h3 className="text-lg font-bold text-primary tracking-tight select-none border-b border-border/20 pb-1 mt-4">
+            {meta.title}
+          </h3>
+        )}
+        <ClickStepsProvider currentClickOverride={999}>
+          <SlideRenderer slideNo={slideNo} subject={subject} lecture={lecture} session={session} />
+        </ClickStepsProvider>
+      </div>
+    </PresentationContext.Provider>
   );
 };
 

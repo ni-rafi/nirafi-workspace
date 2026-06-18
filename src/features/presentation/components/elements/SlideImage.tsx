@@ -18,7 +18,6 @@ export const SlideImage: React.FC<SlideImageProps> = ({
   caption,
   maxWidth,
   maxHeight,
-  zoomable = true,
   className = '',
   imageClassName = '',
 }) => {
@@ -33,12 +32,11 @@ export const SlideImage: React.FC<SlideImageProps> = ({
       className={`mx-auto flex flex-col items-center justify-center my-4 ${className}`}
       style={{ maxWidth: widthStyle }}
     >
-      <div 
-        className={`overflow-hidden rounded-xl border border-border/80 transition-all duration-300 ${
-          isBlog 
-            ? 'bg-transparent border-border/40 shadow-none' 
-            : `bg-card border-border/60 shadow-md ${zoomable ? 'hover:scale-[1.02] hover:shadow-lg active:scale-98' : ''}`
-        }`}
+      <div
+        className={`overflow-hidden rounded-xl border border-border/80 transition-all duration-300 ${isBlog
+            ? 'bg-transparent border-border/40 shadow-none'
+            : 'bg-card border-border/60 shadow-md'
+          }`}
       >
         <img
           src={src}

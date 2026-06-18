@@ -7,6 +7,7 @@ export interface PresentationContextType {
   theme: Theme;
   viewMode: ViewMode;
   activeSubStep: number;
+  slideNo?: number;
 }
 
 export const PresentationContext = createContext<PresentationContextType | undefined>(undefined);

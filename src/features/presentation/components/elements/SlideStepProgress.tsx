@@ -28,7 +28,6 @@ export const SlideStepProgress: React.FC<SlideStepProgressProps> = ({
         const stepNum = idx + 1;
         const isActive = stepNum === activeStep;
         const isCompleted = stepNum < activeStep;
-        const isFuture = stepNum > activeStep;
 
         let itemClass = '';
         let badgeClass = '';

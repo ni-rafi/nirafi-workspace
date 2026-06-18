@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { SlideTable } from '@/features/presentation/components/elements/SlideTable';
 import { ClickHighlight } from '@/features/presentation/components/elements/ClickHighlight';
+import { ClickReveal } from '@/features/presentation/components/elements/ClickReveal';
 import { ClickStepsProvider } from '@/features/presentation';
 import { Button } from '@/components/ui/button';
 import { PlaygroundSection } from './PlaygroundSection';
@@ -16,7 +17,8 @@ export const TablesSection: React.FC = () => {
     { label: 'Item Code', align: 'left' as const },
     { label: 'Description', align: 'left' as const },
     { label: 'Qty', align: 'right' as const },
-    { label: 'Unit', align: 'center' as const }
+    { label: 'Unit', align: 'center' as const },
+    { label: 'Rate ($)', align: 'right' as const, revealAt: 2 } // Reveals column at click step 2
   ];
 
   const rows = [
@@ -24,13 +26,15 @@ export const TablesSection: React.FC = () => {
       '1.1',
       'In-situ columns grade C30',
       <ClickHighlight key="c1" at={1} variant="paint">{highlightVal || ' '}</ClickHighlight>,
-      'm³'
+      'm³',
+      <ClickReveal key="r1" at={3}>120.00</ClickReveal> // Fills cell data at click step 3
     ],
     [
       '1.2',
       'Reinforcement bars high yield steel',
       '1,240',
-      'kg'
+      'kg',
+      <ClickReveal key="r2" at={3}>1.50</ClickReveal> // Fills cell data at click step 3
     ]
   ];
 
@@ -40,7 +44,7 @@ export const TablesSection: React.FC = () => {
         <span className="text-[10px] font-bold text-muted-foreground uppercase">
           Simulated Step: <span className="text-primary">{activeStep}</span>
         </span>
-        <div className="flex gap-1">
+        <div className="flex gap-1 flex-wrap">
           <Button
             size="xs"
             variant={activeStep === 0 ? 'default' : 'outline'}
@@ -51,11 +55,27 @@ export const TablesSection: React.FC = () => {
           </Button>
           <Button
             size="xs"
-            variant={activeStep >= 1 ? 'default' : 'outline'}
+            variant={activeStep === 1 ? 'default' : 'outline'}
             onClick={() => setActiveStep(1)}
             className="h-6 text-[9px] font-mono cursor-pointer"
           >
-            Step 1 (Highlight Cell)
+            Step 1 (Highlight Qty)
+          </Button>
+          <Button
+            size="xs"
+            variant={activeStep === 2 ? 'default' : 'outline'}
+            onClick={() => setActiveStep(2)}
+            className="h-6 text-[9px] font-mono cursor-pointer"
+          >
+            Step 2 (Add Column)
+          </Button>
+          <Button
+            size="xs"
+            variant={activeStep >= 3 ? 'default' : 'outline'}
+            onClick={() => setActiveStep(3)}
+            className="h-6 text-[9px] font-mono cursor-pointer"
+          >
+            Step 3 (Fill Cells)
           </Button>
         </div>
       </div>
@@ -72,13 +92,14 @@ export const TablesSection: React.FC = () => {
     </div>
   );
 
-  const codeText = `import { SlideTable, ClickHighlight } from '@/features/presentation';
+  const codeText = `import { SlideTable, ClickHighlight, ClickReveal } from '@/features/presentation';
 
 const headers = [
   { label: 'Item Code', align: 'left' },
   { label: 'Description', align: 'left' },
   { label: 'Qty', align: 'right' },
-  { label: 'Unit', align: 'center' }
+  { label: 'Unit', align: 'center' },
+  { label: 'Rate ($)', align: 'right', revealAt: 2 } // Column added step-by-step
 ];
 
 const rows = [
@@ -86,13 +107,15 @@ const rows = [
     '1.1',
     'In-situ columns grade C30',
     <ClickHighlight at={1} variant="paint">${highlightVal}</ClickHighlight>,
-    'm³'
+    'm³',
+    <ClickReveal at={3}>120.00</ClickReveal> // Cell filled step-by-step
   ],
   [
     '1.2',
     'Reinforcement bars high yield steel',
     '1,240',
-    'kg'
+    'kg',
+    <ClickReveal at={3}>1.50</ClickReveal>
   ]
 ];
 
@@ -106,7 +129,10 @@ const rows = [
 
   const editorContent = (
     <div className="text-slate-300">
-      <span className="text-purple-400">import</span> {'{ SlideTable, ClickHighlight }'} <span className="text-purple-400">from</span> <span className="text-amber-300">"@/features/presentation"</span>;{"\n\n"}
+      <span className="text-purple-400">import</span> {'{ SlideTable, ClickHighlight, ClickReveal }'} <span className="text-purple-400">from</span> <span className="text-amber-300">"@/features/presentation"</span>;{"\n\n"}
+      <span className="text-purple-400">const</span> headers = <span className="text-slate-400">[</span>{"\n"}
+      {"  "}... // Rate ($) has revealAt: 2{"\n"}
+      <span className="text-slate-400">]</span>;{"\n\n"}
       <span className="text-purple-400">const</span> rows = <span className="text-slate-400">[</span>{"\n"}
       {"  "}<span className="text-slate-400">[</span>'1.1', 'In-situ columns', &lt;ClickHighlight at=&#123;1&#125;&gt;
       <input
@@ -115,7 +141,7 @@ const rows = [
         onChange={(e) => setHighlightVal(e.target.value)}
         className="bg-slate-900 border border-white/10 rounded px-1.5 py-0.5 text-slate-100 focus:outline-none focus:border-primary/50 w-20 font-mono text-[11px] inline-block"
       />
-      &lt;/ClickHighlight&gt;, 'm³'<span className="text-slate-400">]</span>,{"\n"}
+      &lt;/ClickHighlight&gt;, 'm³', &lt;ClickReveal at=&#123;3&#125;&gt;120.00&lt;/ClickReveal&gt;<span className="text-slate-400">]</span>,{"\n"}
       <span className="text-slate-400">]</span>;{"\n\n"}
       <span className="text-blue-400">&lt;SlideTable</span>{"\n"}
       {"  "}<span className="text-teal-400">headers</span>=<span className="text-pink-400">&#123;</span>headers<span className="text-pink-400">&#125;</span>{"\n"}
@@ -156,10 +182,10 @@ const rows = [
 
   return (
     <PlaygroundSection
-      title="Tables & Cell-Level Highlights"
+      title="Tables, Step Column Reveals & Cell-Level Highlights"
       description={
         <span>
-          Use <code>&lt;SlideTable&gt;</code> to render grids. Headers accept alignment definitions. Rows accept any React nodes, meaning you can nest <code>&lt;ClickHighlight&gt;</code> directly inside cells to highlight data items.
+          Use <code>&lt;SlideTable&gt;</code> to render grids. Headers accept alignment and optional <code>revealAt</code> properties to add columns step-by-step. Nest <code>&lt;ClickReveal&gt;</code> inside cell arrays to fill cell data step-by-step, or <code>&lt;ClickHighlight&gt;</code> to emphasize specific cell values.
         </span>
       }
       preview={preview}
