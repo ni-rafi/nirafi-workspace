@@ -7,6 +7,21 @@ interface PlaygroundHueSliderProps {
   disabled?: boolean;
 }
 
+const PRESET_HUES = [
+  // Row 1
+  { hue: 0, label: 'Red' },
+  { hue: 30, label: 'Orange' },
+  { hue: 60, label: 'Yellow' },
+  { hue: 120, label: 'Green' },
+  { hue: 155, label: 'Emerald' },
+  // Row 2
+  { hue: 195, label: 'Cyan' },
+  { hue: 220, label: 'Blue' },
+  { hue: 255, label: 'Indigo' },
+  { hue: 290, label: 'Purple' },
+  { hue: 330, label: 'Pink' },
+];
+
 export const PlaygroundHueSlider: React.FC<PlaygroundHueSliderProps> = ({
   value,
   onChange,
@@ -15,33 +30,38 @@ export const PlaygroundHueSlider: React.FC<PlaygroundHueSliderProps> = ({
   return (
     <div className="space-y-2">
       <span className="flex items-center gap-1.5 font-semibold text-muted-foreground">
-        <Palette className="h-3.5 w-3.5" /> Accent Color Hue Shifting
+        <Palette className="h-3.5 w-3.5" /> Theme Accent Color
       </span>
       <div className="flex flex-col gap-1.5 rounded-lg border p-3 bg-muted/20">
-        <div className="flex justify-between text-[10px] text-muted-foreground mb-1">
-          <span>Primary Hue</span>
-          <span className="font-mono">{value}°</span>
+        <div className="grid grid-cols-5 gap-2.5 py-1 justify-items-center">
+          {PRESET_HUES.map(({ hue, label }) => {
+            const isSelected = value === hue;
+            return (
+              <button
+                key={hue}
+                type="button"
+                disabled={disabled}
+                onClick={() => onChange(hue)}
+                title={`${label} (${hue}°)`}
+                className={`w-7 h-7 rounded-full transition-all flex items-center justify-center relative ${
+                  disabled ? 'opacity-50 cursor-not-allowed' : 'hover:scale-110 active:scale-95'
+                }`}
+                style={{
+                  backgroundColor: `hsl(${hue}, 75%, 55%)`,
+                  boxShadow: isSelected
+                    ? `0 0 0 2px hsl(var(--background)), 0 0 0 4px hsl(${hue}, 75%, 55%)`
+                    : 'none',
+                }}
+              >
+                {isSelected && (
+                  <span className="w-1.5 h-1.5 rounded-full bg-white shadow-xs" />
+                )}
+              </button>
+            );
+          })}
         </div>
-        {/* Spectral Slider Track */}
-        <div className="relative flex items-center h-4 rounded-md overflow-hidden">
-          <div 
-            className="absolute inset-0 h-full w-full"
-            style={{
-              background: 'linear-gradient(to right, #ff0000 0%, #ffff00 17%, #00ff00 33%, #00ffff 50%, #0000ff 67%, #ff00ff 83%, #ff0000 100%)'
-            }}
-          />
-          <input
-            type="range"
-            min="0"
-            max="360"
-            value={value}
-            disabled={disabled}
-            onChange={(e) => onChange(parseInt(e.target.value, 10))}
-            className="w-full opacity-100 cursor-pointer h-full accent-white bg-transparent absolute inset-0 mix-blend-difference disabled:cursor-not-allowed"
-          />
-        </div>
-        <p className="text-[10px] text-muted-foreground mt-2 leading-relaxed">
-          Updates core presentation borders, badges, buttons, and card washes dynamically using 60-30-10 OKLCH calculations.
+        <p className="text-[9px] text-muted-foreground mt-2 leading-normal">
+          Select an accent color from the curated palette to style slide highlights, equations, badges, and layout lines.
         </p>
       </div>
     </div>

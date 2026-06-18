@@ -2,8 +2,8 @@ import React from 'react';
 import { Sliders } from 'lucide-react';
 
 interface PlaygroundBorderSelectorProps {
-  value: 'all' | 'left' | 'top';
-  onChange: (side: 'all' | 'left' | 'top') => void;
+  value: 'all' | 'left' | 'bottom';
+  onChange: (side: 'all' | 'left' | 'bottom') => void;
   disabled?: boolean;
 }
 
@@ -15,11 +15,11 @@ export const PlaygroundBorderSelector: React.FC<PlaygroundBorderSelectorProps> =
   return (
     <div className="space-y-2">
       <span className="flex items-center gap-1.5 font-semibold text-muted-foreground">
-        <Sliders className="h-3.5 w-3.5" /> Slide Canvas Borders
+        <Sliders className="h-3.5 w-3.5" /> Header Border Style
       </span>
       <div className="flex flex-col gap-2.5 rounded-lg border p-3 bg-muted/20">
         <div className="grid grid-cols-3 gap-1 rounded-lg bg-accent/40 p-0.5">
-          {(['all', 'left', 'top'] as const).map((side) => (
+          {(['all', 'left', 'bottom'] as const).map((side) => (
             <button
               key={side}
               type="button"
@@ -31,12 +31,12 @@ export const PlaygroundBorderSelector: React.FC<PlaygroundBorderSelectorProps> =
                   : 'text-muted-foreground hover:text-foreground'
               }`}
             >
-              {side === 'all' ? 'All Sides' : side === 'left' ? 'Left Edge' : 'Top Edge'}
+              {side === 'all' ? 'None' : side === 'left' ? 'Left Edge' : 'Bottom Edge'}
             </button>
           ))}
         </div>
         <p className="text-[9px] text-muted-foreground leading-normal mt-0.5">
-          Selecting Left or Top edges displays a thicker corporate border on that side and removes standard frame rounding.
+          Selecting Left or Bottom edge displays a thicker accent border line decoration directly on the slide header.
         </p>
       </div>
     </div>

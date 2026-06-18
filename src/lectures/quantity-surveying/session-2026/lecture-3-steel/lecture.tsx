@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { TitleLayout } from '@/shared/layouts/TitleLayout';
 import { TwoColumnLayout } from '@/shared/layouts/TwoColumnLayout';
 import { FullWidthLayout } from '@/shared/layouts/FullWidthLayout';
+import { ThankYouLayout } from '@/shared/layouts/ThankYouLayout';
 import { calculateSteelWeight } from '../calculations/steel';
 import { SlideContent, SlideTable, ClickHighlight, LatexFormula } from '@/features/presentation';
 
@@ -190,11 +191,20 @@ const Slide4: React.FC = () => {
   );
 };
 
+// Slide 5: Thank You Slide
+const Slide5: React.FC = () => (
+  <ThankYouLayout
+    title="Thank You"
+    subtitle="Do you have any question?"
+  />
+);
+
 export const slides: Record<number, React.ComponentType<any>> = {
   1: Slide1,
   2: Slide2,
   3: Slide3,
   4: Slide4,
+  5: Slide5,
 };
 
 export const slideMetadata: Record<number, { title: string; type: string; section: string }> = {
@@ -202,4 +212,5 @@ export const slideMetadata: Record<number, { title: string; type: string; sectio
   2: { title: 'Steel Weight Principles', type: 'Theory Overview', section: 'Introduction' },
   3: { title: 'Rebar Calculator', type: 'Live Sandbox', section: 'Calculations' },
   4: { title: 'Reinforcement BoQ', type: 'Spreadsheet View', section: 'BoQ Summary' },
+  5: { title: 'Conclusion', type: 'Thank You Slide', section: 'Conclusion' },
 };

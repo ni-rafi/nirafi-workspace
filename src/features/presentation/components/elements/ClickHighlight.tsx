@@ -208,8 +208,6 @@ export const ClickHighlight: React.FC<ClickHighlightProps> = ({
     if (isActive) {
       style.fontWeight = fontWeight ?? '600';
       if (textColor) style.color = textColor;
-    } else {
-      highlightClasses += ' opacity-75';
     }
 
     return (
@@ -293,7 +291,7 @@ export const ClickHighlight: React.FC<ClickHighlightProps> = ({
     }
   } else {
     // Inactive (pre-activation) state
-    highlightClasses += ' opacity-70 font-normal';
+    highlightClasses += className;
 
     const finalBgStyle = bgStyle || (variant === 'paint' ? 'paint' : 'none');
     if (finalBgStyle === 'paint') {

@@ -4,7 +4,7 @@ import { PresentationContext } from '../../context/PresentationContext';
 import SlideContainer from './SlideContainer';
 import MorphingBackground from '../../../../shared/components/MorphingBackground';
 import GlobalTop from '../layers/GlobalTop';
-import SlideRenderer from '../slides/SlideRenderer';
+import SlideRenderer, { getSlideMetadata } from '../slides/SlideRenderer';
 import DrawingBoard from '../layers/DrawingBoard';
 import GlobalBottom from '../layers/GlobalBottom';
 import PresenterLayout from '../layers/PresenterLayout';
@@ -41,7 +41,8 @@ export const PresentationModeView: React.FC<PresentationModeViewProps> = ({ orch
 
   if (!activeSub || !activeLec) return null;
 
-  const isCoverPage = activeSlide === 1;
+  const meta = getSlideMetadata(activeSlide, activeSub, activeLec);
+  const isCoverPage = activeSlide === 1 || meta?.type === 'Thank You Slide';
   const currentNotes = SPEAKER_NOTES[activeSlide] || 'No presenter notes defined for this slide.';
 
   const mainSlideContent = (
@@ -51,7 +52,7 @@ export const PresentationModeView: React.FC<PresentationModeViewProps> = ({ orch
           <MorphingBackground variant={bgVariant} />
           
           <GlobalTop subjectName={activeSub.courseTitle} subjectCode={activeSub.courseCode} lectureTitle={activeLec.title} hide={isCoverPage} />
-          <div className="flex-1 flex flex-col justify-center items-center px-4 pt-[20px] pb-[22px] text-center select-text relative z-10">
+          <div className="flex-1 flex flex-col justify-center items-center px-4 pt-[20px] pb-[35px] text-center select-text relative z-10">
             <SlideRenderer slideNo={activeSlide} subject={activeSub} lecture={activeLec} session={activeSession} />
           </div>
           <DrawingBoard

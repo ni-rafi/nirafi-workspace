@@ -39,7 +39,7 @@ export const TitleLayout: React.FC<TitleLayoutProps> = ({
               {subtitle}
             </span>
           )}
-          <h2 className="text-xl font-extrabold tracking-tight text-primary sm:text-2xl leading-tight">
+          <h2 className="text-xl font-extrabold tracking-tight text-primary sm:text-2xl leading-tight slide-header-title">
             {title}
           </h2>
         </div>
@@ -68,7 +68,7 @@ export const TitleLayout: React.FC<TitleLayoutProps> = ({
               {subtitle}
             </span>
           )}
-          <h1 className="text-3xl md:text-4.5xl font-extrabold tracking-tight text-primary leading-tight">
+          <h1 className="text-3xl md:text-4.5xl font-extrabold tracking-tight text-primary leading-tight slide-header-title">
             {title}
           </h1>
         </div>

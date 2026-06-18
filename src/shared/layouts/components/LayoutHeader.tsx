@@ -22,8 +22,8 @@ export const LayoutHeader: React.FC<LayoutHeaderProps> = ({ title, variant = 'de
   let borderClasses = '';
   if (borderSide === 'left') {
     borderClasses = 'border-l-[6px] border-primary pl-3.5 text-left w-full';
-  } else if (borderSide === 'top') {
-    borderClasses = 'border-t-[6px] border-primary pt-2 text-left w-full';
+  } else if (borderSide === 'bottom') {
+    borderClasses = 'border-b-[4px] border-primary pb-1.5 text-left w-full';
   }
 
   if (viewMode === 'scroll') {
@@ -35,7 +35,7 @@ export const LayoutHeader: React.FC<LayoutHeaderProps> = ({ title, variant = 'de
       );
     }
     return (
-      <header className={`slide-header text-lg font-bold tracking-tight text-foreground mb-6 ${borderClasses}`}>
+      <header className={`slide-header text-lg font-bold tracking-tight text-foreground mb-10 ${borderClasses}`}>
         {title}
       </header>
     );
@@ -50,7 +50,7 @@ export const LayoutHeader: React.FC<LayoutHeaderProps> = ({ title, variant = 'de
   }
 
   return (
-    <header className={`slide-header text-xl font-bold tracking-tight text-foreground mb-4 slide-header-title ${borderClasses}`}>
+    <header className={`slide-header text-xl font-bold tracking-tight text-foreground mb-7 slide-header-title ${borderClasses}`}>
       {title}
     </header>
   );

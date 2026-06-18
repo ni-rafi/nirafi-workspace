@@ -96,6 +96,58 @@ export const SearchableFontSelect: React.FC<SearchableFontSelectProps> = ({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  // Dynamically load Google Font previews when dropdown is opened or selected value changes
+  useEffect(() => {
+    // Collect fonts to load: the active value, and all google fonts if open
+    const systemFonts = ['system-ui', 'sans-serif', 'serif', 'monospace', 'Geist Variable', 'Outfit Variable'];
+    const fontsToLoad = new Set<string>();
+
+    if (value && !systemFonts.includes(value)) {
+      fontsToLoad.add(value);
+    }
+
+    if (isOpen) {
+      GOOGLE_FONTS_COLLECTION.forEach((f) => {
+        if (!systemFonts.includes(f)) {
+          fontsToLoad.add(f);
+        }
+      });
+    }
+
+    if (fontsToLoad.size === 0) return;
+
+    // Load in chunks of 20 to avoid URL length rejections
+    const fontList = Array.from(fontsToLoad);
+    const chunkSize = 20;
+    const links: HTMLLinkElement[] = [];
+
+    for (let i = 0; i < fontList.length; i += chunkSize) {
+      const chunk = fontList.slice(i, i + chunkSize);
+      const familiesParam = chunk.map((font) => `family=${font.replace(/ /g, '+')}`).join('&');
+
+      // Use text parameter to download only the characters of the font name, making it fast and lightweight
+      const uniqueChars = Array.from(new Set(chunk.join(''))).join('');
+      const encodedText = encodeURIComponent(uniqueChars);
+
+      const url = `https://fonts.googleapis.com/css2?${familiesParam}&text=${encodedText}&display=swap`;
+
+      const link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = url;
+      document.head.appendChild(link);
+      links.push(link);
+    }
+
+    return () => {
+      // Clean up injected links
+      links.forEach((link) => {
+        if (document.head.contains(link)) {
+          document.head.removeChild(link);
+        }
+      });
+    };
+  }, [isOpen, value]);
+
   // Filter fonts
   const filteredFonts = GOOGLE_FONTS_COLLECTION.filter((font) =>
     font.toLowerCase().includes(search.toLowerCase())

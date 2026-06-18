@@ -38,8 +38,8 @@ export const ThemePreferencesSchema = z.object({
   updatedAt: z.number(),
   bgType: z.enum(['solid', 'gradient', 'custom']).optional().default('solid'),
   customBgValue: z.string().optional().default(''),
-  borderSide: z.enum(['all', 'left', 'top']).optional().default('all'),
-  headerFontSize: z.number().int().min(12).max(32).optional().default(20),
+  borderSide: z.preprocess((val) => val === 'top' ? 'left' : val, z.enum(['all', 'left', 'bottom']).optional().default('left')),
+  headerFontSize: z.number().int().min(12).max(32).optional().default(30),
 });
 
 export type ThemePreferences = z.infer<typeof ThemePreferencesSchema>;
@@ -69,8 +69,8 @@ export const ThemeConfigPayloadSchema = z.object({
   updatedAt: z.union([z.date(), z.number()]),
   bgType: z.enum(['solid', 'gradient', 'custom']).optional().default('solid'),
   customBgValue: z.string().optional().default(''),
-  borderSide: z.enum(['all', 'left', 'top']).optional().default('all'),
-  headerFontSize: z.number().int().min(12).max(32).optional().default(20),
+  borderSide: z.preprocess((val) => val === 'top' ? 'left' : val, z.enum(['all', 'left', 'bottom']).optional().default('left')),
+  headerFontSize: z.number().int().min(12).max(32).optional().default(30),
 });
 
 export type ThemeConfigPayload = z.infer<typeof ThemeConfigPayloadSchema>;

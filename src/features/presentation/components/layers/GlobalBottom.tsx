@@ -60,7 +60,7 @@ export const GlobalBottom: React.FC<GlobalBottomProps> = ({
           <span className="font-sans text-[8px] tracking-wide text-muted-foreground/90 uppercase">{presenter.title}, {presenter.department}</span>
         </div>
         {counterContent && (
-          <span className="font-mono text-primary/95 font-bold">
+          <span className="font-mono text-primary/95 font-bold bg-primary/10 border border-primary/20 backdrop-blur-xs px-2.5 py-0.5 rounded-full select-none pointer-events-auto">
             {counterContent}
           </span>
         )}

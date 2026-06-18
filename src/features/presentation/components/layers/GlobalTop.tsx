@@ -26,10 +26,10 @@ export const GlobalTop: React.FC<GlobalTopProps> = ({
       className="absolute top-0 left-0 right-0 z-30 flex items-center justify-between px-5 pt-1.5 pb-1 select-none pointer-events-none"
       data-global-top
     >
-      <div className="text-[9px] font-bold tracking-wider text-muted-foreground/75 uppercase">
+      <div className="text-[7.5px] font-bold tracking-wider text-muted-foreground/50 uppercase">
         {subjectCode} • {subjectName}
       </div>
-      <div className="text-[9px] font-medium tracking-wider text-muted-foreground/60 uppercase">
+      <div className="text-[7.5px] font-medium tracking-wider text-muted-foreground/40 uppercase">
         {lectureTitle}
       </div>
     </div>

@@ -14,28 +14,26 @@ export interface ThemeValues {
   footerStyle: 'fraction' | 'prefixed' | 'progress-bar' | 'hidden';
   bgType: 'solid' | 'gradient' | 'custom';
   customBgValue: string;
-  borderSide: 'all' | 'left' | 'top';
+  borderSide: 'all' | 'left' | 'bottom';
   headerFontSize: number;
 }
 
 export const DEFAULT_THEME_VALUES: ThemeValues = {
-  accentHue: 0,
-  fontSans: 'Geist Variable',
-  fontHeader: 'Geist Variable',
-  borderRadius: 12,
-  bulletStyle: 'dot',
+  accentHue: 220,
+  fontSans: 'Montserrat',
+  fontHeader: 'Raleway',
+  borderRadius: 0,
+  bulletStyle: 'chevron',
   equationBg: 'default',
   footerStyle: 'fraction',
   bgType: 'solid',
   customBgValue: '',
-  borderSide: 'all',
-  headerFontSize: 20,
+  borderSide: 'left',
+  headerFontSize: 30,
 };
 
-const getDefaultHueForSubject = (subjectId: string) => {
-  if (subjectId === 'quantity-surveying') return 150;
-  if (subjectId === 'web-development') return 250;
-  return 0;
+const getDefaultHueForSubject = (_subjectId: string) => {
+  return 220;
 };
 
 interface SlideThemeContextType {
@@ -104,6 +102,30 @@ export const SlideThemeProvider: React.FC<SlideThemeProviderProps> = ({
   useEffect(() => {
     loadAdminConfigs();
   }, [loadAdminConfigs]);
+
+  // One-time client migration to clear older mock themes & profile caches in localStorage,
+  // ensuring the new defaults (left edge and 30px size) are loaded correctly.
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const migratedKey = 'cee_theme_migrated_to_left_33';
+      if (!window.localStorage.getItem(migratedKey)) {
+        try {
+          const keysToRemove: string[] = [];
+          for (let i = 0; i < window.localStorage.length; i++) {
+            const key = window.localStorage.key(i);
+            if (key && (key.startsWith('offline_theme_') || key === 'offline_student_profile')) {
+              keysToRemove.push(key);
+            }
+          }
+          keysToRemove.forEach((k) => window.localStorage.removeItem(k));
+          window.localStorage.setItem(migratedKey, 'true');
+          window.location.reload();
+        } catch (e) {
+          console.error('[SlideThemeContext] Failed to run theme migration cleanup', e);
+        }
+      }
+    }
+  }, []);
 
   const resolvedInfo = useMemo(() => {
     let activeLock: ThemeConfigPayload | null = null;

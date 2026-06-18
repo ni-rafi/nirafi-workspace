@@ -26,6 +26,19 @@ export const useNavShortcuts = ({
 }: ShortcutProps) => {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      // Ignore shortcuts if the user is typing in an input, textarea, or editable element
+      const activeEl = document.activeElement;
+      if (
+        activeEl &&
+        (activeEl.tagName === 'INPUT' ||
+          activeEl.tagName === 'TEXTAREA' ||
+          activeEl.tagName === 'SELECT' ||
+          activeEl.hasAttribute('contenteditable') ||
+          (activeEl as HTMLElement).isContentEditable)
+      ) {
+        return;
+      }
+
       if (e.key === 'ArrowRight' || e.key === 'Space') {
         e.preventDefault();
         onNext();

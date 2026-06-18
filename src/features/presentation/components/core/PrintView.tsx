@@ -26,7 +26,7 @@ const PrintSlideItem: React.FC<PrintSlideItemProps> = ({
 }) => {
   const meta = getSlideMetadata(slideNo, subject, lecture);
   const bgVariant = getBgVariant(meta.type);
-  const isCoverPage = slideNo === 1;
+  const isCoverPage = slideNo === 1 || meta?.type === 'Thank You Slide';
 
   const [annotations, setAnnotations] = useState<VectorElement[]>([]);
 
@@ -56,7 +56,7 @@ const PrintSlideItem: React.FC<PrintSlideItemProps> = ({
           hide={isCoverPage}
         />
         
-        <div className="flex-1 flex flex-col justify-center items-center px-4 pt-[20px] pb-[22px] text-center select-text relative z-10">
+        <div className="flex-1 flex flex-col justify-center items-center px-4 pt-[20px] pb-[35px] text-center select-text relative z-10">
           <SlideRenderer slideNo={slideNo} subject={subject} lecture={lecture} session={session} />
         </div>
 
