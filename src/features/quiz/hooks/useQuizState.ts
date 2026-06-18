@@ -3,6 +3,13 @@ import { useFirebase } from '@/context/FirebaseContext';
 import { useUserContext } from '@/context/UserContext';
 import type { QuizState } from '@/services/firebase/IFirebaseService';
 
+interface QuizSubmission {
+  studentName: string;
+  studentRegistration: string;
+  answer: string;
+  isCorrect: boolean;
+}
+
 export const useQuizState = (
   quizId: string,
   correctAnswer: string,
@@ -21,7 +28,7 @@ export const useQuizState = (
   const [timeLeft, setTimeLeft] = useState(0);
   const [adminView, setAdminView] = useState<'chart' | 'details'>('chart');
   const [durationInput, setDurationInput] = useState(300); // Default 5 mins
-  const [allSubmissions, setAllSubmissions] = useState<any[]>([]);
+  const [allSubmissions, setAllSubmissions] = useState<QuizSubmission[]>([]);
 
   const subjectId = 'quantity-surveying'; // default mock
   const sessionId = 'session-2026';
@@ -77,7 +84,9 @@ export const useQuizState = (
     if (quizState?.status === 'active' && quizState.activatedAt) {
       const activatedTime = typeof quizState.activatedAt === 'number'
         ? quizState.activatedAt
-        : (quizState.activatedAt as any).seconds * 1000 || Date.now();
+        : quizState.activatedAt instanceof Date
+          ? quizState.activatedAt.getTime()
+          : (quizState.activatedAt as { seconds: number }).seconds * 1000 || Date.now();
 
       const runTimer = () => {
         const elapsed = Math.floor((Date.now() - activatedTime) / 1000);

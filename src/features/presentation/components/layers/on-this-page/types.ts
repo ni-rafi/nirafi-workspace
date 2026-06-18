@@ -1,4 +1,5 @@
 import type { Subject, Lecture, Session } from '@/config/lectures';
+import type { ViewMode } from '@/features/presentation/context/PresentationContext';
 
 export interface SlideGroupItem {
   title: string;
@@ -41,4 +42,5 @@ export interface OnThisPageProps {
   scrollContainerRef: React.RefObject<HTMLDivElement | null>;
   collapsedSections: Record<string, boolean>;
   setCollapsedSections: React.Dispatch<React.SetStateAction<Record<string, boolean>>>;
+  viewMode: ViewMode;
 }

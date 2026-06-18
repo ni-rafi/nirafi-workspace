@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import type { SectionGroup } from './types';
+import type { ViewMode } from '@/features/presentation/context/PresentationContext';
 
 export function useScrollSpy(
   scrollContainerRef: React.RefObject<HTMLDivElement | null>,
@@ -7,7 +8,8 @@ export function useScrollSpy(
   totalSlides: number,
   sectionsData: SectionGroup[],
   activeSlide: number,
-  collapsedSections: Record<string, boolean>
+  collapsedSections: Record<string, boolean>,
+  viewMode: ViewMode
 ) {
   const [activeSlideNo, setActiveSlideNo] = useState<number>(activeSlide);
   const [visibleElements, setVisibleElements] = useState<Record<string, boolean>>(() => ({
@@ -15,11 +17,14 @@ export function useScrollSpy(
   }));
   const lastActiveRef = useRef<number>(activeSlide);
 
-  // Sync state if activeSlide prop changes
+  // Sync state if activeSlide prop changes or viewMode changes
   useEffect(() => {
     setActiveSlideNo(activeSlide);
     lastActiveRef.current = activeSlide;
-  }, [activeSlide]);
+    setVisibleElements({
+      [`slide-card-${activeSlide}`]: true,
+    });
+  }, [activeSlide, viewMode]);
 
   // 1. Scroll listener for pixel-accurate active slide detection
   useEffect(() => {
@@ -61,7 +66,7 @@ export function useScrollSpy(
     return () => {
       container.removeEventListener('scroll', handleScroll);
     };
-  }, [totalSlides, scrollContainerRef, collapsedSections]);
+  }, [totalSlides, scrollContainerRef, collapsedSections, viewMode]);
 
   // 2. Intersection Observer to track visible slide cards AND section headers
   useEffect(() => {
@@ -122,7 +127,7 @@ export function useScrollSpy(
     return () => {
       observer.disconnect();
     };
-  }, [totalSlides, scrollContainerRef, sectionsData, collapsedSections]);
+  }, [totalSlides, scrollContainerRef, sectionsData, collapsedSections, viewMode]);
 
   // 3. Auto-scroll sidebar to keep active item in view
   useEffect(() => {

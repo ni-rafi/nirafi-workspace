@@ -23,6 +23,7 @@ export const OnThisPage: React.FC<OnThisPageProps> = ({
   scrollContainerRef,
   collapsedSections,
   setCollapsedSections,
+  viewMode,
 }) => {
   const sidebarRef = useRef<HTMLDivElement | null>(null);
 
@@ -80,7 +81,8 @@ export const OnThisPage: React.FC<OnThisPageProps> = ({
     totalSlides,
     sectionsData,
     activeSlide,
-    collapsedSections
+    collapsedSections,
+    viewMode
   );
 
   // 3. Compute TOC active and visibility tracking states

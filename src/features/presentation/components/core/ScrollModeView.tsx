@@ -199,6 +199,7 @@ export const ScrollModeView: React.FC<ScrollModeViewProps> = ({ orchestrator }) 
             scrollContainerRef={scrollContainerRef}
             collapsedSections={collapsedSections}
             setCollapsedSections={setCollapsedSections}
+            viewMode={orchestrator.viewMode}
           />
         </aside>
       </div>
