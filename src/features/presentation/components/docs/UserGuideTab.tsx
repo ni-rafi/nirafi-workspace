@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { HelpCircle, Keyboard, Layers, ClipboardCheck, Printer, Settings, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import WelcomeSection from './user-guide/WelcomeSection';
@@ -12,7 +13,19 @@ import InteractiveDemoSection from './user-guide/InteractiveDemoSection';
 type SubSection = 'welcome' | 'shortcuts' | 'modes' | 'quizzes' | 'printing' | 'toolbar' | 'demo';
 
 export const UserGuideTab: React.FC = () => {
-  const [activeSubSection, setActiveSubSection] = useState<SubSection>('welcome');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const subParam = searchParams.get('sub') || 'welcome';
+  const activeSubSection = (['welcome', 'shortcuts', 'modes', 'quizzes', 'printing', 'toolbar', 'demo'].includes(subParam)
+    ? subParam
+    : 'welcome') as SubSection;
+
+  const setActiveSubSection = (sub: SubSection) => {
+    setSearchParams(prev => {
+      const next = new URLSearchParams(prev);
+      next.set('sub', sub);
+      return next;
+    }, { replace: true });
+  };
 
   const menuItems = [
     { id: 'welcome' as SubSection, label: 'Welcome', icon: HelpCircle },

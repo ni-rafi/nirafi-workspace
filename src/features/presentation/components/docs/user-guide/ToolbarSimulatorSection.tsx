@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { 
   ChevronLeft, ChevronRight, LayoutGrid, PenTool, Timer, Video, SlidersHorizontal,
-  MousePointer, Pencil, Eraser, Minus, ArrowUpRight, Square, Circle as CircleIcon, Trash2,
+  MousePointer, Pencil, Eraser, Minus, ArrowUpRight, Square, Circle as CircleIcon,
   Camera, Menu
 } from 'lucide-react';
 import { NavControls } from '@/features/presentation/components/layers/NavControls';

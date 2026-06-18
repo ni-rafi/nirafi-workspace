@@ -1,10 +1,42 @@
-import React, { useState } from 'react';
+import React, { useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { HelpCircle, Settings } from 'lucide-react';
 import UserGuideTab from './UserGuideTab';
 import DevGuideTab from './DevGuideTab';
 
 export const SlideCustomizationDocs: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'user' | 'dev'>('user');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const tabParam = searchParams.get('tab') || 'user';
+  const activeTab = tabParam === 'dev' ? 'dev' : 'user';
+
+  // Ensure default search params are always present in the URL
+  useEffect(() => {
+    const tab = searchParams.get('tab');
+    const sub = searchParams.get('sub');
+    
+    if (!tab || !sub) {
+      setSearchParams(prev => {
+        const next = new URLSearchParams(prev);
+        if (!next.has('tab')) {
+          next.set('tab', 'user');
+        }
+        if (!next.has('sub')) {
+          const currentTab = next.get('tab');
+          next.set('sub', currentTab === 'dev' ? 'paragraphs' : 'welcome');
+        }
+        return next;
+      }, { replace: true });
+    }
+  }, [searchParams, setSearchParams]);
+
+  const setActiveTab = (tab: 'user' | 'dev') => {
+    setSearchParams(prev => {
+      const next = new URLSearchParams(prev);
+      next.set('tab', tab);
+      next.delete('sub'); // Clear sub-tab when toggling main guides
+      return next;
+    }, { replace: true });
+  };
 
   return (
     <div className="mx-auto w-full max-w-none flex flex-col gap-6 p-6 md:p-8 text-left animate-in fade-in duration-300 min-h-0 overflow-y-auto">

@@ -1,8 +1,9 @@
-import React, { useState, useEffect, useId, useMemo } from 'react';
+import React, { useState, useEffect, useId, useMemo, useCallback } from 'react';
 import Editor, { DiffEditor } from '@monaco-editor/react';
 import { Play, RotateCcw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useClickStepsContext } from '../../context/ClickStepsContext';
+import { useTheme } from '@/context';
 
 interface CodePlaygroundProps {
   code: string;
@@ -36,6 +37,16 @@ export const CodePlayground: React.FC<CodePlaygroundProps> = ({
   const { registerClick, deregisterClick, currentClick } = useClickStepsContext();
   const [baseStep, setBaseStep] = useState<number | null>(null);
 
+  // Safely consume theme context
+  let resolvedTheme = 'dark';
+  try {
+    const themeCtx = useTheme();
+    resolvedTheme = themeCtx?.resolvedTheme || 'dark';
+  } catch (e) {
+    // fallback if no provider
+  }
+  const isLight = resolvedTheme === 'light';
+
   const [currentCode, setCurrentCode] = useState(code);
   const [consoleLogs, setConsoleLogs] = useState<string[]>([]);
   const [isRunning, setIsRunning] = useState(false);
@@ -65,7 +76,7 @@ export const CodePlayground: React.FC<CodePlaygroundProps> = ({
   }, [showOutputAt, mode, baseStep, currentClick]);
 
   // Execute sandboxed JS/TS code
-  const executeCode = (srcToRun: string) => {
+  const executeCode = useCallback((srcToRun: string) => {
     setIsRunning(true);
     const logs: string[] = [];
 
@@ -92,14 +103,23 @@ export const CodePlayground: React.FC<CodePlaygroundProps> = ({
       setConsoleLogs(logs.length > 0 ? logs : ['Code executed successfully with no logs.']);
       setIsRunning(false);
     }
-  };
+  }, []);
 
-  // Run automatically if autorun is configured
+  // Sync currentCode when code prop changes
   useEffect(() => {
-    if (mode === 'run' && autorun) {
-      executeCode(code);
-    }
-  }, [code, mode, autorun]);
+    setCurrentCode(code);
+  }, [code]);
+
+  // Run automatically when currentCode changes (with 400ms debounce)
+  useEffect(() => {
+    if (mode !== 'run' || !autorun) return;
+
+    const timer = setTimeout(() => {
+      executeCode(currentCode);
+    }, 400);
+
+    return () => clearTimeout(timer);
+  }, [currentCode, mode, autorun, executeCode]);
 
   const handleReset = () => {
     setCurrentCode(code);
@@ -110,14 +130,20 @@ export const CodePlayground: React.FC<CodePlaygroundProps> = ({
   };
 
   return (
-    <div className="w-full flex flex-col rounded-2xl border border-white/10 bg-slate-950/90 shadow-2xl overflow-hidden backdrop-blur-md">
+    <div className={`w-full flex flex-col rounded-2xl border shadow-2xl overflow-hidden backdrop-blur-md transition-all duration-300 ${
+      isLight 
+        ? 'border-slate-200/80 bg-slate-50/95 shadow-slate-200/50' 
+        : 'border-white/10 bg-slate-950/90'
+    }`}>
       {/* Top action header controls */}
-      <div className="flex items-center justify-between border-b border-white/5 bg-slate-900/50 px-4 py-2 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground select-none">
+      <div className={`flex items-center justify-between border-b px-4 py-2 text-[10px] font-semibold uppercase tracking-wider select-none ${
+        isLight ? 'border-slate-200 bg-slate-100/50 text-slate-500' : 'border-white/5 bg-slate-900/50 text-muted-foreground'
+      }`}>
         <span>Monaco {mode} ({language})</span>
         <div className="flex items-center gap-2">
           {mode === 'run' && (
             <Button
-              variant="default"
+              variant={isLight ? "secondary" : "default"}
               size="sm"
               onClick={() => executeCode(currentCode)}
               disabled={isRunning}
@@ -130,7 +156,9 @@ export const CodePlayground: React.FC<CodePlaygroundProps> = ({
             variant="ghost"
             size="sm"
             onClick={handleReset}
-            className="h-6 w-6 p-0 rounded-md hover:bg-white/5 text-muted-foreground hover:text-foreground"
+            className={`h-6 w-6 p-0 rounded-md ${
+              isLight ? 'hover:bg-slate-200 text-slate-550' : 'hover:bg-white/5 text-muted-foreground hover:text-foreground'
+            }`}
             title="Reset code block"
           >
             <RotateCcw className="h-3 w-3" />
@@ -145,7 +173,7 @@ export const CodePlayground: React.FC<CodePlaygroundProps> = ({
             original={originalCode}
             modified={modifiedCode}
             language={language}
-            theme="vs-dark"
+            theme={isLight ? 'vs' : 'vs-dark'}
             options={{
               readOnly: true,
               minimap: { enabled: false },
@@ -158,7 +186,7 @@ export const CodePlayground: React.FC<CodePlaygroundProps> = ({
           <Editor
             value={currentCode}
             language={language}
-            theme="vs-dark"
+            theme={isLight ? 'vs' : 'vs-dark'}
             onChange={(val) => setCurrentCode(val || '')}
             options={{
               readOnly: mode === 'editor' ? false : mode !== 'run',
@@ -174,19 +202,25 @@ export const CodePlayground: React.FC<CodePlaygroundProps> = ({
 
       {/* Interactive terminal output */}
       {mode === 'run' && outputRevealed && (
-        <div className="flex-1 border-t border-white/5 bg-black/50 p-3 font-mono text-[10px] transition-all duration-300">
-          <div className="mb-1 flex items-center justify-between text-muted-foreground/60 select-none">
+        <div className={`flex-1 border-t p-3 font-mono text-[10px] transition-all duration-300 ${
+          isLight ? 'border-slate-200 bg-slate-100/80' : 'border-white/5 bg-black/50'
+        }`}>
+          <div className={`mb-1 flex items-center justify-between select-none ${
+            isLight ? 'text-slate-500' : 'text-muted-foreground/60'
+          }`}>
             <span>Console Output</span>
-            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+            <span className={`h-1.5 w-1.5 rounded-full ${isLight ? 'bg-emerald-600' : 'bg-emerald-500'}`} />
           </div>
-          <div className="max-h-24 overflow-y-auto flex flex-col gap-1 text-slate-300 select-text">
+          <div className={`max-h-24 overflow-y-auto flex flex-col gap-1 select-text ${
+            isLight ? 'text-slate-800' : 'text-slate-300'
+          }`}>
             {consoleLogs.map((log, idx) => (
               <div
                 key={idx}
                 className={
                   log.startsWith('[Error]') || log.startsWith('[Runtime Error]')
-                    ? 'text-red-400'
-                    : 'text-emerald-400'
+                    ? isLight ? 'text-red-655 font-bold' : 'text-red-400'
+                    : isLight ? 'text-emerald-700 font-medium' : 'text-emerald-400'
                 }
               >
                 {log}

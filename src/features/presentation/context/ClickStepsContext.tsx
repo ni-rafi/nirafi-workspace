@@ -79,6 +79,10 @@ export const ClickStepsProvider: React.FC<ClickStepsProviderProps> = ({
       const steps = Object.values(registryRef.current);
       const maxStep = steps.length > 0 ? Math.max(...steps) : 0;
       setTotalClicks(maxStep);
+
+      if (steps.length === 0) {
+        nextRelativeRef.current = 1;
+      }
     }
   }, []);
 

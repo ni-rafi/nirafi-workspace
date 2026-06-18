@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo, useId } from 'react';
 import { useClickStepsContext } from '../../context/ClickStepsContext';
+import { useTheme } from '@/context';
 
 interface CodeBlockProps {
   code: string;
@@ -115,6 +116,16 @@ export const CodeBlock: React.FC<CodeBlockProps> = ({
   const { registerClick, deregisterClick, currentClick } = useClickStepsContext();
   const [baseStep, setBaseStep] = useState<number | null>(null);
 
+  // Safely consume theme context
+  let resolvedTheme = 'dark';
+  try {
+    const themeCtx = useTheme();
+    resolvedTheme = themeCtx?.resolvedTheme || 'dark';
+  } catch (e) {
+    // fallback if no provider
+  }
+  const isLight = resolvedTheme === 'light';
+
   // Extract clean lines from input code string
   const codeLines = useMemo(() => code.split('\n'), [code]);
 
@@ -160,22 +171,28 @@ export const CodeBlock: React.FC<CodeBlockProps> = ({
   // Tokenize lines for syntax rendering
   const tokenizedLines = useMemo(() => codeLines.map((l) => tokenizeLine(l)), [codeLines]);
 
-  // Custom token styling classes mapping
+  // Custom token styling classes mapping (adaptive to theme)
   const tokenClasses: Record<Token['type'], string> = {
-    keyword: 'text-purple-400 font-semibold',
-    type: 'text-teal-400',
-    string: 'text-amber-300 font-mono',
-    number: 'text-orange-400',
-    comment: 'text-muted-foreground/60 italic',
-    function: 'text-blue-400 font-medium',
-    operator: 'text-pink-400',
-    text: 'text-slate-100',
+    keyword: isLight ? 'text-purple-600 font-semibold' : 'text-purple-400 font-semibold',
+    type: isLight ? 'text-teal-600 font-medium' : 'text-teal-400',
+    string: isLight ? 'text-amber-700 font-mono' : 'text-amber-300 font-mono',
+    number: isLight ? 'text-orange-655' : 'text-orange-400',
+    comment: isLight ? 'text-slate-400/80 italic' : 'text-muted-foreground/60 italic',
+    function: isLight ? 'text-blue-600 font-medium' : 'text-blue-400 font-medium',
+    operator: isLight ? 'text-pink-600' : 'text-pink-400',
+    text: isLight ? 'text-slate-800' : 'text-slate-100',
   };
 
   return (
-    <div className="w-full rounded-2xl border border-white/10 bg-slate-950/80 p-4 font-mono text-xs shadow-2xl backdrop-blur-md transition-all duration-300 select-text overflow-x-auto">
+    <div className={`w-full rounded-2xl border p-4 font-mono text-xs shadow-2xl backdrop-blur-md transition-all duration-300 select-text overflow-x-auto ${
+      isLight 
+        ? 'border-slate-200/80 bg-slate-50/95 text-slate-850 shadow-slate-200/50' 
+        : 'border-white/10 bg-slate-950/80 text-slate-100'
+    }`}>
       {language && (
-        <div className="mb-2 flex items-center justify-between border-b border-white/5 pb-2 text-[10px] uppercase tracking-wider text-muted-foreground">
+        <div className={`mb-2 flex items-center justify-between border-b pb-2 text-[10px] uppercase tracking-wider ${
+          isLight ? 'border-slate-250/30 text-slate-500' : 'border-white/5 text-muted-foreground'
+        }`}>
           <span>{language}</span>
           <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
         </div>
@@ -195,11 +212,19 @@ export const CodeBlock: React.FC<CodeBlockProps> = ({
               <div
                 key={idx}
                 className={`relative flex items-center px-2 py-0.5 rounded transition-all duration-300 ${
-                  isHighlighted ? 'bg-primary/10 border-l-2 border-primary' : 'opacity-25 blur-[0.2px] saturate-50'
+                  isHighlighted 
+                    ? isLight
+                      ? 'bg-primary/5 border-l-2 border-primary text-slate-900 font-medium'
+                      : 'bg-primary/10 border-l-2 border-primary'
+                    : isLight
+                      ? 'opacity-35 blur-[0.1px] saturate-75'
+                      : 'opacity-25 blur-[0.2px] saturate-50'
                 }`}
               >
                 {lines && (
-                  <span className="w-8 select-none text-right text-muted-foreground/50 pr-4 border-r border-white/5 mr-3">
+                  <span className={`w-8 select-none text-right pr-4 border-r mr-3 ${
+                    isLight ? 'text-slate-400 border-slate-200/60' : 'text-muted-foreground/50 border-white/5'
+                  }`}>
                     {displayLineNum}
                   </span>
                 )}
