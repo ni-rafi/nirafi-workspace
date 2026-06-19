@@ -30,7 +30,6 @@ export const ScrollModeView: React.FC<ScrollModeViewProps> = ({ orchestrator }) 
     activeSub,
     activeSession,
     activeLec,
-    totalSlidesCount,
     activeSlide,
     activeTheme,
     subjectId,
@@ -38,6 +37,7 @@ export const ScrollModeView: React.FC<ScrollModeViewProps> = ({ orchestrator }) 
     lectureId,
     presenterFeatures,
     navigateWithTransition,
+    visibleSlideNumbers,
   } = orchestrator;
 
   const { userProfile } = useUserContext();
@@ -186,7 +186,7 @@ export const ScrollModeView: React.FC<ScrollModeViewProps> = ({ orchestrator }) 
               session={activeSession}
               viewMode="blog"
               theme={activeTheme}
-              totalSlides={totalSlidesCount}
+              visibleSlideNumbers={visibleSlideNumbers}
               collapsedSections={collapsedSections}
               setCollapsedSections={setCollapsedSections}
             />
@@ -197,7 +197,7 @@ export const ScrollModeView: React.FC<ScrollModeViewProps> = ({ orchestrator }) 
               session={activeSession}
               viewMode="scroll"
               theme={activeTheme}
-              totalSlides={totalSlidesCount}
+              visibleSlideNumbers={visibleSlideNumbers}
               onSelectSlide={(num) => {
                 navigateWithTransition(`/${subjectId}/${sessionId}/${lectureId}/${num}`);
               }}
@@ -212,7 +212,7 @@ export const ScrollModeView: React.FC<ScrollModeViewProps> = ({ orchestrator }) 
             subject={activeSub}
             lecture={activeLec}
             session={activeSession}
-            totalSlides={totalSlidesCount}
+            visibleSlideNumbers={visibleSlideNumbers}
             activeSlide={activeSlide}
             scrollContainerRef={scrollContainerRef}
             collapsedSections={collapsedSections}

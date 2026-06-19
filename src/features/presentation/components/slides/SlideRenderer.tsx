@@ -30,12 +30,14 @@ export interface SlideMetadata {
   type: string;
   section: string;
   transition?: TransitionType;
+  quizId?: string;
+  quizVisibilityMode?: 'stealth' | 'placeholder';
 }
 
 // Master registry of active lecture decks
 const LECTURE_DECKS: Record<string, {
   slides: Record<number, React.ComponentType<SlideProps>>;
-  slideMetadata: Record<number, { title: string; type: string; section: string; transition?: TransitionType }>;
+  slideMetadata: Record<number, SlideMetadata>;
 }> = {
   'concrete': ConcreteLecture,
   'brickwork': BrickworkLecture,
@@ -44,10 +46,10 @@ const LECTURE_DECKS: Record<string, {
   'course-outline': EngineeringMechanicsOutline,
 };
 
-const getLectureDeck = (lectureId: string) => {
+export const getLectureDeck = (lectureId: string) => {
   return (LECTURE_DECKS[lectureId] || SlidevIntroLecture) as {
     slides: Record<number, React.ComponentType<SlideProps>>;
-    slideMetadata: Record<number, { title: string; type: string; section: string; transition?: TransitionType }>;
+    slideMetadata: Record<number, SlideMetadata>;
   };
 };
 
@@ -85,7 +87,23 @@ export const getSlideMetadata = (
     type: typeof meta.type === 'function' ? (meta.type as unknown as (s: Subject) => string)(subject) : meta.type,
     section: meta.section,
     transition: meta.transition,
+    quizId: meta.quizId,
+    quizVisibilityMode: meta.quizVisibilityMode,
   };
+};
+
+/**
+ * Resolves the quiz visibility mode ('stealth' | 'placeholder') by its unique quizId.
+ */
+export const getQuizVisibilityMode = (quizId: string): 'stealth' | 'placeholder' => {
+  for (const deck of Object.values(LECTURE_DECKS)) {
+    for (const meta of Object.values(deck.slideMetadata)) {
+      if (meta.quizId === quizId) {
+        return meta.quizVisibilityMode || 'placeholder';
+      }
+    }
+  }
+  return 'placeholder';
 };
 
 /**

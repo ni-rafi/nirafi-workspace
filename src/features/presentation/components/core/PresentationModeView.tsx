@@ -55,6 +55,7 @@ const PresentationModeContent: React.FC<PresentationModeContentProps> = ({
     handlePrevSlide,
     handleNextSlide,
     bgVariant,
+    visibleSlideNumbers,
   } = orchestrator;
 
   // These hooks read from the keyed per-slide ClickStepsProvider —
@@ -89,7 +90,7 @@ const PresentationModeContent: React.FC<PresentationModeContentProps> = ({
             clearTrigger={viewerState.clearTrigger}
             areDrawingsHidden={viewerState.areDrawingsHidden}
           />
-          <GlobalBottom current={activeSlide} total={totalSlidesCount} hide={isCoverPage} />
+          <GlobalBottom current={visibleSlideNumbers.indexOf(activeSlide) + 1} total={totalSlidesCount} hide={isCoverPage} />
         </SlideContainer>
       </div>
     </PresentationContext.Provider>

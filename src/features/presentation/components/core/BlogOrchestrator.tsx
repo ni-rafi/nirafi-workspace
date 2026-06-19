@@ -12,7 +12,7 @@ interface BlogOrchestratorProps {
   session?: Session;
   viewMode: ViewMode;
   theme: Theme;
-  totalSlides: number;
+  visibleSlideNumbers: number[];
   collapsedSections: Record<string, boolean>;
   setCollapsedSections: React.Dispatch<React.SetStateAction<Record<string, boolean>>>;
 }
@@ -72,11 +72,11 @@ export const BlogOrchestrator: React.FC<BlogOrchestratorProps> = ({
   session,
   viewMode,
   theme,
-  totalSlides,
+  visibleSlideNumbers,
   collapsedSections,
   setCollapsedSections,
 }) => {
-  const slides = useMemo(() => Array.from({ length: totalSlides }, (_, i) => i + 1), [totalSlides]);
+  const slides = visibleSlideNumbers;
 
   const sections = useMemo(() => {
     const groups: Record<string, number[]> = {};

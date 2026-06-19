@@ -97,6 +97,7 @@ export const QuizStateSchema = z.object({
   activatedAt: z.union([z.date(), z.number()]).nullable().optional(),
   durationSeconds: z.number().int().nonnegative().default(300),
   quizType: z.string().default('numeric-input'),
+  loadingBufferSeconds: z.number().int().nonnegative().optional(),
 });
 
 export type QuizState = z.infer<typeof QuizStateSchema>;

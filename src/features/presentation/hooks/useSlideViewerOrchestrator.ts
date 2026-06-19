@@ -2,7 +2,8 @@ import { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import { flushSync } from 'react-dom';
 import { useParams, useNavigate, NavigateOptions, useLocation } from 'react-router-dom';
 import { SUBJECTS } from '@/config/lectures';
-import { getSlideMetadata, getLectureSlideCount, getBgVariant } from '../components/slides/SlideRenderer';
+import { useUserContext } from '@/context/UserContext';
+import { getSlideMetadata, getLectureSlideCount, getBgVariant, getLectureDeck } from '../components/slides/SlideRenderer';
 import { useSlideViewerState } from './useSlideViewerState';
 import { usePresenterFeatures } from './usePresenterFeatures';
 import { ViewMode, Theme } from '../context/PresentationContext';
@@ -48,32 +49,72 @@ export const useSlideViewerOrchestrator = () => {
   const activeSession = activeSub?.sessions.find((sess) => sess.id === sessionId);
   const activeLec = activeSession?.lectures.find((lec) => lec.id === lectureId);
 
-  // Dynamic total slides count derived from active lecture deck configuration
-  const totalSlidesCount = activeLec ? getLectureSlideCount(activeLec.id) : 10;
+  const { userProfile } = useUserContext();
+  const isAdmin = userProfile?.role === 'admin';
+
+  const rawTotalSlidesCount = useMemo(() => {
+    return activeLec ? getLectureSlideCount(activeLec.id) : 10;
+  }, [activeLec]);
 
   // Active slide local state for synchronous rendering transitions
   const [activeSlide, setActiveSlide] = useState(currentSlideInt);
 
   const firebaseService = useFirebase();
-  const [activeQuizState, setActiveQuizState] = useState<QuizState | null>(null);
-
-  const quizId = useMemo(() => {
-    if (!activeLec) return null;
-    if (activeLec.id === 'concrete' && activeSlide === 6) return 'qs_2026_lec1_quiz1';
-    if (activeLec.id === 'brickwork' && activeSlide === 5) return 'qs_2026_lec2_quiz1';
-    if (activeLec.id === 'steel' && activeSlide === 5) return 'qs_2026_lec3_quiz1';
-    return null;
-  }, [activeLec, activeSlide]);
+  const [quizStates, setQuizStates] = useState<Record<string, QuizState>>({});
 
   useEffect(() => {
-    if (quizId) {
-      return firebaseService.subscribeQuizState(quizId, (state) => {
-        setActiveQuizState(state);
-      });
-    } else {
-      setActiveQuizState(null);
+    if (!activeLec || !activeSub) return;
+    const deck = getLectureDeck(activeLec.id);
+    const quizIds = (Object.values(deck.slideMetadata) as Array<{ quizId?: string }>)
+      .map((m) => m.quizId)
+      .filter((id): id is string => !!id);
+
+    if (quizIds.length === 0) {
+      setQuizStates({});
+      return;
     }
-  }, [quizId, firebaseService]);
+
+    const unsubscribes = quizIds.map((id) =>
+      firebaseService.subscribeQuizState(id, (state) => {
+        if (state) {
+          setQuizStates((prev) => ({ ...prev, [id]: state }));
+        }
+      })
+    );
+
+    return () => {
+      unsubscribes.forEach((unsub) => unsub());
+    };
+  }, [activeLec, activeSub, firebaseService]);
+
+  const visibleSlideNumbers = useMemo(() => {
+    const list: number[] = [];
+    if (!activeSub || !activeLec) return list;
+    const deck = getLectureDeck(activeLec.id);
+
+    for (let i = 1; i <= rawTotalSlidesCount; i++) {
+      const meta = deck.slideMetadata[i];
+      if (meta && meta.quizId && meta.quizVisibilityMode === 'stealth' && !isAdmin) {
+        const qState = quizStates[meta.quizId];
+        const isLive = qState?.status === 'active' || qState?.status === 'closed';
+        if (!isLive) {
+          continue;
+        }
+      }
+      list.push(i);
+    }
+    return list;
+  }, [rawTotalSlidesCount, activeSub, activeLec, quizStates, isAdmin]);
+
+  const totalSlidesCount = visibleSlideNumbers.length;
+
+  const currentMeta = useMemo(() => {
+    if (!activeLec || !activeSub) return null;
+    return getSlideMetadata(activeSlide, activeSub, activeLec);
+  }, [activeSlide, activeSub, activeLec]);
+
+  const quizId = currentMeta?.quizId || null;
+  const activeQuizState = quizId ? quizStates[quizId] || null : null;
 
   // Initial background resolution
   const initialMeta = activeLec && activeSub ? getSlideMetadata(currentSlideInt, activeSub, activeLec) : null;
@@ -196,14 +237,22 @@ export const useSlideViewerOrchestrator = () => {
   const sections = useMemo(() => {
     const groups: Record<string, number[]> = {};
     if (!activeSub || !activeLec) return groups;
-    for (let i = 1; i <= totalSlidesCount; i++) {
+    visibleSlideNumbers.forEach((i) => {
       const meta = getSlideMetadata(i, activeSub, activeLec);
       const sec = meta.section;
       if (!groups[sec]) groups[sec] = [];
       groups[sec].push(i);
-    }
+    });
     return groups;
-  }, [totalSlidesCount, activeSub, activeLec]);
+  }, [visibleSlideNumbers, activeSub, activeLec]);
+
+  // Redirect to nearest valid slide if the current URL slide is hidden/stealthed
+  useEffect(() => {
+    if (visibleSlideNumbers.length > 0 && !visibleSlideNumbers.includes(activeSlide)) {
+      const closest = visibleSlideNumbers.find((num) => num > activeSlide) || visibleSlideNumbers[visibleSlideNumbers.length - 1] || 1;
+      changeSlideWithTransition(closest, 'forward');
+    }
+  }, [visibleSlideNumbers, activeSlide, changeSlideWithTransition]);
 
   const navigateWithTransition = useCallback((path: string, options?: NavigateOptions) => {
     startSafeTransition(() => navigate(path, options));
@@ -252,22 +301,24 @@ export const useSlideViewerOrchestrator = () => {
   }, [activeSlide, activeSub, activeLec, sections, changeSlideWithTransition]);
 
   const handlePrevSlide = useCallback(() => {
-    if (activeSlide > 1) {
-      // Direction is set by useClickSteps before calling this; pass 'backward' here as fallback
-      changeSlideWithTransition(activeSlide - 1, 'backward');
+    const currentIndex = visibleSlideNumbers.indexOf(activeSlide);
+    if (currentIndex > 0) {
+      const prevSlideNum = visibleSlideNumbers[currentIndex - 1]!;
+      changeSlideWithTransition(prevSlideNum, 'backward');
     }
-  }, [activeSlide, changeSlideWithTransition]);
+  }, [activeSlide, visibleSlideNumbers, changeSlideWithTransition]);
 
   const handleNextSlide = useCallback(() => {
     if (activeQuizState?.status === 'active') {
       alert('Cannot advance slide while the live quiz is actively collecting responses. Please close the quiz first.');
       return;
     }
-    if (activeSlide < totalSlidesCount) {
-      // Direction is set by useClickSteps before calling this; pass 'forward' here as fallback
-      changeSlideWithTransition(activeSlide + 1, 'forward');
+    const currentIndex = visibleSlideNumbers.indexOf(activeSlide);
+    if (currentIndex !== -1 && currentIndex < visibleSlideNumbers.length - 1) {
+      const nextSlideNum = visibleSlideNumbers[currentIndex + 1]!;
+      changeSlideWithTransition(nextSlideNum, 'forward');
     }
-  }, [activeSlide, totalSlidesCount, changeSlideWithTransition, activeQuizState]);
+  }, [activeSlide, visibleSlideNumbers, changeSlideWithTransition, activeQuizState]);
 
   const activeTheme: Theme = viewerState.isProjectionView ? 'projection' : (presenterFeatures.isDark ? 'dark' : 'light');
 
@@ -298,6 +349,7 @@ export const useSlideViewerOrchestrator = () => {
     handlePrevSection,
     handlePrevSlide,
     handleNextSlide,
+    visibleSlideNumbers,
   };
 };
 

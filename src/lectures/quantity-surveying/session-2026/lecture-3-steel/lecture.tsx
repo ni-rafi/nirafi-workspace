@@ -118,7 +118,12 @@ export const steelLectureData: SlideSchema[] = [
   {
     id: 5,
     section: 'Quiz',
-    metadata: { title: 'Rebar Quiz', type: 'Quiz Slide' },
+    metadata: {
+      title: 'Rebar Quiz',
+      type: 'Quiz Slide',
+      quizId: 'qs_2026_lec3_quiz1',
+      quizVisibilityMode: 'stealth'
+    },
     layout: 'fullwidth',
     props: {
       title: 'Rebar Steel Weight Check',
@@ -156,7 +161,9 @@ export const slideMetadata = steelLectureData.reduce((acc, curr) => {
   acc[curr.id] = {
     title: curr.metadata.title,
     type: curr.metadata.type,
-    section: curr.section
+    section: curr.section,
+    quizId: curr.metadata.quizId,
+    quizVisibilityMode: curr.metadata.quizVisibilityMode
   };
   return acc;
-}, {} as Record<number, { title: string; type: string; section: string }>);
+}, {} as Record<number, import('@/features/presentation/components/slides/SlideRenderer').SlideMetadata>);

@@ -18,7 +18,7 @@ function getItemOffset(depth: number): number {
 export const OnThisPage: React.FC<OnThisPageProps> = ({
   subject,
   lecture,
-  totalSlides,
+  visibleSlideNumbers,
   activeSlide,
   scrollContainerRef,
   collapsedSections,
@@ -32,7 +32,7 @@ export const OnThisPage: React.FC<OnThisPageProps> = ({
     const sectionGroups: Record<string, SlideGroupItem[]> = {};
     const sectionList: string[] = [];
 
-    for (let i = 1; i <= totalSlides; i++) {
+    visibleSlideNumbers.forEach((i) => {
       const meta = getSlideMetadata(i, subject, lecture);
       const sec = meta.section;
 
@@ -53,14 +53,14 @@ export const OnThisPage: React.FC<OnThisPageProps> = ({
           slideNumbers: [i],
         });
       }
-    }
+    });
 
     return sectionList.map((name) => ({
       name,
       slug: name.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
       items: sectionGroups[name] || [],
     }));
-  }, [totalSlides, subject, lecture]);
+  }, [visibleSlideNumbers, subject, lecture]);
 
   // Toggle all sections expand/collapse state
   const allSectionNames = useMemo(() => sectionsData.map((s) => s.name), [sectionsData]);
@@ -78,7 +78,7 @@ export const OnThisPage: React.FC<OnThisPageProps> = ({
   const { activeSlideNo, visibleElements } = useScrollSpy(
     scrollContainerRef,
     sidebarRef,
-    totalSlides,
+    visibleSlideNumbers.length,
     sectionsData,
     activeSlide,
     collapsedSections,

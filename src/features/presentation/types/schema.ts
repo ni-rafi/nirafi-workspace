@@ -205,6 +205,8 @@ export interface SlideSchema {
     title: string;
     type: string;
     transition?: TransitionType;
+    quizId?: string;
+    quizVisibilityMode?: 'stealth' | 'placeholder';
   };
   layout: SlideLayoutType;
   props: {

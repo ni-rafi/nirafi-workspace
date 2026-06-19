@@ -26,6 +26,8 @@ export const useQuizState = (
   const [hasSubmitted, setHasSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [timeLeft, setTimeLeft] = useState(0);
+  const [isLagging, setIsLagging] = useState(false);
+  const [lagTimeLeft, setLagTimeLeft] = useState(0);
   const [adminView, setAdminView] = useState<'chart' | 'details'>('chart');
   const [durationInput, setDurationInput] = useState(300); // Default 5 mins
   const [allSubmissions, setAllSubmissions] = useState<QuizSubmission[]>([]);
@@ -79,6 +81,13 @@ export const useQuizState = (
     }
   }, [isAdmin, quizState?.status, quizId]);
 
+  // Helper to determine buffer lag time based on the active answering duration
+  const getLagTimeSeconds = (durationSeconds: number): number => {
+    if (durationSeconds <= 60) return 20;
+    if (durationSeconds <= 120) return 30;
+    return 50;
+  };
+
   // 4. Timer Logic
   useEffect(() => {
     if (quizState?.status === 'active' && quizState.activatedAt) {
@@ -88,16 +97,30 @@ export const useQuizState = (
           ? quizState.activatedAt.getTime()
           : (quizState.activatedAt as { seconds: number }).seconds * 1000 || Date.now();
 
+      const buffer = quizState.loadingBufferSeconds || 0;
+
       const runTimer = () => {
         const elapsed = Math.floor((Date.now() - activatedTime) / 1000);
-        const remaining = quizState.durationSeconds - elapsed;
-        if (remaining <= 0) {
-          setTimeLeft(0);
-          if (isAdmin) {
-            firebaseService.setQuizState(quizId, { ...quizState, status: 'closed' });
-          }
+        
+        if (elapsed < buffer) {
+          setIsLagging(true);
+          setLagTimeLeft(buffer - elapsed);
+          setTimeLeft(quizState.durationSeconds);
         } else {
-          setTimeLeft(remaining);
+          setIsLagging(false);
+          setLagTimeLeft(0);
+          
+          const answeringElapsed = elapsed - buffer;
+          const remaining = quizState.durationSeconds - answeringElapsed;
+          
+          if (remaining <= 0) {
+            setTimeLeft(0);
+            if (isAdmin) {
+              firebaseService.setQuizState(quizId, { ...quizState, status: 'closed' });
+            }
+          } else {
+            setTimeLeft(remaining);
+          }
         }
       };
 
@@ -105,6 +128,8 @@ export const useQuizState = (
       const timer = setInterval(runTimer, 1000);
       return () => clearInterval(timer);
     } else {
+      setIsLagging(false);
+      setLagTimeLeft(0);
       setTimeLeft(0);
     }
   }, [quizState, quizId, isAdmin, firebaseService]);
@@ -127,11 +152,13 @@ export const useQuizState = (
   };
 
   const handleAdminActivate = async () => {
+    const lagTime = getLagTimeSeconds(durationInput);
     await firebaseService.setQuizState(quizId, {
       status: 'active',
       activatedAt: Date.now(),
       durationSeconds: durationInput,
       quizType,
+      loadingBufferSeconds: lagTime,
     });
   };
 
@@ -142,6 +169,7 @@ export const useQuizState = (
       activatedAt: Date.now(),
       durationSeconds: nextDuration,
       quizType,
+      loadingBufferSeconds: 0,
     });
   };
 
@@ -159,6 +187,8 @@ export const useQuizState = (
     hasSubmitted,
     isSubmitting,
     timeLeft,
+    isLagging,
+    lagTimeLeft,
     adminView,
     setAdminView,
     durationInput,

@@ -12,7 +12,7 @@ interface TwoWayGridOrchestratorProps {
   session?: Session;
   viewMode: ViewMode;
   theme: Theme;
-  totalSlides: number;
+  visibleSlideNumbers: number[];
   onSelectSlide: (num: number) => void;
   currentSlide?: number;
   collapsedSections: Record<string, boolean>;
@@ -113,12 +113,12 @@ export const TwoWayGridOrchestrator: React.FC<TwoWayGridOrchestratorProps> = ({
   session,
   viewMode,
   theme,
-  totalSlides,
+  visibleSlideNumbers,
   onSelectSlide,
   collapsedSections,
   setCollapsedSections,
 }) => {
-  const slides = useMemo(() => Array.from({ length: totalSlides }, (_, i) => i + 1), [totalSlides]);
+  const slides = visibleSlideNumbers;
 
   const sections = useMemo(() => {
     const groups: Record<string, number[]> = {};

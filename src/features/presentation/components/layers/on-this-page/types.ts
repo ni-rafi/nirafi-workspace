@@ -37,7 +37,7 @@ export interface OnThisPageProps {
   subject: Subject;
   lecture: Lecture;
   session?: Session;
-  totalSlides: number;
+  visibleSlideNumbers: number[];
   activeSlide: number;
   scrollContainerRef: React.RefObject<HTMLDivElement | null>;
   collapsedSections: Record<string, boolean>;

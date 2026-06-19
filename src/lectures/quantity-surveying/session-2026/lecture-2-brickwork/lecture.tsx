@@ -226,11 +226,11 @@ export const slides: Record<number, React.ComponentType<SlideProps>> = {
   6: Slide6,
 };
 
-export const slideMetadata: Record<number, { title: string; type: string; section: string }> = {
+export const slideMetadata: Record<number, import('@/features/presentation/components/slides/SlideRenderer').SlideMetadata> = {
   1: { title: 'Brickwork Cover', type: 'Cover Slide', section: 'Introduction' },
   2: { title: 'Masonry Principles', type: 'Theory Overview', section: 'Introduction' },
   3: { title: 'Masonry Calculator', type: 'Live Sandbox', section: 'Calculations' },
   4: { title: 'Masonry BoQ', type: 'Spreadsheet View', section: 'BoQ Summary' },
-  5: { title: 'Masonry Quiz', type: 'Quiz Slide', section: 'Quiz' },
+  5: { title: 'Masonry Quiz', type: 'Quiz Slide', section: 'Quiz', quizId: 'qs_2026_lec2_quiz1', quizVisibilityMode: 'placeholder' },
   6: { title: 'Conclusion', type: 'Thank You Slide', section: 'Conclusion' },
 };
