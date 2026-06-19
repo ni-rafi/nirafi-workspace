@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext, useMemo } from 'react';
 import type { Subject, Lecture, Session } from '@/config/lectures';
 import type { VectorElement } from '../../types';
 import { ClickStepsProvider } from '../../context/ClickStepsContext';
+import { PresentationContext } from '../../context/PresentationContext';
 import SlideContainer from './SlideContainer';
 import MorphingBackground from '@/shared/components/MorphingBackground';
 import GlobalTop from '../layers/GlobalTop';
@@ -44,48 +45,58 @@ const PrintSlideItem: React.FC<PrintSlideItemProps> = ({
     }
   }, [includeAnnotations, lecture.id, slideNo]);
 
+  const presentation = useContext(PresentationContext);
+  const cardContextValue = useMemo(() => ({
+    theme: presentation?.theme || 'light',
+    viewMode: presentation?.viewMode || 'scroll',
+    activeSubStep: 999,
+    slideNo,
+  }), [presentation, slideNo]);
+
   return (
     <div className="print-slide-page">
-      <SlideContainer scaleMode="1:1" isThumbnail={true}>
-        <MorphingBackground variant={bgVariant} />
-        
-        <GlobalTop
-          subjectName={subject.courseTitle}
-          subjectCode={subject.courseCode}
-          lectureTitle={lecture.title}
-          hide={isCoverPage}
-        />
-        
-        <div className="flex-1 flex flex-col justify-center items-center px-4 pt-[20px] pb-[35px] text-center select-text relative z-10">
-          <SlideRenderer slideNo={slideNo} subject={subject} lecture={lecture} session={session} />
-        </div>
+      <PresentationContext.Provider value={cardContextValue}>
+        <SlideContainer scaleMode="1:1" isThumbnail={true}>
+          <MorphingBackground variant={bgVariant} />
+          
+          <GlobalTop
+            subjectName={subject.courseTitle}
+            subjectCode={subject.courseCode}
+            lectureTitle={lecture.title}
+            hide={isCoverPage}
+          />
+          
+          <div className="flex-1 flex flex-col justify-center items-center px-4 pt-[20px] pb-[35px] text-center select-text relative z-10">
+            <SlideRenderer slideNo={slideNo} subject={subject} lecture={lecture} session={session} />
+          </div>
 
-        {includeAnnotations && annotations.length > 0 && (
-          <svg
-            viewBox="0 0 980 551.25"
-            style={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              zIndex: 25,
-              width: '100%',
-              height: '100%',
-              pointerEvents: 'none',
-            }}
-            className="overflow-visible"
-          >
-            <SvgElementsRenderer
-              elements={annotations}
-              currentElement={null}
-              activeTool="select"
-              selectedId={null}
-              onElementDown={() => {}}
-            />
-          </svg>
-        )}
-        
-        <GlobalBottom current={slideNo} total={getLectureSlideCount(lecture.id)} hide={isCoverPage} />
-      </SlideContainer>
+          {includeAnnotations && annotations.length > 0 && (
+            <svg
+              viewBox="0 0 980 551.25"
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                zIndex: 25,
+                width: '100%',
+                height: '100%',
+                pointerEvents: 'none',
+              }}
+              className="overflow-visible"
+            >
+              <SvgElementsRenderer
+                elements={annotations}
+                currentElement={null}
+                activeTool="select"
+                selectedId={null}
+                onElementDown={() => {}}
+              />
+            </svg>
+          )}
+          
+          <GlobalBottom current={slideNo} total={getLectureSlideCount(lecture.id)} hide={isCoverPage} />
+        </SlideContainer>
+      </PresentationContext.Provider>
     </div>
   );
 };

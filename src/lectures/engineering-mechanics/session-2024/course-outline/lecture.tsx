@@ -175,6 +175,7 @@ export const courseOutlineData: SlideSchema[] = [
     metadata: { title: 'Teaching & Assessment', type: 'Strategies index' },
     layout: 'fullwidth',
     props: {
+      title: 'Teaching & Assessment Strategies',
       element: {
         type: 'reference-legends',
         data: { leftLegends: tlLegends, rightLegends: assessmentLegends },
@@ -187,6 +188,7 @@ export const courseOutlineData: SlideSchema[] = [
     metadata: { title: 'Reference Books', type: 'Course Materials' },
     layout: 'fullwidth',
     props: {
+      title: 'Reference Books & Course Materials',
       element: {
         type: 'reference-books-list',
         data: { references },

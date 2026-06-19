@@ -64,6 +64,15 @@ const SlideCard: React.FC<{
     containerStyle['--background'] = customBackgroundValue;
   }
 
+  const presentation = React.useContext(PresentationContext);
+
+  const cardContextValue = React.useMemo(() => ({
+    theme: presentation?.theme || 'light',
+    viewMode: presentation?.viewMode || 'scroll',
+    activeSubStep: 999,
+    slideNo,
+  }), [presentation, slideNo]);
+
   return (
     <div className="relative group w-full bg-card rounded-2xl border border-border shadow-xs hover:shadow-md transition-shadow duration-300 animate-in fade-in duration-300">
       <div className="flex items-center justify-between border-b border-border/60 bg-muted/20 px-6 py-3.5 rounded-t-2xl select-none">
@@ -88,9 +97,11 @@ const SlideCard: React.FC<{
         className="p-6 md:p-8 select-text w-full bg-background text-foreground rounded-b-2xl overflow-hidden flex flex-col justify-between"
         data-slide-canvas
       >
-        <ClickStepsProvider currentClickOverride={999}>
-          <SlideRenderer slideNo={slideNo} subject={subject} lecture={lecture} session={session} />
-        </ClickStepsProvider>
+        <PresentationContext.Provider value={cardContextValue}>
+          <ClickStepsProvider currentClickOverride={999}>
+            <SlideRenderer slideNo={slideNo} subject={subject} lecture={lecture} session={session} />
+          </ClickStepsProvider>
+        </PresentationContext.Provider>
       </div>
     </div>
   );

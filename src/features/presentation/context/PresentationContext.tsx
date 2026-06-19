@@ -18,7 +18,11 @@ export const PresentationContext = createContext<PresentationContextType | undef
 export const usePresentation = (): PresentationContextType => {
   const context = useContext(PresentationContext);
   if (!context) {
-    throw new Error('usePresentation must be used within a PresentationProvider');
+    return {
+      theme: 'light',
+      viewMode: 'blog',
+      activeSubStep: 999,
+    };
   }
   return context;
 };

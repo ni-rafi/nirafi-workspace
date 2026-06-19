@@ -1,20 +1,44 @@
-import { useState, useMemo, useEffect, useCallback } from 'react';
+import { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import { flushSync } from 'react-dom';
 import { useParams, useNavigate, NavigateOptions, useLocation } from 'react-router-dom';
 import { SUBJECTS } from '@/config/lectures';
 import { getSlideMetadata, getLectureSlideCount, getBgVariant } from '../components/slides/SlideRenderer';
 import { useSlideViewerState } from './useSlideViewerState';
 import { usePresenterFeatures } from './usePresenterFeatures';
-import { useClickSteps } from './useClickSteps';
 import { ViewMode, Theme } from '../context/PresentationContext';
 import { useFirebase } from '@/context/FirebaseContext';
 import type { QuizState } from '@/services/firebase/IFirebaseService';
 
 
+/** Minimal shape of the View Transition API object we actually use */
+interface ViewTransitionHandle {
+  ready: Promise<void>;
+  finished: Promise<void>;
+}
+
 export const useSlideViewerOrchestrator = () => {
   const { subjectId, sessionId, lectureId, slideNo } = useParams<Record<string, string>>();
   const navigate = useNavigate();
   const currentSlideInt = slideNo ? parseInt(slideNo, 10) : 1;
+
+  // Tracks the intended direction of the most recent slide change.
+  // Read by PresentationModeView to set initialClick on the per-slide ClickStepsProvider.
+  const slideDirectionRef = useRef<'forward' | 'backward'>('forward');
+
+  const startSafeTransition = useCallback((updateFn: () => void) => {
+    if (!document.startViewTransition) {
+      updateFn();
+      return;
+    }
+    // When rapid navigation fires a second transition before the first animation
+    // finishes, the browser aborts the first and rejects its promises. We suppress
+    // both `ready` and `finished` so no uncaught-rejection noise reaches the console.
+    const vt = document.startViewTransition(() => {
+      flushSync(updateFn);
+    }) as unknown as ViewTransitionHandle;
+    vt.ready.catch(() => { });
+    vt.finished.catch(() => { });
+  }, []);
 
   const activeSub = SUBJECTS.find((sub) => sub.id === subjectId);
   const activeSession = activeSub?.sessions.find((sess) => sess.id === sessionId);
@@ -77,43 +101,28 @@ export const useSlideViewerOrchestrator = () => {
         if (!isNaN(parsed) && parsed !== activeSlide) {
           const meta = activeSub && activeLec ? getSlideMetadata(parsed, activeSub, activeLec) : null;
           const nextBgVariant = meta ? getBgVariant(meta.type) : 'default';
-
-          if (document.startViewTransition) {
-            document.startViewTransition(() => {
-              flushSync(() => {
-                setActiveSlide(parsed);
-                setBgVariant(nextBgVariant);
-              });
-            });
-          } else {
+          startSafeTransition(() => {
             setActiveSlide(parsed);
             setBgVariant(nextBgVariant);
-          }
+          });
         }
       }
     };
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
-  }, [activeSlide, activeSub, activeLec]);
+  }, [activeSlide, activeSub, activeLec, startSafeTransition]);
 
-  const changeSlideWithTransition = useCallback((nextSlide: number) => {
+  const changeSlideWithTransition = useCallback((nextSlide: number, direction: 'forward' | 'backward' = 'forward') => {
     const meta = activeSub && activeLec ? getSlideMetadata(nextSlide, activeSub, activeLec) : null;
     const nextBgVariant = meta ? getBgVariant(meta.type) : 'default';
 
-    if (document.startViewTransition) {
-      document.startViewTransition(() => {
-        flushSync(() => {
-          setActiveSlide(nextSlide);
-          setBgVariant(nextBgVariant);
-        });
-      });
-    } else {
+    slideDirectionRef.current = direction;
+    startSafeTransition(() => {
       setActiveSlide(nextSlide);
       setBgVariant(nextBgVariant);
-    }
-    // Update the URL in the address bar without triggering React Router route navigation
+    });
     window.history.pushState(null, '', `/${subjectId}/${sessionId}/${lectureId}/${nextSlide}`);
-  }, [subjectId, sessionId, lectureId, activeSub, activeLec]);
+  }, [subjectId, sessionId, lectureId, activeSub, activeLec, startSafeTransition]);
 
   const { pathname } = useLocation();
   const isBlogMode = pathname.endsWith('/blog');
@@ -147,16 +156,8 @@ export const useSlideViewerOrchestrator = () => {
   }, [totalSlidesCount, activeSub, activeLec]);
 
   const navigateWithTransition = useCallback((path: string, options?: NavigateOptions) => {
-    if (document.startViewTransition) {
-      document.startViewTransition(() => {
-        flushSync(() => {
-          navigate(path, options);
-        });
-      });
-    } else {
-      navigate(path, options);
-    }
-  }, [navigate]);
+    startSafeTransition(() => navigate(path, options));
+  }, [navigate, startSafeTransition]);
 
   const handleNextSection = useCallback(() => {
     if (activeQuizState?.status === 'active') {
@@ -202,7 +203,8 @@ export const useSlideViewerOrchestrator = () => {
 
   const handlePrevSlide = useCallback(() => {
     if (activeSlide > 1) {
-      changeSlideWithTransition(activeSlide - 1);
+      // Direction is set by useClickSteps before calling this; pass 'backward' here as fallback
+      changeSlideWithTransition(activeSlide - 1, 'backward');
     }
   }, [activeSlide, changeSlideWithTransition]);
 
@@ -212,11 +214,10 @@ export const useSlideViewerOrchestrator = () => {
       return;
     }
     if (activeSlide < totalSlidesCount) {
-      changeSlideWithTransition(activeSlide + 1);
+      // Direction is set by useClickSteps before calling this; pass 'forward' here as fallback
+      changeSlideWithTransition(activeSlide + 1, 'forward');
     }
   }, [activeSlide, totalSlidesCount, changeSlideWithTransition, activeQuizState]);
-
-  const clickSteps = useClickSteps(handlePrevSlide, handleNextSlide);
 
   const activeTheme: Theme = viewerState.isProjectionView ? 'projection' : (presenterFeatures.isDark ? 'dark' : 'light');
 
@@ -238,9 +239,9 @@ export const useSlideViewerOrchestrator = () => {
     sections,
     viewerState,
     presenterFeatures,
-    clickSteps,
     notFound,
     bgVariant,
+    slideDirectionRef,
     navigateWithTransition,
     changeSlideWithTransition,
     handleNextSection,

@@ -3,6 +3,7 @@ import { Play, Pause, RotateCcw } from 'lucide-react';
 import SlideContainer from '../core/SlideContainer';
 import SlideRenderer from '../slides/SlideRenderer';
 import { ClickStepsProvider, ClickStepsContext, useClickStepsContext } from '../../context/ClickStepsContext';
+import { PresentationContext } from '../../context/PresentationContext';
 
 interface PresenterLayoutProps {
   currentSlide: number;
@@ -45,6 +46,22 @@ export const PresenterLayout: React.FC<PresenterLayoutProps> = ({
       currentClick,
     };
   }, [parentContext, currentClick]);
+
+  const presentation = React.useContext(PresentationContext);
+
+  const nextRevealContextValue = React.useMemo(() => ({
+    theme: presentation?.theme || 'light',
+    viewMode: presentation?.viewMode || 'present',
+    activeSubStep: currentClick + 1,
+    slideNo: currentSlide,
+  }), [presentation, currentClick, currentSlide]);
+
+  const nextSlideContextValue = React.useMemo(() => ({
+    theme: presentation?.theme || 'light',
+    viewMode: presentation?.viewMode || 'present',
+    activeSubStep: 0,
+    slideNo: currentSlide + 1,
+  }), [presentation, currentSlide]);
 
   return (
     <div className="flex-1 w-full grid grid-cols-1 lg:grid-cols-12 gap-4 p-4 bg-muted/10 min-h-0 select-none">
@@ -92,9 +109,11 @@ export const PresenterLayout: React.FC<PresenterLayoutProps> = ({
               <div className="relative border rounded-xl bg-background/50 p-2 overflow-hidden flex items-center justify-center h-full w-full opacity-80 shadow-inner">
                 <SlideContainer zoom={0.8}>
                   <div className="flex-1 flex flex-col justify-center items-center scale-90 select-none pointer-events-none">
-                    <ClickStepsProvider currentClickOverride={currentClick + 1}>
-                      <SlideRenderer slideNo={currentSlide} subject={activeSub} lecture={activeLec} session={activeSession} />
-                    </ClickStepsProvider>
+                    <PresentationContext.Provider value={nextRevealContextValue}>
+                      <ClickStepsProvider currentClickOverride={currentClick + 1}>
+                        <SlideRenderer slideNo={currentSlide} subject={activeSub} lecture={activeLec} session={activeSession} />
+                      </ClickStepsProvider>
+                    </PresentationContext.Provider>
                   </div>
                 </SlideContainer>
               </div>
@@ -102,9 +121,11 @@ export const PresenterLayout: React.FC<PresenterLayoutProps> = ({
               <div className="relative border rounded-xl bg-background/50 p-2 overflow-hidden flex items-center justify-center h-full w-full opacity-80 shadow-inner">
                 <SlideContainer zoom={0.8}>
                   <div className="flex-1 flex flex-col justify-center items-center scale-90 select-none pointer-events-none">
-                    <ClickStepsProvider currentClickOverride={0}>
-                      <SlideRenderer slideNo={currentSlide + 1} subject={activeSub} lecture={activeLec} session={activeSession} />
-                    </ClickStepsProvider>
+                    <PresentationContext.Provider value={nextSlideContextValue}>
+                      <ClickStepsProvider currentClickOverride={0}>
+                        <SlideRenderer slideNo={currentSlide + 1} subject={activeSub} lecture={activeLec} session={activeSession} />
+                      </ClickStepsProvider>
+                    </PresentationContext.Provider>
                   </div>
                 </SlideContainer>
               </div>

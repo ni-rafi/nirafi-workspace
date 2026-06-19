@@ -1,6 +1,9 @@
 import React from 'react';
 import PageMetadata from './PageMetadata';
 import { PresentationContext } from '../../context/PresentationContext';
+import { ClickStepsProvider } from '../../context/ClickStepsContext';
+import { useClickSteps } from '../../hooks/useClickSteps';
+import { useClickStepsContext } from '../../context/ClickStepsContext';
 import SlideContainer from './SlideContainer';
 import MorphingBackground from '../../../../shared/components/MorphingBackground';
 import GlobalTop from '../layers/GlobalTop';
@@ -18,8 +21,22 @@ interface PresentationModeViewProps {
   orchestrator: ReturnType<typeof useSlideViewerOrchestrator>;
 }
 
-export const PresentationModeView: React.FC<PresentationModeViewProps> = ({ orchestrator }) => {
-  const [isThemePlaygroundOpen, setIsThemePlaygroundOpen] = React.useState(false);
+interface PresentationModeContentProps {
+  orchestrator: ReturnType<typeof useSlideViewerOrchestrator>;
+  isThemePlaygroundOpen: boolean;
+  setIsThemePlaygroundOpen: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
+/**
+ * Presentational and overlay content component that lives inside the per-slide ClickStepsProvider.
+ * useClickSteps and useClickStepsContext here read from the keyed provider,
+ * so they always reflect the current slide's step state.
+ */
+const PresentationModeContent: React.FC<PresentationModeContentProps> = ({
+  orchestrator,
+  isThemePlaygroundOpen,
+  setIsThemePlaygroundOpen,
+}) => {
   const {
     activeSub,
     activeSession,
@@ -31,38 +48,19 @@ export const PresentationModeView: React.FC<PresentationModeViewProps> = ({ orch
     lectureId,
     viewerState,
     presenterFeatures,
-    clickSteps,
     navigateWithTransition,
     changeSlideWithTransition,
     handleNextSection,
     handlePrevSection,
+    handlePrevSlide,
+    handleNextSlide,
     bgVariant,
   } = orchestrator;
 
-  // Sync transition styles and timings dynamically to document styles
-  React.useEffect(() => {
-    const root = document.documentElement;
-    const settings = presenterFeatures.settings;
-    
-    root.style.setProperty('--slide-transition-duration', `${settings.transitionDuration || 300}ms`);
-    
-    let oldAnim = 'fade-out';
-    let newAnim = 'fade-in';
-    
-    if (settings.transitionType === 'slide') {
-      oldAnim = 'slide-out-left';
-      newAnim = 'slide-in-right';
-    } else if (settings.transitionType === 'zoom') {
-      oldAnim = 'scale-out';
-      newAnim = 'scale-in';
-    } else if (settings.transitionType === 'none') {
-      oldAnim = 'none';
-      newAnim = 'none';
-    }
-    
-    root.style.setProperty('--slide-transition-old-animation', oldAnim);
-    root.style.setProperty('--slide-transition-new-animation', newAnim);
-  }, [presenterFeatures.settings.transitionType, presenterFeatures.settings.transitionDuration]);
+  // These hooks read from the keyed per-slide ClickStepsProvider —
+  // they remount fresh with the provider whenever the slide changes.
+  const { currentClick, totalClicks } = useClickStepsContext();
+  const clickSteps = useClickSteps(handlePrevSlide, handleNextSlide);
 
   if (!activeSub || !activeLec) return null;
 
@@ -71,7 +69,7 @@ export const PresentationModeView: React.FC<PresentationModeViewProps> = ({ orch
   const currentNotes = SPEAKER_NOTES[activeSlide] || 'No presenter notes defined for this slide.';
 
   const mainSlideContent = (
-    <PresentationContext.Provider value={{ theme: activeTheme, viewMode, activeSubStep: clickSteps.currentClick, slideNo: activeSlide }}>
+    <PresentationContext.Provider value={{ theme: activeTheme, viewMode, activeSubStep: currentClick, slideNo: activeSlide }}>
       <div className="flex-1 w-full h-full relative" style={{ filter: presenterFeatures.filterStyle || undefined }}>
         <SlideContainer zoom={viewerState.isPresenterView ? 0.95 : 1} scaleMode={presenterFeatures.settings.scale}>
           <MorphingBackground variant={bgVariant} />
@@ -110,8 +108,8 @@ export const PresentationModeView: React.FC<PresentationModeViewProps> = ({ orch
         activeSub={activeSub}
         activeLec={activeLec}
         activeSession={activeSession}
-        currentClick={clickSteps.currentClick}
-        totalClicks={clickSteps.totalClicks}
+        currentClick={currentClick}
+        totalClicks={totalClicks}
       >
         {mainSlideContent}
       </PresenterLayout>
@@ -119,12 +117,7 @@ export const PresentationModeView: React.FC<PresentationModeViewProps> = ({ orch
   }
 
   return (
-    <div
-      ref={viewerState.outerRef}
-      onContextMenu={viewerState.isProjectionView ? undefined : presenterFeatures.handleContextMenu}
-      className="relative flex h-screen w-screen flex-row overflow-hidden bg-background"
-      data-slide-viewer
-    >
+    <>
       <PageMetadata title={activeLec.title} subjectCode={activeSub.courseCode} slideNo={activeSlide} />
 
       <div className="flex-1 h-full relative flex items-center justify-center overflow-hidden bg-background">
@@ -224,8 +217,79 @@ export const PresentationModeView: React.FC<PresentationModeViewProps> = ({ orch
         isThemePlaygroundOpen={isThemePlaygroundOpen}
         onToggleThemePlayground={() => setIsThemePlaygroundOpen(!isThemePlaygroundOpen)}
       />
+    </>
+  );
+};
+
+/**
+ * PresentationModeInner keeps the outer container element stable (meaning it does not
+ * unmount during slide change) while recreating the per-slide ClickStepsProvider context.
+ */
+const PresentationModeInner: React.FC<PresentationModeViewProps> = ({ orchestrator }) => {
+  const [isThemePlaygroundOpen, setIsThemePlaygroundOpen] = React.useState(false);
+  const { activeSlide, slideDirectionRef, viewerState, presenterFeatures } = orchestrator;
+
+  const content = (
+    <ClickStepsProvider
+      key={activeSlide}
+      initialClick={slideDirectionRef.current === 'backward' ? 999 : 0}
+    >
+      <PresentationModeContent
+        orchestrator={orchestrator}
+        isThemePlaygroundOpen={isThemePlaygroundOpen}
+        setIsThemePlaygroundOpen={setIsThemePlaygroundOpen}
+      />
+    </ClickStepsProvider>
+  );
+
+  if (viewerState.isPresenterView) {
+    return content;
+  }
+
+  return (
+    <div
+      ref={viewerState.outerRef}
+      onContextMenu={viewerState.isProjectionView ? undefined : presenterFeatures.handleContextMenu}
+      className="relative flex h-screen w-screen flex-row overflow-hidden bg-background"
+      data-slide-viewer
+    >
+      {content}
     </div>
   );
+};
+
+/**
+ * Main wrapper view for presentation mode slides.
+ */
+export const PresentationModeView: React.FC<PresentationModeViewProps> = ({ orchestrator }) => {
+  const { presenterFeatures } = orchestrator;
+
+  // Sync transition styles and timings dynamically to document styles
+  React.useEffect(() => {
+    const root = document.documentElement;
+    const settings = presenterFeatures.settings;
+    
+    root.style.setProperty('--slide-transition-duration', `${settings.transitionDuration || 300}ms`);
+    
+    let oldAnim = 'fade-out';
+    let newAnim = 'fade-in';
+    
+    if (settings.transitionType === 'slide') {
+      oldAnim = 'slide-out-left';
+      newAnim = 'slide-in-right';
+    } else if (settings.transitionType === 'zoom') {
+      oldAnim = 'scale-out';
+      newAnim = 'scale-in';
+    } else if (settings.transitionType === 'none') {
+      oldAnim = 'none';
+      newAnim = 'none';
+    }
+    
+    root.style.setProperty('--slide-transition-old-animation', oldAnim);
+    root.style.setProperty('--slide-transition-new-animation', newAnim);
+  }, [presenterFeatures.settings.transitionType, presenterFeatures.settings.transitionDuration]);
+
+  return <PresentationModeInner orchestrator={orchestrator} />;
 };
 
 export default PresentationModeView;

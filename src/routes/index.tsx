@@ -3,7 +3,6 @@ import { Routes, Route, Navigate, useParams } from 'react-router-dom';
 import { ROUTE_PATHS } from './paths';
 import { useUserContext, useLectureStatus } from '@/context';
 import { PageLayout } from '@/shared/components/Layout/PageLayout';
-import { ClickStepsProvider } from '@/features/presentation/context/ClickStepsContext';
 import LecturePortal from '@/features/portal';
 import { SlideViewer } from '@/features/presentation/components/core';
 import RollNumberGate from '@/features/gate/components/RollNumberGate';
@@ -85,9 +84,7 @@ export const AppRoutes: React.FC = () => {
         path={ROUTE_PATHS.SLIDE_NESTED}
         element={
           <LectureRouteGuard>
-            <ClickStepsProvider>
-              <SlideViewer />
-            </ClickStepsProvider>
+            <SlideViewer />
           </LectureRouteGuard>
         }
       />
@@ -95,9 +92,7 @@ export const AppRoutes: React.FC = () => {
         path={ROUTE_PATHS.LECTURE_VIEW}
         element={
           <LectureRouteGuard>
-            <ClickStepsProvider>
-              <SlideViewer />
-            </ClickStepsProvider>
+            <SlideViewer />
           </LectureRouteGuard>
         }
       />
@@ -105,9 +100,7 @@ export const AppRoutes: React.FC = () => {
         path={ROUTE_PATHS.BLOG_VIEW}
         element={
           <LectureRouteGuard>
-            <ClickStepsProvider>
-              <SlideViewer />
-            </ClickStepsProvider>
+            <SlideViewer />
           </LectureRouteGuard>
         }
       />

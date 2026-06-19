@@ -29,7 +29,7 @@ const BlogSlideCard: React.FC<{
   const cardContextValue = useMemo(() => ({
     theme: presentation?.theme || 'light',
     viewMode: presentation?.viewMode || 'blog',
-    activeSubStep: 0,
+    activeSubStep: 999,
     slideNo,
   }), [presentation, slideNo]);
 
