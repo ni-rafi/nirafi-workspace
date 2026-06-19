@@ -4,6 +4,7 @@ import { PresentationContext } from '../../context/PresentationContext';
 import { ClickStepsProvider } from '../../context/ClickStepsContext';
 import { useClickSteps } from '../../hooks/useClickSteps';
 import { useClickStepsContext } from '../../context/ClickStepsContext';
+import { useNavShortcuts } from '../../hooks/useNavShortcuts';
 import SlideContainer from './SlideContainer';
 import MorphingBackground from '../../../../shared/components/MorphingBackground';
 import GlobalTop from '../layers/GlobalTop';
@@ -62,6 +63,18 @@ const PresentationModeContent: React.FC<PresentationModeContentProps> = ({
   // they remount fresh with the provider whenever the slide changes.
   const { currentClick, totalClicks } = useClickStepsContext();
   const clickSteps = useClickSteps(handlePrevSlide, handleNextSlide);
+
+  // Bind keyboard navigation shortcuts globally for standard and presenter views
+  useNavShortcuts({
+    onNext: clickSteps.handleNext,
+    onPrev: clickSteps.handlePrev,
+    onNextSection: handleNextSection,
+    onPrevSection: handlePrevSection,
+    onToggleFullscreen: viewerState.handleToggleFullscreen,
+    onToggleOverview: () => presenterFeatures.setIsOverviewOpen(!presenterFeatures.isOverviewOpen),
+    onToggleDark: presenterFeatures.handleToggleDark,
+    onTogglePresenter: viewerState.handleTogglePresenter,
+  });
 
   if (!activeSub || !activeLec) return null;
 
@@ -242,10 +255,6 @@ const PresentationModeInner: React.FC<PresentationModeViewProps> = ({ orchestrat
       />
     </ClickStepsProvider>
   );
-
-  if (viewerState.isPresenterView) {
-    return content;
-  }
 
   return (
     <div

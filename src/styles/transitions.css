@@ -123,5 +123,15 @@
   to { transform: scale(1); opacity: 1; }
 }
 
+/* Ensure the navigation controls stay on top of slide transitions */
+[data-nav-controls] {
+  view-transition-name: nav-controls;
+}
+
+::view-transition-group(nav-controls) {
+  z-index: 100;
+}
+
+
 
 

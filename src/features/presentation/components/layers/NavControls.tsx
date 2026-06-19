@@ -16,7 +16,6 @@ import {
 import { Button } from '@/components/ui/button';
 import DrawingDrawer from './DrawingDrawer';
 import SlideNavigation from './SlideNavigation';
-import { useNavShortcuts } from '../../hooks/useNavShortcuts';
 
 interface NavControlsProps {
   current: number;
@@ -87,8 +86,6 @@ export const NavControls: React.FC<NavControlsProps> = ({
   onToggleDark,
   isPresenterView,
   onTogglePresenter,
-  onNextSection,
-  onPrevSection,
   onExit,
   isPenActive,
   onPenActiveChange,
@@ -108,17 +105,6 @@ export const NavControls: React.FC<NavControlsProps> = ({
   const [isHovered, setIsHovered] = useState(false);
   const [isHoveredSensor, setIsHoveredSensor] = useState(false);
 
-  // Bind keyboard navigation shortcuts
-  useNavShortcuts({
-    onNext,
-    onPrev,
-    onNextSection,
-    onPrevSection,
-    onToggleFullscreen,
-    onToggleOverview,
-    onToggleDark,
-    onTogglePresenter,
-  });
 
 
 
@@ -139,11 +125,10 @@ export const NavControls: React.FC<NavControlsProps> = ({
       <div
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
-        className={className || `fixed bottom-4 left-4 z-40 flex flex-col gap-2 items-start transition-all duration-300 ease-in-out ${
-          showToolbar
+        className={className || `fixed bottom-4 left-4 z-40 flex flex-col gap-2 items-start transition-all duration-300 ease-in-out ${showToolbar
             ? 'translate-y-0 opacity-100 scale-100'
             : 'translate-y-[calc(100%+24px)] opacity-0 scale-95 pointer-events-none'
-        }`}
+          }`}
         data-nav-controls
       >
         {/* Expanded drawing drawer panel */}
@@ -233,11 +218,10 @@ export const NavControls: React.FC<NavControlsProps> = ({
             variant={isRecording ? 'default' : 'ghost'}
             size="icon"
             onClick={onToggleRecording}
-            className={`h-7 w-7 md:h-8 md:w-8 rounded-full ${
-              isRecording
+            className={`h-7 w-7 md:h-8 md:w-8 rounded-full ${isRecording
                 ? 'bg-red-500 hover:bg-red-600 text-white animate-pulse'
                 : 'text-muted-foreground hover:text-foreground'
-            }`}
+              }`}
             title={isRecording ? 'Stop Recording' : 'Start Recording'}
           >
             <Video className="h-4 w-4" />
