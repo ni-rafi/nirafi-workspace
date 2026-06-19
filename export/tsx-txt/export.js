@@ -5,55 +5,57 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Source directories relative to the workspace root
-const sourceDirs = {
-  'dev-guide': path.resolve(__dirname, '../../src/features/presentation/components/docs/dev-guide'),
-  'user-guide': path.resolve(__dirname, '../../src/features/presentation/components/docs/user-guide')
-};
+// Source directory relative to the workspace root
+const sourceDir = path.resolve(__dirname, '../../src/features/docs');
 
 // Target directory (the directory where this script is located)
 const targetBaseDir = __dirname;
 
+function walkDir(dir, callback) {
+  const files = fs.readdirSync(dir);
+  for (const file of files) {
+    const filePath = path.join(dir, file);
+    const stat = fs.statSync(filePath);
+    if (stat.isDirectory()) {
+      walkDir(filePath, callback);
+    } else if (stat.isFile()) {
+      callback(filePath);
+    }
+  }
+}
+
 function exportFiles() {
   console.log('Starting file export...');
 
-  for (const [subDir, srcPath] of Object.entries(sourceDirs)) {
-    if (!fs.existsSync(srcPath)) {
-      console.error(`Source directory does not exist: ${srcPath}`);
-      continue;
-    }
-
-    const destPath = path.join(targetBaseDir, subDir);
-    if (!fs.existsSync(destPath)) {
-      fs.mkdirSync(destPath, { recursive: true });
-      console.log(`Created destination subdirectory: ${destPath}`);
-    }
-
-    const files = fs.readdirSync(srcPath);
-    let count = 0;
-
-    for (const file of files) {
-      const srcFilePath = path.join(srcPath, file);
-      const stat = fs.statSync(srcFilePath);
-
-      if (stat.isFile()) {
-        const ext = path.extname(file);
-        if (ext === '.tsx') {
-          const baseName = path.basename(file, ext);
-          // Change extension from .tsx to .txt
-          const destFileName = `${baseName}.txt`;
-          const destFilePath = path.join(destPath, destFileName);
-
-          fs.copyFileSync(srcFilePath, destFilePath);
-          count++;
-        }
-      }
-    }
-
-    console.log(`Exported ${count} files from ${subDir} to ${destPath} (converted extension to .txt)`);
+  if (!fs.existsSync(sourceDir)) {
+    console.error(`Source directory does not exist: ${sourceDir}`);
+    return;
   }
 
+  let count = 0;
+
+  walkDir(sourceDir, (filePath) => {
+    const ext = path.extname(filePath);
+    if (ext === '.tsx') {
+      const relativePath = path.relative(sourceDir, filePath);
+      const relativePathParsed = path.parse(relativePath);
+      const destRelativePath = path.join(relativePathParsed.dir, `${relativePathParsed.name}.txt`);
+      const destFilePath = path.join(targetBaseDir, destRelativePath);
+
+      // Create target directory if it doesn't exist
+      const destDir = path.dirname(destFilePath);
+      if (!fs.existsSync(destDir)) {
+        fs.mkdirSync(destDir, { recursive: true });
+      }
+
+      fs.copyFileSync(filePath, destFilePath);
+      count++;
+    }
+  });
+
+  console.log(`Exported ${count} files from ${sourceDir} to ${targetBaseDir} (converted extension to .txt)`);
   console.log('Export completed successfully.');
 }
 
 exportFiles();
+
