@@ -140,7 +140,7 @@ export const SlidePhysicsShapes: React.FC = () => {
                     className={`px-2 py-1.5 rounded-lg text-[10px] font-bold uppercase transition-all border ${
                       preset === p
                         ? 'bg-primary border-primary text-white shadow-sm'
-                        : 'bg-slate-900 border-white/5 text-slate-400 hover:text-white hover:border-white/10'
+                        : 'bg-muted/50 border-border/50 text-muted-foreground hover:text-foreground hover:bg-muted hover:border-border/85'
                     }`}
                   >
                     {p}
@@ -163,7 +163,7 @@ export const SlidePhysicsShapes: React.FC = () => {
               <button
                 onClick={morphAllShapes}
                 disabled={physicsEnabled}
-                className="py-2 rounded-lg text-xs font-bold bg-slate-800 border border-white/5 text-slate-100 hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+                className="py-2 rounded-lg text-xs font-bold bg-muted border border-border/50 text-foreground hover:bg-muted/80 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
               >
                 Morph Shapes
               </button>

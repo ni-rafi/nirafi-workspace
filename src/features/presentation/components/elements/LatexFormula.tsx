@@ -26,7 +26,7 @@ export const LatexFormula: React.FC<LatexFormulaProps> = ({ math, block = false 
   return (
     <span
       ref={containerRef}
-      className={block ? 'block my-4 text-center select-text' : 'inline-block select-text'}
+      className={block ? 'block my-4 text-center select-text overflow-x-auto overflow-y-hidden max-w-full py-1' : 'inline-block select-text'}
       data-latex-formula
     />
   );

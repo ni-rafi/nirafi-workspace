@@ -1,7 +1,11 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import MermaidDiagram from '../elements/MermaidDiagram';
+import { PresentationContext } from '../../context/PresentationContext';
 
 export const SlideMermaidFlowchart: React.FC = () => {
+  const presentation = useContext(PresentationContext);
+  const isPresent = presentation?.viewMode === 'present';
+
   const definition = `graph TD
   A[Start Slab Estimation] --> B[Retrieve Length, Width & Thickness]
   B --> C{Thickness > 0?}
@@ -10,6 +14,10 @@ export const SlideMermaidFlowchart: React.FC = () => {
   E --> F[Apply Concrete wastage coefficient 5%]
   F --> G[Round final results to 3 decimals]
   G --> H[Store in database registry]`;
+
+  const containerClass = isPresent
+    ? 'h-[360px] w-full flex justify-center items-center p-5 md:p-6 bg-muted/60 dark:bg-muted/20 rounded-xl overflow-hidden'
+    : 'w-full flex justify-center items-center p-5 md:p-6 bg-muted/60 dark:bg-muted/20 rounded-xl overflow-hidden';
 
   return (
     <div className="relative w-full h-full flex flex-col justify-start text-left px-8 py-8 overflow-y-auto">
@@ -22,7 +30,7 @@ export const SlideMermaidFlowchart: React.FC = () => {
         </p>
       </div>
 
-      <div className="flex-1 flex justify-center items-center p-4 border border-white/10 bg-slate-900/40 rounded-2xl overflow-hidden">
+      <div className={containerClass}>
         <MermaidDiagram definition={definition} scale={0.95} />
       </div>
     </div>

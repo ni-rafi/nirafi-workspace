@@ -1,17 +1,37 @@
-import React, { useEffect, useState, useId } from 'react';
+import React, { useEffect, useState, useId, useContext } from 'react';
 import mermaid from 'mermaid';
+import { PresentationContext } from '../../context/PresentationContext';
 
 // Initialize Mermaid layout options globally
 mermaid.initialize({
   startOnLoad: false,
-  theme: 'dark',
+  theme: 'base',
   securityLevel: 'loose',
   themeVariables: {
-    background: '#020617', // Match slate-950 color
+    background: 'transparent',
     primaryColor: '#3b82f6',
     primaryTextColor: '#f8fafc',
     lineColor: '#64748b',
   },
+  themeCSS: `
+    .node rect, .node circle, .node ellipse, .node polygon, .node path {
+      fill: var(--card) !important;
+      stroke: var(--border) !important;
+      stroke-width: 1.5px !important;
+    }
+    .node .label, .node .label *, .node text, .node text * {
+      color: var(--foreground) !important;
+      fill: var(--foreground) !important;
+    }
+    .edgePath .path {
+      stroke: var(--muted-foreground) !important;
+      stroke-width: 1.5px !important;
+    }
+    .arrowheadPath {
+      fill: var(--muted-foreground) !important;
+      stroke: none !important;
+    }
+  `,
 });
 
 interface MermaidDiagramProps {
@@ -20,6 +40,9 @@ interface MermaidDiagramProps {
 }
 
 export const MermaidDiagram: React.FC<MermaidDiagramProps> = ({ definition, scale = 1 }) => {
+  const presentation = useContext(PresentationContext);
+  const isPresentMode = presentation ? presentation.viewMode === 'present' : false;
+
   const uniqueId = useId();
   // Strip colons from React useId to make it a valid HTML ID selector
   const elementId = `mermaid-${uniqueId.replace(/:/g, '')}`;
@@ -39,7 +62,50 @@ export const MermaidDiagram: React.FC<MermaidDiagramProps> = ({ definition, scal
         const { svg } = await mermaid.render(elementId + '-svg', cleanedDef);
         
         if (active) {
-          setSvgContent(svg);
+          // Make the SVG responsive by replacing hardcoded width/style rules depending on display mode
+          let adjustedSvg = svg;
+          
+          if (isPresentMode) {
+            adjustedSvg = adjustedSvg
+              .replace(/width="[^"]*"/, 'width="100%"')
+              .replace(/height="[^"]*"/, 'height="100%"');
+            
+            if (adjustedSvg.includes('preserveAspectRatio="')) {
+              adjustedSvg = adjustedSvg.replace(/preserveAspectRatio="[^"]*"/, 'preserveAspectRatio="xMidYMid meet"');
+            } else {
+              adjustedSvg = adjustedSvg.replace('<svg', '<svg preserveAspectRatio="xMidYMid meet"');
+            }
+
+            if (adjustedSvg.includes('style="')) {
+              adjustedSvg = adjustedSvg.replace(/style="([^"]*)"/, (_, styles: string) => {
+                const cleaned = styles
+                  .split(';')
+                  .filter((s) => !s.trim().startsWith('max-width') && !s.trim().startsWith('max-height') && !s.trim().startsWith('height'))
+                  .join(';');
+                return `style="${cleaned}; max-width: 100%; max-height: 100%; display: block; margin: auto;"`;
+              });
+            } else {
+              adjustedSvg = adjustedSvg.replace('<svg', '<svg style="max-width: 100%; max-height: 100%; display: block; margin: auto;"');
+            }
+          } else {
+            // For scroll/blog modes, scale only by width, letting height grow naturally
+            adjustedSvg = adjustedSvg
+              .replace(/width="[^"]*"/, 'width="100%"')
+              .replace(/height="[^"]*"/, 'height="auto"');
+
+            if (adjustedSvg.includes('style="')) {
+              adjustedSvg = adjustedSvg.replace(/style="([^"]*)"/, (_, styles: string) => {
+                const cleaned = styles
+                  .split(';')
+                  .filter((s) => !s.trim().startsWith('max-width') && !s.trim().startsWith('height'))
+                  .join(';');
+                return `style="${cleaned}; max-width: 100%; height: auto; display: block; margin: 0 auto;"`;
+              });
+            } else {
+              adjustedSvg = adjustedSvg.replace('<svg', '<svg style="max-width: 100%; height: auto; display: block; margin: 0 auto;"');
+            }
+          }
+          setSvgContent(adjustedSvg);
         }
       } catch (err) {
         console.warn('Failed to parse Mermaid flowchart:', err);
@@ -54,7 +120,7 @@ export const MermaidDiagram: React.FC<MermaidDiagramProps> = ({ definition, scal
     return () => {
       active = false;
     };
-  }, [definition, elementId]);
+  }, [definition, elementId, isPresentMode]);
 
   if (error) {
     return (
@@ -64,16 +130,37 @@ export const MermaidDiagram: React.FC<MermaidDiagramProps> = ({ definition, scal
     );
   }
 
+  if (isPresentMode) {
+    return (
+      <div
+        className="w-full h-full self-stretch flex justify-center items-center overflow-hidden"
+        data-mermaid-diagram
+      >
+        <div 
+          className="w-full h-full flex justify-center items-center transition-all duration-300"
+          style={{
+            maxWidth: `${scale * 100}%`,
+          }}
+          dangerouslySetInnerHTML={{ __html: svgContent || '<div class="text-xs text-muted-foreground animate-pulse">Rendering flowchart...</div>' }}
+        />
+      </div>
+    );
+  }
+
+  // Scroll and Blog modes: height auto
   return (
     <div
-      className="w-full flex justify-center overflow-auto py-2 transition-transform duration-300"
-      style={{
-        transform: `scale(${scale})`,
-        transformOrigin: 'top center',
-      }}
+      className="w-full flex justify-center items-center overflow-hidden py-2"
       data-mermaid-diagram
-      dangerouslySetInnerHTML={{ __html: svgContent || '<div class="text-xs text-muted-foreground animate-pulse">Rendering flowchart...</div>' }}
-    />
+    >
+      <div 
+        className="w-full transition-all duration-300"
+        style={{
+          maxWidth: `${scale * 100}%`,
+        }}
+        dangerouslySetInnerHTML={{ __html: svgContent || '<div class="text-xs text-muted-foreground animate-pulse">Rendering flowchart...</div>' }}
+      />
+    </div>
   );
 };
 

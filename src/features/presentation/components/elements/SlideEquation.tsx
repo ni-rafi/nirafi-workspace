@@ -42,7 +42,7 @@ export const SlideEquation: React.FC<SlideEquationProps> = ({
     bgClass = 'border-2 border-primary/20 bg-transparent rounded-xl';
   } else {
     // default
-    bgClass = 'bg-card border border-border shadow-sm rounded-xl';
+    bgClass = 'bg-muted/60 dark:bg-muted/20 rounded-xl';
   }
 
   const content = (

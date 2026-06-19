@@ -14,7 +14,7 @@ export const SlideMathRendering: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-2 gap-6 w-full items-start">
-        <div className="flex flex-col gap-3 p-4 border border-white/10 bg-slate-900/40 rounded-2xl">
+        <div className="flex flex-col gap-3 p-5 md:p-6 bg-muted/60 dark:bg-muted/20 rounded-xl">
           <span className="text-[10px] font-bold text-primary uppercase tracking-wider font-mono select-none">
             Direct Volume Equations (Block)
           </span>
@@ -30,7 +30,7 @@ export const SlideMathRendering: React.FC = () => {
           </p>
         </div>
 
-        <div className="flex flex-col gap-3 p-4 border border-white/10 bg-slate-900/40 rounded-2xl">
+        <div className="flex flex-col gap-3 p-5 md:p-6 bg-muted/60 dark:bg-muted/20 rounded-xl">
           <span className="text-[10px] font-bold text-primary uppercase tracking-wider font-mono select-none">
             Maxwell's Equations (Advanced Formula Block)
           </span>

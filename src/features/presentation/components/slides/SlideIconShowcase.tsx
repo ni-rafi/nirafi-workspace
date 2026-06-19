@@ -15,7 +15,7 @@ export const SlideIconShowcase: React.FC = () => {
 
       <div className="grid grid-cols-2 gap-6 w-full items-start">
         {/* Core sets container */}
-        <div className="flex flex-col gap-4 p-4 border border-white/10 bg-slate-900/40 rounded-2xl">
+        <div className="flex flex-col gap-4 p-5 md:p-6 bg-muted/60 dark:bg-muted/20 border border-border/40 rounded-xl">
           <span className="text-[10px] font-bold text-primary uppercase tracking-wider font-mono select-none">
             Slidev Icon Conventions
           </span>
@@ -40,7 +40,7 @@ export const SlideIconShowcase: React.FC = () => {
         </div>
 
         {/* Custom styling container */}
-        <div className="flex flex-col gap-4 p-4 border border-white/10 bg-slate-900/40 rounded-2xl">
+        <div className="flex flex-col gap-4 p-5 md:p-6 bg-muted/60 dark:bg-muted/20 border border-border/40 rounded-xl">
           <span className="text-[10px] font-bold text-primary uppercase tracking-wider font-mono select-none">
             Tailwind Animations & Styles
           </span>

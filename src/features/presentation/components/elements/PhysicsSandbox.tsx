@@ -184,7 +184,7 @@ export const PhysicsSandbox: React.FC<PhysicsSandboxProps> = ({
     <svg
       ref={svgRef}
       viewBox={`0 0 ${width} ${height}`}
-      className="w-full h-full relative overflow-hidden bg-slate-950/80 border border-white/10 rounded-xl select-none"
+      className="w-full h-full relative overflow-hidden bg-muted/60 dark:bg-muted/20 border border-border/40 rounded-xl select-none"
       style={{ touchAction: 'none' }}
     >
       <defs>
