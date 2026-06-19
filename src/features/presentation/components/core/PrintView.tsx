@@ -51,6 +51,7 @@ const PrintSlideItem: React.FC<PrintSlideItemProps> = ({
     viewMode: presentation?.viewMode || 'scroll',
     activeSubStep: 999,
     slideNo,
+    isThumbnail: true,
   }), [presentation, slideNo]);
 
   return (

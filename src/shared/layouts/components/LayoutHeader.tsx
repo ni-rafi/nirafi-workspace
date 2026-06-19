@@ -10,6 +10,7 @@ interface LayoutHeaderProps {
 export const LayoutHeader: React.FC<LayoutHeaderProps> = ({ title, variant = 'default' }) => {
   const presentation = useContext(PresentationContext);
   const viewMode = presentation?.viewMode || 'present';
+  const isThumbnail = presentation?.isThumbnail || false;
 
   let borderSide = 'all';
   try {
@@ -26,16 +27,16 @@ export const LayoutHeader: React.FC<LayoutHeaderProps> = ({ title, variant = 'de
     borderClasses = 'border-b-[4px] border-primary pb-1.5 text-left w-full';
   }
 
-  if (viewMode === 'scroll') {
+  if (viewMode === 'scroll' || isThumbnail) {
     if (variant === 'title') {
       return (
-        <h1 className={`text-2xl font-extrabold tracking-tight text-foreground sm:text-3xl leading-tight ${borderClasses}`}>
+        <h1 className={`text-2xl font-extrabold tracking-tight text-primary sm:text-3xl leading-tight ${borderClasses}`}>
           {title}
         </h1>
       );
     }
     return (
-      <header className={`slide-header text-lg font-bold tracking-tight text-foreground mb-10 ${borderClasses}`}>
+      <header className={`slide-header text-lg font-bold tracking-tight text-primary mb-10 ${borderClasses}`}>
         {title}
       </header>
     );
@@ -43,14 +44,14 @@ export const LayoutHeader: React.FC<LayoutHeaderProps> = ({ title, variant = 'de
 
   if (variant === 'title') {
     return (
-      <h1 className={`text-4xl font-extrabold tracking-tight text-foreground sm:text-5xl leading-tight slide-header-title ${borderClasses}`}>
+      <h1 className={`text-4xl font-extrabold tracking-tight text-primary sm:text-5xl leading-tight slide-header-title ${borderClasses}`}>
         {title}
       </h1>
     );
   }
 
   return (
-    <header className={`slide-header text-xl font-bold tracking-tight text-foreground mb-7 slide-header-title ${borderClasses}`}>
+    <header className={`slide-header text-xl font-bold tracking-tight text-primary mb-7 slide-header-title ${borderClasses}`}>
       {title}
     </header>
   );

@@ -33,6 +33,8 @@ export const TitleV2Layout: React.FC<TitleV2LayoutProps> = ({
 }) => {
   const presentation = useContext(PresentationContext);
   const viewMode = presentation?.viewMode || 'present';
+  const isThumbnail = presentation?.isThumbnail || false;
+  const headerTitleClass = isThumbnail ? '' : 'slide-header-title';
 
   if (viewMode === 'blog') {
     return (
@@ -79,7 +81,7 @@ export const TitleV2Layout: React.FC<TitleV2LayoutProps> = ({
           <span className="inline-flex w-fit items-center rounded-md px-3 py-1 text-xs font-bold font-mono tracking-widest border bg-primary/10 text-primary uppercase">
             {courseCode}
           </span>
-          <h2 className="text-xl font-bold tracking-tight text-primary leading-tight slide-header-title">
+          <h2 className={`text-xl font-bold tracking-tight text-primary leading-tight ${headerTitleClass}`}>
             {courseTitle}
           </h2>
           <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-widest font-mono">
@@ -130,7 +132,7 @@ export const TitleV2Layout: React.FC<TitleV2LayoutProps> = ({
         <span className="inline-flex w-fit items-center rounded-md px-4 py-1.5 text-sm font-extrabold font-mono tracking-widest border bg-primary/10 text-primary uppercase animate-in fade-in slide-in-from-top duration-500">
           {courseCode}
         </span>
-        <h1 className="text-4xl font-extrabold tracking-tight text-primary leading-tight slide-header-title">
+        <h1 className={`text-4xl font-extrabold tracking-tight text-primary leading-tight ${headerTitleClass}`}>
           {courseTitle}
         </h1>
         <p className="text-xs text-muted-foreground font-medium uppercase tracking-widest font-mono">

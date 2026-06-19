@@ -20,6 +20,8 @@ export const TitleLayout: React.FC<TitleLayoutProps> = ({
 }) => {
   const presentation = useContext(PresentationContext);
   const viewMode = presentation?.viewMode || 'present';
+  const isThumbnail = presentation?.isThumbnail || false;
+  const headerTitleClass = isThumbnail ? '' : 'slide-header-title';
 
   const presenterName = footer && typeof footer === 'string' && !footer.includes('Department')
     ? footer
@@ -63,7 +65,7 @@ export const TitleLayout: React.FC<TitleLayoutProps> = ({
               {subtitle}
             </span>
           )}
-          <h2 className="text-xl font-extrabold tracking-tight text-primary sm:text-2xl leading-tight slide-header-title">
+          <h2 className={`text-xl font-extrabold tracking-tight text-primary sm:text-2xl leading-tight ${headerTitleClass}`}>
             {title}
           </h2>
         </div>
@@ -92,7 +94,7 @@ export const TitleLayout: React.FC<TitleLayoutProps> = ({
               {subtitle}
             </span>
           )}
-          <h1 className="text-3xl md:text-4.5xl font-extrabold tracking-tight text-primary leading-tight slide-header-title">
+          <h1 className={`text-3xl md:text-4.5xl font-extrabold tracking-tight text-primary leading-tight ${headerTitleClass}`}>
             {title}
           </h1>
         </div>

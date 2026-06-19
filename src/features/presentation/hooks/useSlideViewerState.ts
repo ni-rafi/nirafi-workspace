@@ -136,6 +136,9 @@ export const useSlideViewerState = ({
     channel.onmessage = (e) => {
       if (e.data?.action === 'projection-closed') {
         setIsPresenterView(false);
+        if (document.fullscreenElement) {
+          document.exitFullscreen().catch(() => { });
+        }
       }
     };
     return () => channel.close();
@@ -144,7 +147,7 @@ export const useSlideViewerState = ({
   // When projection view window is closed or unloaded, broadcast close event
   useEffect(() => {
     if (!isProjectionView) return;
-    
+
     const handleUnload = () => {
       const channel = new BroadcastChannel('slidev-navigation');
       channel.postMessage({ action: 'projection-closed' });
@@ -182,13 +185,13 @@ export const useSlideViewerState = ({
       if (projectionWindowRef.current && !projectionWindowRef.current.closed) {
         projectionWindowRef.current.close();
       }
+      if (document.fullscreenElement) {
+        await document.exitFullscreen().catch(() => { });
+      }
       return;
     }
 
     setIsPresenterView(true);
-    if (!document.fullscreenElement) {
-      await handleToggleFullscreen();
-    }
     let screenDetails: ScreenDetails | null = null;
     try {
       if ('getScreenDetails' in window) {
@@ -216,6 +219,9 @@ export const useSlideViewerState = ({
     setIsPresenterView(false);
     if (projectionWindowRef.current && !projectionWindowRef.current.closed) {
       projectionWindowRef.current.close();
+    }
+    if (document.fullscreenElement) {
+      document.exitFullscreen().catch(() => { });
     }
   }, []);
 

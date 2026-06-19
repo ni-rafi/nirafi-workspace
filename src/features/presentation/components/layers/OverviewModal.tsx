@@ -107,6 +107,7 @@ export const OverviewModal: React.FC<OverviewModalProps> = ({
                       viewMode: presentation?.viewMode || 'scroll',
                       activeSubStep: 999,
                       slideNo: num,
+                      isThumbnail: true,
                     };
                     return (
                       <div

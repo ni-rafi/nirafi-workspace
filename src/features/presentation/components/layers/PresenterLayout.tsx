@@ -56,6 +56,7 @@ export const PresenterLayout: React.FC<PresenterLayoutProps> = ({
     viewMode: presentation?.viewMode || 'present',
     activeSubStep: currentClick + 1,
     slideNo: currentSlide,
+    isThumbnail: true,
   }), [presentation, currentClick, currentSlide]);
 
   const nextSlideContextValue = React.useMemo(() => ({
@@ -63,6 +64,7 @@ export const PresenterLayout: React.FC<PresenterLayoutProps> = ({
     viewMode: presentation?.viewMode || 'present',
     activeSubStep: 0,
     slideNo: currentSlide + 1,
+    isThumbnail: true,
   }), [presentation, currentSlide]);
 
   return (
@@ -109,7 +111,7 @@ export const PresenterLayout: React.FC<PresenterLayoutProps> = ({
           <div className="flex-1 min-h-0 relative">
             {currentClick < totalClicks ? (
               <div className="relative border rounded-xl bg-background/50 p-2 overflow-hidden flex items-center justify-center h-full w-full opacity-80 shadow-inner">
-                <SlideContainer zoom={0.8}>
+                <SlideContainer zoom={0.8} isThumbnail={true}>
                   <div className="flex-1 flex flex-col justify-center items-center scale-90 select-none pointer-events-none">
                     <PresentationContext.Provider value={nextRevealContextValue}>
                       <ClickStepsProvider currentClickOverride={currentClick + 1}>
@@ -121,7 +123,7 @@ export const PresenterLayout: React.FC<PresenterLayoutProps> = ({
               </div>
             ) : currentSlide < totalSlides ? (
               <div className="relative border rounded-xl bg-background/50 p-2 overflow-hidden flex items-center justify-center h-full w-full opacity-80 shadow-inner">
-                <SlideContainer zoom={0.8}>
+                <SlideContainer zoom={0.8} isThumbnail={true}>
                   <div className="flex-1 flex flex-col justify-center items-center scale-90 select-none pointer-events-none">
                     <PresentationContext.Provider value={nextSlideContextValue}>
                       <ClickStepsProvider currentClickOverride={0}>

@@ -8,6 +8,7 @@ export interface PresentationContextType {
   viewMode: ViewMode;
   activeSubStep: number;
   slideNo?: number;
+  isThumbnail?: boolean;
 }
 
 export const PresentationContext = createContext<PresentationContextType | undefined>(undefined);

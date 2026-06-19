@@ -16,6 +16,8 @@ export const TopicDividerLayout: React.FC<TopicDividerLayoutProps> = ({
 }) => {
   const presentation = useContext(PresentationContext);
   const viewMode = presentation?.viewMode || 'present';
+  const isThumbnail = presentation?.isThumbnail || false;
+  const headerTitleClass = isThumbnail ? '' : 'slide-header-title';
 
   const badgeText = topicNumber || subtitle || 'Next Topic';
 
@@ -48,7 +50,7 @@ export const TopicDividerLayout: React.FC<TopicDividerLayoutProps> = ({
           <span className="inline-flex w-fit items-center rounded-full px-3 py-0.5 text-[9px] font-bold font-mono tracking-widest border border-primary/20 bg-primary/5 text-primary uppercase">
             {badgeText}
           </span>
-          <h3 className="text-lg md:text-xl font-bold tracking-tight text-primary leading-tight slide-header-title">
+          <h3 className={`text-lg md:text-xl font-bold tracking-tight text-primary leading-tight ${headerTitleClass}`}>
             {title}
           </h3>
           {description && (
@@ -76,7 +78,7 @@ export const TopicDividerLayout: React.FC<TopicDividerLayoutProps> = ({
         </span>
 
         {/* Title */}
-        <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight text-foreground leading-tight mt-1 slide-header-title">
+        <h1 className={`text-3xl md:text-5xl font-extrabold tracking-tight text-primary leading-tight mt-1 ${headerTitleClass}`}>
           {title}
         </h1>
 
