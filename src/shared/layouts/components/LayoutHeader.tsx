@@ -15,7 +15,7 @@ export const LayoutHeader: React.FC<LayoutHeaderProps> = ({ title, variant = 'de
   try {
     const themeContext = useSlideTheme();
     borderSide = themeContext.resolvedTheme.borderSide;
-  } catch (e) {
+  } catch {
     // Context fallback if consumed outside SlideThemeProvider
   }
 

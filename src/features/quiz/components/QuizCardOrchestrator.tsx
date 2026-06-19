@@ -5,11 +5,13 @@ import { MultipleChoiceQuizStudent, MultipleChoiceQuizAdmin } from './types/Mult
 import { useQuizState } from '../hooks/useQuizState';
 import { Play, RotateCcw, BarChart, List, Clock } from 'lucide-react';
 
+export type QuizType = 'numeric-input' | 'multiple-choice';
+
 interface QuizCardOrchestratorProps {
   quizId: string;
   questionText: string;
   correctAnswer: string;
-  quizType?: 'numeric-input' | 'multiple-choice';
+  quizType?: QuizType;
   options?: string[]; // Required for multiple choice
 }
 

@@ -1,6 +1,7 @@
 import React from 'react';
 import { SlideSchema } from '@/features/presentation/types/schema';
 import { SlideSchemaEngine } from '@/features/presentation/components/slides/SlideSchemaEngine';
+import { SlideProps } from '@/features/presentation/components/slides/SlideRenderer';
 import presenterData from '@/config/presenter.json';
 
 const metadata = {
@@ -207,10 +208,10 @@ export const courseOutlineData: SlideSchema[] = [
   },
 ];
 
-export const slides: Record<number, React.ComponentType<any>> = courseOutlineData.reduce((acc, curr) => {
-  acc[curr.id] = (props) => <SlideSchemaEngine slideNo={curr.id} deck={courseOutlineData} {...props} />;
+export const slides: Record<number, React.ComponentType<SlideProps>> = courseOutlineData.reduce((acc, curr) => {
+  acc[curr.id] = (props) => <SlideSchemaEngine {...props} slideNo={curr.id} deck={courseOutlineData} />;
   return acc;
-}, {} as Record<number, React.ComponentType<any>>);
+}, {} as Record<number, React.ComponentType<SlideProps>>);
 
 export const slideMetadata = courseOutlineData.reduce((acc, curr) => {
   acc[curr.id] = {

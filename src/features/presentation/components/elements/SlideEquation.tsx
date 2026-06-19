@@ -25,7 +25,7 @@ export const SlideEquation: React.FC<SlideEquationProps> = ({
   let theme;
   try {
     theme = useSlideTheme();
-  } catch (e) {
+  } catch {
     theme = { resolvedTheme: { equationBg: 'default' as const } };
   }
 

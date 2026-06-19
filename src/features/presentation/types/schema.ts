@@ -114,6 +114,66 @@ export interface PlaygroundPage {
   };
 }
 
+export interface HighlightableListElementData {
+  items?: Array<{ id: number; description: string; badgeLabel?: string }>;
+  outcomes?: Array<{ id: number; description: string; badgeLabel?: string }>;
+  highlightedIds?: number[];
+  coCoveredIds?: number[];
+  listTitle?: string;
+  highlightLabel?: string;
+  badgePrefix?: string;
+  notHighlightedMessage?: string;
+}
+
+export interface MasterDetailElementData {
+  items?: Array<{ id: number; title: string; description: string; badgeLabel?: string }>;
+  contents?: Array<{ id: number; title: string; description: string; badgeLabel?: string }>;
+  activeIds?: number[];
+  ccCoveredIds?: number[];
+  panelTitle?: string;
+  detailHeader?: string;
+  badgePrefix?: string;
+  activeLabel?: string;
+  inactiveLabel?: string;
+}
+
+export interface InteractiveScheduleElementData {
+  schedule?: Array<{
+    week: number;
+    topic: string;
+    contentCode: string;
+    coCovered: string;
+    tlStrategy: string[];
+    assessmentStrategy: string[];
+  }>;
+  tlLegends?: Array<{ code: string; strategy: string }>;
+  assessmentLegends?: Array<{ code: string; strategy: string }>;
+  outcomes?: Array<{ id: number; description: string }>;
+  contents?: Array<{ id: number; title: string; description: string }>;
+}
+
+export interface ReferenceLegendsElementData {
+  leftTitle?: string;
+  rightTitle?: string;
+  leftLegends?: Array<{ code: string; strategy: string }>;
+  tlLegends?: Array<{ code: string; strategy: string }>;
+  rightLegends?: Array<{ code: string; strategy: string }>;
+  assessmentLegends?: Array<{ code: string; strategy: string }>;
+  rightSubSections?: Array<{ title: string; filterPrefix: string }>;
+}
+
+export interface ReferenceBooksElementData {
+  title?: string;
+  references?: Array<{
+    id: number;
+    title: string;
+    author: string;
+    edition?: string;
+    publisher?: string;
+    url?: string;
+  }>;
+}
+
 export interface SlideSchemaElement {
   type:
     | 'rich-paragraph'
@@ -135,6 +195,8 @@ export interface SlideSchemaElement {
 }
 
 export type TransitionType = 'morph' | 'slide' | 'fade' | 'zoom' | 'none';
+export type SlideBgVariant = 'default' | 'calculation' | 'gallery' | 'cover';
+export type SlideLayoutType = 'title' | 'twocolumn' | 'fullwidth' | 'thankyou' | 'title-v2';
 
 export interface SlideSchema {
   id: number;
@@ -144,13 +206,13 @@ export interface SlideSchema {
     type: string;
     transition?: TransitionType;
   };
-  layout: 'title' | 'twocolumn' | 'fullwidth' | 'thankyou' | 'title-v2';
+  layout: SlideLayoutType;
   props: {
     title?: string;
     subtitle?: string;
     description?: string;
     footer?: string;
-    bgVariant?: 'default' | 'calculation' | 'gallery' | 'cover';
+    bgVariant?: SlideBgVariant;
     leftWidth?: string;
     leftElement?: SlideSchemaElement;
     rightElement?: SlideSchemaElement;

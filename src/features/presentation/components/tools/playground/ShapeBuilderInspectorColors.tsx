@@ -4,7 +4,7 @@ import { VisualCanvasShape } from '../../../types/schema';
 
 interface ShapeBuilderInspectorColorsProps {
   selectedEl: VisualCanvasShape;
-  onUpdateSelected: (key: keyof VisualCanvasShape, val: any) => void;
+  onUpdateSelected: (key: keyof VisualCanvasShape, val: unknown) => void;
 }
 
 export const ShapeBuilderInspectorColors: React.FC<ShapeBuilderInspectorColorsProps> = ({

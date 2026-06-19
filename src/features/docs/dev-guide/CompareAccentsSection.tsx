@@ -1,18 +1,25 @@
 import React, { useState } from 'react';
 import { PlaygroundSection } from './PlaygroundSection';
-import { SlideCompare, SlideBadge, SlideCallout } from '@/features/presentation/components/elements/SlideContent';
+import {
+  SlideCompare,
+  SlideCompareHighlight,
+  SlideBadge,
+  SlideBadgeVariant,
+  SlideCallout,
+  SlideCalloutVariant,
+} from '@/features/presentation/components/elements';
 
 export const CompareAccentsSection: React.FC = () => {
   // Compare State
-  const [highlight, setHighlight] = useState<'left' | 'right' | 'none'>('none');
+  const [highlight, setHighlight] = useState<SlideCompareHighlight>('none');
 
   // Badge State
   const [badgeLabel, setBadgeLabel] = useState('Safety Factor');
-  const [badgeVariant, setBadgeVariant] = useState<'default' | 'primary' | 'warning' | 'error' | 'success' | 'info'>('primary');
+  const [badgeVariant, setBadgeVariant] = useState<SlideBadgeVariant>('primary');
 
   // Callout State
   const [calloutTitle, setCalloutTitle] = useState('Critical Safety Parameter');
-  const [calloutVariant, setCalloutVariant] = useState<'info' | 'warning' | 'success' | 'danger' | 'note'>('warning');
+  const [calloutVariant, setCalloutVariant] = useState<SlideCalloutVariant>('warning');
 
   const comparePreview = (
     <div className="border border-border/40 p-5 rounded-xl bg-card w-full">
@@ -60,7 +67,7 @@ export const CompareAccentsSection: React.FC = () => {
         <span className="text-teal-400">highlight</span>=<span className="text-amber-300">"</span>
         <select
           value={highlight}
-          onChange={(e) => setHighlight(e.target.value as any)}
+          onChange={(e) => setHighlight(e.target.value as SlideCompareHighlight)}
           className="bg-slate-900 border border-white/10 rounded px-1.5 py-0.5 text-teal-400 focus:outline-none focus:border-primary/50 cursor-pointer font-bold"
         >
           <option value="none">none</option>
@@ -116,7 +123,7 @@ export const CompareAccentsSection: React.FC = () => {
           {"  "}<span className="text-teal-400">variant</span>=<span className="text-amber-300">"</span>
           <select
             value={badgeVariant}
-            onChange={(e) => setBadgeVariant(e.target.value as any)}
+            onChange={(e) => setBadgeVariant(e.target.value as SlideBadgeVariant)}
             className="bg-slate-900 border border-white/10 rounded px-1.5 py-0.5 text-teal-400 focus:outline-none cursor-pointer font-bold"
           >
             <option value="default">default</option>
@@ -146,7 +153,7 @@ export const CompareAccentsSection: React.FC = () => {
           {"  "}<span className="text-teal-400">variant</span>=<span className="text-amber-300">"</span>
           <select
             value={calloutVariant}
-            onChange={(e) => setCalloutVariant(e.target.value as any)}
+            onChange={(e) => setCalloutVariant(e.target.value as SlideCalloutVariant)}
             className="bg-slate-900 border border-white/10 rounded px-1.5 py-0.5 text-teal-400 focus:outline-none cursor-pointer font-bold"
           >
             <option value="note">note</option>

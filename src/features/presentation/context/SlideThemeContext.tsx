@@ -32,7 +32,7 @@ export const DEFAULT_THEME_VALUES: ThemeValues = {
   headerFontSize: 30,
 };
 
-const getDefaultHueForSubject = (_subjectId: string) => {
+const getDefaultHueForSubject = () => {
   return 220;
 };
 
@@ -142,7 +142,7 @@ export const SlideThemeProvider: React.FC<SlideThemeProviderProps> = ({
       lockedLevel = 'global';
     }
 
-    const defaultHue = getDefaultHueForSubject(subjectId);
+    const defaultHue = getDefaultHueForSubject();
     const baseDefaults: ThemeValues = {
       ...DEFAULT_THEME_VALUES,
       accentHue: defaultHue,

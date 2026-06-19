@@ -28,10 +28,10 @@ const SlideCard: React.FC<{
 }> = ({ slideNo, subject, lecture, session, onSelect }) => {
   const meta = getSlideMetadata(slideNo, subject, lecture);
 
-  let resolvedTheme: any = null;
+  let resolvedTheme: ReturnType<typeof useSlideTheme>['resolvedTheme'] | null = null;
   try {
     resolvedTheme = useSlideTheme().resolvedTheme;
-  } catch (e) {
+  } catch {
     // Context fallback
   }
 

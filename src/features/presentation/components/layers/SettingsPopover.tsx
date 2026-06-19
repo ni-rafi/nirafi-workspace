@@ -146,7 +146,7 @@ export const SettingsPopover: React.FC<SettingsPopoverProps> = ({
           <span className="font-semibold text-muted-foreground">Slide Transition</span>
           <select
             value={settings.transitionType}
-            onChange={(e) => onSettingsChange({ transitionType: e.target.value as any })}
+            onChange={(e) => onSettingsChange({ transitionType: e.target.value as TransitionType })}
             className="bg-accent/40 border border-border/80 rounded px-1.5 py-0.5 text-[10px] font-bold text-foreground focus:outline-none cursor-pointer"
           >
             <option value="morph">Morph (Magic Move)</option>

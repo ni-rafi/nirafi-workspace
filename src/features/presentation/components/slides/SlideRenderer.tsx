@@ -9,6 +9,13 @@ import * as SteelLecture from '@/lectures/quantity-surveying/session-2026/lectur
 import * as SlidevIntroLecture from '@/lectures/web-development/session-2026/lecture-1-slidev-intro/lecture';
 import * as EngineeringMechanicsOutline from '@/lectures/engineering-mechanics/session-2024/course-outline/lecture';
 
+export interface SlideProps {
+  subject: Subject;
+  lecture: Lecture;
+  session?: Session;
+  slideNo: number;
+}
+
 interface SlideRendererProps {
   slideNo: number;
   subject: Subject;
@@ -27,7 +34,7 @@ export interface SlideMetadata {
 
 // Master registry of active lecture decks
 const LECTURE_DECKS: Record<string, {
-  slides: Record<number, React.ComponentType<any>>;
+  slides: Record<number, React.ComponentType<SlideProps>>;
   slideMetadata: Record<number, { title: string; type: string; section: string; transition?: TransitionType }>;
 }> = {
   'concrete': ConcreteLecture,
@@ -39,7 +46,7 @@ const LECTURE_DECKS: Record<string, {
 
 const getLectureDeck = (lectureId: string) => {
   return (LECTURE_DECKS[lectureId] || SlidevIntroLecture) as {
-    slides: Record<number, React.ComponentType<any>>;
+    slides: Record<number, React.ComponentType<SlideProps>>;
     slideMetadata: Record<number, { title: string; type: string; section: string; transition?: TransitionType }>;
   };
 };
@@ -74,8 +81,8 @@ export const getSlideMetadata = (
   }
 
   return {
-    title: typeof meta.title === 'function' ? (meta.title as any)(lecture) : meta.title,
-    type: typeof meta.type === 'function' ? (meta.type as any)(subject) : meta.type,
+    title: typeof meta.title === 'function' ? (meta.title as unknown as (l: Lecture) => string)(lecture) : meta.title,
+    type: typeof meta.type === 'function' ? (meta.type as unknown as (s: Subject) => string)(subject) : meta.type,
     section: meta.section,
     transition: meta.transition,
   };

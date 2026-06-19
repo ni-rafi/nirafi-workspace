@@ -8,10 +8,10 @@ interface SlideTableProps extends SlideElementProps {
   headers: Array<
     | string
     | {
-        label: string;
-        align?: 'left' | 'center' | 'right';
-        revealAt?: number | string;
-      }
+      label: string;
+      align?: 'left' | 'center' | 'right';
+      revealAt?: number | string;
+    }
   >;
   rows: Array<Array<React.ReactNode>>;
   striped?: boolean;
@@ -57,7 +57,6 @@ export const SlideTable: React.FC<SlideTableProps> = ({
         }
       });
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tableId, revealKeys, registerClick, deregisterClick]);
 
   const isColVisible = (colIdx: number): boolean => {
@@ -129,11 +128,11 @@ export const SlideTable: React.FC<SlideTableProps> = ({
                   const h = headers[cellIdx];
                   const align = !h || typeof h === 'string' ? 'left' : (h.align || 'left');
                   const alignClass = align === 'right' ? 'text-right' : (align === 'center' ? 'text-center' : 'text-left');
-                  
+
                   const isMono = typeof cell === 'string' && (
-                    cell.match(/^[\d\.\$\-\+\,\%\/]+$/) || 
-                    cell.includes('m³') || 
-                    cell.includes('kg') || 
+                    cell.match(/^[\d\.\$\-\+\,\%\/]+$/) ||
+                    cell.includes('m³') ||
+                    cell.includes('kg') ||
                     cell.includes('mm')
                   );
                   const cellFontClass = isMono ? 'font-mono' : '';

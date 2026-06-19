@@ -7,9 +7,11 @@ import { calculateConcreteVolume } from '../calculations/concrete';
 import { SlideContent, SlideTable, ClickHighlight, LatexFormula, InteractiveCard, ParameterSlider, CalculationOutput } from '@/features/presentation/components/elements';
 import SlideBklitChart from '@/features/presentation/components/slides/SlideBklitChart';
 import { QuizCardOrchestrator } from '@/features/quiz';
+import type { Subject, Lecture } from '@/config/lectures';
+import { SlideProps } from '@/features/presentation/components/slides/SlideRenderer';
 
 // Slide 1: Cover Slide
-const Slide1: React.FC<any> = ({ subject, lecture }) => (
+const Slide1: React.FC<{ subject: Subject; lecture: Lecture }> = ({ subject, lecture }) => (
   <TitleLayout
     title={lecture.title}
     subtitle={`${subject.courseCode} Series • Session 2026-27`}
@@ -211,7 +213,7 @@ const Slide7: React.FC = () => (
   />
 );
 
-export const slides: Record<number, React.ComponentType<any>> = {
+export const slides: Record<number, React.ComponentType<SlideProps>> = {
   1: Slide1,
   2: Slide2,
   3: Slide3,

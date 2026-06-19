@@ -21,7 +21,7 @@ export const GlobalBottom: React.FC<GlobalBottomProps> = ({
   let theme;
   try {
     theme = useSlideTheme();
-  } catch (e) {
+  } catch {
     theme = { resolvedTheme: { footerStyle: 'fraction' as const } };
   }
 

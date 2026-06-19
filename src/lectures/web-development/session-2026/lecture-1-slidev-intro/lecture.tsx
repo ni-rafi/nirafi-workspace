@@ -10,7 +10,9 @@ import SlideIconShowcase from '@/features/presentation/components/slides/SlideIc
 import SlideBklitChart from '@/features/presentation/components/slides/SlideBklitChart';
 import SlidePhysicsShapes from '@/features/presentation/components/slides/SlidePhysicsShapes';
 
-export const slides: Record<number, React.ComponentType<any>> = {
+import { SlideProps } from '@/features/presentation/components/slides/SlideRenderer';
+
+export const slides: Record<number, React.ComponentType<SlideProps>> = {
   1: SlideCover,
   2: SlideConcepts,
   3: SlideDraggable,

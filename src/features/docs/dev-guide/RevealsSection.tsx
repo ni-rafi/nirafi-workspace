@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import { ClickReveal } from '@/features/presentation/components/elements/ClickReveal';
+import { ClickReveal, SlideRevealPreset } from '@/features/presentation/components/elements';
 import { ClickStepsProvider } from '@/features/presentation/context';
 import { Button } from '@/components/ui/button';
 import { PlaygroundSection } from './PlaygroundSection';
 
 export const RevealsSection: React.FC = () => {
   const [at, setAt] = useState(1);
-  const [preset, setPreset] = useState<'fade' | 'fade-in' | 'up' | 'down' | 'scale' | 'none'>('fade-in');
+  const [preset, setPreset] = useState<SlideRevealPreset>('fade-in');
   const [hide, setHide] = useState(false);
   const [activeStep, setActiveStep] = useState(0);
 
@@ -77,7 +77,7 @@ export const RevealsSection: React.FC = () => {
       {"  "}<span className="text-teal-400">preset</span>=<span className="text-amber-300">"</span>
       <select
         value={preset}
-        onChange={(e) => setPreset(e.target.value as any)}
+        onChange={(e) => setPreset(e.target.value as SlideRevealPreset)}
         className="bg-slate-900 border border-white/10 rounded px-1.5 py-0.5 text-teal-400 focus:outline-none focus:border-primary/50 font-mono text-[11px] inline-block cursor-pointer"
       >
         <option value="fade">fade</option>

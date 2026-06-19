@@ -1,9 +1,11 @@
 import React, { useContext } from 'react';
 import { PresentationContext } from '../../context/PresentationContext';
 
-interface SlideGridProps {
+export type SlideGridCols = 1 | 2 | 3 | 4;
+
+export interface SlideGridProps {
   children: React.ReactNode;
-  cols?: 1 | 2 | 3 | 4;
+  cols?: SlideGridCols;
   gap?: 'sm' | 'md' | 'lg';
   className?: string;
 }

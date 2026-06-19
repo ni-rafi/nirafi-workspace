@@ -33,10 +33,10 @@ const BlogSlideCard: React.FC<{
     slideNo,
   }), [presentation, slideNo]);
 
-  let resolvedTheme: any = null;
+  let resolvedTheme: ReturnType<typeof useSlideTheme>['resolvedTheme'] | null = null;
   try {
     resolvedTheme = useSlideTheme().resolvedTheme;
-  } catch (e) {
+  } catch {
     // Context fallback
   }
 

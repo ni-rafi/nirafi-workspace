@@ -36,5 +36,5 @@
     "types": ["vite/client"]
   },
   "include": ["**/*.ts", "**/*.tsx", "**/*.d.ts"],
-  "exclude": ["node_modules", "dist", "docs-slidev", "docs"]
+  "exclude": ["node_modules", "dist", "docs-slidev", "docs", "src/features/presentation/components/elements/bklit"]
 }

@@ -2,22 +2,22 @@
 export { SlideParagraph } from './SlideParagraph';
 export { SlideBullet } from './SlideBullet';
 export { SlideEquation } from './SlideEquation';
-export { SlideList } from './SlideList';
-export { SlideTwoColumns } from './SlideTwoColumns';
-export { SlideGrid } from './SlideGrid';
+export { SlideList, type SlideListRevealMode } from './SlideList';
+export { SlideTwoColumns, type SlideTwoColumnsRatio, type SlideTwoColumnsAlign } from './SlideTwoColumns';
+export { SlideGrid, type SlideGridCols } from './SlideGrid';
 export { SlideQuote } from './SlideQuote';
 export { SlideImage } from './SlideImage';
-export { SlideTimeline } from './SlideTimeline';
-export { SlideStepProgress } from './SlideStepProgress';
-export { SlideCompare } from './SlideCompare';
-export { SlideBadge } from './SlideBadge';
-export { SlideCallout } from './SlideCallout';
+export { SlideTimeline, type SlideTimelineRevealMode } from './SlideTimeline';
+export { SlideStepProgress, type SlideStepProgressVariant } from './SlideStepProgress';
+export { SlideCompare, type SlideCompareHighlight } from './SlideCompare';
+export { SlideBadge, type SlideBadgeVariant } from './SlideBadge';
+export { SlideCallout, type SlideCalloutVariant } from './SlideCallout';
 export { SlideContent, type ContentBlockType } from './SlideContent';
 export { SlideTable } from './SlideTable';
 export { SlideVisualCanvas } from './SlideVisualCanvas';
 
 // Click-step reveal & highlight elements
-export { ClickReveal } from './ClickReveal';
+export { ClickReveal, type SlideRevealPreset } from './ClickReveal';
 export { ClickRevealGroup } from './ClickRevealGroup';
 export { ClickHighlight, type HighlightVariant } from './ClickHighlight';
 export { HoverTooltip } from './HoverTooltip';

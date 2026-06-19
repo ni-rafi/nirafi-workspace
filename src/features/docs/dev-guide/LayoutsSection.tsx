@@ -3,11 +3,12 @@ import { PlaygroundSection } from './PlaygroundSection';
 import LayoutElementsSection from './LayoutElementsSection';
 
 type LayoutType = 'title' | 'twocolumn' | 'fullwidth' | 'grid' | 'thankyou';
+type PlaygroundBgVariant = 'default' | 'calculation' | 'gallery';
 
 export const LayoutsSection: React.FC = () => {
   const [layoutType, setLayoutType] = useState<LayoutType>('twocolumn');
   const [title, setTitle] = useState('Reinforcement Estimation');
-  const [bgVariant, setBgVariant] = useState<'default' | 'calculation' | 'gallery'>('default');
+  const [bgVariant, setBgVariant] = useState<PlaygroundBgVariant>('default');
 
   const renderWireframe = () => {
     switch (layoutType) {
@@ -172,7 +173,7 @@ export const LayoutsSection: React.FC = () => {
           <div className="pl-8"><span className="text-teal-400">bgVariant</span>: <span className="text-amber-300">"</span>
             <select
               value={bgVariant}
-              onChange={(e) => setBgVariant(e.target.value as any)}
+              onChange={(e) => setBgVariant(e.target.value as PlaygroundBgVariant)}
               className="bg-slate-900 border border-white/10 rounded px-1 py-0.5 text-teal-400 focus:outline-none focus:border-primary/50 font-mono text-[10px] inline-block cursor-pointer font-bold"
             >
               <option value="default">default</option>

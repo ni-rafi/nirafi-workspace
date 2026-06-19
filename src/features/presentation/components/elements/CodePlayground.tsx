@@ -42,7 +42,7 @@ export const CodePlayground: React.FC<CodePlaygroundProps> = ({
   try {
     const themeCtx = useTheme();
     resolvedTheme = themeCtx?.resolvedTheme || 'dark';
-  } catch (e) {
+  } catch {
     // fallback if no provider
   }
   const isLight = resolvedTheme === 'light';

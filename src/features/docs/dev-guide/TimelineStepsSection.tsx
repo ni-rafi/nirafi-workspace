@@ -1,17 +1,22 @@
 import React, { useState } from 'react';
 import { PlaygroundSection } from './PlaygroundSection';
-import { SlideTimeline, SlideStepProgress } from '@/features/presentation/components/elements/SlideContent';
+import {
+  SlideTimeline,
+  SlideStepProgress,
+  SlideStepProgressVariant,
+  SlideTimelineRevealMode,
+} from '@/features/presentation/components/elements';
 import { ClickStepsProvider } from '@/features/presentation/context';
 import { Button } from '@/components/ui/button';
 
 export const TimelineStepsSection: React.FC = () => {
   // Timeline State
-  const [revealMode, setRevealMode] = useState<'none' | 'each-click' | 'all-click'>('none');
+  const [revealMode, setRevealMode] = useState<SlideTimelineRevealMode>('none');
   const [timelineStep, setTimelineStep] = useState(1);
 
   // Step Progress State
   const [activeStep, setActiveStep] = useState(2);
-  const [stepVariant, setStepVariant] = useState<'chevron' | 'pill' | 'minimal'>('chevron');
+  const [stepVariant, setStepVariant] = useState<SlideStepProgressVariant>('chevron');
 
   const timelineItems = [
     { date: 'Week 1-2', title: 'Site Excavation', text: 'Determine cut/fill volume metrics and soil compaction variables.' },
@@ -75,7 +80,7 @@ export const TimelineStepsSection: React.FC = () => {
         <select
           value={revealMode}
           onChange={(e) => {
-            setRevealMode(e.target.value as any);
+            setRevealMode(e.target.value as SlideTimelineRevealMode);
             setTimelineStep(1);
           }}
           className="bg-slate-900 border border-white/10 rounded px-1.5 py-0.5 text-teal-400 focus:outline-none focus:border-primary/50 cursor-pointer font-bold"
@@ -118,7 +123,7 @@ export const TimelineStepsSection: React.FC = () => {
         <span className="text-teal-400">variant</span>=<span className="text-amber-300">"</span>
         <select
           value={stepVariant}
-          onChange={(e) => setStepVariant(e.target.value as any)}
+          onChange={(e) => setStepVariant(e.target.value as SlideStepProgressVariant)}
           className="bg-slate-900 border border-white/10 rounded px-1.5 py-0.5 text-teal-400 focus:outline-none focus:border-primary/50 cursor-pointer font-bold"
         >
           <option value="chevron">chevron</option>

@@ -1,8 +1,10 @@
 import React from 'react';
 
-interface SlideBadgeProps {
+export type SlideBadgeVariant = 'default' | 'primary' | 'warning' | 'error' | 'success' | 'info';
+
+export interface SlideBadgeProps {
   label: string;
-  variant?: 'default' | 'primary' | 'warning' | 'error' | 'success' | 'info';
+  variant?: SlideBadgeVariant;
   className?: string;
 }
 

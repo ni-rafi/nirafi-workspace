@@ -2,10 +2,12 @@ import React, { useContext } from 'react';
 import { PresentationContext } from '../../context/PresentationContext';
 import { Info, AlertTriangle, CheckCircle, AlertCircle, BookOpen } from 'lucide-react';
 
-interface SlideCalloutProps {
+export type SlideCalloutVariant = 'info' | 'warning' | 'success' | 'danger' | 'note';
+
+export interface SlideCalloutProps {
   children: React.ReactNode;
   title?: string;
-  variant?: 'info' | 'warning' | 'success' | 'danger' | 'note';
+  variant?: SlideCalloutVariant;
   icon?: React.ReactNode;
   className?: string;
 }

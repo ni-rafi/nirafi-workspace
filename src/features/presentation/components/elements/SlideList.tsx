@@ -3,6 +3,8 @@ import { SlideBullet } from './SlideBullet';
 import { PresentationContext } from '../../context/PresentationContext';
 import { useClickStepsContext } from '../../context/ClickStepsContext';
 
+export type SlideListRevealMode = 'each-click' | 'all-click' | 'auto-stagger' | 'none';
+
 interface SlideListProps {
   title?: string;
   description?: string;
@@ -15,7 +17,7 @@ interface SlideListProps {
   }>;
   variant?: 'default' | 'plain';
   className?: string;
-  revealMode?: 'each-click' | 'all-click' | 'auto-stagger' | 'none';
+  revealMode?: SlideListRevealMode;
   delayMs?: number;
   revealAt?: number | string;
   revealPreset?: 'fade' | 'fade-in' | 'up' | 'down' | 'scale' | 'none';

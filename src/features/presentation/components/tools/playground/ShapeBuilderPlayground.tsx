@@ -75,7 +75,7 @@ export const ShapeBuilderPlayground: React.FC = () => {
     setSelectedId(newEl.id);
   };
 
-  const updateSelected = (key: keyof VisualCanvasShape | Partial<VisualCanvasShape>, val?: any) => {
+  const updateSelected = (key: keyof VisualCanvasShape | Partial<VisualCanvasShape>, val?: unknown) => {
     if (!selectedId) return;
     const updated = elements.map((el: VisualCanvasShape) => {
       if (el.id !== selectedId) return el;

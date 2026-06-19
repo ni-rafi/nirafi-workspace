@@ -1,12 +1,14 @@
 import React, { useContext } from 'react';
 import { PresentationContext } from '../../context/PresentationContext';
 
-interface SlideCompareProps {
+export type SlideCompareHighlight = 'left' | 'right' | 'none';
+
+export interface SlideCompareProps {
   leftTitle: string;
   leftContent: React.ReactNode;
   rightTitle: string;
   rightContent: React.ReactNode;
-  highlight?: 'left' | 'right' | 'none';
+  highlight?: SlideCompareHighlight;
   className?: string;
 }
 

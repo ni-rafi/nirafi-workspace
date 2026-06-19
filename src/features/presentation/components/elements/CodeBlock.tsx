@@ -121,7 +121,7 @@ export const CodeBlock: React.FC<CodeBlockProps> = ({
   try {
     const themeCtx = useTheme();
     resolvedTheme = themeCtx?.resolvedTheme || 'dark';
-  } catch (e) {
+  } catch {
     // fallback if no provider
   }
   const isLight = resolvedTheme === 'light';

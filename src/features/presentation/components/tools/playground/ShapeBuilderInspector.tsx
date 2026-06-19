@@ -12,7 +12,7 @@ interface ShapeBuilderInspectorProps {
   selectedEl: VisualCanvasShape | null;
   scaleFactor: { pixelsPerUnit: number; unit: PhysicalUnit };
   exportSchema: string;
-  onUpdateSelected: (key: keyof VisualCanvasShape | Partial<VisualCanvasShape>, val?: any) => void;
+  onUpdateSelected: (key: keyof VisualCanvasShape | Partial<VisualCanvasShape>, val?: unknown) => void;
   onUpdateSelectedDimensions: (dimKey: string, val: number) => void;
   onDeleteSelected: () => void;
 }

@@ -6,6 +6,7 @@ import ContextMenu from '../tools/ContextMenu';
 import SettingsPopover from './SettingsPopover';
 import OverviewModal from './OverviewModal';
 import LaserPointer from './LaserPointer';
+import { SlideSettings } from './SettingsPopover';
 import type { Subject, Lecture, Session } from '@/config/lectures';
 
 interface PresentationOverlaysProps {
@@ -40,8 +41,8 @@ interface PresentationOverlaysProps {
 
   isSettingsOpen: boolean;
   onCloseSettings: () => void;
-  settings: any;
-  onSettingsChange: (settings: any) => void;
+  settings: SlideSettings;
+  onSettingsChange: (settings: Partial<SlideSettings>) => void;
   onSelectSlide: (num: number) => void;
   activeSub: Subject;
   activeLec: Lecture;

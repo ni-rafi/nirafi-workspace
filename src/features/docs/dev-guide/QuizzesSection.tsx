@@ -3,12 +3,13 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Clock, Play, RotateCcw, Check } from 'lucide-react';
 import { PlaygroundSection } from './PlaygroundSection';
+import { QuizType } from '@/features/quiz';
 
 export const QuizzesSection: React.FC = () => {
   const [quizId, setQuizId] = useState('brick_lec2_q1');
   const [questionText, setQuestionText] = useState('What is the standard volume of a structural brick in cubic millimeters?');
   const [correctAnswer, setCorrectAnswer] = useState('1900000');
-  const [quizType, setQuizType] = useState<'numeric-input' | 'multiple-choice'>('numeric-input');
+  const [quizType, setQuizType] = useState<QuizType>('numeric-input');
   const optionsStr = '1200000, 1500000, 1900000, 2200000';
   const [role, setRole] = useState<'student' | 'admin'>('student');
   const [status, setStatus] = useState<'placeholder' | 'active' | 'closed'>('active');
@@ -187,7 +188,7 @@ export const QuizzesSection: React.FC = () => {
         <span className="text-teal-400">quizType</span>: "
         <select
           value={quizType}
-          onChange={(e) => setQuizType(e.target.value as any)}
+          onChange={(e) => setQuizType(e.target.value as QuizType)}
           className="bg-slate-900 border border-white/10 rounded px-1.5 py-0.5 text-teal-400 focus:outline-none focus:border-primary/50 font-mono text-[11px] inline-block cursor-pointer font-bold"
         >
           <option value="numeric-input">numeric-input</option>

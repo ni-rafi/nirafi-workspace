@@ -1,11 +1,14 @@
 import React, { useContext } from 'react';
 import { PresentationContext } from '../../context/PresentationContext';
 
-interface SlideTwoColumnsProps {
+export type SlideTwoColumnsRatio = '1:1' | '2:1' | '1:2';
+export type SlideTwoColumnsAlign = 'start' | 'center' | 'end' | 'stretch';
+
+export interface SlideTwoColumnsProps {
   left: React.ReactNode;
   right: React.ReactNode;
-  ratio?: '1:1' | '2:1' | '1:2';
-  align?: 'start' | 'center' | 'end' | 'stretch';
+  ratio?: SlideTwoColumnsRatio;
+  align?: SlideTwoColumnsAlign;
   gap?: 'sm' | 'md' | 'lg' | 'xl';
   className?: string;
   leftClassName?: string;

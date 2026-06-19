@@ -4,10 +4,11 @@ import { ClickStepsProvider } from '@/features/presentation/context';
 import { Button } from '@/components/ui/button';
 import { PlaygroundSection } from './PlaygroundSection';
 import { SlideSchema } from '@/features/presentation/types/schema';
+import { SlideListRevealMode } from '@/features/presentation/components/elements';
 
 export const ListsSection: React.FC = () => {
   const [listTitle, setListTitle] = useState('Measurement Guidelines');
-  const [revealMode, setRevealMode] = useState<'each-click' | 'all-click' | 'auto-stagger' | 'none'>('each-click');
+  const [revealMode, setRevealMode] = useState<SlideListRevealMode>('each-click');
   const [activeStep, setActiveStep] = useState(1);
 
   const mockDeck: SlideSchema[] = [
@@ -137,7 +138,7 @@ export const ListsSection: React.FC = () => {
         <select
           value={revealMode}
           onChange={(e) => {
-            setRevealMode(e.target.value as any);
+            setRevealMode(e.target.value as SlideListRevealMode);
             setActiveStep(1);
           }}
           className="bg-slate-900 border border-white/10 rounded px-1 py-0.5 text-teal-400 focus:outline-none focus:border-primary/50 font-mono text-[10px] inline-block cursor-pointer font-bold"

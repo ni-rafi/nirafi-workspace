@@ -4,11 +4,12 @@ import { ClickStepsProvider } from '@/features/presentation/context';
 import { Button } from '@/components/ui/button';
 import { PlaygroundSection } from './PlaygroundSection';
 import { SlideSchema } from '@/features/presentation/types/schema';
+import { HighlightVariant } from '@/features/presentation/components/elements';
 
 export const ParagraphsSection: React.FC = () => {
   const [title, setTitle] = useState('Calculation Principle');
   const [at, setAt] = useState(1);
-  const [highlightVariant, setHighlightVariant] = useState<'paint' | 'marker' | 'rect' | 'text' | 'strike'>('paint');
+  const [highlightVariant, setHighlightVariant] = useState<HighlightVariant>('paint');
   const [highlightText, setHighlightText] = useState('isolating total volume');
   const [activeStep, setActiveStep] = useState(1);
   const [mode, setMode] = useState<'schema' | 'manual'>('schema');
@@ -142,7 +143,7 @@ export const ParagraphsSection: React.FC = () => {
             </span>, <span className="text-teal-400">variant</span>: <span className="text-amber-300">"</span>
             <select
               value={highlightVariant}
-              onChange={(e) => setHighlightVariant(e.target.value as any)}
+              onChange={(e) => setHighlightVariant(e.target.value as HighlightVariant)}
               className="bg-slate-900 border border-white/10 rounded px-1 py-0.5 text-teal-400 focus:outline-none focus:border-primary/50 font-mono text-[10px] inline-block cursor-pointer font-bold"
             >
               <option value="paint">paint</option>

@@ -10,9 +10,11 @@ interface TimelineItem {
   icon?: React.ReactNode;
 }
 
+export type SlideTimelineRevealMode = 'each-click' | 'all-click' | 'none';
+
 interface SlideTimelineProps {
   items: TimelineItem[];
-  revealMode?: 'each-click' | 'all-click' | 'none';
+  revealMode?: SlideTimelineRevealMode;
   revealAt?: number | string;
   revealPreset?: 'fade' | 'fade-in' | 'up' | 'down' | 'scale' | 'none';
   className?: string;

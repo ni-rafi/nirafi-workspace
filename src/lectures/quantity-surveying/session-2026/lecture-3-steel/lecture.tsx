@@ -2,6 +2,7 @@ import React from 'react';
 import { SlideSchema } from '@/features/presentation/types/schema';
 import { SlideSchemaEngine } from '@/features/presentation/components/slides/SlideSchemaEngine';
 import { ClickHighlight } from '@/features/presentation/components/elements/ClickHighlight';
+import { SlideProps } from '@/features/presentation/components/slides/SlideRenderer';
 
 // Pure configuration-based schema definition for the lecture slide deck
 export const steelLectureData: SlideSchema[] = [
@@ -145,10 +146,10 @@ export const steelLectureData: SlideSchema[] = [
 ];
 
 // Dynamically generate individual slide renderer wrappers from the config schema
-export const slides: Record<number, React.ComponentType<any>> = steelLectureData.reduce((acc, curr) => {
-  acc[curr.id] = (props) => <SlideSchemaEngine slideNo={curr.id} deck={steelLectureData} {...props} />;
+export const slides: Record<number, React.ComponentType<SlideProps>> = steelLectureData.reduce((acc, curr) => {
+  acc[curr.id] = (props) => <SlideSchemaEngine {...props} slideNo={curr.id} deck={steelLectureData} />;
   return acc;
-}, {} as Record<number, React.ComponentType<any>>);
+}, {} as Record<number, React.ComponentType<SlideProps>>);
 
 // Dynamically compile metadata lookup registry mapping from the config schema
 export const slideMetadata = steelLectureData.reduce((acc, curr) => {

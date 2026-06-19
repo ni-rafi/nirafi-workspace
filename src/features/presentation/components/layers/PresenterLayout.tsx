@@ -5,6 +5,8 @@ import SlideRenderer from '../slides/SlideRenderer';
 import { ClickStepsProvider, ClickStepsContext, useClickStepsContext } from '../../context/ClickStepsContext';
 import { PresentationContext } from '../../context/PresentationContext';
 
+import type { Subject, Lecture, Session } from '@/config/lectures';
+
 interface PresenterLayoutProps {
   currentSlide: number;
   totalSlides: number;
@@ -13,9 +15,9 @@ interface PresenterLayoutProps {
   onToggleTimer: () => void;
   onResetTimer: () => void;
   currentNotes: string;
-  activeSub: any;
-  activeLec: any;
-  activeSession: any;
+  activeSub: Subject;
+  activeLec: Lecture;
+  activeSession?: Session;
   currentClick: number;
   totalClicks: number;
   children: React.ReactNode;

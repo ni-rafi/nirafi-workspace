@@ -1,16 +1,24 @@
 import React, { useState } from 'react';
 import { PlaygroundSection } from './PlaygroundSection';
-import { SlideTwoColumns, SlideGrid, SlideQuote, SlideImage } from '@/features/presentation/components/elements/SlideContent';
+import {
+  SlideTwoColumns,
+  SlideGrid,
+  SlideQuote,
+  SlideImage,
+  SlideTwoColumnsRatio,
+  SlideTwoColumnsAlign,
+  SlideGridCols,
+} from '@/features/presentation/components/elements';
 
 export const LayoutElementsSection: React.FC = () => {
   const [componentType, setComponentType] = useState<'twocolumns' | 'grid' | 'quote' | 'image'>('twocolumns');
 
   // SlideTwoColumns state
-  const [ratio, setRatio] = useState<'1:1' | '2:1' | '1:2'>('1:1');
-  const [align, setAlign] = useState<'start' | 'center' | 'end'>('center');
+  const [ratio, setRatio] = useState<SlideTwoColumnsRatio>('1:1');
+  const [align, setAlign] = useState<SlideTwoColumnsAlign>('center');
 
   // SlideGrid state
-  const [cols, setCols] = useState<1 | 2 | 3 | 4>(3);
+  const [cols, setCols] = useState<SlideGridCols>(3);
 
   // SlideQuote state
   const [quoteText, setQuoteText] = useState('Estimating concrete requires isolating total volume to prevent shortages.');
@@ -120,7 +128,7 @@ export const LayoutElementsSection: React.FC = () => {
           &lt;<span className="text-blue-400">ElementSelector</span> <span className="text-teal-400">type</span>=<span className="text-amber-300">"</span>
           <select
             value={componentType}
-            onChange={(e) => setComponentType(e.target.value as any)}
+            onChange={(e) => setComponentType(e.target.value as 'twocolumns' | 'grid' | 'quote' | 'image')}
             className="bg-slate-900 border border-white/10 rounded px-1.5 py-0.5 text-teal-400 focus:outline-none focus:border-primary/50 font-mono text-[11px] inline-block cursor-pointer font-bold"
           >
             <option value="twocolumns">SlideTwoColumns</option>
@@ -138,7 +146,7 @@ export const LayoutElementsSection: React.FC = () => {
               {"  "}<span className="text-teal-400">ratio</span>=<span className="text-amber-300">"</span>
               <select
                 value={ratio}
-                onChange={(e) => setRatio(e.target.value as any)}
+                onChange={(e) => setRatio(e.target.value as SlideTwoColumnsRatio)}
                 className="bg-slate-900 border border-white/10 rounded px-1.5 py-0.5 text-teal-400 focus:outline-none focus:border-primary/50 cursor-pointer"
               >
                 <option value="1:1">1:1 (equal)</option>
@@ -151,7 +159,7 @@ export const LayoutElementsSection: React.FC = () => {
               {"  "}<span className="text-teal-400">align</span>=<span className="text-amber-300">"</span>
               <select
                 value={align}
-                onChange={(e) => setAlign(e.target.value as any)}
+                onChange={(e) => setAlign(e.target.value as SlideTwoColumnsAlign)}
                 className="bg-slate-900 border border-white/10 rounded px-1.5 py-0.5 text-teal-400 focus:outline-none focus:border-primary/50 cursor-pointer"
               >
                 <option value="center">center</option>
@@ -170,7 +178,7 @@ export const LayoutElementsSection: React.FC = () => {
               {"  "}<span className="text-teal-400">cols</span>=<span className="text-pink-400">&#123;</span>
               <select
                 value={cols}
-                onChange={(e) => setCols(parseInt(e.target.value) as any)}
+                onChange={(e) => setCols(parseInt(e.target.value) as SlideGridCols)}
                 className="bg-slate-900 border border-white/10 rounded px-1.5 py-0.5 text-orange-400 focus:outline-none focus:border-primary/50 cursor-pointer"
               >
                 <option value={1}>1</option>

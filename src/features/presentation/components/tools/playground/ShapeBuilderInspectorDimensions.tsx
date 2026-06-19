@@ -5,7 +5,7 @@ import { VisualCanvasShape, PhysicalUnit } from '../../../types/schema';
 interface ShapeBuilderInspectorDimensionsProps {
   selectedEl: VisualCanvasShape;
   scaleFactor: { pixelsPerUnit: number; unit: PhysicalUnit };
-  onUpdateSelected: (key: keyof VisualCanvasShape | Partial<VisualCanvasShape>, val?: any) => void;
+  onUpdateSelected: (key: keyof VisualCanvasShape | Partial<VisualCanvasShape>, val?: unknown) => void;
   onUpdateSelectedDimensions: (dimKey: string, val: number) => void;
 }
 

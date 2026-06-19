@@ -1,6 +1,8 @@
 import React, { useId, useEffect, useState } from 'react';
 import { useClickStepsContext } from '../../context/ClickStepsContext';
 
+export type SlideRevealPreset = 'fade' | 'fade-in' | 'up' | 'down' | 'scale' | 'none';
+
 interface ClickRevealProps {
   children: React.ReactNode;
   /** Activation timing offset (absolute index e.g. 2 or relative step e.g. "+1") */
@@ -8,7 +10,7 @@ interface ClickRevealProps {
   /** If true, hides the content after the step instead of revealing it */
   hide?: boolean;
   /** Built-in animation preset style */
-  preset?: 'fade' | 'fade-in' | 'up' | 'down' | 'scale' | 'none';
+  preset?: SlideRevealPreset;
   className?: string;
   style?: React.CSSProperties;
 }

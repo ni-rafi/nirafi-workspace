@@ -1,10 +1,10 @@
 import React from 'react';
-import ClickReveal from './ClickReveal';
+import ClickReveal, { SlideRevealPreset } from './ClickReveal';
 
 interface ClickRevealGroupProps {
   children: React.ReactNode;
   /** Built-in animation preset style to apply to all list items */
-  preset?: 'fade' | 'fade-in' | 'up' | 'down' | 'scale' | 'none';
+  preset?: SlideRevealPreset;
   className?: string;
 }
 

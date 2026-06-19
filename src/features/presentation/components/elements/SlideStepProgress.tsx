@@ -2,10 +2,12 @@ import React, { useContext } from 'react';
 import { PresentationContext } from '../../context/PresentationContext';
 import { Check } from 'lucide-react';
 
+export type SlideStepProgressVariant = 'pill' | 'chevron' | 'minimal';
+
 interface SlideStepProgressProps {
   steps: Array<React.ReactNode | string>;
   activeStep: number;
-  variant?: 'pill' | 'chevron' | 'minimal';
+  variant?: SlideStepProgressVariant;
   className?: string;
 }
 

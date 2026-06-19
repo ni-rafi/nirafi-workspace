@@ -6,9 +6,10 @@ import { ThankYouLayout } from '@/shared/layouts/ThankYouLayout';
 import { calculateBrickwork } from '../calculations/brickwork';
 import { SlideContent, SlideTable, ClickHighlight, LatexFormula, InteractiveCard, ParameterSlider, CalculationOutput } from '@/features/presentation/components/elements';
 import { QuizCardOrchestrator } from '@/features/quiz';
+import { SlideProps } from '@/features/presentation/components/slides/SlideRenderer';
 
 // Slide 1: Cover Slide
-const Slide1: React.FC<any> = ({ subject, lecture }) => (
+const Slide1: React.FC<SlideProps> = ({ subject, lecture }) => (
   <TitleLayout
     title={lecture.title}
     subtitle={`${subject.courseCode} Series • Session 2026-27`}
@@ -216,7 +217,7 @@ const Slide6: React.FC = () => (
   />
 );
 
-export const slides: Record<number, React.ComponentType<any>> = {
+export const slides: Record<number, React.ComponentType<SlideProps>> = {
   1: Slide1,
   2: Slide2,
   3: Slide3,

@@ -24,7 +24,7 @@ export const SlideBullet: React.FC<SlideBulletProps> = ({
   let theme;
   try {
     theme = useSlideTheme();
-  } catch (e) {
+  } catch {
     theme = { resolvedTheme: { bulletStyle: 'dot' as const } };
   }
 
