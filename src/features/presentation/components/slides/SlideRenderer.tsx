@@ -30,6 +30,7 @@ export interface SlideMetadata {
   type: string;
   section: string;
   transition?: TransitionType;
+  transitionDuration?: number;
   quizId?: string;
   quizVisibilityMode?: 'stealth' | 'placeholder';
 }
@@ -87,6 +88,7 @@ export const getSlideMetadata = (
     type: typeof meta.type === 'function' ? (meta.type as unknown as (s: Subject) => string)(subject) : meta.type,
     section: meta.section,
     transition: meta.transition,
+    transitionDuration: meta.transitionDuration,
     quizId: meta.quizId,
     quizVisibilityMode: meta.quizVisibilityMode,
   };

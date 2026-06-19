@@ -139,7 +139,9 @@ export const useSlideViewerOrchestrator = () => {
   const applyTransitionStyle = useCallback((nextSlideNum: number, direction: 'forward' | 'backward') => {
     const meta = activeSub && activeLec ? getSlideMetadata(nextSlideNum, activeSub, activeLec) : null;
     const resolvedTransition = meta?.transition || settingsRef.current.transitionType || 'morph';
-    const duration = settingsRef.current.transitionDuration || 300;
+    const duration = meta?.transitionDuration !== undefined
+      ? meta.transitionDuration
+      : (settingsRef.current.transitionDuration || 500);
 
     let oldAnim = 'morph-out';
     let newAnim = 'morph-in';

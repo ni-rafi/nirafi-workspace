@@ -35,7 +35,7 @@ export const DEFAULT_SETTINGS: SlideSettings = {
   hideIdleCursor: false,
   wakeLock: false,
   transitionType: 'morph',
-  transitionDuration: 300,
+  transitionDuration: 500,
 };
 
 /**

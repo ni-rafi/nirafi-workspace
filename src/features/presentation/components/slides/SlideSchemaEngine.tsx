@@ -6,6 +6,7 @@ import { TitleV2Layout } from '@/shared/layouts/TitleV2Layout';
 import { TwoColumnLayout } from '@/shared/layouts/TwoColumnLayout';
 import { FullWidthLayout } from '@/shared/layouts/FullWidthLayout';
 import { ThankYouLayout } from '@/shared/layouts/ThankYouLayout';
+import { TopicDividerLayout } from '@/shared/layouts/TopicDividerLayout';
 import { SlideSchema, PlaygroundPage } from '../../types/schema';
 import SchemaElementRenderer from './SchemaElementRenderer';
 
@@ -113,6 +114,16 @@ export const SlideSchemaEngine: React.FC<SlideSchemaEngineProps> = ({
         <ThankYouLayout
           title={config.props.title || 'Thank You'}
           subtitle={config.props.subtitle || 'Do you have any question?'}
+        />
+      );
+
+    case 'topic-divider':
+      return (
+        <TopicDividerLayout
+          title={config.props.title || config.metadata?.title || ''}
+          subtitle={config.props.subtitle}
+          topicNumber={config.props.topicNumber}
+          description={config.props.description}
         />
       );
 

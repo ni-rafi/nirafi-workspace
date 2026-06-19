@@ -75,11 +75,11 @@ export const TitleV2Layout: React.FC<TitleV2LayoutProps> = ({
     return (
       <div className="relative flex flex-col w-full bg-card rounded-2xl border border-border p-6 select-text text-foreground animate-in fade-in duration-200">
         <div className="flex flex-col items-center text-center gap-3 pt-4 relative">
-          <img src={sustLogoUrl} className="h-12 w-12 object-contain mb-1" alt="SUST Logo" />
+          <img src={sustLogoUrl} className="h-12 w-12 object-contain mb-1 sust-logo-transition" alt="SUST Logo" />
           <span className="inline-flex w-fit items-center rounded-md px-3 py-1 text-xs font-bold font-mono tracking-widest border bg-primary/10 text-primary uppercase">
             {courseCode}
           </span>
-          <h2 className="text-xl font-bold tracking-tight text-primary leading-tight">
+          <h2 className="text-xl font-bold tracking-tight text-primary leading-tight slide-header-title">
             {courseTitle}
           </h2>
           <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-widest font-mono">
@@ -105,7 +105,7 @@ export const TitleV2Layout: React.FC<TitleV2LayoutProps> = ({
         <div className="flex items-center justify-between gap-4 mt-2 pt-2 border-t border-border/20 text-left">
           <div className="flex flex-col gap-0.5">
             <span className="text-[8px] font-bold text-muted-foreground/80 uppercase tracking-widest font-mono">Course Teacher</span>
-            <span className="text-[11px] font-extrabold text-foreground">{teacher.name}</span>
+            <span className="text-[11px] font-extrabold text-foreground presenter-name-transition">{teacher.name}</span>
             <span className="text-[9px] text-muted-foreground font-medium leading-none">{teacher.title}, {teacher.department}</span>
           </div>
           <div className="flex flex-col text-right">
@@ -122,7 +122,7 @@ export const TitleV2Layout: React.FC<TitleV2LayoutProps> = ({
     <div className="flex flex-col h-full w-full px-4 py-6 bg-transparent text-foreground relative select-none">
       {/* Top logo similar to title page */}
       <div className="absolute top-6 left-8 z-20">
-        <img src={sustLogoUrl} className="h-16 w-16 object-contain" alt="SUST Logo" />
+        <img src={sustLogoUrl} className="h-16 w-16 object-contain sust-logo-transition" alt="SUST Logo" />
       </div>
 
       {/* Title group pushed a little below and centered */}
@@ -130,7 +130,7 @@ export const TitleV2Layout: React.FC<TitleV2LayoutProps> = ({
         <span className="inline-flex w-fit items-center rounded-md px-4 py-1.5 text-sm font-extrabold font-mono tracking-widest border bg-primary/10 text-primary uppercase animate-in fade-in slide-in-from-top duration-500">
           {courseCode}
         </span>
-        <h1 className="text-4xl font-extrabold tracking-tight text-primary leading-tight">
+        <h1 className="text-4xl font-extrabold tracking-tight text-primary leading-tight slide-header-title">
           {courseTitle}
         </h1>
         <p className="text-xs text-muted-foreground font-medium uppercase tracking-widest font-mono">
@@ -164,7 +164,7 @@ export const TitleV2Layout: React.FC<TitleV2LayoutProps> = ({
           <span className="text-[10px] font-bold text-muted-foreground/80 uppercase tracking-widest font-mono leading-none mb-1">
             Course Teacher
           </span>
-          <span className="text-sm font-extrabold text-foreground leading-none">{teacher.name}</span>
+          <span className="text-sm font-extrabold text-foreground leading-none presenter-name-transition">{teacher.name}</span>
           <span className="text-[10px] text-muted-foreground font-semibold leading-none mt-1">
             {teacher.title}, {teacher.department}
           </span>

@@ -71,6 +71,18 @@ export const steelLectureData: SlideSchema[] = [
   {
     id: 3,
     section: 'Calculations',
+    metadata: { title: 'Steel Weight Calculation', type: 'Section Opener' },
+    layout: 'topic-divider',
+    props: {
+      title: 'Interactive Rebar Calculations',
+      subtitle: 'Section 02',
+      topicNumber: 'Topic 02',
+      description: 'Let us run some interactive unit weight and total weight estimates using our concrete sandbox models.'
+    }
+  },
+  {
+    id: 4,
+    section: 'Calculations',
     metadata: { title: 'Rebar Calculator', type: 'Live Sandbox' },
     layout: 'twocolumn',
     props: {
@@ -82,7 +94,7 @@ export const steelLectureData: SlideSchema[] = [
     }
   },
   {
-    id: 4,
+    id: 5,
     section: 'BoQ Summary',
     metadata: { title: 'Reinforcement BoQ', type: 'Spreadsheet View' },
     layout: 'fullwidth',
@@ -116,7 +128,7 @@ export const steelLectureData: SlideSchema[] = [
     }
   },
   {
-    id: 5,
+    id: 6,
     section: 'Quiz',
     metadata: {
       title: 'Rebar Quiz',
@@ -139,7 +151,7 @@ export const steelLectureData: SlideSchema[] = [
     }
   },
   {
-    id: 6,
+    id: 7,
     section: 'Conclusion',
     metadata: { title: 'Conclusion', type: 'Thank You Slide' },
     layout: 'thankyou',
@@ -162,6 +174,8 @@ export const slideMetadata = steelLectureData.reduce((acc, curr) => {
     title: curr.metadata.title,
     type: curr.metadata.type,
     section: curr.section,
+    transition: curr.metadata.transition,
+    transitionDuration: curr.metadata.transitionDuration,
     quizId: curr.metadata.quizId,
     quizVisibilityMode: curr.metadata.quizVisibilityMode
   };

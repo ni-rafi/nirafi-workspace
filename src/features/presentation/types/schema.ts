@@ -196,7 +196,7 @@ export interface SlideSchemaElement {
 
 export type TransitionType = 'morph' | 'slide' | 'fade' | 'zoom' | 'none';
 export type SlideBgVariant = 'default' | 'calculation' | 'gallery' | 'cover';
-export type SlideLayoutType = 'title' | 'twocolumn' | 'fullwidth' | 'thankyou' | 'title-v2';
+export type SlideLayoutType = 'title' | 'twocolumn' | 'fullwidth' | 'thankyou' | 'title-v2' | 'topic-divider';
 
 export interface SlideSchema {
   id: number;
@@ -205,6 +205,7 @@ export interface SlideSchema {
     title: string;
     type: string;
     transition?: TransitionType;
+    transitionDuration?: number;
     quizId?: string;
     quizVisibilityMode?: 'stealth' | 'placeholder';
   };
@@ -225,5 +226,6 @@ export interface SlideSchema {
     creditHours?: string;
     usnCode?: string;
     session?: string;
+    topicNumber?: string;
   };
 }
