@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { useUrlSyncedState } from '@/features/presentation/hooks/useUrlSyncedState';
 import { TitleLayout } from '@/shared/layouts/TitleLayout';
 import { TwoColumnLayout } from '@/shared/layouts/TwoColumnLayout';
 import { FullWidthLayout } from '@/shared/layouts/FullWidthLayout';
@@ -102,10 +103,10 @@ const Slide2: React.FC = () => {
 
 // Slide 3: Live Volumetric Calculator
 const Slide3: React.FC = () => {
-  const [length, setLength] = useState(10);
-  const [width, setWidth] = useState(0.3);
-  const [height, setHeight] = useState(0.4);
-  const [wastage] = useState(0.05);
+  const [length, setLength] = useUrlSyncedState<number>('length', 10);
+  const [width, setWidth] = useUrlSyncedState<number>('width', 0.3);
+  const [height, setHeight] = useUrlSyncedState<number>('height', 0.4);
+  const [wastage] = useUrlSyncedState<number>('wastage', 0.05);
 
   const result = calculateConcreteVolume(length, width, height, wastage);
 

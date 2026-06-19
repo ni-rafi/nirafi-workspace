@@ -1,38 +1,13 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useTheme } from '@/context';
 import { SlideSettings, DEFAULT_SETTINGS } from '../components/layers/SettingsPopover';
-import { useClickStepsContext } from '../context/ClickStepsContext';
-import { ViewMode } from '../context/PresentationContext';
-
-interface HookProps {
-  subjectId?: string;
-  sessionId?: string;
-  lectureId?: string;
-  currentSlideInt: number;
-  onSlideChange?: (num: number) => void;
-  viewMode?: ViewMode;
-}
 
 interface WakeLockSentinel {
   release: () => Promise<void>;
 }
 
-/**
- * usePresenterFeatures orchestrates settings state, wake lock control,
- * mouse inactivity timer, cross-tab navigation sync, and context menus.
- */
-export const usePresenterFeatures = ({
-  subjectId,
-  sessionId,
-  lectureId,
-  currentSlideInt,
-  onSlideChange,
-  viewMode,
-}: HookProps) => {
-  const navigate = useNavigate();
+export const usePresenterFeatures = () => {
   const { theme, resolvedTheme, setTheme } = useTheme();
-  const { currentClick, setClick } = useClickStepsContext();
 
   const [settings, setSettings] = useState<SlideSettings>(DEFAULT_SETTINGS);
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number; isOpen: boolean } | null>(null);
@@ -61,34 +36,6 @@ export const usePresenterFeatures = ({
     });
   };
 
-  // 2. Cross-tab Presenter Navigation Sync
-  useEffect(() => {
-    if (viewMode !== 'present') return;
-    const channel = new BroadcastChannel('slidev-navigation');
-    channel.onmessage = (e) => {
-      if (e.data) {
-        if (typeof e.data.slideNo === 'number' && e.data.slideNo !== currentSlideInt) {
-          if (onSlideChange) {
-            onSlideChange(e.data.slideNo);
-          } else {
-            navigate(`/${subjectId}/${sessionId}/${lectureId}/${e.data.slideNo}${window.location.search}`);
-          }
-        }
-        if (typeof e.data.currentClick === 'number' && e.data.currentClick !== currentClick) {
-          setClick(e.data.currentClick);
-        }
-      }
-    };
-    return () => channel.close();
-  }, [subjectId, sessionId, lectureId, currentSlideInt, currentClick, setClick, navigate, onSlideChange, viewMode]);
-
-  // Broadcast navigation changes to keep other windows in sync
-  useEffect(() => {
-    if (viewMode !== 'present') return;
-    const channel = new BroadcastChannel('slidev-navigation');
-    channel.postMessage({ slideNo: currentSlideInt, currentClick });
-    return () => channel.close();
-  }, [currentSlideInt, currentClick, viewMode]);
 
   // 3. Screen Wake Lock control
   useEffect(() => {

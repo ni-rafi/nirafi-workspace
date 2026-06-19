@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useClickStepsContext } from '../context/ClickStepsContext';
 
@@ -186,6 +186,9 @@ export const useSlideViewerState = ({
     }
 
     setIsPresenterView(true);
+    if (!document.fullscreenElement) {
+      await handleToggleFullscreen();
+    }
     let screenDetails: ScreenDetails | null = null;
     try {
       if ('getScreenDetails' in window) {
@@ -208,6 +211,13 @@ export const useSlideViewerState = ({
       projectionWindowRef.current = window.open(url, name, 'width=1024,height=768,menubar=no,toolbar=no,location=no,status=no');
     }
   };
+
+  const closeProjectionWindow = useCallback(() => {
+    setIsPresenterView(false);
+    if (projectionWindowRef.current && !projectionWindowRef.current.closed) {
+      projectionWindowRef.current.close();
+    }
+  }, []);
 
   return {
     outerRef,
@@ -241,6 +251,7 @@ export const useSlideViewerState = ({
     isProjectionView,
     handleToggleFullscreen,
     handleTogglePresenter,
+    closeProjectionWindow,
   };
 };
 

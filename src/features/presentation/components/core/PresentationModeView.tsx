@@ -17,6 +17,7 @@ import PresentationOverlays from '../layers/PresentationOverlays';
 import ThemePlaygroundPanel from '../tools/ThemePlaygroundPanel';
 import { SPEAKER_NOTES } from '../../config/speakerNotes';
 import { useSlideViewerOrchestrator } from '../../hooks/useSlideViewerOrchestrator';
+import { storageKeys, clearLectureStorage } from '../../utils/presentationStorage';
 
 interface PresentationModeViewProps {
   orchestrator: ReturnType<typeof useSlideViewerOrchestrator>;
@@ -59,10 +60,27 @@ const PresentationModeContent: React.FC<PresentationModeContentProps> = ({
     visibleSlideNumbers,
   } = orchestrator;
 
-  // These hooks read from the keyed per-slide ClickStepsProvider —
-  // they remount fresh with the provider whenever the slide changes.
   const { currentClick, totalClicks } = useClickStepsContext();
   const clickSteps = useClickSteps(handlePrevSlide, handleNextSlide);
+ 
+  // Cross-tab Presenter Navigation Sync via localStorage (Follower: only listens to updates)
+  React.useEffect(() => {
+    if (viewMode !== 'present' || !viewerState.isProjectionView) return;
+    const activeSlideKey = storageKeys.activeSlide(lectureId || 'mock');
+    const handleStorage = (e: StorageEvent) => {
+      if (e.key === activeSlideKey && e.newValue !== null) {
+        const nextSlide = parseInt(e.newValue, 10);
+        if (!isNaN(nextSlide) && nextSlide !== activeSlide) {
+          const direction = nextSlide < activeSlide ? 'backward' : 'forward';
+          changeSlideWithTransition(nextSlide, direction);
+        }
+      }
+    };
+    window.addEventListener('storage', handleStorage);
+    return () => {
+      window.removeEventListener('storage', handleStorage);
+    };
+  }, [activeSlide, changeSlideWithTransition, viewMode, viewerState.isProjectionView, lectureId]);
 
   // Bind keyboard navigation shortcuts globally for standard and presenter views
   useNavShortcuts({
@@ -109,34 +127,35 @@ const PresentationModeContent: React.FC<PresentationModeContentProps> = ({
     </PresentationContext.Provider>
   );
 
-  if (viewerState.isPresenterView) {
-    return (
-      <PresenterLayout
-        currentSlide={activeSlide}
-        totalSlides={totalSlidesCount}
-        elapsed={viewerState.elapsed}
-        timerRunning={viewerState.timerRunning}
-        onToggleTimer={() => viewerState.setTimerRunning(!viewerState.timerRunning)}
-        onResetTimer={() => viewerState.setElapsed(0)}
-        currentNotes={currentNotes}
-        activeSub={activeSub}
-        activeLec={activeLec}
-        activeSession={activeSession}
-        currentClick={currentClick}
-        totalClicks={totalClicks}
-      >
-        {mainSlideContent}
-      </PresenterLayout>
-    );
-  }
+  const wrappedContent = viewerState.isPresenterView ? (
+    <PresenterLayout
+      currentSlide={activeSlide}
+      totalSlides={totalSlidesCount}
+      elapsed={viewerState.elapsed}
+      timerRunning={viewerState.timerRunning}
+      onToggleTimer={() => viewerState.setTimerRunning(!viewerState.timerRunning)}
+      onResetTimer={() => viewerState.setElapsed(0)}
+      currentNotes={currentNotes}
+      activeSub={activeSub}
+      activeLec={activeLec}
+      activeSession={activeSession}
+      currentClick={currentClick}
+      totalClicks={totalClicks}
+    >
+      {mainSlideContent}
+    </PresenterLayout>
+  ) : (
+    <div className="flex-1 h-full relative flex items-center justify-center overflow-hidden bg-background">
+      {mainSlideContent}
+    </div>
+  );
 
   return (
     <>
       <PageMetadata title={activeLec.title} subjectCode={activeSub.courseCode} slideNo={activeSlide} />
 
-      <div className="flex-1 h-full relative flex items-center justify-center overflow-hidden bg-background">
-        {mainSlideContent}
-      </div>
+      {wrappedContent}
+
 
       {isThemePlaygroundOpen && (
         <div className="h-full w-[380px] shrink-0 border-l border-border bg-background z-40 animate-in slide-in-from-right duration-300">
@@ -183,7 +202,13 @@ const PresentationModeContent: React.FC<PresentationModeContentProps> = ({
           onToggleDrawingsHidden={viewerState.handleToggleDrawingsHidden}
           onNextSection={handleNextSection}
           onPrevSection={handlePrevSection}
-          onExit={() => navigateWithTransition(`/${activeSub.id}/${activeSession?.id}/${activeLec.id}`)}
+          onExit={() => {
+            viewerState.closeProjectionWindow();
+            if (lectureId) {
+              clearLectureStorage(lectureId);
+            }
+            navigateWithTransition(`/${activeSub.id}/${activeSession?.id}/${activeLec.id}`);
+          }}
           isThemePlaygroundOpen={isThemePlaygroundOpen}
           onToggleThemePlayground={() => setIsThemePlaygroundOpen(!isThemePlaygroundOpen)}
         />
@@ -246,6 +271,7 @@ const PresentationModeInner: React.FC<PresentationModeViewProps> = ({ orchestrat
   const content = (
     <ClickStepsProvider
       key={activeSlide}
+      slideNo={activeSlide}
       initialClick={slideDirectionRef.current === 'backward' ? 999 : 0}
     >
       <PresentationModeContent

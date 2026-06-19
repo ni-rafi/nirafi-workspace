@@ -10,6 +10,7 @@ import { ViewMode, Theme } from '../context/PresentationContext';
 import { useFirebase } from '@/context/FirebaseContext';
 import type { QuizState } from '@/services/firebase/IFirebaseService';
 import { DEFAULT_SETTINGS } from '../components/layers/SettingsPopover';
+import { isProjectionView, storageKeys, setStorageItem, clearLectureStorage } from '../utils/presentationStorage';
 
 
 /** Minimal shape of the View Transition API object we actually use */
@@ -136,6 +137,22 @@ export const useSlideViewerOrchestrator = () => {
     }
   }, [slideNo]);
 
+  // Synchronize initial active slide to localStorage on mount for the leader
+  // and clear previous states. Also clean up on exit (unmount).
+  useEffect(() => {
+    if (!isProjectionView() && lectureId) {
+      clearLectureStorage(lectureId);
+      const activeSlideKey = storageKeys.activeSlide(lectureId);
+      setStorageItem(activeSlideKey, activeSlide);
+    }
+
+    return () => {
+      if (!isProjectionView() && lectureId) {
+        clearLectureStorage(lectureId);
+      }
+    };
+  }, [lectureId]);
+
   const applyTransitionStyle = useCallback((nextSlideNum: number, direction: 'forward' | 'backward') => {
     const meta = activeSub && activeLec ? getSlideMetadata(nextSlideNum, activeSub, activeLec) : null;
     const resolvedTransition = meta?.transition || settingsRef.current.transitionType || 'morph';
@@ -182,10 +199,10 @@ export const useSlideViewerOrchestrator = () => {
           const meta = activeSub && activeLec ? getSlideMetadata(parsed, activeSub, activeLec) : null;
           const nextBgVariant = meta ? getBgVariant(meta.type) : 'default';
           const direction = parsed > activeSlide ? 'forward' : 'backward';
-          
+
           applyTransitionStyle(parsed, direction);
           slideDirectionRef.current = direction;
-          
+
           startSafeTransition(() => {
             setActiveSlide(parsed);
             setBgVariant(nextBgVariant);
@@ -203,6 +220,15 @@ export const useSlideViewerOrchestrator = () => {
 
     applyTransitionStyle(nextSlide, direction);
     slideDirectionRef.current = direction;
+
+    if (!isProjectionView()) {
+      const activeSlideKey = storageKeys.activeSlide(lectureId || 'mock');
+      const clickStepKey = storageKeys.clickStep(lectureId || 'mock', nextSlide);
+      const targetInitialClick = direction === 'backward' ? 999 : 0;
+      setStorageItem(clickStepKey, targetInitialClick);
+      setStorageItem(activeSlideKey, nextSlide);
+    }
+
     startSafeTransition(() => {
       setActiveSlide(nextSlide);
       setBgVariant(nextBgVariant);
@@ -219,14 +245,7 @@ export const useSlideViewerOrchestrator = () => {
 
   const viewerState = useSlideViewerState({ subjectId, sessionId, lectureId, currentSlideInt: activeSlide });
 
-  const presenterFeatures = usePresenterFeatures({
-    subjectId,
-    sessionId,
-    lectureId,
-    currentSlideInt: activeSlide,
-    onSlideChange: changeSlideWithTransition,
-    viewMode,
-  });
+  const presenterFeatures = usePresenterFeatures();
 
   // Sync settings state to ref for transition callbacks
   useEffect(() => {

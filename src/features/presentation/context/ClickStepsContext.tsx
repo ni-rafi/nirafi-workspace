@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useState, useCallback, useRef } from 'react';
+import React, { createContext, useContext, useState, useCallback, useRef, useEffect } from 'react';
+import { getLectureIdFromPath, isProjectionView, storageKeys, getStorageItem, setStorageItem } from '../utils/presentationStorage';
 
 interface ClickStepsContextType {
   currentClick: number;
@@ -49,6 +50,11 @@ interface ClickStepsProviderProps {
    * initialClick reliably controls the starting state.
    */
   initialClick?: number;
+  /**
+   * Optional slide number to enable centralized synchronization of click steps
+   * in presentation mode.
+   */
+  slideNo?: number;
 }
 
 /**
@@ -62,8 +68,19 @@ export const ClickStepsProvider: React.FC<ClickStepsProviderProps> = ({
   children,
   currentClickOverride,
   initialClick = 0,
+  slideNo,
 }) => {
-  const [currentClickState, setCurrentClick] = useState(initialClick);
+  const lectureId = getLectureIdFromPath();
+  const isProjection = isProjectionView();
+  const storageKey = slideNo ? storageKeys.clickStep(lectureId, slideNo) : '';
+
+  const [currentClickState, setCurrentClickState] = useState(() => {
+    if (storageKey) {
+      return getStorageItem<number>(storageKey, initialClick);
+    }
+    return initialClick;
+  });
+
   const currentClick = currentClickOverride !== undefined ? currentClickOverride : currentClickState;
   const [totalClicks, setTotalClicks] = useState(0);
 
@@ -75,6 +92,19 @@ export const ClickStepsProvider: React.FC<ClickStepsProviderProps> = ({
 
   const registryRef = useRef<Record<string, number>>({});
   const nextRelativeRef = useRef(1);
+
+  // Synchronize click step state from localStorage events (e.g. leader stepping)
+  useEffect(() => {
+    if (!storageKey) return;
+    const handleStorage = (e: StorageEvent) => {
+      if (e.key === storageKey) {
+        const val = getStorageItem<number>(storageKey, initialClick);
+        setCurrentClickState(val);
+      }
+    };
+    window.addEventListener('storage', handleStorage);
+    return () => window.removeEventListener('storage', handleStorage);
+  }, [storageKey, initialClick]);
 
   const registerClick = useCallback((id: string, at: number | string): number => {
     if (registryRef.current[id] !== undefined) {
@@ -98,11 +128,14 @@ export const ClickStepsProvider: React.FC<ClickStepsProviderProps> = ({
     // During backward entry keep currentClick pinned to the latest maxStep so
     // that every registered element sees the slide in its fully-revealed state.
     if (isBackwardEntryRef.current && currentClickOverride === undefined) {
-      setCurrentClick(maxStep);
+      setCurrentClickState(maxStep);
+      if (storageKey && !isProjection) {
+        setStorageItem(storageKey, maxStep);
+      }
     }
 
     return absoluteStep;
-  }, [currentClickOverride]);
+  }, [currentClickOverride, storageKey, isProjection]);
 
   const deregisterClick = useCallback((id: string) => {
     if (registryRef.current[id] === undefined) return;
@@ -116,15 +149,22 @@ export const ClickStepsProvider: React.FC<ClickStepsProviderProps> = ({
   const setClick = useCallback((step: number) => {
     // User is explicitly stepping — exit backward-entry tracking mode.
     isBackwardEntryRef.current = false;
-    setCurrentClick(Math.max(0, step));
-  }, []);
+    const nextStep = Math.max(0, step);
+    setCurrentClickState(nextStep);
+    if (storageKey && !isProjection) {
+      setStorageItem(storageKey, nextStep);
+    }
+  }, [storageKey, isProjection]);
 
   const resetClicks = useCallback(() => {
     registryRef.current = {};
     nextRelativeRef.current = 1;
-    setCurrentClick(0);
+    setCurrentClickState(0);
     setTotalClicks(0);
-  }, []);
+    if (storageKey && !isProjection) {
+      setStorageItem(storageKey, 0);
+    }
+  }, [storageKey, isProjection]);
 
   const contextValue = React.useMemo(
     () => ({
