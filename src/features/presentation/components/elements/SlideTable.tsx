@@ -31,6 +31,8 @@ export const SlideTable: React.FC<SlideTableProps> = ({
 }) => {
   const presentation = useContext(PresentationContext);
   const isBlog = presentation?.viewMode === 'blog';
+  const isScroll = presentation?.viewMode === 'scroll';
+  const isResponsive = isBlog || isScroll;
 
   const { currentClick, registerClick, deregisterClick } = useClickStepsContext();
   const [columnSteps, setColumnSteps] = useState<Record<number, number>>({});
@@ -89,12 +91,12 @@ export const SlideTable: React.FC<SlideTableProps> = ({
   const firstVisibleColIdx = headers.findIndex((_, idx) => isColVisible(idx));
 
   const containerClass = isBlog
-    ? `border border-border/50 rounded-xl overflow-visible w-full text-left text-xs bg-transparent ${className}`
-    : `border rounded-xl overflow-visible w-full text-left text-xs bg-card shadow-sm transition-all duration-300 hover:shadow-md ${className}`;
+    ? `border border-border/50 rounded-xl overflow-x-auto md:overflow-visible w-full text-left text-xs bg-transparent ${className}`
+    : `border rounded-xl ${isScroll ? 'overflow-x-auto md:overflow-visible' : 'overflow-visible'} w-full text-left text-xs bg-card shadow-sm transition-all duration-300 hover:shadow-md ${className}`;
 
   const content = (
     <div className={containerClass}>
-      <table className="w-full border-collapse">
+      <table className={`w-full border-collapse ${isResponsive ? 'min-w-[640px]' : ''}`}>
         <thead>
           <tr className={`${isBlog ? 'bg-muted/20' : 'bg-muted'} text-foreground border-b font-bold`}>
             {headers.map((h, idx) => {
