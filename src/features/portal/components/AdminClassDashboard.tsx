@@ -11,6 +11,7 @@ export const AdminClassDashboard: React.FC = () => {
 
   const [submissions, setSubmissions] = useState<SubjectSubmissions[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [quizAnswers, setQuizAnswers] = useState<Record<string, string>>({});
 
   // For Quantity Surveying session-2026, define the quiz columns
   const quizIds = ['qs_2026_lec1_quiz1', 'qs_2026_lec2_quiz1', 'qs_2026_lec3_quiz1'];
@@ -20,6 +21,9 @@ export const AdminClassDashboard: React.FC = () => {
     if (!subjectId || !sessionId) return;
     setIsLoading(true);
     try {
+      const answersMod = await import(`../../../lectures/${subjectId}/${sessionId}/answers.ts`);
+      setQuizAnswers(answersMod.QUIZ_ANSWERS);
+
       const data = await firebaseService.getAllSubmissions(subjectId, sessionId);
       setSubmissions(data);
     } catch (e) {
@@ -41,7 +45,9 @@ export const AdminClassDashboard: React.FC = () => {
       const quizCols = quizIds.map((qId) => {
         const ans = sub.answers[qId];
         if (ans) {
-          if (ans.isCorrect) correct++;
+          const realAnswer = quizAnswers[qId] || '';
+          const isCorrect = ans.answer.trim().toLowerCase() === realAnswer.trim().toLowerCase();
+          if (isCorrect) correct++;
           return ans.answer;
         }
         return 'N/A';
@@ -117,7 +123,12 @@ export const AdminClassDashboard: React.FC = () => {
                     submissions.reduce((acc, curr) => {
                       let correct = 0;
                       quizIds.forEach((qId) => {
-                        if (curr.answers[qId]?.isCorrect) correct++;
+                        const ans = curr.answers[qId];
+                        if (ans) {
+                          const realAnswer = quizAnswers[qId] || '';
+                          const isCorrect = ans.answer.trim().toLowerCase() === realAnswer.trim().toLowerCase();
+                          if (isCorrect) correct++;
+                        }
                       });
                       return acc + correct;
                     }, 0) / submissions.length
@@ -155,18 +166,20 @@ export const AdminClassDashboard: React.FC = () => {
                       if (!ans) {
                         return <td key={qId} className="p-3.5 text-center text-muted-foreground/50">—</td>;
                       }
-                      if (ans.isCorrect) score++;
+                      const realAnswer = quizAnswers[qId] || '';
+                      const isCorrect = ans.answer.trim().toLowerCase() === realAnswer.trim().toLowerCase();
+                      if (isCorrect) score++;
                       return (
                         <td key={qId} className="p-3.5 text-center">
                           <span
                             className={`inline-flex items-center rounded-md px-2 py-0.5 text-xs font-bold font-mono border ${
-                              ans.isCorrect
+                              isCorrect
                                 ? 'bg-emerald-500/10 border-emerald-500/25 text-emerald-600 dark:text-emerald-400'
                                 : 'bg-red-500/10 border-red-500/25 text-red-600 dark:text-red-400'
                             }`}
                             title={`Submitted: ${ans.answer}`}
                           >
-                            {ans.isCorrect ? 'Correct' : 'Incorrect'}
+                            {isCorrect ? 'Correct' : 'Incorrect'}
                           </span>
                         </td>
                       );

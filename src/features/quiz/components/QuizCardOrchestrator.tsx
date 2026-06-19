@@ -10,7 +10,6 @@ export type QuizType = 'numeric-input' | 'multiple-choice';
 interface QuizCardOrchestratorProps {
   quizId: string;
   questionText: string;
-  correctAnswer: string;
   quizType?: QuizType;
   options?: string[]; // Required for multiple choice
 }
@@ -18,7 +17,6 @@ interface QuizCardOrchestratorProps {
 export const QuizCardOrchestrator: React.FC<QuizCardOrchestratorProps> = ({
   quizId,
   questionText,
-  correctAnswer,
   quizType = 'numeric-input',
   options = [],
 }) => {
@@ -39,12 +37,18 @@ export const QuizCardOrchestrator: React.FC<QuizCardOrchestratorProps> = ({
     setAdminView,
     durationInput,
     setDurationInput,
+    bufferInput,
+    setBufferInput,
     allSubmissions,
     handleStudentSubmit,
     handleAdminActivate,
     handleAdminReactivate,
     handleAdminClose,
-  } = useQuizState(quizId, correctAnswer, quizType);
+    handleAdminReset,
+    isRevealed,
+    handleAdminReveal,
+    correctAnswer,
+  } = useQuizState(quizId, quizType);
 
   const formatTime = (seconds: number) => {
     const m = Math.floor(seconds / 60);
@@ -102,10 +106,15 @@ export const QuizCardOrchestrator: React.FC<QuizCardOrchestratorProps> = ({
         questionText={questionText}
         durationInput={durationInput}
         setDurationInput={setDurationInput}
+        bufferInput={bufferInput}
+        setBufferInput={setBufferInput}
         handleAdminActivate={handleAdminActivate}
         isLagging={isLagging}
         lagTimeLeft={lagTimeLeft}
+        timeLeft={timeLeft}
+        formatTime={formatTime}
         handleAdminClose={handleAdminClose}
+        handleAdminReset={handleAdminReset}
         adminView={adminView}
         setAdminView={setAdminView}
         handleAdminReactivate={handleAdminReactivate}
@@ -113,6 +122,8 @@ export const QuizCardOrchestrator: React.FC<QuizCardOrchestratorProps> = ({
         correctAnswer={correctAnswer}
         options={options}
         allSubmissions={allSubmissions}
+        isRevealed={isRevealed}
+        handleAdminReveal={handleAdminReveal}
       />
       {/* PRINT-ONLY PLACEHOLDER */}
       <div className="quiz-print-placeholder hidden print:block border-2 border-dashed border-black/80 rounded-lg p-4 mt-4 text-xs select-none">

@@ -199,7 +199,6 @@ const Slide6: React.FC = () => (
     <QuizCardOrchestrator
       quizId="qs_2026_lec1_quiz1"
       questionText="Calculate volume of concrete with dimensions: L=12m, W=0.4m, H=0.5m (wastage = 5%)."
-      correctAnswer="2.520"
       quizType="numeric-input"
     />
   </FullWidthLayout>

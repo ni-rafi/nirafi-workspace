@@ -12,13 +12,13 @@ interface QuizSubmission {
 
 export const useQuizState = (
   quizId: string,
-  correctAnswer: string,
   quizType: 'numeric-input' | 'multiple-choice'
 ) => {
   const firebaseService = useFirebase();
   const { userProfile, uid } = useUserContext();
 
   const isAdmin = userProfile?.role === 'admin';
+  const [resolvedCorrectAnswer, setResolvedCorrectAnswer] = useState('');
 
 
   const [quizState, setQuizStateState] = useState<QuizState | null>(null);
@@ -30,6 +30,7 @@ export const useQuizState = (
   const [lagTimeLeft, setLagTimeLeft] = useState(0);
   const [adminView, setAdminView] = useState<'chart' | 'details'>('chart');
   const [durationInput, setDurationInput] = useState(300); // Default 5 mins
+  const [bufferInput, setBufferInput] = useState(20); // Default 20 seconds lag
   const [allSubmissions, setAllSubmissions] = useState<QuizSubmission[]>([]);
 
   const subjectId = 'quantity-surveying'; // default mock
@@ -57,16 +58,21 @@ export const useQuizState = (
   // 3. Fetch submissions for Admin view
   const fetchSubmissions = async () => {
     if (isAdmin) {
+      const answersMod = await import(`../../../lectures/${subjectId}/${sessionId}/answers.ts`);
+      const realCorrectAnswer = answersMod.QUIZ_ANSWERS[quizId] || '';
+      setResolvedCorrectAnswer(realCorrectAnswer);
+
       const subs = await firebaseService.getAllSubmissions(subjectId, sessionId);
       const quizSubs = subs
         .filter((s) => s.answers[quizId] !== undefined)
         .map((s) => {
           const ans = s.answers[quizId]!;
+          const isCorrect = ans.answer.trim().toLowerCase() === realCorrectAnswer.trim().toLowerCase();
           return {
             studentName: s.studentName,
             studentRegistration: s.studentRegistration,
             answer: ans.answer,
-            isCorrect: ans.isCorrect,
+            isCorrect,
           };
         });
       setAllSubmissions(quizSubs);
@@ -81,12 +87,6 @@ export const useQuizState = (
     }
   }, [isAdmin, quizState?.status, quizId]);
 
-  // Helper to determine buffer lag time based on the active answering duration
-  const getLagTimeSeconds = (durationSeconds: number): number => {
-    if (durationSeconds <= 60) return 20;
-    if (durationSeconds <= 120) return 30;
-    return 50;
-  };
 
   // 4. Timer Logic
   useEffect(() => {
@@ -137,7 +137,6 @@ export const useQuizState = (
   const handleStudentSubmit = async () => {
     if (!uid || !userProfile || hasSubmitted) return;
     setIsSubmitting(true);
-    const isCorrect = studentAnswer.trim().toLowerCase() === correctAnswer.trim().toLowerCase();
     await firebaseService.submitQuizAnswer(
       subjectId,
       sessionId,
@@ -145,20 +144,21 @@ export const useQuizState = (
       { name: userProfile.name, reg: userProfile.registration || '0000000000' },
       quizId,
       studentAnswer,
-      isCorrect
+      false
     );
     setHasSubmitted(true);
     setIsSubmitting(false);
   };
 
   const handleAdminActivate = async () => {
-    const lagTime = getLagTimeSeconds(durationInput);
+    const lagTime = Math.min(Math.max(0, bufferInput), 30);
     await firebaseService.setQuizState(quizId, {
       status: 'active',
       activatedAt: Date.now(),
       durationSeconds: durationInput,
       quizType,
       loadingBufferSeconds: lagTime,
+      isRevealed: false,
     });
   };
 
@@ -170,12 +170,33 @@ export const useQuizState = (
       durationSeconds: nextDuration,
       quizType,
       loadingBufferSeconds: 0,
+      isRevealed: false,
     });
   };
 
   const handleAdminClose = async () => {
     if (quizState) {
       await firebaseService.setQuizState(quizId, { ...quizState, status: 'closed' });
+    }
+  };
+
+  const handleAdminReset = async () => {
+    await firebaseService.setQuizState(quizId, {
+      status: 'hidden',
+      activatedAt: 0,
+      durationSeconds: durationInput,
+      quizType,
+      loadingBufferSeconds: 0,
+      isRevealed: false,
+    });
+  };
+
+  const handleAdminReveal = async () => {
+    if (quizState) {
+      await firebaseService.setQuizState(quizId, {
+        ...quizState,
+        isRevealed: true,
+      });
     }
   };
 
@@ -193,10 +214,16 @@ export const useQuizState = (
     setAdminView,
     durationInput,
     setDurationInput,
+    bufferInput,
+    setBufferInput,
     allSubmissions,
     handleStudentSubmit,
     handleAdminActivate,
     handleAdminReactivate,
     handleAdminClose,
+    handleAdminReset,
+    isRevealed: quizState?.isRevealed || false,
+    handleAdminReveal,
+    correctAnswer: resolvedCorrectAnswer,
   };
 };

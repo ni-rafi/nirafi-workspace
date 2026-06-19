@@ -43,7 +43,7 @@ export const StudentQuizView: React.FC<StudentQuizViewProps> = ({
       return null;
     }
     return (
-      <div className="w-full max-w-lg mx-auto bg-card border border-border/80 rounded-2xl p-5 md:p-6 shadow-sm flex flex-col gap-4 text-center select-none">
+      <div className="w-full max-w-2xl mx-auto bg-card border border-border/80 rounded-2xl p-5 md:p-6 shadow-sm flex flex-col gap-4 text-center select-none">
         <div className="flex justify-center mb-2">
           <span className="text-[10px] font-bold text-primary tracking-widest uppercase bg-primary/10 px-3 py-1 rounded-full">
             Classroom Quiz
@@ -62,7 +62,7 @@ export const StudentQuizView: React.FC<StudentQuizViewProps> = ({
 
   if (status === 'closed') {
     return (
-      <div className="w-full max-w-lg mx-auto bg-card border border-border/80 rounded-2xl p-5 md:p-6 shadow-sm flex flex-col gap-4 text-center select-none">
+      <div className="w-full max-w-2xl mx-auto bg-card border border-border/80 rounded-2xl p-5 md:p-6 shadow-sm flex flex-col gap-4 text-center select-none">
         <div className="flex justify-center mb-2">
           <span className="text-[10px] font-bold text-red-500 tracking-widest uppercase bg-red-500/10 px-3 py-1 rounded-full border border-red-500/20">
             Quiz Closed
@@ -83,7 +83,7 @@ export const StudentQuizView: React.FC<StudentQuizViewProps> = ({
 
   if (status === 'active' && isLagging) {
     return (
-      <div className="w-full max-w-lg mx-auto bg-card border border-border/80 rounded-2xl p-5 md:p-6 shadow-sm flex flex-col gap-4 text-center select-none">
+      <div className="w-full max-w-2xl mx-auto bg-card border border-border/80 rounded-2xl p-5 md:p-6 shadow-sm flex flex-col gap-4 text-center select-none">
         <div className="flex justify-between items-center select-none">
           <span className="text-[10px] font-bold text-primary tracking-widest uppercase">Classroom Quiz</span>
           <span className="flex items-center gap-1 text-xs font-bold text-amber-500 font-mono bg-amber-500/10 px-2 py-0.5 rounded-full border border-amber-500/25 animate-pulse">
@@ -106,7 +106,7 @@ export const StudentQuizView: React.FC<StudentQuizViewProps> = ({
 
   // Active Phase & Answering Phase
   return (
-    <div className="w-full max-w-lg mx-auto bg-card border border-border/80 rounded-2xl p-5 md:p-6 shadow-sm flex flex-col gap-4 text-left">
+    <div className="w-full max-w-2xl mx-auto bg-card border border-border/80 rounded-2xl p-5 md:p-6 shadow-sm flex flex-col gap-4 text-left">
       <div className="flex justify-between items-center select-none">
         <span className="text-[10px] font-bold text-primary tracking-widest uppercase">Classroom Quiz</span>
         <span className="flex items-center gap-1 text-xs font-bold text-red-500 font-mono bg-red-500/10 px-2 py-0.5 rounded-full border border-red-500/25">

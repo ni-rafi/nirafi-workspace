@@ -203,7 +203,6 @@ const Slide5: React.FC = () => (
     <QuizCardOrchestrator
       quizId="qs_2026_lec2_quiz1"
       questionText="Calculate brick count for wall area = 20m², thickness = 0.24m (wastage = 5%, brick size = 240x115x70mm with 10mm joints)."
-      correctAnswer="2625"
       quizType="numeric-input"
     />
   </FullWidthLayout>

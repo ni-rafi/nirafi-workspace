@@ -1,9 +1,10 @@
 import React from 'react';
+import { AnimatedCount } from '../AnimatedCount';
 
 export interface MultipleChoiceQuizStudentProps {
   questionText: string;
   options: string[];
-  userAnswer: string; // e.g. "0" or "A"
+  userAnswer: string;
   setUserAnswer: (val: string) => void;
   onSubmit: () => void;
   isSubmitting: boolean;
@@ -13,9 +14,11 @@ export interface MultipleChoiceQuizStudentProps {
 }
 
 export interface MultipleChoiceQuizAdminProps {
+  correctAnswer: string;
   options: string[];
   submissions: { studentName: string; studentRegistration: string; answer: string; isCorrect: boolean }[];
   activeView: 'chart' | 'details';
+  isRevealed: boolean;
 }
 
 export const MultipleChoiceQuizStudent: React.FC<MultipleChoiceQuizStudentProps> = ({
@@ -26,7 +29,6 @@ export const MultipleChoiceQuizStudent: React.FC<MultipleChoiceQuizStudentProps>
   onSubmit,
   isSubmitting,
   isLocked,
-  correctAnswer,
   hasSubmitted,
 }) => {
   const letters = ['A', 'B', 'C', 'D', 'E', 'F'];
@@ -77,11 +79,6 @@ export const MultipleChoiceQuizStudent: React.FC<MultipleChoiceQuizStudentProps>
           <div className="text-md font-bold text-primary select-all">
             {userAnswer} {options[letters.indexOf(userAnswer)] && `— ${options[letters.indexOf(userAnswer)]}`}
           </div>
-          {isLocked && (
-            <div className="text-xs border-t pt-2 mt-1 border-border/40">
-              Correct Answer: <span className="font-semibold text-emerald-600 dark:text-emerald-400">{correctAnswer}</span>
-            </div>
-          )}
         </div>
       )}
     </div>
@@ -89,9 +86,11 @@ export const MultipleChoiceQuizStudent: React.FC<MultipleChoiceQuizStudentProps>
 };
 
 export const MultipleChoiceQuizAdmin: React.FC<MultipleChoiceQuizAdminProps> = ({
+  correctAnswer,
   options,
   submissions,
   activeView,
+  isRevealed,
 }) => {
   const letters = ['A', 'B', 'C', 'D', 'E', 'F'];
   
@@ -106,22 +105,46 @@ export const MultipleChoiceQuizAdmin: React.FC<MultipleChoiceQuizAdminProps> = (
   const total = submissions.length;
 
   if (activeView === 'chart') {
+    // 1. If not revealed, show response count screen when under 10
+    if (!isRevealed && total < 10) {
+      return (
+        <div className="flex flex-col items-center justify-center p-8 border border-border/40 rounded-xl bg-muted/10 gap-3 text-center min-h-[180px]">
+          <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest select-none">Collecting Responses</span>
+          <div className="text-5xl font-extrabold text-primary select-none my-2">
+            <AnimatedCount value={total} />
+          </div>
+          <p className="text-xs text-muted-foreground select-none">
+            Responses received in this live session.
+          </p>
+        </div>
+      );
+    }
+
+    // 2. Show the option votes chart
     return (
       <div className="flex flex-col gap-3 w-full p-4 border border-border/40 rounded-xl bg-muted/10 text-xs">
         {options.map((opt, i) => {
           const letter = letters[i] || '';
           const count = counts[letter] || 0;
           const percent = total > 0 ? Math.round((count / total) * 100) : 0;
+          const isCorrectChoice = isRevealed && letter === correctAnswer.toUpperCase();
+
           return (
             <div key={i} className="flex flex-col gap-1 w-full text-left">
               <div className="flex justify-between items-center text-[10px] font-semibold text-muted-foreground">
-                <span>Choice {letter}: {opt}</span>
+                <span className={isCorrectChoice ? 'font-bold text-emerald-600 dark:text-emerald-400' : ''}>
+                  Choice {letter}: {opt} {isCorrectChoice && '✓ (Correct)'}
+                </span>
                 <span>{count} votes ({percent}%)</span>
               </div>
               <div className="w-full h-3 rounded-full bg-muted overflow-hidden relative border border-border/30">
                 <div
                   style={{ width: `${percent}%` }}
-                  className="h-full bg-primary transition-all duration-500"
+                  className={`h-full transition-all duration-500 ${
+                    isCorrectChoice 
+                      ? 'bg-emerald-500' 
+                      : (isRevealed ? 'bg-primary/40' : 'bg-primary')
+                  }`}
                 />
               </div>
             </div>
@@ -134,6 +157,7 @@ export const MultipleChoiceQuizAdmin: React.FC<MultipleChoiceQuizAdminProps> = (
     );
   }
 
+  // Details list view
   return (
     <div className="border border-border/40 rounded-xl overflow-hidden text-xs w-full max-h-60 overflow-y-auto">
       <table className="w-full text-left border-collapse">
@@ -142,7 +166,7 @@ export const MultipleChoiceQuizAdmin: React.FC<MultipleChoiceQuizAdminProps> = (
             <th className="p-2">Roll</th>
             <th className="p-2">Name</th>
             <th className="p-2 text-right">Choice</th>
-            <th className="p-2 text-center">Result</th>
+            {isRevealed && <th className="p-2 text-center">Result</th>}
           </tr>
         </thead>
         <tbody>
@@ -151,18 +175,20 @@ export const MultipleChoiceQuizAdmin: React.FC<MultipleChoiceQuizAdminProps> = (
               <td className="p-2 font-mono">{sub.studentRegistration}</td>
               <td className="p-2 truncate max-w-[120px]">{sub.studentName}</td>
               <td className="p-2 text-right font-bold font-mono">{sub.answer}</td>
-              <td className="p-2 text-center">
-                <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${
-                  sub.isCorrect ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 'bg-red-500/10 text-red-600 dark:text-red-400'
-                }`}>
-                  {sub.isCorrect ? 'Correct' : 'Incorrect'}
-                </span>
-              </td>
+              {isRevealed && (
+                <td className="p-2 text-center">
+                  <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${
+                    sub.isCorrect ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 'bg-red-500/10 text-red-600 dark:text-red-400'
+                  }`}>
+                    {sub.isCorrect ? 'Correct' : 'Incorrect'}
+                  </span>
+                </td>
+              )}
             </tr>
           ))}
           {submissions.length === 0 && (
             <tr>
-              <td colSpan={4} className="p-4 text-center text-muted-foreground">No submissions yet.</td>
+              <td colSpan={isRevealed ? 4 : 3} className="p-4 text-center text-muted-foreground">No submissions yet.</td>
             </tr>
           )}
         </tbody>
