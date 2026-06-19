@@ -40,7 +40,7 @@ export function setStorageItem(key: string, value: unknown): void {
 export function clearLectureStorage(lectureId: string): void {
   if (typeof window === 'undefined') return;
   Object.keys(localStorage).forEach((key) => {
-    if (key.startsWith('cee_') && key.includes(`_${lectureId}`)) {
+    if (key.startsWith('cee_') && key.includes(`_${lectureId}`) && !key.startsWith('cee_drawings_')) {
       localStorage.removeItem(key);
     }
   });
