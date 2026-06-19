@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useTheme } from '@/context';
 import { SlideSettings, DEFAULT_SETTINGS } from '../components/layers/SettingsPopover';
+import { useUrlSyncedState } from './useUrlSyncedState';
 
 interface WakeLockSentinel {
   release: () => Promise<void>;
@@ -13,7 +14,7 @@ export const usePresenterFeatures = () => {
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number; isOpen: boolean } | null>(null);
   const [isOverviewOpen, setIsOverviewOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  const [isLaserActive, setIsLaserActive] = useState(false);
+  const [isLaserActive, setIsLaserActive] = useUrlSyncedState<boolean>('laser-active', false);
 
   const isDark = resolvedTheme === 'dark';
 
@@ -72,7 +73,7 @@ export const usePresenterFeatures = () => {
 
   // 4. Cursor inactivity control
   useEffect(() => {
-    if (!settings.hideIdleCursor) {
+    if (!settings.hideIdleCursor || isLaserActive) {
       document.body.classList.remove('cursor-none');
       return;
     }

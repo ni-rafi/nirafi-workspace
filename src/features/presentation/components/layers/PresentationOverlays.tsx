@@ -91,7 +91,7 @@ export const PresentationOverlays: React.FC<PresentationOverlaysProps> = ({
   onToggleThemePlayground,
 }) => {
   if (isProjectionView) {
-    return <LaserPointer active={isLaserActive} />;
+    return <LaserPointer active={isLaserActive} isProjectionView={true} />;
   }
 
   return (
@@ -145,7 +145,7 @@ export const PresentationOverlays: React.FC<PresentationOverlaysProps> = ({
         activeSession={activeSession}
       />
 
-      <LaserPointer active={isLaserActive} />
+      <LaserPointer active={isLaserActive} isProjectionView={isProjectionView} />
     </>
   );
 };
