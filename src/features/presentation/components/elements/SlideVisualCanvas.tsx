@@ -2,6 +2,9 @@ import React from 'react';
 import { useClickStepsContext } from '../../context/ClickStepsContext';
 import { ShapeMorph } from './ShapeMorph';
 import { VisualCanvasShape, PhysicalUnit } from '../../types/schema';
+import { BeamLoads } from './BeamLoads';
+import { BeamSupports } from './BeamSupports';
+import { SlideDimensionLines } from './SlideDimensionLines';
 
 interface SlideVisualCanvasProps {
   elements: VisualCanvasShape[];
@@ -28,75 +31,6 @@ export const SlideVisualCanvas: React.FC<SlideVisualCanvasProps> = ({
   showLayoutBodyBorder = false,
 }) => {
   const { currentClick } = useClickStepsContext();
-
-  const handleLabelPointerDown = (
-    e: React.MouseEvent,
-    elId: string,
-    key: 'length' | 'height' | 'diameter' | 'diagonal1' | 'diagonal2',
-    val: number
-  ) => {
-    if (!editable || !onLabelClick) return;
-    e.stopPropagation();
-    onLabelClick(elId, key, val, e.clientX, e.clientY);
-  };
-
-  const renderDimLine = (
-    x1: number,
-    y1: number,
-    x2: number,
-    y2: number,
-    labelText: string,
-    dimKey: 'length' | 'height' | 'diameter' | 'diagonal1' | 'diagonal2',
-    val: number,
-    elId: string,
-    isDotted = false
-  ) => {
-    const cx = (x1 + x2) / 2;
-    const cy = (y1 + y2) / 2;
-    const isVertical = Math.abs(x1 - x2) < 2;
-    const textAngle = isVertical ? -90 : 0;
-
-    return (
-      <g className="select-none font-mono">
-        <line
-          x1={x1}
-          y1={y1}
-          x2={x2}
-          y2={y2}
-          stroke="currentColor"
-          strokeWidth="1"
-          strokeDasharray={isDotted ? '3 3' : undefined}
-          markerStart={isDotted ? undefined : 'url(#dim-arrow)'}
-          markerEnd={isDotted ? undefined : 'url(#dim-arrow)'}
-          className="text-primary/70"
-        />
-        <g
-          transform={`translate(${cx}, ${cy}) rotate(${textAngle})`}
-          onClick={(e) => handleLabelPointerDown(e, elId, dimKey, val)}
-          className={editable ? 'cursor-pointer hover:text-primary' : ''}
-        >
-          <rect
-            x="-24"
-            y="-7"
-            width="48"
-            height="14"
-            fill="var(--background, #030712)"
-            rx="3"
-            className="stroke-border/30 stroke-[0.5]"
-          />
-          <text
-            textAnchor="middle"
-            dominantBaseline="central"
-            fontSize="8"
-            fontWeight="bold"
-            className="fill-foreground font-sans tracking-wide"
-          >
-            {labelText}
-          </text>
-        </g>
-      </g>
-    );
-  };
 
   return (
     <svg
@@ -159,7 +93,7 @@ export const SlideVisualCanvas: React.FC<SlideVisualCanvasProps> = ({
           (currentClick >= el.enterAt && (el.exitAt === undefined || currentClick < el.exitAt));
         if (!isVisible) return null;
 
-        const transform = `translate(${el.x}, ${el.y}) rotate(${el.rotate || 0})`;
+        const transform = `translate(${el.x}, ${el.y}) rotate(${el.rotate || 0}, ${el.w / 2}, ${el.h / 2})`;
         const fill = el.fill || 'var(--primary)';
         const stroke = el.stroke || 'rgba(255,255,255,0.15)';
         const sw = el.strokeWidth || 1.5;
@@ -168,172 +102,97 @@ export const SlideVisualCanvas: React.FC<SlideVisualCanvasProps> = ({
             ? `slidev-vclick-anim-${el.animation}`
             : '';
 
-        const cx = el.x + el.w / 2;
-        const cy = el.y + el.h / 2;
+        const isLoad = ['udl', 'uvl', 'moment', 'point-load'].includes(el.type);
+        const isSupport = ['support-pin', 'support-roller', 'support-fixed', 'hinge'].includes(el.type);
 
         return (
           <g key={el.id} className={`${animationClass} pointer-events-auto`}>
-            {/* Draw standard visual shapes */}
-            {el.type === 'arrow' ? (
-              <line
-                x1={el.x}
-                y1={el.y}
-                x2={el.x + el.w}
-                y2={el.y + el.h}
-                stroke={fill}
-                strokeWidth={el.strokeWidth || 3.5}
-                markerEnd="url(#canvas-arrow)"
+            {/* 1. Custom loads rendering */}
+            {isLoad && (
+              <BeamLoads
+                el={el}
+                stroke={stroke}
+                fill={fill}
+                sw={sw}
+                transform={transform}
               />
-            ) : el.type === 'text' ? (
-              <text
-                x={el.x}
-                y={el.y}
-                transform={`rotate(${el.rotate || 0}, ${el.x}, ${el.y})`}
-                className="fill-foreground font-mono text-[11px] font-bold"
-              >
-                {el.label || 'Text'}
-              </text>
-            ) : (
-              <g transform={transform}>
-                <foreignObject width={el.w} height={el.h} className="overflow-visible">
-                  <div className="w-full h-full flex items-center justify-center relative">
-                    <svg className="absolute inset-0 w-full h-full overflow-visible">
-                      <ShapeMorph
-                        type={el.type}
-                        w={el.w}
-                        h={el.h}
-                        points={el.points}
-                        borderRadius={el.borderRadius}
-                        fill={fill}
-                        stroke={stroke}
-                        strokeWidth={sw}
-                      />
-                    </svg>
-                    {el.label && (
-                      <span className="relative z-10 text-[9px] font-mono font-bold text-foreground text-center px-1">
-                        {el.label}
-                      </span>
-                    )}
-                  </div>
-                </foreignObject>
-              </g>
             )}
 
-            {/* Architectural Dimension Annotations overlay */}
-            {el.showDimensionLines && el.dimensions && (() => {
-              const dims = el.dimensions;
-              const unit = scaleFactor.unit;
-              const offset = 20;
+            {/* 2. Custom supports rendering */}
+            {isSupport && (
+              <BeamSupports
+                el={el}
+                stroke={stroke}
+                fill={fill}
+                sw={sw}
+                transform={transform}
+              />
+            )}
 
-              if (el.type === 'circle' && dims.diameter !== undefined) {
-                const r = Math.min(el.w, el.h) / 2;
-                const dx = r * Math.cos(Math.PI / 4);
-                const dy = r * Math.sin(Math.PI / 4);
-                return renderDimLine(
-                  cx - dx,
-                  cy + dy,
-                  cx + dx,
-                  cy - dy,
-                  `ø ${dims.diameter}${unit}`,
-                  'diameter',
-                  dims.diameter,
-                  el.id
-                );
-              }
-
-              if (el.type === 'triangle') {
-                const baseVal = dims.length || 0;
-                const heightVal = dims.height || 0;
+            {/* 3. Standard shape rendering */}
+            {!isLoad && !isSupport && (() => {
+              if (el.type === 'arrow') {
                 return (
-                  <g>
-                    {/* Base */}
-                    {renderDimLine(
-                      el.x,
-                      el.y + el.h + offset,
-                      el.x + el.w,
-                      el.y + el.h + offset,
-                      `b: ${baseVal}${unit}`,
-                      'length',
-                      baseVal,
-                      el.id
-                    )}
-                    {/* Height altitude */}
-                    {renderDimLine(
-                      cx,
-                      el.y,
-                      cx,
-                      el.y + el.h,
-                      `h: ${heightVal}${unit}`,
-                      'height',
-                      heightVal,
-                      el.id,
-                      true
-                    )}
-                  </g>
+                  <line
+                    x1={el.x}
+                    y1={el.y}
+                    x2={el.x + el.w}
+                    y2={el.y + el.h}
+                    stroke={fill}
+                    strokeWidth={el.strokeWidth || 3.5}
+                    markerEnd="url(#canvas-arrow)"
+                  />
                 );
               }
-
-              if (el.type === 'rhombus') {
-                const d1Val = dims.diagonal1 || 0;
-                const d2Val = dims.diagonal2 || 0;
+              if (el.type === 'text') {
                 return (
-                  <g>
-                    {renderDimLine(
-                      el.x,
-                      cy,
-                      el.x + el.w,
-                      cy,
-                      `d1: ${d1Val}${unit}`,
-                      'diagonal1',
-                      d1Val,
-                      el.id,
-                      true
-                    )}
-                    {renderDimLine(
-                      cx,
-                      el.y,
-                      cx,
-                      el.y + el.h,
-                      `d2: ${d2Val}${unit}`,
-                      'diagonal2',
-                      d2Val,
-                      el.id,
-                      true
-                    )}
-                  </g>
+                  <text
+                    x={el.x}
+                    y={el.y}
+                    transform={`rotate(${el.rotate || 0}, ${el.x}, ${el.y})`}
+                    className="fill-foreground font-mono text-[11px] font-bold"
+                  >
+                    {el.label || 'Text'}
+                  </text>
                 );
               }
 
-              // Default standard Horizontal / Vertical bounds (Rectangle, Hexagon, Star, Heart, Cross, etc.)
-              const wVal = dims.length || 0;
-              const hVal = dims.height || 0;
               return (
-                <g>
-                  {wVal > 0 &&
-                    renderDimLine(
-                      el.x,
-                      el.y + el.h + offset,
-                      el.x + el.w,
-                      el.y + el.h + offset,
-                      `${wVal}${unit}`,
-                      'length',
-                      wVal,
-                      el.id
-                    )}
-                  {hVal > 0 &&
-                    renderDimLine(
-                      el.x + el.w + offset,
-                      el.y,
-                      el.x + el.w + offset,
-                      el.y + el.h,
-                      `${hVal}${unit}`,
-                      'height',
-                      hVal,
-                      el.id
-                    )}
+                <g transform={transform}>
+                  <foreignObject width={el.w} height={el.h} className="overflow-visible">
+                    <div className="w-full h-full flex items-center justify-center relative">
+                      <svg className="absolute inset-0 w-full h-full overflow-visible">
+                        <ShapeMorph
+                          type={el.type === 'rounded-arrow' ? 'arrow' : el.type}
+                          w={el.w}
+                          h={el.h}
+                          points={el.points}
+                          borderRadius={el.borderRadius}
+                          fill={fill}
+                          stroke={stroke}
+                          strokeWidth={sw}
+                          strokeLinejoin={el.type === 'rounded-arrow' ? 'round' : undefined}
+                          strokeLinecap={el.type === 'rounded-arrow' ? 'round' : undefined}
+                        />
+                      </svg>
+                      {el.label && (
+                        <span className="relative z-10 text-[9px] font-mono font-bold text-foreground text-center px-1">
+                          {el.label}
+                        </span>
+                      )}
+                    </div>
+                  </foreignObject>
                 </g>
               );
             })()}
+
+            {/* 4. Dimension lines rendering */}
+            <SlideDimensionLines
+              el={el}
+              scaleFactor={scaleFactor}
+              editable={editable}
+              onLabelClick={onLabelClick}
+            />
           </g>
         );
       })}

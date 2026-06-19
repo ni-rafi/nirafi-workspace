@@ -12,6 +12,8 @@ interface DraggableProps {
   children: React.ReactNode;
   initialPos?: DragPosition;
   onPositionChange?: (pos: DragPosition) => void;
+  onDragStart?: () => void;
+  onDragEnd?: () => void;
   className?: string;
 }
 
@@ -23,6 +25,8 @@ export const Draggable: React.FC<DraggableProps> = ({
   children,
   initialPos = { x: 50, y: 50, w: 200, h: 100, rotate: 0 },
   onPositionChange,
+  onDragStart,
+  onDragEnd,
   className = '',
 }) => {
   const containerId = useId();
@@ -56,6 +60,7 @@ export const Draggable: React.FC<DraggableProps> = ({
 
     // Select the component
     setIsSelected(true);
+    onDragStart?.();
 
     // Compute the scale factor of the slide canvas container
     let scale = 1;
@@ -90,6 +95,7 @@ export const Draggable: React.FC<DraggableProps> = ({
       dragStartRef.current = null;
       document.removeEventListener('mousemove', handleMouseMove);
       document.removeEventListener('mouseup', handleMouseUp);
+      onDragEnd?.();
     };
 
     document.addEventListener('mousemove', handleMouseMove);

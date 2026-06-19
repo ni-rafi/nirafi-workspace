@@ -2,7 +2,7 @@ import React from 'react';
 import { MorphingPath } from '@/shared/components/MorphingPath';
 import { getShapePath } from './shapeUtils';
 
-export interface ShapeMorphProps extends Omit<React.SVGProps<SVGPathElement>, 'd'> {
+export interface ShapeMorphProps extends Omit<React.SVGProps<SVGPathElement>, 'd' | 'points'> {
   /**
    * Shape type name
    */

@@ -50,20 +50,6 @@ export const ShapeBuilderInspectorColors: React.FC<ShapeBuilderInspectorColorsPr
           className="w-full accent-primary cursor-pointer animate-none"
         />
       </div>
-      <div className="flex flex-col gap-1">
-        <span className="text-[8px] font-semibold text-muted-foreground uppercase">
-          Rotation ({selectedEl.rotate || 0}°)
-        </span>
-        <input
-          type="range"
-          min={0}
-          max={360}
-          step={1}
-          value={selectedEl.rotate || 0}
-          onChange={(e) => onUpdateSelected('rotate', parseInt(e.target.value))}
-          className="w-full accent-primary cursor-pointer animate-none"
-        />
-      </div>
     </div>
   );
 };

@@ -450,7 +450,7 @@ export class FirebaseService implements IFirebaseService {
       return stored ? JSON.parse(stored) : null;
     }
     try {
-      return await this.playgroundsRepository.get(id);
+      return await this.playgroundsRepository.getById(id);
     } catch (error) {
       console.warn(`[FirebaseService] Failed to fetch playground ${id}, falling back to local storage:`, error);
       const stored = localStorage.getItem(`offline_playground_${id}`);

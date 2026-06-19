@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -7,8 +7,9 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Sparkles, Copy, ChevronLeft, Cloud, ChevronDown, Plus, Trash2 } from 'lucide-react';
+import { Sparkles, Copy, ChevronLeft, Cloud, ChevronDown, Magnet } from 'lucide-react';
 import { PhysicalUnit, PlaygroundPage } from '../../../types/schema';
+import { PlaygroundPageTabs } from './PlaygroundPageTabs';
 
 interface ShapeBuilderHeaderProps {
   scaleFactor: { pixelsPerUnit: number; unit: PhysicalUnit };
@@ -25,6 +26,8 @@ interface ShapeBuilderHeaderProps {
   onDuplicatePage: () => void;
   onDeletePage: () => void;
   onRenamePage: (index: number, name: string) => void;
+  snappingEnabled: boolean;
+  onSnappingEnabledChange: (val: boolean) => void;
 }
 
 export const ShapeBuilderHeader: React.FC<ShapeBuilderHeaderProps> = ({
@@ -42,22 +45,9 @@ export const ShapeBuilderHeader: React.FC<ShapeBuilderHeaderProps> = ({
   onDuplicatePage,
   onDeletePage,
   onRenamePage,
+  snappingEnabled,
+  onSnappingEnabledChange,
 }) => {
-  const [editingIndex, setEditingIndex] = useState<number | null>(null);
-  const [tempName, setTempName] = useState('');
-
-  const startEditing = (idx: number, name: string) => {
-    setEditingIndex(idx);
-    setTempName(name);
-  };
-
-  const handleRenameSubmit = (idx: number) => {
-    if (tempName.trim()) {
-      onRenamePage(idx, tempName.trim());
-    }
-    setEditingIndex(null);
-  };
-
   return (
     <header className="sticky top-0 z-50 flex h-16 w-full items-center justify-between border-b bg-background/95 px-6 select-none shrink-0 gap-4 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       {/* Left side: Back to Lecture + Title */}
@@ -79,77 +69,15 @@ export const ShapeBuilderHeader: React.FC<ShapeBuilderHeaderProps> = ({
       </div>
 
       {/* Middle: Unified Page Navigation Tabs (shadcn styled) */}
-      <div className="flex items-center gap-2 overflow-x-auto scrollbar-none max-w-[450px]">
-        <div className="inline-flex h-9 items-center justify-center rounded-lg bg-muted p-1 text-muted-foreground">
-          {pages.map((page, idx) => {
-            const isActive = idx === activeIndex;
-            const isEditing = idx === editingIndex;
-
-            return (
-              <button
-                key={page.id}
-                onClick={() => !isEditing && onSelectPage(idx)}
-                onDoubleClick={() => startEditing(idx, page.name)}
-                className={`inline-flex items-center justify-center whitespace-nowrap rounded-md px-3 py-1 text-xs font-semibold ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring cursor-pointer ${
-                  isActive
-                    ? 'bg-background text-foreground shadow-sm font-bold'
-                    : 'text-muted-foreground hover:text-foreground bg-transparent'
-                }`}
-              >
-                {isEditing ? (
-                  <Input
-                    value={tempName}
-                    onChange={(e) => setTempName(e.target.value)}
-                    onBlur={() => handleRenameSubmit(idx)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') handleRenameSubmit(idx);
-                      if (e.key === 'Escape') setEditingIndex(null);
-                    }}
-                    autoFocus
-                    className="h-5 w-20 text-[10px] font-semibold bg-background px-1 py-0.5 text-center"
-                  />
-                ) : (
-                  <span>{page.name}</span>
-                )}
-              </button>
-            );
-          })}
-        </div>
-
-        {/* Add Page Button */}
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={onAddPage}
-          className="h-7 w-7 text-muted-foreground hover:text-foreground"
-          title="Add Blank Page"
-        >
-          <Plus className="h-4 w-4" />
-        </Button>
-
-        {/* Duplicate Page Button */}
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={onDuplicatePage}
-          className="h-7 w-7 text-muted-foreground hover:text-foreground"
-          title="Duplicate Current Page"
-        >
-          <Copy className="h-3.5 w-3.5" />
-        </Button>
-
-        {/* Delete Page Button */}
-        <Button
-          variant="ghost"
-          size="icon"
-          disabled={pages.length <= 1}
-          onClick={onDeletePage}
-          className="h-7 w-7 text-muted-foreground hover:text-destructive hover:bg-destructive/10 disabled:opacity-40"
-          title="Delete Page"
-        >
-          <Trash2 className="h-3.5 w-3.5" />
-        </Button>
-      </div>
+      <PlaygroundPageTabs
+        pages={pages}
+        activeIndex={activeIndex}
+        onSelectPage={onSelectPage}
+        onAddPage={onAddPage}
+        onDuplicatePage={onDuplicatePage}
+        onDeletePage={onDeletePage}
+        onRenamePage={onRenamePage}
+      />
 
       {/* Right side: Scale + Step Preview + Status + Copy */}
       <div className="flex gap-4 items-center shrink-0">
@@ -159,7 +87,7 @@ export const ShapeBuilderHeader: React.FC<ShapeBuilderHeaderProps> = ({
           <Input
             type="number"
             value={scaleFactor.pixelsPerUnit}
-            onChange={(e) =>
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
               onScaleFactorChange({
                 ...scaleFactor,
                 pixelsPerUnit: Math.max(1, parseInt(e.target.value) || 100),
@@ -222,6 +150,22 @@ export const ShapeBuilderHeader: React.FC<ShapeBuilderHeaderProps> = ({
             {simulatedClick}
           </span>
         </div>
+
+        {/* Snapping magnet toggle */}
+        <Button
+          variant={snappingEnabled ? 'default' : 'outline'}
+          size="sm"
+          onClick={() => onSnappingEnabledChange(!snappingEnabled)}
+          className={`h-8 px-2.5 flex items-center gap-1.5 font-semibold text-xs transition-all ${
+            snappingEnabled
+              ? 'bg-primary text-primary-foreground hover:bg-primary/95 shadow-sm'
+              : 'text-muted-foreground border-border hover:bg-accent hover:text-accent-foreground'
+          }`}
+          title={snappingEnabled ? 'Snapping is ON (Magnet)' : 'Snapping is OFF (Magnet)'}
+        >
+          <Magnet className={`h-3.5 w-3.5 ${snappingEnabled ? 'animate-pulse text-primary-foreground' : 'text-primary'}`} />
+          <span>Snap</span>
+        </Button>
 
         {/* Save Status Badge */}
         <div className="flex items-center">

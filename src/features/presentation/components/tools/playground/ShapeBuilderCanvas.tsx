@@ -1,10 +1,11 @@
 import React, { useRef } from 'react';
 import { SlideVisualCanvas } from '../../elements/SlideVisualCanvas';
-import { Draggable } from '../../interactive/Draggable';
+import { Draggable, DragPosition } from '../../interactive/Draggable';
 import { ClickStepsProvider } from '../../../context/ClickStepsContext';
 import { Input } from '@/components/ui/input';
 import { VisualCanvasShape, PhysicalUnit } from '../../../types/schema';
 import { useSlideScale } from '../../../hooks/useSlideScale';
+import { snapX, snapY } from './snappingUtils';
 
 interface PlaygroundCanvasContainerProps {
   children: React.ReactNode;
@@ -61,6 +62,7 @@ interface ShapeBuilderCanvasProps {
   ) => void;
   onSubmitPopoverValue: (val: number) => void;
   onClosePopover: () => void;
+  snappingEnabled: boolean;
 }
 
 export const ShapeBuilderCanvas: React.FC<ShapeBuilderCanvasProps> = ({
@@ -74,7 +76,10 @@ export const ShapeBuilderCanvas: React.FC<ShapeBuilderCanvasProps> = ({
   onLabelClick,
   onSubmitPopoverValue,
   onClosePopover,
+  snappingEnabled,
 }) => {
+  const [activeGuides, setActiveGuides] = React.useState<{ xs: number[]; ys: number[] } | null>(null);
+
   const handleCornerDragStart = (
     e: React.MouseEvent,
     el: VisualCanvasShape,
@@ -107,11 +112,27 @@ export const ShapeBuilderCanvas: React.FC<ShapeBuilderCanvasProps> = ({
       const newY = Math.round(startY + deltaY);
 
       if (!el.points) return;
+
+      const absX = el.x + newX;
+      const absY = el.y + newY;
+
+      // Snapping using utility helpers
+      const resultX = snapX(absX, 0, el.id, elements, snappingEnabled);
+      const resultY = snapY(absY, 0, el.id, elements, snappingEnabled);
+
+      if (resultX.guides.length || resultY.guides.length) {
+        setActiveGuides({ xs: resultX.guides, ys: resultY.guides });
+      } else {
+        setActiveGuides(null);
+      }
+
+      const finalNewX = resultX.value - el.x;
+      const finalNewY = resultY.value - el.y;
+
       const updatedPoints = el.points.map((p, idx) =>
-        idx === ptIndex ? { x: newX, y: newY } : p
+        idx === ptIndex ? { x: finalNewX, y: finalNewY } : p
       );
 
-      // Normalize points to maintain positive bounding box coordinates
       const minX = Math.min(...updatedPoints.map((p) => p.x));
       const minY = Math.min(...updatedPoints.map((p) => p.y));
       const maxX = Math.max(...updatedPoints.map((p) => p.x));
@@ -123,7 +144,7 @@ export const ShapeBuilderCanvas: React.FC<ShapeBuilderCanvasProps> = ({
       }));
 
       onElementsChange(
-        elements.map((item) => {
+        elements.map((item: VisualCanvasShape) => {
           if (item.id !== el.id) return item;
           
           const newW = Math.max(10, maxX - minX);
@@ -156,6 +177,93 @@ export const ShapeBuilderCanvas: React.FC<ShapeBuilderCanvasProps> = ({
     const handleMouseUp = () => {
       document.removeEventListener('mousemove', handleMouseMove);
       document.removeEventListener('mouseup', handleMouseUp);
+      setActiveGuides(null);
+    };
+
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
+  };
+
+  const handleResizeDragStart = (
+    e: React.MouseEvent,
+    el: VisualCanvasShape
+  ) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const startW = el.w;
+    const startH = el.h;
+    const startMouseX = e.clientX;
+    const startMouseY = e.clientY;
+
+    let scale = 1;
+    const canvasElement = e.currentTarget.closest('[data-playground-canvas]') as HTMLElement;
+    if (canvasElement) {
+      scale = canvasElement.getBoundingClientRect().width / canvasElement.offsetWidth || 1;
+    } else {
+      const containerElement = document.querySelector('[data-slide-viewer]') || document.querySelector('.relative.bg-background.text-foreground');
+      if (containerElement) {
+        scale = containerElement.getBoundingClientRect().width / 980 || 1;
+      }
+    }
+
+    const isSupportOrHinge = ['support-pin', 'support-roller', 'support-fixed', 'hinge', 'circle'].includes(el.type);
+
+    const handleMouseMove = (moveEvent: MouseEvent) => {
+      const deltaX = (moveEvent.clientX - startMouseX) / scale;
+      const deltaY = (moveEvent.clientY - startMouseY) / scale;
+
+      let newW = Math.max(15, startW + deltaX);
+      let newH = Math.max(15, startH + deltaY);
+
+      const shiftPressed = moveEvent.shiftKey;
+
+      if (isSupportOrHinge || shiftPressed) {
+        if (el.type === 'circle' || el.type === 'hinge' || el.type === 'support-pin' || el.type === 'support-roller') {
+          const size = Math.max(15, Math.round((startW + startH) / 2 + (deltaX + deltaY) / 2));
+          newW = size;
+          newH = size;
+        } else {
+          const scaleX = (startW + deltaX) / startW;
+          const scaleY = (startH + deltaY) / startH;
+          const avgScale = Math.max(0.1, (scaleX + scaleY) / 2);
+          newW = Math.round(startW * avgScale);
+          newH = Math.round(startH * avgScale);
+        }
+      } else {
+        newW = Math.round(newW);
+        newH = Math.round(newH);
+      }
+
+      onElementsChange(
+        elements.map((item: VisualCanvasShape) => {
+          if (item.id !== el.id) return item;
+
+          const pxPerUnit = scaleFactor.pixelsPerUnit;
+          const physicalLength = parseFloat((newW / pxPerUnit).toFixed(3));
+          const physicalHeight = parseFloat((newH / pxPerUnit).toFixed(3));
+
+          const updatedDims = item.dimensions ? { ...item.dimensions } : {};
+          if (item.type === 'circle' || item.type === 'hinge') {
+            updatedDims.diameter = physicalLength;
+          } else {
+            updatedDims.length = physicalLength;
+            updatedDims.height = physicalHeight;
+          }
+
+          return {
+            ...item,
+            w: newW,
+            h: newH,
+            dimensions: updatedDims,
+          };
+        })
+      );
+    };
+
+    const handleMouseUp = () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
     };
 
     document.addEventListener('mousemove', handleMouseMove);
@@ -167,7 +275,6 @@ export const ShapeBuilderCanvas: React.FC<ShapeBuilderCanvasProps> = ({
       <div className="relative w-full h-full border border-border rounded-2xl bg-card/50 shadow-2xl overflow-hidden flex items-center justify-center">
         <ClickStepsProvider currentClickOverride={simulatedClick}>
           <PlaygroundCanvasContainer>
-            {/* Shapes & Dimensions rendering */}
             <SlideVisualCanvas
               elements={elements}
               scaleFactor={scaleFactor}
@@ -176,24 +283,64 @@ export const ShapeBuilderCanvas: React.FC<ShapeBuilderCanvasProps> = ({
               showLayoutBodyBorder={true}
             />
 
-            {/* Draggable overlays layer */}
+            {activeGuides && (
+              <svg className="absolute inset-0 z-35 w-full h-full pointer-events-none overflow-visible">
+                {activeGuides.xs.map((xVal, idx) => (
+                  <line
+                    key={`v-${idx}`}
+                    x1={xVal}
+                    y1={0}
+                    x2={xVal}
+                    y2={551.25}
+                    stroke="#ef4444"
+                    strokeWidth="1.5"
+                    strokeDasharray="4 3"
+                  />
+                ))}
+                {activeGuides.ys.map((yVal, idx) => (
+                  <line
+                    key={`h-${idx}`}
+                    x1={0}
+                    y1={yVal}
+                    x2={980}
+                    y2={yVal}
+                    stroke="#ef4444"
+                    strokeWidth="1.5"
+                    strokeDasharray="4 3"
+                  />
+                ))}
+              </svg>
+            )}
+
             <div className="absolute inset-0 z-40 pointer-events-auto">
               {elements.map((el) => (
                 <Draggable
                   key={el.id}
                   initialPos={{ x: el.x, y: el.y, w: el.w, h: el.h, rotate: el.rotate }}
-                  onPositionChange={(pos) => {
+                  onDragEnd={() => {
+                    setActiveGuides(null);
+                  }}
+                  onPositionChange={(pos: DragPosition) => {
+                    // Snapping using utility helpers
+                    const resultX = snapX(pos.x, el.w, el.id, elements, snappingEnabled);
+                    const resultY = snapY(pos.y, el.h, el.id, elements, snappingEnabled);
+
+                    if (resultX.guides.length || resultY.guides.length) {
+                      setActiveGuides({ xs: resultX.guides, ys: resultY.guides });
+                    } else {
+                      setActiveGuides(null);
+                    }
+
                     onElementsChange(
-                      elements.map((item) =>
+                      elements.map((item: VisualCanvasShape) =>
                         item.id === el.id
                           ? {
                               ...item,
-                              x: pos.x,
-                              y: pos.y,
+                              x: resultX.value,
+                              y: resultY.value,
                               w: pos.w || item.w,
                               h: pos.h || item.h,
                               rotate: pos.rotate,
-                              // If polygon has points, dragging as a whole doesn't change relative points coordinates
                             }
                           : item
                       )
@@ -208,13 +355,27 @@ export const ShapeBuilderCanvas: React.FC<ShapeBuilderCanvasProps> = ({
                   <div
                     onMouseDown={() => onSelectedIdChange(el.id)}
                     style={{ width: el.w, height: el.h }}
-                    className="w-full h-full cursor-move"
-                  />
+                    className="w-full h-full cursor-move relative"
+                  >
+                    {selectedId === el.id && el.type !== 'polygon' && el.type !== 'text' && (
+                      <div
+                        style={{
+                          position: 'absolute',
+                          right: '-4px',
+                          bottom: '-4px',
+                          width: '10px',
+                          height: '10px',
+                          cursor: 'se-resize',
+                        }}
+                        className="rounded-sm border border-primary bg-background shadow-md hover:scale-125 transition-transform pointer-events-auto z-50"
+                        onMouseDown={(e) => handleResizeDragStart(e, el)}
+                      />
+                    )}
+                  </div>
                 </Draggable>
               ))}
             </div>
 
-            {/* Corner handle controls overlay for selected polygon */}
             {(() => {
               const selectedEl = elements.find((el) => el.id === selectedId);
               if (!selectedEl || selectedEl.type !== 'polygon' || !selectedEl.points) return null;
@@ -249,7 +410,6 @@ export const ShapeBuilderCanvas: React.FC<ShapeBuilderCanvasProps> = ({
         </ClickStepsProvider>
       </div>
 
-      {/* Dimension Value Edit popover */}
       {activePopover && (
         <div
           style={{
@@ -265,7 +425,7 @@ export const ShapeBuilderCanvas: React.FC<ShapeBuilderCanvasProps> = ({
             step="0.05"
             defaultValue={activePopover.val}
             autoFocus
-            onKeyDown={(e) => {
+            onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
               if (e.key === 'Enter') {
                 onSubmitPopoverValue(parseFloat(e.currentTarget.value) || 0);
               } else if (e.key === 'Escape') {

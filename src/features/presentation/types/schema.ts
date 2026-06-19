@@ -71,7 +71,16 @@ export interface VisualCanvasShape {
     | 'heart'
     | 'parallelogram'
     | 'rhombus'
-    | 'polygon';
+    | 'polygon'
+    | 'udl'
+    | 'uvl'
+    | 'moment'
+    | 'point-load'
+    | 'support-pin'
+    | 'support-roller'
+    | 'support-fixed'
+    | 'hinge'
+    | 'rounded-arrow';
   x: number;           // Absolute position on 980 grid
   y: number;           // Absolute position on 551.25 grid
   w: number;           // Computed pixel width
@@ -88,6 +97,21 @@ export interface VisualCanvasShape {
   dimensions?: ShapeDimensions;
   points?: Array<{ x: number; y: number }>;
   borderRadius?: number;
+  momentDirection?: 'cw' | 'ccw';
+  pointLoadDirection?: 'down' | 'up' | 'left' | 'right';
+  uvlStartHeight?: number;
+  uvlEndHeight?: number;
+  udlSegmentsCount?: number;
+}
+
+export interface PlaygroundPage {
+  id: string;
+  name: string;
+  elements: VisualCanvasShape[];
+  scaleFactor: {
+    pixelsPerUnit: number;
+    unit: PhysicalUnit;
+  };
 }
 
 export interface SlideSchemaElement {

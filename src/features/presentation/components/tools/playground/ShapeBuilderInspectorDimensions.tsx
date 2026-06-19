@@ -5,7 +5,7 @@ import { VisualCanvasShape, PhysicalUnit } from '../../../types/schema';
 interface ShapeBuilderInspectorDimensionsProps {
   selectedEl: VisualCanvasShape;
   scaleFactor: { pixelsPerUnit: number; unit: PhysicalUnit };
-  onUpdateSelected: (key: keyof VisualCanvasShape, val: any) => void;
+  onUpdateSelected: (key: keyof VisualCanvasShape | Partial<VisualCanvasShape>, val?: any) => void;
   onUpdateSelectedDimensions: (dimKey: string, val: number) => void;
 }
 
@@ -15,17 +15,22 @@ export const ShapeBuilderInspectorDimensions: React.FC<ShapeBuilderInspectorDime
   onUpdateSelected,
   onUpdateSelectedDimensions,
 }) => {
+  const isSupportOrHinge = ['support-pin', 'support-roller', 'support-fixed', 'hinge'].includes(selectedEl.type);
+
   return (
     <div className="border-t border-border pt-3 space-y-3">
-      <label className="flex items-center gap-2 cursor-pointer text-xs font-medium text-foreground">
-        <input
-          type="checkbox"
-          checked={!!selectedEl.showDimensionLines}
-          onChange={(e) => onUpdateSelected('showDimensionLines', e.target.checked)}
-          className="rounded border-input bg-background text-primary focus:ring-1 focus:ring-ring cursor-pointer"
-        />
-        <span>Show Dimension Lines</span>
-      </label>
+      {/* Dimension Lines Toggle is only useful for dimension-controlled elements */}
+      {!isSupportOrHinge && (
+        <label className="flex items-center gap-2 cursor-pointer text-xs font-medium text-foreground">
+          <input
+            type="checkbox"
+            checked={!!selectedEl.showDimensionLines}
+            onChange={(e) => onUpdateSelected('showDimensionLines', e.target.checked)}
+            className="rounded border-input bg-background text-primary focus:ring-1 focus:ring-ring cursor-pointer"
+          />
+          <span>Show Dimension Lines</span>
+        </label>
+      )}
 
       {selectedEl.type === 'rect' && (
         <div className="flex flex-col gap-1.5 pt-1">
@@ -44,7 +49,47 @@ export const ShapeBuilderInspectorDimensions: React.FC<ShapeBuilderInspectorDime
         </div>
       )}
 
-      {selectedEl.showDimensionLines && selectedEl.dimensions && (
+      {/* Proportional Scale for Supports and Hinges */}
+      {isSupportOrHinge && (
+        <div className="space-y-3 pt-1">
+          {(() => {
+            const BASE_SIZES: Record<string, { w: number; h: number }> = {
+              'support-pin': { w: 80, h: 80 },
+              'support-roller': { w: 80, h: 80 },
+              'support-fixed': { w: 40, h: 120 },
+              hinge: { w: 30, h: 30 },
+            };
+            const base = BASE_SIZES[selectedEl.type] || { w: 80, h: 80 };
+            const currentScale = parseFloat((selectedEl.w / base.w).toFixed(2));
+
+            return (
+              <div className="flex flex-col gap-1.5">
+                <div className="flex justify-between items-center text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
+                  <span>Proportional Scale</span>
+                  <span className="font-mono text-primary font-bold">{Math.round(currentScale * 100)}%</span>
+                </div>
+                <input
+                  type="range"
+                  min={0.2}
+                  max={2.5}
+                  step={0.05}
+                  value={currentScale}
+                  onChange={(e) => {
+                    const s = parseFloat(e.target.value) || 1.0;
+                    const nextW = Math.round(base.w * s);
+                    const nextH = Math.round(base.h * s);
+                    onUpdateSelected({ w: nextW, h: nextH });
+                  }}
+                  className="w-full accent-primary cursor-pointer h-1.5 bg-muted rounded-lg appearance-none animate-none"
+                />
+              </div>
+            );
+          })()}
+        </div>
+      )}
+
+      {/* Standard dimension controls for all other shapes */}
+      {!isSupportOrHinge && selectedEl.dimensions && (
         <div className="space-y-3">
           <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
             Physical Dimensions ({scaleFactor.unit})

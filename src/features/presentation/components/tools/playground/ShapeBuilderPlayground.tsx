@@ -1,6 +1,6 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { VisualCanvasShape, PhysicalUnit } from '../../../types/schema';
+import { VisualCanvasShape } from '../../../types/schema';
 
 // Import subcomponents
 import ShapeBuilderHeader from './ShapeBuilderHeader';
@@ -8,6 +8,7 @@ import ShapeBuilderToolbar from './ShapeBuilderToolbar';
 import ShapeBuilderInspector from './ShapeBuilderInspector';
 import ShapeBuilderCanvas from './ShapeBuilderCanvas';
 import { usePlaygroundData } from './usePlaygroundData';
+import { createDefaultShape } from './playgroundUtils';
 
 export const ShapeBuilderPlayground: React.FC = () => {
   const { subjectId, sessionId, lectureId } = useParams<{
@@ -21,7 +22,6 @@ export const ShapeBuilderPlayground: React.FC = () => {
     navigate(`/${subjectId}/${sessionId}/${lectureId}`);
   };
 
-  // Scoped hook to handle all Firestore and page state operations
   const {
     pages,
     activeIndex,
@@ -46,6 +46,7 @@ export const ShapeBuilderPlayground: React.FC = () => {
 
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [simulatedClick, setSimulatedClick] = useState(1);
+  const [snappingEnabled, setSnappingEnabled] = useState(true);
   const [activePopover, setActivePopover] = useState<{
     elementId: string;
     key: 'length' | 'height' | 'diameter' | 'diagonal1' | 'diagonal2';
@@ -55,50 +56,18 @@ export const ShapeBuilderPlayground: React.FC = () => {
   } | null>(null);
 
   const selectedEl = useMemo(
-    () => elements.find((el) => el.id === selectedId) || null,
+    () => elements.find((el: VisualCanvasShape) => el.id === selectedId) || null,
     [elements, selectedId]
   );
 
   const addElement = (type: VisualCanvasShape['type']) => {
-    const defaultDims =
-      type === 'circle'
-        ? { diameter: 1.0 }
-        : type === 'triangle'
-        ? { length: 2.0, height: 1.5 }
-        : type === 'rhombus'
-        ? { diagonal1: 2.0, diagonal2: 1.5 }
-        : type === 'polygon'
-        ? { length: 2.0, height: 1.5 }
-        : { length: 2.0, height: 0.4 };
-
-    const w = type === 'circle' ? 150 : 200;
-    const h = type === 'circle' ? 150 : type === 'triangle' || type === 'polygon' ? 150 : 80;
-
-    const points =
-      type === 'polygon'
-        ? [
-            { x: 0, y: 0 },
-            { x: 200, y: 0 },
-            { x: 200, y: 150 },
-            { x: 0, y: 150 },
-          ]
-        : undefined;
-
+    const defaultShape = createDefaultShape(type);
     const newEl: VisualCanvasShape = {
       id: `${type}-${Date.now()}`,
-      type,
       x: 200,
       y: 150,
-      w,
-      h,
-      fill: 'color-mix(in srgb, var(--primary) 15%, transparent)',
-      stroke: 'var(--primary)',
-      strokeWidth: 2,
       enterAt: 1,
-      showDimensionLines: type !== 'polygon',
-      dimensions: defaultDims,
-      label: `${type.toUpperCase()}`,
-      points,
+      ...defaultShape,
     };
 
     const updated = [...elements, newEl];
@@ -106,25 +75,27 @@ export const ShapeBuilderPlayground: React.FC = () => {
     setSelectedId(newEl.id);
   };
 
-  const updateSelected = (key: keyof VisualCanvasShape, val: any) => {
+  const updateSelected = (key: keyof VisualCanvasShape | Partial<VisualCanvasShape>, val?: any) => {
     if (!selectedId) return;
-    const updated = elements.map((el) => {
+    const updated = elements.map((el: VisualCanvasShape) => {
       if (el.id !== selectedId) return el;
-      const updatedEl = { ...el, [key]: val };
+      
+      let updatedEl: VisualCanvasShape;
+      if (typeof key === 'object') {
+        updatedEl = { ...el, ...key };
+      } else {
+        updatedEl = { ...el, [key]: val } as VisualCanvasShape;
+      }
 
-      if (key === 'w' && updatedEl.dimensions) {
-        const u = updatedEl.dimensions;
-        if (updatedEl.type === 'circle') {
+      if (updatedEl.dimensions) {
+        const u = { ...updatedEl.dimensions };
+        if (updatedEl.type === 'circle' || updatedEl.type === 'hinge') {
           u.diameter = parseFloat((updatedEl.w / scaleFactor.pixelsPerUnit).toFixed(3));
         } else {
           u.length = parseFloat((updatedEl.w / scaleFactor.pixelsPerUnit).toFixed(3));
-        }
-      }
-      if (key === 'h' && updatedEl.dimensions) {
-        const u = updatedEl.dimensions;
-        if (updatedEl.type !== 'circle') {
           u.height = parseFloat((updatedEl.h / scaleFactor.pixelsPerUnit).toFixed(3));
         }
+        updatedEl.dimensions = u;
       }
       return updatedEl;
     });
@@ -133,7 +104,7 @@ export const ShapeBuilderPlayground: React.FC = () => {
 
   const updateSelectedDimensions = (dimKey: string, val: number) => {
     if (!selectedId || !selectedEl) return;
-    const updated = elements.map((el) => {
+    const updated = elements.map((el: VisualCanvasShape) => {
       if (el.id !== selectedId) return el;
       const updatedDims = { ...(el.dimensions || {}), [dimKey]: val };
       const updatedEl = { ...el, dimensions: updatedDims };
@@ -154,9 +125,38 @@ export const ShapeBuilderPlayground: React.FC = () => {
 
   const deleteSelected = () => {
     if (!selectedId) return;
-    updateActivePageElements(elements.filter((el) => el.id !== selectedId));
+    updateActivePageElements(elements.filter((el: VisualCanvasShape) => el.id !== selectedId));
     setSelectedId(null);
   };
+
+  // Keyboard shortcut listener to delete selected shape
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (!selectedId) return;
+      const activeEl = document.activeElement;
+      if (activeEl) {
+        const tagName = activeEl.tagName.toUpperCase();
+        if (tagName === 'TEXTAREA' || activeEl.getAttribute('contenteditable') === 'true') {
+          return;
+        }
+        if (tagName === 'INPUT') {
+          const type = (activeEl as HTMLInputElement).type?.toLowerCase();
+          const textInputTypes = ['text', 'number', 'password', 'email', 'search', 'tel', 'url'];
+          if (textInputTypes.includes(type) || !type) {
+            return;
+          }
+        }
+      }
+      if (e.key === 'Delete' || e.key === 'Backspace') {
+        e.preventDefault();
+        deleteSelected();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [selectedId, elements, updateActivePageElements]);
 
   const handleLabelClick = (
     elId: string,
@@ -171,7 +171,7 @@ export const ShapeBuilderPlayground: React.FC = () => {
   const submitPopoverValue = (val: number) => {
     if (!activePopover) return;
     const { elementId, key } = activePopover;
-    const updated = elements.map((el) => {
+    const updated = elements.map((el: VisualCanvasShape) => {
       if (el.id !== elementId) return el;
       const updatedDims = { ...(el.dimensions || {}), [key]: val };
       const updatedEl = { ...el, dimensions: updatedDims };
@@ -233,6 +233,8 @@ export const ShapeBuilderPlayground: React.FC = () => {
         onDuplicatePage={duplicatePage}
         onDeletePage={deletePage}
         onRenamePage={renamePage}
+        snappingEnabled={snappingEnabled}
+        onSnappingEnabledChange={setSnappingEnabled}
       />
 
       <div className="flex-1 flex overflow-hidden">
@@ -249,6 +251,7 @@ export const ShapeBuilderPlayground: React.FC = () => {
           onLabelClick={handleLabelClick}
           onSubmitPopoverValue={submitPopoverValue}
           onClosePopover={() => setActivePopover(null)}
+          snappingEnabled={snappingEnabled}
         />
 
         <ShapeBuilderInspector
