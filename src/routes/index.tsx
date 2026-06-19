@@ -8,7 +8,7 @@ import LecturePortal from '@/features/portal';
 import SlideViewer from '@/features/presentation';
 import RollNumberGate from '@/features/gate/components/RollNumberGate';
 import AdminClassDashboard from '@/features/portal/components/AdminClassDashboard';
-import SlideCustomizationDocs from '@/features/presentation/components/docs/SlideCustomizationDocs';
+import SlideCustomizationDocs from '@/features/docs/SlideCustomizationDocs';
 import ShapeBuilderPlayground from '@/features/presentation/components/tools/playground/ShapeBuilderPlayground';
 
 /**
