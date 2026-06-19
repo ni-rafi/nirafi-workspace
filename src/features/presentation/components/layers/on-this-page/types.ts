@@ -43,4 +43,5 @@ export interface OnThisPageProps {
   collapsedSections: Record<string, boolean>;
   setCollapsedSections: React.Dispatch<React.SetStateAction<Record<string, boolean>>>;
   viewMode: ViewMode;
+  onItemClick?: () => void;
 }

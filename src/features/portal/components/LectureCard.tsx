@@ -78,7 +78,7 @@ export const LectureCard: React.FC<LectureCardProps> = ({
       </div>
 
       {/* Card bottom actions/tags */}
-      <div className="px-5 py-3.5 bg-primary/[0.04] dark:bg-primary/[0.08] flex items-center justify-between gap-2 mt-auto">
+      <div className="px-5 py-3 bg-primary/[0.04] dark:bg-primary/[0.08] flex flex-wrap items-center justify-between gap-2.5 mt-auto">
         {/* Duration Badge */}
         <span className="flex items-center gap-1 text-[10px] text-muted-foreground font-medium">
           <Clock className="h-3.5 w-3.5 shrink-0" />
@@ -87,10 +87,10 @@ export const LectureCard: React.FC<LectureCardProps> = ({
 
         {/* Action Button & Toggles */}
         {isAdmin ? (
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-2.5">
             {/* Inline Publish Toggle for Admins */}
-            <div className="flex items-center gap-2 bg-background border rounded-md px-2.5 h-8 shadow-xs">
-              <span className={`text-[10px] font-bold tracking-wider uppercase select-none transition-colors ${
+            <div className="flex items-center gap-1.5 bg-background border rounded-md px-2 h-8 shadow-xs">
+              <span className={`text-[9px] sm:text-[10px] font-bold tracking-wider uppercase select-none transition-colors ${
                 isLocked ? 'text-muted-foreground' : 'text-primary'
               }`}>
                 {isLocked ? 'Locked' : 'Active'}
@@ -99,19 +99,19 @@ export const LectureCard: React.FC<LectureCardProps> = ({
                 type="button"
                 onClick={handleToggle}
                 disabled={isToggling}
-                className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-hidden disabled:opacity-50 ${
+                className={`relative inline-flex h-4.5 w-8 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-hidden disabled:opacity-50 ${
                   isLocked ? 'bg-muted' : 'bg-primary'
                 }`}
                 role="switch"
                 aria-checked={!isLocked}
               >
                 {isToggling ? (
-                  <Loader2 className="h-3 w-3 animate-spin text-muted-foreground mx-auto" />
+                  <Loader2 className="h-2.5 w-2.5 animate-spin text-muted-foreground mx-auto" />
                 ) : (
                   <span
                     aria-hidden="true"
-                    className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-background shadow-xs ring-0 transition duration-200 ease-in-out ${
-                      isLocked ? 'translate-x-0' : 'translate-x-4'
+                    className={`pointer-events-none inline-block h-3.5 w-3.5 transform rounded-full bg-background shadow-xs ring-0 transition duration-200 ease-in-out ${
+                      isLocked ? 'translate-x-0' : 'translate-x-3.5'
                     }`}
                   />
                 )}
@@ -124,10 +124,10 @@ export const LectureCard: React.FC<LectureCardProps> = ({
                 asChild
                 size="sm"
                 variant="ghost"
-                className="h-8 text-[11px] font-bold gap-1.5 px-3 rounded-r-none bg-primary/10 hover:bg-primary/20 text-primary border border-primary/20 border-r-0 no-underline hover:no-underline"
+                className="h-8 text-[11px] font-bold gap-1 px-2.5 rounded-r-none bg-primary/10 hover:bg-primary/20 text-primary border border-primary/20 border-r-0 no-underline hover:no-underline"
               >
-                <Link to={deckUrl} className="no-underline hover:no-underline flex items-center gap-1.5">
-                  <Play className="h-3 w-3 fill-current shrink-0" />
+                <Link to={deckUrl} className="no-underline hover:no-underline flex items-center gap-1">
+                  <Play className="h-2.5 w-2.5 fill-current shrink-0" />
                   <span>Preview</span>
                 </Link>
               </Button>
@@ -136,7 +136,7 @@ export const LectureCard: React.FC<LectureCardProps> = ({
                   <Button
                     size="sm"
                     variant="ghost"
-                    className="h-8 px-2 rounded-l-none bg-primary/10 hover:bg-primary/20 text-primary border border-primary/20"
+                    className="h-8 px-1.5 rounded-l-none bg-primary/10 hover:bg-primary/20 text-primary border border-primary/20"
                   >
                     <ChevronDown className="h-3.5 w-3.5" />
                     <span className="sr-only">Export Options</span>
@@ -180,10 +180,10 @@ export const LectureCard: React.FC<LectureCardProps> = ({
               asChild
               size="sm"
               variant="ghost"
-              className="h-8 text-[11px] font-bold gap-1.5 px-3 rounded-r-none bg-primary/10 hover:bg-primary/20 text-primary border border-primary/20 border-r-0 no-underline hover:no-underline"
+              className="h-8 text-[11px] font-bold gap-1 px-2.5 rounded-r-none bg-primary/10 hover:bg-primary/20 text-primary border border-primary/20 border-r-0 no-underline hover:no-underline"
             >
-              <Link to={deckUrl} className="no-underline hover:no-underline flex items-center gap-1.5">
-                <Play className="h-3 w-3 fill-current shrink-0" />
+              <Link to={deckUrl} className="no-underline hover:no-underline flex items-center gap-1">
+                <Play className="h-2.5 w-2.5 fill-current shrink-0" />
                 <span>Launch Slides</span>
               </Link>
             </Button>
@@ -194,7 +194,7 @@ export const LectureCard: React.FC<LectureCardProps> = ({
                 <Button
                   size="sm"
                   variant="ghost"
-                  className="h-8 px-2 rounded-l-none bg-primary/10 hover:bg-primary/20 text-primary border border-primary/20"
+                  className="h-8 px-1.5 rounded-l-none bg-primary/10 hover:bg-primary/20 text-primary border border-primary/20"
                 >
                   <ChevronDown className="h-3.5 w-3.5" />
                   <span className="sr-only">Export Options</span>

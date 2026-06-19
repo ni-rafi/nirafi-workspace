@@ -24,6 +24,7 @@ export const OnThisPage: React.FC<OnThisPageProps> = ({
   collapsedSections,
   setCollapsedSections,
   viewMode,
+  onItemClick,
 }) => {
   const sidebarRef = useRef<HTMLDivElement | null>(null);
 
@@ -107,6 +108,9 @@ export const OnThisPage: React.FC<OnThisPageProps> = ({
         el.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
     }, 80);
+    if (onItemClick) {
+      onItemClick();
+    }
   };
 
   const handleSectionClick = (sectionName: string, firstSlideNo: number) => {
@@ -121,6 +125,9 @@ export const OnThisPage: React.FC<OnThisPageProps> = ({
         el.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
     }, 80);
+    if (onItemClick) {
+      onItemClick();
+    }
   };
 
   return (
