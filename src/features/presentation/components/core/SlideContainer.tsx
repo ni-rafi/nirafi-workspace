@@ -85,7 +85,7 @@ export const SlideContainer: React.FC<SlideContainerProps> = ({
       <div
         style={canvasStyle}
         className={`relative bg-background text-foreground overflow-hidden flex flex-col justify-between select-none ${
-          isThumbnail ? '' : borderClass
+          isThumbnail ? '' : `${borderClass} slide-canvas-transition`
         }`}
         data-slide-canvas
       >

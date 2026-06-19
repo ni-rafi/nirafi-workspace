@@ -262,33 +262,6 @@ const PresentationModeInner: React.FC<PresentationModeViewProps> = ({ orchestrat
  * Main wrapper view for presentation mode slides.
  */
 export const PresentationModeView: React.FC<PresentationModeViewProps> = ({ orchestrator }) => {
-  const { presenterFeatures } = orchestrator;
-
-  // Sync transition styles and timings dynamically to document styles
-  React.useEffect(() => {
-    const root = document.documentElement;
-    const settings = presenterFeatures.settings;
-    
-    root.style.setProperty('--slide-transition-duration', `${settings.transitionDuration || 300}ms`);
-    
-    let oldAnim = 'fade-out';
-    let newAnim = 'fade-in';
-    
-    if (settings.transitionType === 'slide') {
-      oldAnim = 'slide-out-left';
-      newAnim = 'slide-in-right';
-    } else if (settings.transitionType === 'zoom') {
-      oldAnim = 'scale-out';
-      newAnim = 'scale-in';
-    } else if (settings.transitionType === 'none') {
-      oldAnim = 'none';
-      newAnim = 'none';
-    }
-    
-    root.style.setProperty('--slide-transition-old-animation', oldAnim);
-    root.style.setProperty('--slide-transition-new-animation', newAnim);
-  }, [presenterFeatures.settings.transitionType, presenterFeatures.settings.transitionDuration]);
-
   return <PresentationModeInner orchestrator={orchestrator} />;
 };
 

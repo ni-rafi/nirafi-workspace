@@ -16,16 +16,19 @@ interface SlideRendererProps {
   session?: Session;
 }
 
+import { TransitionType } from '../../types/schema';
+
 export interface SlideMetadata {
   title: string;
   type: string;
   section: string;
+  transition?: TransitionType;
 }
 
 // Master registry of active lecture decks
 const LECTURE_DECKS: Record<string, {
   slides: Record<number, React.ComponentType<any>>;
-  slideMetadata: Record<number, { title: string; type: string; section: string }>;
+  slideMetadata: Record<number, { title: string; type: string; section: string; transition?: TransitionType }>;
 }> = {
   'concrete': ConcreteLecture,
   'brickwork': BrickworkLecture,
@@ -35,7 +38,10 @@ const LECTURE_DECKS: Record<string, {
 };
 
 const getLectureDeck = (lectureId: string) => {
-  return LECTURE_DECKS[lectureId] || SlidevIntroLecture;
+  return (LECTURE_DECKS[lectureId] || SlidevIntroLecture) as {
+    slides: Record<number, React.ComponentType<any>>;
+    slideMetadata: Record<number, { title: string; type: string; section: string; transition?: TransitionType }>;
+  };
 };
 
 /**
@@ -71,6 +77,7 @@ export const getSlideMetadata = (
     title: typeof meta.title === 'function' ? (meta.title as any)(lecture) : meta.title,
     type: typeof meta.type === 'function' ? (meta.type as any)(subject) : meta.type,
     section: meta.section,
+    transition: meta.transition,
   };
 };
 

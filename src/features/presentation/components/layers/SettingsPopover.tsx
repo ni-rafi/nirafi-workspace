@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { SlidersHorizontal, RotateCcw, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { TransitionType } from '../../types/schema';
 
 export interface SlideSettings {
   scale: 'fit' | '1:1';
@@ -12,7 +13,7 @@ export interface SlideSettings {
   hueRotate: number;
   hideIdleCursor: boolean;
   wakeLock: boolean;
-  transitionType: 'fade' | 'slide' | 'zoom' | 'none';
+  transitionType: TransitionType;
   transitionDuration: number;
 }
 
@@ -33,7 +34,7 @@ export const DEFAULT_SETTINGS: SlideSettings = {
   hueRotate: 0,
   hideIdleCursor: false,
   wakeLock: false,
-  transitionType: 'fade',
+  transitionType: 'morph',
   transitionDuration: 300,
 };
 
@@ -148,8 +149,9 @@ export const SettingsPopover: React.FC<SettingsPopoverProps> = ({
             onChange={(e) => onSettingsChange({ transitionType: e.target.value as any })}
             className="bg-accent/40 border border-border/80 rounded px-1.5 py-0.5 text-[10px] font-bold text-foreground focus:outline-none cursor-pointer"
           >
+            <option value="morph">Morph (Magic Move)</option>
+            <option value="slide">Slide (Directional)</option>
             <option value="fade">Fade</option>
-            <option value="slide">Slide</option>
             <option value="zoom">Zoom</option>
             <option value="none">None</option>
           </select>

@@ -134,12 +134,15 @@ export interface SlideSchemaElement {
   data?: unknown;
 }
 
+export type TransitionType = 'morph' | 'slide' | 'fade' | 'zoom' | 'none';
+
 export interface SlideSchema {
   id: number;
   section: string;
   metadata: {
     title: string;
     type: string;
+    transition?: TransitionType;
   };
   layout: 'title' | 'twocolumn' | 'fullwidth' | 'thankyou' | 'title-v2';
   props: {

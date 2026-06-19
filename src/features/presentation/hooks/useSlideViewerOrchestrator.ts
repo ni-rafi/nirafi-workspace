@@ -8,6 +8,7 @@ import { usePresenterFeatures } from './usePresenterFeatures';
 import { ViewMode, Theme } from '../context/PresentationContext';
 import { useFirebase } from '@/context/FirebaseContext';
 import type { QuizState } from '@/services/firebase/IFirebaseService';
+import { DEFAULT_SETTINGS } from '../components/layers/SettingsPopover';
 
 
 /** Minimal shape of the View Transition API object we actually use */
@@ -24,6 +25,9 @@ export const useSlideViewerOrchestrator = () => {
   // Tracks the intended direction of the most recent slide change.
   // Read by PresentationModeView to set initialClick on the per-slide ClickStepsProvider.
   const slideDirectionRef = useRef<'forward' | 'backward'>('forward');
+
+  // Settings ref to access settings without causing dependency re-evaluation circular loops
+  const settingsRef = useRef(DEFAULT_SETTINGS);
 
   const startSafeTransition = useCallback((updateFn: () => void) => {
     if (!document.startViewTransition) {
@@ -91,6 +95,39 @@ export const useSlideViewerOrchestrator = () => {
     }
   }, [slideNo]);
 
+  const applyTransitionStyle = useCallback((nextSlideNum: number, direction: 'forward' | 'backward') => {
+    const meta = activeSub && activeLec ? getSlideMetadata(nextSlideNum, activeSub, activeLec) : null;
+    const resolvedTransition = meta?.transition || settingsRef.current.transitionType || 'morph';
+    const duration = settingsRef.current.transitionDuration || 300;
+
+    let oldAnim = 'morph-out';
+    let newAnim = 'morph-in';
+
+    if (resolvedTransition === 'slide') {
+      if (direction === 'forward') {
+        oldAnim = 'canvas-slide-out-left';
+        newAnim = 'canvas-slide-in-right';
+      } else {
+        oldAnim = 'canvas-slide-out-right';
+        newAnim = 'canvas-slide-in-left';
+      }
+    } else if (resolvedTransition === 'fade') {
+      oldAnim = 'canvas-fade-out';
+      newAnim = 'canvas-fade-in';
+    } else if (resolvedTransition === 'zoom') {
+      oldAnim = 'canvas-zoom-out';
+      newAnim = 'canvas-zoom-in';
+    } else if (resolvedTransition === 'none') {
+      oldAnim = 'none';
+      newAnim = 'none';
+    }
+
+    const docEl = document.documentElement;
+    docEl.style.setProperty('--slide-canvas-duration', `${duration}ms`);
+    docEl.style.setProperty('--slide-canvas-old-anim', oldAnim);
+    docEl.style.setProperty('--slide-canvas-new-anim', newAnim);
+  }, [activeSub, activeLec]);
+
   // Sync browser back/forward buttons (popstate events) with view transitions
   useEffect(() => {
     const handlePopState = () => {
@@ -101,6 +138,11 @@ export const useSlideViewerOrchestrator = () => {
         if (!isNaN(parsed) && parsed !== activeSlide) {
           const meta = activeSub && activeLec ? getSlideMetadata(parsed, activeSub, activeLec) : null;
           const nextBgVariant = meta ? getBgVariant(meta.type) : 'default';
+          const direction = parsed > activeSlide ? 'forward' : 'backward';
+          
+          applyTransitionStyle(parsed, direction);
+          slideDirectionRef.current = direction;
+          
           startSafeTransition(() => {
             setActiveSlide(parsed);
             setBgVariant(nextBgVariant);
@@ -110,19 +152,20 @@ export const useSlideViewerOrchestrator = () => {
     };
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
-  }, [activeSlide, activeSub, activeLec, startSafeTransition]);
+  }, [activeSlide, activeSub, activeLec, startSafeTransition, applyTransitionStyle]);
 
   const changeSlideWithTransition = useCallback((nextSlide: number, direction: 'forward' | 'backward' = 'forward') => {
     const meta = activeSub && activeLec ? getSlideMetadata(nextSlide, activeSub, activeLec) : null;
     const nextBgVariant = meta ? getBgVariant(meta.type) : 'default';
 
+    applyTransitionStyle(nextSlide, direction);
     slideDirectionRef.current = direction;
     startSafeTransition(() => {
       setActiveSlide(nextSlide);
       setBgVariant(nextBgVariant);
     });
     window.history.pushState(null, '', `/${subjectId}/${sessionId}/${lectureId}/${nextSlide}`);
-  }, [subjectId, sessionId, lectureId, activeSub, activeLec, startSafeTransition]);
+  }, [subjectId, sessionId, lectureId, activeSub, activeLec, startSafeTransition, applyTransitionStyle]);
 
   const { pathname } = useLocation();
   const isBlogMode = pathname.endsWith('/blog');
@@ -141,6 +184,13 @@ export const useSlideViewerOrchestrator = () => {
     onSlideChange: changeSlideWithTransition,
     viewMode,
   });
+
+  // Sync settings state to ref for transition callbacks
+  useEffect(() => {
+    if (presenterFeatures?.settings) {
+      settingsRef.current = presenterFeatures.settings;
+    }
+  }, [presenterFeatures?.settings]);
 
   // Group slide numbers by section
   const sections = useMemo(() => {
