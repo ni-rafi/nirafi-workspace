@@ -1,20 +1,24 @@
-import React from 'react';
-import { useBeamWorkspace } from '@/subjects/mechanics-of-solids/features/sfd-bmd/context/BeamWorkspaceContext';
+import React, { useContext } from 'react';
+import { BeamWorkspaceContext } from '@/subjects/mechanics-of-solids/features/sfd-bmd/context/BeamWorkspaceContext';
 import { useBeamEngine } from '../../../hooks/useBeamEngine';
+import { MiniBeamVisual } from './MiniBeamVisual';
 
 interface MomentAreaStepVisualProps {
   text: string;
 }
 
 export const MomentAreaStepVisual: React.FC<MomentAreaStepVisualProps> = ({ text }) => {
-  const { length, supports } = useBeamWorkspace();
+  const beamCtx = useContext(BeamWorkspaceContext);
   const { solverResult } = useBeamEngine();
+  if (!beamCtx) return null;
 
-  const width = 320;
-  const height = 90;
-  const paddingX = 20;
+  const { length, supports } = beamCtx;
+
+  const width = 500;
+  const height = 110;
+  const paddingX = 40;
   const beamW = width - paddingX * 2;
-  const yBeam = 25;
+
 
   const toPixelX = (x: number) => paddingX + (x / length) * beamW;
 
@@ -30,8 +34,8 @@ export const MomentAreaStepVisual: React.FC<MomentAreaStepVisualProps> = ({ text
   const pxB = toPixelX(xB);
 
   if (isCentroid && solverResult.success && solverResult.intervals) {
-    // Render M/EI centroid mapper
-    const yBaseline = 50;
+    // Render M/EI centroid mapper scaled to 500px
+    const yBaseline = 70;
 
     const getMAt = (x: number): number => {
       const interval = solverResult.intervals.find(
@@ -39,14 +43,13 @@ export const MomentAreaStepVisual: React.FC<MomentAreaStepVisualProps> = ({ text
       );
       if (!interval) return 0;
       const [a, b, c, d] = interval.mCoeffs;
-      // Moment equation is represented as: a*x^3 + b*x^2 + c*x + d
       return (a * x * x * x + b * x * x + c * x + d) / 20.0; // scale factor
     };
 
     // Calculate max moment to scale
     let maxM = 1;
     const points: { x: number; m: number }[] = [];
-    const numSteps = 50;
+    const numSteps = 80;
     for (let i = 0; i <= numSteps; i++) {
       const x = (i / numSteps) * length;
       const m = getMAt(x);
@@ -54,7 +57,7 @@ export const MomentAreaStepVisual: React.FC<MomentAreaStepVisualProps> = ({ text
       if (Math.abs(m) > maxM) maxM = Math.abs(m);
     }
 
-    const scaleY = (m: number) => yBaseline + (m / maxM) * 20;
+    const scaleY = (m: number) => yBaseline + (m / maxM) * 35;
 
     let pathD = `M ${toPixelX(0)} ${yBaseline}`;
     points.forEach(pt => {
@@ -73,13 +76,13 @@ export const MomentAreaStepVisual: React.FC<MomentAreaStepVisualProps> = ({ text
       shadeD += ` L ${pxB} ${yBaseline} Z`;
     }
 
-    // Centroid coordinate (approximate at center for visualization)
+    // Centroid coordinate
     const centroidX = (xA + xB) / 2;
     const centroidPx = toPixelX(centroidX);
-    const centroidPy = scaleY(getMAt(centroidX)) - 10;
+    const centroidPy = scaleY(getMAt(centroidX)) - 14;
 
     return (
-      <div className="mt-2.5 mb-1.5 overflow-hidden rounded-lg border border-border/30 bg-muted/5 p-2 max-w-sm">
+      <div className="mt-3 mb-2 overflow-hidden rounded-lg border border-border/30 bg-muted/5 p-3 w-full max-w-lg">
         <svg viewBox={`0 0 ${width} ${height}`} className="w-full select-none overflow-visible">
           {/* M/EI Diagram */}
           <line x1={paddingX} y1={yBaseline} x2={width - paddingX} y2={yBaseline} stroke="var(--muted-foreground)" strokeWidth={1} opacity={0.4} />
@@ -89,63 +92,49 @@ export const MomentAreaStepVisual: React.FC<MomentAreaStepVisualProps> = ({ text
           {/* Centroid marker */}
           <g>
             <circle cx={centroidPx} cy={centroidPy} r={4} fill="var(--primary)" />
-            <line x1={centroidPx - 6} y1={centroidPy} x2={centroidPx + 6} y2={centroidPy} stroke="var(--primary)" strokeWidth={1} />
-            <line x1={centroidPx} y1={centroidPy - 6} x2={centroidPx} y2={centroidPy + 6} stroke="var(--primary)" strokeWidth={1} />
+            <line x1={centroidPx - 5} y1={centroidPy} x2={centroidPx + 5} y2={centroidPy} stroke="var(--primary)" strokeWidth={1} />
+            <line x1={centroidPx} y1={centroidPy - 5} x2={centroidPx} y2={centroidPy + 5} stroke="var(--primary)" strokeWidth={1} />
           </g>
 
           {/* Centroid lever arm x-bar */}
-          <line x1={centroidPx} y1={yBaseline - 12} x2={pxB} y2={yBaseline - 12} stroke="var(--primary)" strokeWidth={1} strokeDasharray="2,2" />
-          <circle cx={centroidPx} cy={yBaseline - 12} r={1.5} fill="var(--primary)" />
-          <circle cx={pxB} cy={yBaseline - 12} r={1.5} fill="var(--primary)" />
-          <text x={(centroidPx + pxB) / 2} y={yBaseline - 16} textAnchor="middle" className="fill-primary text-[8px] font-bold">x-bar</text>
+          <line x1={centroidPx} y1={yBaseline - 18} x2={pxB} y2={yBaseline - 18} stroke="var(--primary)" strokeWidth={1} strokeDasharray="2,2" />
+          <circle cx={centroidPx} cy={yBaseline - 18} r={1.5} fill="var(--primary)" />
+          <circle cx={pxB} cy={yBaseline - 18} r={1.5} fill="var(--primary)" />
+          <text x={(centroidPx + pxB) / 2} y={yBaseline - 22} textAnchor="middle" className="fill-primary text-[11px] font-bold">x-bar</text>
         </svg>
       </div>
     );
   }
 
-  // Fallback / default: Render deflection curve and Mohr's tangent line
-  const thetaAngle = 0.05; // radians (slope of tangent line at A)
-  const dyB = beamW * Math.tan(thetaAngle); // deviation at B
+  // Fallback / default: Render deflection curve and Mohr's tangent line on top of MiniBeamVisual
+  const handleRenderOverlay = (toPixel: (x: number) => number) => {
+    const yBeam = 70;
+    const pxA = toPixel(xA);
+    const pxB = toPixel(xB);
+    const beamSegmentW = pxB - pxA;
+    const thetaAngle = 0.04; // radians
+    const dyB = beamSegmentW * Math.tan(thetaAngle);
 
-  return (
-    <div className="mt-2.5 mb-1.5 overflow-hidden rounded-lg border border-border/30 bg-muted/5 p-2 max-w-sm">
-      <svg viewBox={`0 0 ${width} ${height}`} className="w-full select-none overflow-visible">
-        {/* Straight Undeflected Beam (Baseline) */}
-        <line
-          x1={paddingX}
-          y1={yBeam}
-          x2={width - paddingX}
-          y2={yBeam}
-          stroke="var(--muted-foreground)"
-          strokeWidth={0.75}
-          strokeDasharray="3,3"
-          opacity={0.6}
-        />
-
-        {/* Deflected shape of the beam */}
+    return (
+      <g>
+        {/* Deflected shape Q-curve */}
         <path
-          d={`M ${pxA} ${yBeam} Q ${(pxA + pxB) / 2} ${yBeam + 20} ${pxB} ${yBeam}`}
+          d={`M ${pxA} ${yBeam} Q ${(pxA + pxB) / 2} ${yBeam + 30} ${pxB} ${yBeam}`}
           fill="none"
           stroke="var(--foreground)"
-          strokeWidth={2}
+          strokeWidth={1.8}
         />
 
         {/* Tangent line at support A */}
         <line
           x1={pxA}
           y1={yBeam}
-          x2={pxB + 10}
-          y2={yBeam + dyB + 0.5}
+          x2={pxB + 20}
+          y2={yBeam + dyB + 0.8}
           stroke="var(--primary)"
           strokeWidth={1.2}
           strokeDasharray="4,2"
         />
-
-        {/* Support markers */}
-        <circle cx={pxA} cy={yBeam} r={4} fill="var(--muted-foreground)" />
-        <circle cx={pxB} cy={yBeam} r={4} fill="var(--muted-foreground)" />
-        <text x={pxA} y={yBeam - 6} textAnchor="middle" className="fill-muted-foreground text-[8px] font-bold">A</text>
-        <text x={pxB} y={yBeam - 6} textAnchor="middle" className="fill-muted-foreground text-[8px] font-bold">B</text>
 
         {/* Tangential deviation t_{B/A} vertical dimension line */}
         {isDeviation && (
@@ -158,20 +147,25 @@ export const MomentAreaStepVisual: React.FC<MomentAreaStepVisualProps> = ({ text
               stroke="var(--destructive)"
               strokeWidth={1.5}
             />
-            {/* Arrows */}
             <polygon points={`${pxB},${yBeam} ${pxB - 3},${yBeam + 4} ${pxB + 3},${yBeam + 4}`} fill="var(--destructive)" />
             <polygon points={`${pxB},${yBeam + dyB} ${pxB - 3},${yBeam + dyB - 4} ${pxB + 3},${yBeam + dyB - 4}`} fill="var(--destructive)" />
             <text
               x={pxB + 8}
-              y={yBeam + dyB / 2 + 3}
+              y={yBeam + dyB / 2 + 4}
               textAnchor="start"
-              className="fill-destructive text-[8px] font-bold select-none"
+              className="fill-destructive text-[11px] font-bold select-none"
             >
               t_B/A
             </text>
           </g>
         )}
-      </svg>
-    </div>
+      </g>
+    );
+  };
+
+  return (
+    <MiniBeamVisual
+      onRenderOverlay={handleRenderOverlay}
+    />
   );
 };

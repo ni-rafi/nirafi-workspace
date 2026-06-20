@@ -72,7 +72,7 @@ export class SFDBmdService implements ISFDBmdService {
         reactions: [],
         intervals: [],
         criticalPoints: [],
-        reactionSteps: [...doiResult.explanationSteps, ...rxnResult.steps],
+        reactionSteps: rxnResult.steps,
         sectionSteps: ['Reactions could not be solved.'],
         graphicalSteps: ['Reactions could not be solved.'],
       };
@@ -170,7 +170,7 @@ export class SFDBmdService implements ISFDBmdService {
       reactions,
       intervals,
       criticalPoints,
-      reactionSteps: [...doiResult.explanationSteps, ...rxnResult.steps],
+      reactionSteps: rxnResult.steps,
       sectionSteps,
       graphicalSteps: graphResult.steps,
     };

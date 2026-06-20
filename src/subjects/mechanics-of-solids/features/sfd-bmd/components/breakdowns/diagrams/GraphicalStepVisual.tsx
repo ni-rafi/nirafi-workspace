@@ -42,13 +42,27 @@ export const GraphicalStepVisual: React.FC<GraphicalStepVisualProps> = ({ text }
 
   const scaleY = (v: number) => ySFD - (v / maxV) * 25;
 
-  // Parse shading bounds from text (e.g., "between x = 0.00 and x = 3.00" or "from 0.00m to 3.00m")
+  // Parse shading bounds from text (e.g., "[0.00, 3.00]" or "between x = 0.00 and x = 3.00" or "from 0.00m to 3.00m")
   let shadeStart = 0;
   let shadeEnd = length;
-  const match = text.match(/x\s*=\s*([\d.]+)\s*and\s*x\s*=\s*([\d.]+)/) || text.match(/from\s*([\d.]+)\s*to\s*([\d.]+)/);
+  let hasShading = false;
+
+  const match = text.match(/\[([\d.]+),\s*([\d.]+)\]/) ||
+                text.match(/x\s*=\s*([\d.]+)\s*and\s*x\s*=\s*([\d.]+)/) ||
+                text.match(/from\s*([\d.]+)\s*to\s*([\d.]+)/);
+
   if (match && match[1] && match[2]) {
     shadeStart = parseFloat(match[1]);
     shadeEnd = parseFloat(match[2]);
+    hasShading = true;
+  }
+
+  let isPointJump = false;
+  let jumpX = 0;
+  const pointMatch = text.match(/at\s+\$x\s*=\s*([\d.]+)/i);
+  if (pointMatch && pointMatch[1]) {
+    isPointJump = true;
+    jumpX = parseFloat(pointMatch[1]);
   }
 
   // Build the SFD polygon path
@@ -59,7 +73,7 @@ export const GraphicalStepVisual: React.FC<GraphicalStepVisualProps> = ({ text }
   pathD += ` L ${toPixelX(length)} ${scaleY(0)} Z`;
 
   // Build the shaded area path
-  const shadePoints = points.filter(pt => pt.x >= shadeStart - 1e-4 && pt.x <= shadeEnd + 1e-4);
+  const shadePoints = hasShading ? points.filter(pt => pt.x >= shadeStart - 1e-4 && pt.x <= shadeEnd + 1e-4) : [];
   let shadeD = '';
   if (shadePoints.length > 0) {
     const startPx = toPixelX(shadeStart);
@@ -101,6 +115,35 @@ export const GraphicalStepVisual: React.FC<GraphicalStepVisualProps> = ({ text }
             stroke="var(--success, #10b981)"
             strokeWidth={1.5}
           />
+        )}
+
+        {/* Point Jump Indicator */}
+        {isPointJump && (
+          <g>
+            <line
+              x1={toPixelX(jumpX)}
+              y1={10}
+              x2={toPixelX(jumpX)}
+              y2={height - 10}
+              stroke="var(--destructive)"
+              strokeWidth={1}
+              strokeDasharray="2,2"
+            />
+            <circle
+              cx={toPixelX(jumpX)}
+              cy={scaleY(getVAt(jumpX))}
+              r={4}
+              fill="var(--destructive)"
+              className="animate-pulse"
+            />
+            <text
+              x={toPixelX(jumpX) + 6}
+              y={scaleY(getVAt(jumpX)) - 6}
+              className="fill-destructive text-[8px] font-extrabold select-none"
+            >
+              x = {jumpX.toFixed(2)}m
+            </text>
+          </g>
         )}
 
         {/* Label for shaded area */}

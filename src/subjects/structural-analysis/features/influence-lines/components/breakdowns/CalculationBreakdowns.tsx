@@ -50,8 +50,8 @@ export const CalculationBreakdowns: React.FC = () => {
         <div className="flex flex-col gap-5 rounded-xl border border-border bg-card/30 p-5 backdrop-blur-md">
             {/* Title block */}
             <div>
-                <h3 className="text-sm font-semibold text-primary font-bold">Calculation Derivations</h3>
-                <p className="text-[10px] text-muted-foreground">Select a method tab to inspect step-by-step structural formulas</p>
+                <h3 className="text-base sm:text-lg font-extrabold text-primary">Calculation Derivations</h3>
+                <p className="text-xs text-muted-foreground mt-0.5">Select a method tab to inspect step-by-step structural formulas</p>
             </div>
 
             {/* Tab Navigation Menu */}
@@ -64,7 +64,7 @@ export const CalculationBreakdowns: React.FC = () => {
                             key={tab.id}
                             disabled={isDisabled}
                             onClick={() => setActiveTab(tab.id)}
-                            className={`rounded-md px-3 py-1 text-[10px] font-bold uppercase tracking-wider transition-all ${
+                            className={`rounded-md px-3.5 py-1.5 text-xs font-bold uppercase tracking-wider transition-all ${
                                 isActive
                                     ? 'bg-primary text-primary-foreground shadow-sm'
                                     : isDisabled
