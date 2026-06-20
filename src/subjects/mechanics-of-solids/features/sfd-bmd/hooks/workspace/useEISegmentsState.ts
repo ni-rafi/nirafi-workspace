@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { IEISegment } from '@/subjects/mechanics-of-solids/cores/deflection/types';
+import { goeyToast } from 'goey-toast';
 
 export const useEISegmentsState = (
   length: number,
@@ -27,9 +28,10 @@ export const useEISegmentsState = (
 
     const currentWidth = target.endPosition - target.startPosition;
     if (currentWidth < 0.15) {
-      alert("This segment is too small to split (minimum width is 0.15m).");
+      goeyToast.warning("This segment is too small to split (minimum width is 0.15m).");
       return;
     }
+
 
     const mid = (target.startPosition + target.endPosition) / 2;
     const newId = `ei-${Date.now()}`;

@@ -71,3 +71,115 @@
     page-break-inside: avoid;
   }
 }
+
+/* PDF Export clean academic report overrides */
+.printing-pdf {
+  background-color: #ffffff !important;
+  background: #ffffff !important;
+  color: #111827 !important;
+}
+
+/* Strip card/container outlines, backgrounds, and shadows */
+.printing-pdf div[class*="bg-card"],
+.printing-pdf div[class*="bg-background"],
+.printing-pdf div[class*="bg-muted"],
+.printing-pdf div[class*="bg-slate"],
+.printing-pdf div[class*="rounded-"],
+.printing-pdf div[class*="border-"],
+.printing-pdf div[class*="shadow"] {
+  border: none !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+}
+
+/* Make step row left accents high contrast for print */
+.printing-pdf div[class*="border-l-2"] {
+  border-left: 2px solid #9ca3af !important;
+}
+
+/* Hide interactive UI elements, sliders, tabs, buttons */
+.printing-pdf button,
+.printing-pdf input,
+.printing-pdf select,
+.printing-pdf textarea,
+.printing-pdf [role="tablist"],
+.printing-pdf .tab-list,
+.printing-pdf .no-print,
+.printing-pdf [class*="interactive"],
+.printing-pdf .interactive-profile-builder-canvas {
+  display: none !important;
+}
+
+/* Force dark text and clean layout spacing for printed paper */
+.printing-pdf text,
+.printing-pdf p,
+.printing-pdf span,
+.printing-pdf h1,
+.printing-pdf h2,
+.printing-pdf h3,
+.printing-pdf h4,
+.printing-pdf h5,
+.printing-pdf h6,
+.printing-pdf div,
+.printing-pdf td,
+.printing-pdf th {
+  color: #111827 !important;
+  text-shadow: none !important;
+}
+
+/* Ensure clean black latex equations */
+.printing-pdf .katex,
+.printing-pdf .katex * {
+  color: #000000 !important;
+  text-shadow: none !important;
+}
+
+/* Compact padding/margins to prevent excessive blank gaps */
+.printing-pdf .p-4,
+.printing-pdf .p-5,
+.printing-pdf .p-6,
+.printing-pdf .p-8 {
+  padding: 0 !important;
+}
+
+.printing-pdf .mb-6,
+.printing-pdf .mb-8,
+.printing-pdf .mt-6,
+.printing-pdf .gap-6 {
+  margin-top: 4px !important;
+  margin-bottom: 8px !important;
+  gap: 8px !important;
+}
+
+/* Academic table styling */
+.printing-pdf table {
+  border-collapse: collapse !important;
+  width: 100% !important;
+  margin-top: 8px !important;
+  margin-bottom: 8px !important;
+}
+
+.printing-pdf th,
+.printing-pdf td {
+  border: 1px solid #9ca3af !important;
+  padding: 4px 8px !important;
+  background-color: transparent !important;
+  color: #111827 !important;
+  font-size: 10px !important;
+}
+
+/* SVG Chart adjustments */
+.printing-pdf svg {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+.printing-pdf svg text {
+  fill: #111827 !important;
+  font-family: 'Helvetica', 'Arial', sans-serif !important;
+}
+

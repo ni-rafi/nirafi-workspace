@@ -16,10 +16,11 @@ type TabType =
   | 'stress';
 
 export const CalculationBreakdowns: React.FC = () => {
-  const { setDeflMethod, customInspectX, setCustomInspectX, length } = useBeamWorkspace();
+  const { setDeflMethod, customInspectX, setCustomInspectX, length, activeTab, setActiveTab } = useBeamWorkspace();
   const { solverResult, deflectionResult } = useBeamEngine();
-  const [activeTab, setActiveTab] = useState<TabType>('doi');
   const [expandedDiagrams, setExpandedDiagrams] = useState<Record<string, boolean>>({});
+
+  const currentTab = activeTab as TabType;
 
   const { doiResult } = solverResult;
   const isSolved = solverResult.success;
@@ -89,8 +90,8 @@ export const CalculationBreakdowns: React.FC = () => {
       <div className="flex flex-col gap-4 text-xs text-foreground/80 min-h-[180px]">
 
         {/* DOI TAB */}
-        {activeTab === 'doi' && (
-          <div className="flex flex-col gap-3">
+        {currentTab === 'doi' && (
+          <div id="breakdown-doi" className="flex flex-col gap-3">
             <StepListHeader
               title="Static Restraints Analysis"
               steps={doiResult.explanationSteps}
@@ -123,8 +124,8 @@ export const CalculationBreakdowns: React.FC = () => {
         )}
 
         {/* REACTIONS TAB */}
-        {activeTab === 'reactions' && isSolved && (
-          <div className="flex flex-col gap-3">
+        {currentTab === 'reactions' && isSolved && (
+          <div id="breakdown-reactions" className="flex flex-col gap-3">
             <StepListHeader
               title="Equilibrium Equations solver"
               steps={solverResult.reactionSteps}
@@ -152,8 +153,8 @@ export const CalculationBreakdowns: React.FC = () => {
         )}
 
         {/* SECTION METHOD TAB */}
-        {activeTab === 'section' && isSolved && (
-          <div className="flex flex-col gap-3">
+        {currentTab === 'section' && isSolved && (
+          <div id="breakdown-section" className="flex flex-col gap-3">
             <StepListHeader
               title="Interval Equations cut segments"
               steps={solverResult.sectionSteps}
@@ -181,8 +182,8 @@ export const CalculationBreakdowns: React.FC = () => {
         )}
 
         {/* GRAPHICAL METHOD TAB */}
-        {activeTab === 'graphical' && isSolved && (
-          <div className="flex flex-col gap-3">
+        {currentTab === 'graphical' && isSolved && (
+          <div id="breakdown-graphical" className="flex flex-col gap-3">
             <StepListHeader
               title="Curvatures integration & shear jumps"
               steps={solverResult.graphicalSteps}
@@ -209,9 +210,8 @@ export const CalculationBreakdowns: React.FC = () => {
           </div>
         )}
 
-        {/* DEFLECTION METHODS TABS (DI, MA, CB) */}
-        {(activeTab === 'double-integration' || activeTab === 'moment-area' || activeTab === 'conjugate-beam') && isSolved && (
-          <div className="flex flex-col gap-4">
+        {(currentTab === 'double-integration' || currentTab === 'moment-area' || currentTab === 'conjugate-beam') && isSolved && (
+          <div id="breakdown-deflection" className="flex flex-col gap-4">
             {/* Deflection Header Controls */}
             <div className="flex items-center justify-between border-b border-border/40 pb-2">
               <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/80">Elastic Deformations solver</span>
@@ -279,7 +279,7 @@ export const CalculationBreakdowns: React.FC = () => {
               <StepListHeader
                 title="Mathematical Derivation steps"
                 steps={deflectionResult.steps}
-                tab={activeTab}
+                tab={currentTab}
                 expandedDiagrams={expandedDiagrams}
                 setExpandedDiagrams={setExpandedDiagrams}
               />
@@ -288,12 +288,12 @@ export const CalculationBreakdowns: React.FC = () => {
                   <StepRow
                     key={idx}
                     step={step}
-                    tab={activeTab}
-                    isExpanded={!!expandedDiagrams[`${activeTab}-${idx}`]}
+                    tab={currentTab}
+                    isExpanded={!!expandedDiagrams[`${currentTab}-${idx}`]}
                     onToggle={() =>
                       setExpandedDiagrams(prev => ({
                         ...prev,
-                        [`${activeTab}-${idx}`]: !prev[`${activeTab}-${idx}`],
+                        [`${currentTab}-${idx}`]: !prev[`${currentTab}-${idx}`],
                       }))
                     }
                   />
@@ -304,8 +304,10 @@ export const CalculationBreakdowns: React.FC = () => {
         )}
 
         {/* STRESS TAB */}
-        {activeTab === 'stress' && isSolved && (
-          <StressBreakdownPanel />
+        {currentTab === 'stress' && isSolved && (
+          <div id="breakdown-stress">
+            <StressBreakdownPanel />
+          </div>
         )}
 
       </div>

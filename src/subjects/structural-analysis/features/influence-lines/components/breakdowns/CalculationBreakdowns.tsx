@@ -10,13 +10,12 @@ import { BookOpen, Layers } from 'lucide-react';
 type TabType = 'doi' | 'ild' | 'transit' | 'absMax';
 
 export const CalculationBreakdowns: React.FC = () => {
-    const { analysisType, activeVehicle, transitPosition } = useInfluenceWorkspace();
+    const { analysisType, activeVehicle, transitPosition, activeTab: contextActiveTab, setActiveTab } = useInfluenceWorkspace();
     const { solverResult, transitResult } = useInfluenceLinesEngine();
-    const [activeTabState, setActiveTabState] = useState<TabType | null>(null);
     const [expandedDiagrams, setExpandedDiagrams] = useState<Record<string, boolean>>({});
 
     const isSolved = solverResult.success;
-    const activeTab = activeTabState ?? (isSolved ? 'ild' : 'doi');
+    const activeTab = (contextActiveTab as TabType) || (isSolved ? 'ild' : 'doi');
 
     const doiResult = solverResult.doiResult;
 
@@ -63,7 +62,7 @@ export const CalculationBreakdowns: React.FC = () => {
                             <button
                                 key={tab.id}
                                 disabled={isDisabled}
-                                onClick={() => setActiveTabState(tab.id)}
+                                onClick={() => setActiveTab(tab.id)}
                                 className={`rounded-md px-3 py-1 text-[10px] font-bold uppercase tracking-wider transition-all ${
                                     isActive
                                         ? 'bg-primary text-primary-foreground shadow-sm'
@@ -83,7 +82,7 @@ export const CalculationBreakdowns: React.FC = () => {
             <div className="flex flex-col gap-3 min-h-[160px]">
                 {/* DOI TAB */}
                 {activeTab === 'doi' && doiResult && (
-                    <div className="flex flex-col gap-3">
+                    <div id="il-breakdown-doi" className="flex flex-col gap-3">
                         <StepListHeader
                             title="Static Restraints Analysis"
                             steps={doiResult.explanationSteps}
@@ -116,7 +115,7 @@ export const CalculationBreakdowns: React.FC = () => {
                 )}
 
                 {activeTab === 'ild' && isSolved && (
-                    <div className="flex flex-col md:flex-row gap-6">
+                    <div id="il-breakdown-ild" className="flex flex-col md:flex-row gap-6">
                         <div className="flex-1 flex flex-col gap-3">
                             <StepListHeader
                                 title="Equilibrium Mechanics Equations"
@@ -155,7 +154,7 @@ export const CalculationBreakdowns: React.FC = () => {
                 )}
 
                 {activeTab === 'transit' && isSolved && activeVehicle && (
-                    <div className="flex flex-col gap-4">
+                    <div id="il-breakdown-transit" className="flex flex-col gap-4">
                         <div className="flex flex-col gap-1.5">
                             <span className="text-[10px] font-bold uppercase tracking-widest text-primary flex items-center gap-1">
                                 <Layers className="h-3.5 w-3.5" />
@@ -193,7 +192,7 @@ export const CalculationBreakdowns: React.FC = () => {
                 )}
 
                 {activeTab === 'absMax' && isSolved && activeVehicle && transitResult.success && (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div id="il-breakdown-absMax" className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         {/* Absolute max shear */}
                         <div className="flex flex-col gap-3 bg-background/25 border border-border/40 p-4 rounded-xl">
                             <StepListHeader

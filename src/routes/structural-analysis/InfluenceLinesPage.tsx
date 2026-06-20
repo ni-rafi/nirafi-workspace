@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { InfluenceLinesWorkspaceProvider, useInfluenceWorkspace } from '@/subjects/structural-analysis/features/influence-lines/context/InfluenceLinesWorkspaceContext';
 import { useInfluenceLinesEngine } from '@/subjects/structural-analysis/features/influence-lines/hooks/useInfluenceLinesEngine';
 import { InfluenceLineBeamCanvas } from '@/subjects/structural-analysis/features/influence-lines/components/builder/InfluenceLineBeamCanvas';
@@ -10,13 +10,15 @@ import { InfluenceLineChart } from '@/subjects/structural-analysis/features/infl
 import { MullerBreslauAnimator } from '@/subjects/structural-analysis/features/influence-lines/components/diagrams/MullerBreslauAnimator';
 import { CalculationBreakdowns } from '@/subjects/structural-analysis/features/influence-lines/components/breakdowns/CalculationBreakdowns';
 import { MathTextRenderer } from '@/subjects/mechanics-of-solids/features/sfd-bmd/components/breakdowns/MathTextRenderer';
-import { ArrowLeft, RefreshCw, AlertTriangle } from 'lucide-react';
+import { ArrowLeft, RefreshCw, AlertTriangle, FileDown } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { PDFExportModal } from '@/features/pdf-export/PDFExportModal';
 
 const InfluenceLinesPageInternal: React.FC = () => {
     const { solverResult } = useInfluenceLinesEngine();
-    const { transitMethod, targets } = useInfluenceWorkspace();
+    const { transitMethod, targets, supports, activeVehicle, transitPosition, activeTab, setActiveTab } = useInfluenceWorkspace();
     const navigate = useNavigate();
+    const [isExportOpen, setIsExportOpen] = useState(false);
 
     const visibleTargets = targets.filter(t => t.isVisible);
 
@@ -41,31 +43,46 @@ const InfluenceLinesPageInternal: React.FC = () => {
                         </p>
                     </div>
                 </div>
-                <button
-                    onClick={() => window.location.reload()}
-                    className="flex items-center gap-1.5 rounded-lg border border-border bg-background px-3 py-1.5 text-xs font-semibold text-foreground hover:bg-muted transition-all"
-                >
-                    <RefreshCw className="h-3.5 w-3.5" />
-                    <span>Reset Workspace</span>
-                </button>
+                <div className="flex gap-2">
+                    {/* Temporarily hidden for debugging */}
+                    {false && (
+                        <button
+                            onClick={() => setIsExportOpen(true)}
+                            disabled={!solverResult.success}
+                            className="flex items-center gap-1.5 rounded-lg border border-border bg-background px-3 py-1.5 text-xs font-semibold text-foreground hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                        >
+                            <FileDown className="h-3.5 w-3.5 text-primary" />
+                            <span>Export Report</span>
+                        </button>
+                    )}
+                    <button
+                        onClick={() => window.location.reload()}
+                        className="flex items-center gap-1.5 rounded-lg border border-border bg-background px-3 py-1.5 text-xs font-semibold text-foreground hover:bg-muted transition-all"
+                    >
+                        <RefreshCw className="h-3.5 w-3.5" />
+                        <span>Reset Workspace</span>
+                    </button>
+                </div>
             </div>
 
             {/* Main Content Layout */}
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
                 {/* Visual Canvas & Diagrams Area */}
                 <div className="flex flex-col gap-6 lg:col-span-3">
-                    <InfluenceLineBeamCanvas />
+                    <div id="il-beam-canvas">
+                        <InfluenceLineBeamCanvas />
+                    </div>
 
                     {solverResult.success ? (
                         <div className="flex flex-col gap-6">
                             {visibleTargets.map((t) => (
-                                <React.Fragment key={t.id}>
+                                <div key={t.id} id={`il-chart-${t.id}`} className="flex flex-col gap-3">
                                     {transitMethod === 'muller-breslau' ? (
                                         <MullerBreslauAnimator target={t} />
                                     ) : (
                                         <InfluenceLineChart target={t} />
                                     )}
-                                </React.Fragment>
+                                </div>
                             ))}
                             {visibleTargets.length === 0 && (
                                 <div className="flex items-center justify-center p-8 border border-dashed border-border rounded-xl text-xs text-muted-foreground">
@@ -98,6 +115,38 @@ const InfluenceLinesPageInternal: React.FC = () => {
             <div className="mt-2">
                 <CalculationBreakdowns />
             </div>
+
+            {/* PDF Export Options Modal */}
+            <PDFExportModal
+                isOpen={isExportOpen}
+                onClose={() => setIsExportOpen(false)}
+                documentType="influence-lines"
+                activeTab={activeTab}
+                setActiveTab={setActiveTab}
+                defaultTitle="Influence Lines & Moving Loads Report"
+                availableCharts={visibleTargets.map(t => {
+                    let label = '';
+                    if (t.type === 'reaction') {
+                        const sortedSupports = [...supports].sort((a, b) => a.position - b.position);
+                        const idx = sortedSupports.findIndex(s => Math.abs(s.position - (t.targetSupportX ?? -999)) < 0.05);
+                        const letter = idx >= 0 ? String.fromCharCode(65 + idx) : '';
+                        label = `Influence Line: Reaction R_${letter}`;
+                    } else if (t.type === 'shear') {
+                        label = `Influence Line: Shear Force V_c (x = ${t.targetSection.xc.toFixed(2)}m)`;
+                    } else if (t.type === 'moment') {
+                        label = `Influence Line: Bending Moment M_c (x = ${t.targetSection.xc.toFixed(2)}m)`;
+                    }
+                    return { id: `il-chart-${t.id}`, label, defaultSelected: true };
+                })}
+                availableCalculations={[
+                    { id: 'il-breakdown-doi', label: 'Indeterminacy analysis (DOI)', tabToActivate: 'doi' },
+                    { id: 'il-breakdown-ild', label: 'ILD Equations & derivation steps', tabToActivate: 'ild' },
+                    ...(activeVehicle ? [
+                        { id: 'il-breakdown-transit', label: `Convolution Superposition (x = ${transitPosition.toFixed(1)}m)`, tabToActivate: 'transit' },
+                        { id: 'il-breakdown-absMax', label: 'Absolute Maximum moving envelopes', tabToActivate: 'absMax' },
+                    ] : [])
+                ]}
+            />
         </div>
     );
 };

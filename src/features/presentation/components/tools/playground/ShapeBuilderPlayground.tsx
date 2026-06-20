@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { VisualCanvasShape } from '../../../types/schema';
+import { goeyToast } from 'goey-toast';
 
 // Import subcomponents
 import ShapeBuilderHeader from './ShapeBuilderHeader';
@@ -79,7 +80,7 @@ export const ShapeBuilderPlayground: React.FC = () => {
     if (!selectedId) return;
     const updated = elements.map((el: VisualCanvasShape) => {
       if (el.id !== selectedId) return el;
-      
+
       let updatedEl: VisualCanvasShape;
       if (typeof key === 'object') {
         updatedEl = { ...el, ...key };
@@ -202,7 +203,7 @@ export const ShapeBuilderPlayground: React.FC = () => {
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(exportSchema);
-    alert('Schema copied to clipboard successfully!');
+    goeyToast.success('Schema copied to clipboard successfully!');
   };
 
   if (isLoading) {

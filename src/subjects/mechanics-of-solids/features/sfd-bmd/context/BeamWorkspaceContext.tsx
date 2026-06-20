@@ -39,6 +39,8 @@ interface BeamWorkspaceContextProps {
   setInspectAngle: (angle: number) => void;
   isSectionBuilderOpen: boolean;
   setIsSectionBuilderOpen: (open: boolean) => void;
+  activeTab: string;
+  setActiveTab: (tab: string) => void;
 }
 
 export const BeamWorkspaceContext = createContext<BeamWorkspaceContextProps | undefined>(undefined);
@@ -52,6 +54,7 @@ export const BeamWorkspaceProvider: React.FC<{ children: ReactNode }> = ({ child
   const [inspectY, setInspectY] = useState<number>(0);
   const [inspectAngle, setInspectAngle] = useState<number>(0);
   const [isSectionBuilderOpen, setIsSectionBuilderOpen] = useState<boolean>(false);
+  const [activeTab, setActiveTab] = useState<string>('doi');
 
   const { supports, setSupports, addSupport, updateSupport, deleteSupport } = useSupportsState(length, selectedId, setSelectedId);
   const { releases, setReleases, addRelease, updateRelease, deleteRelease } = useReleasesState(length, selectedId, setSelectedId);
@@ -140,6 +143,8 @@ export const BeamWorkspaceProvider: React.FC<{ children: ReactNode }> = ({ child
         setInspectAngle,
         isSectionBuilderOpen,
         setIsSectionBuilderOpen,
+        activeTab,
+        setActiveTab,
       }}
     >
       {children}

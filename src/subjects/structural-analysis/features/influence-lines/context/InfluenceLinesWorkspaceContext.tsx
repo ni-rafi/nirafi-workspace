@@ -19,6 +19,8 @@ interface InfluenceLinesWorkspaceContextProps {
     hoverX: number | null;
     targets: IInfluenceTarget[];
     activeTargetId: string;
+    activeTab: string;
+    setActiveTab: (tab: string) => void;
 
     setLength: (len: number) => void;
     addSupport: (type: SupportType, position: number) => void;
@@ -55,6 +57,7 @@ export const InfluenceLinesWorkspaceProvider: React.FC<{ children: ReactNode }> 
     const [transitPosition, setTransitPosition] = useState<number>(0);
     const [selectedId, setSelectedId] = useState<string | null>(null);
     const [hoverX, setHoverX] = useState<number | null>(null);
+    const [activeTab, setActiveTab] = useState<string>('ild');
 
     // Multiple targets management
     const [targets, setTargets] = useState<IInfluenceTarget[]>([
@@ -232,6 +235,8 @@ export const InfluenceLinesWorkspaceProvider: React.FC<{ children: ReactNode }> 
                 deleteTarget,
                 toggleTargetVisibility,
                 setActiveTargetId,
+                activeTab,
+                setActiveTab,
             }}
         >
             {children}

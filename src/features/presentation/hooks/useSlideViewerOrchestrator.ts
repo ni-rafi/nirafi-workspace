@@ -10,6 +10,7 @@ import { DEFAULT_SETTINGS } from '../components/layers/SettingsPopover';
 import { useSlideTransitions } from './useSlideTransitions';
 import { useQuizSubscriptions } from './useQuizSubscriptions';
 import { useSlideNavigation } from './useSlideNavigation';
+import { goeyToast } from 'goey-toast';
 
 export const useSlideViewerOrchestrator = () => {
   const { subjectId, sessionId, lectureId, slideNo } = useParams<Record<string, string>>();
@@ -154,7 +155,7 @@ export const useSlideViewerOrchestrator = () => {
 
   const handleNextSection = useCallback(() => {
     if (activeQuizState?.status === 'active') {
-      alert('Cannot advance slide while the live quiz is actively collecting responses. Please close the quiz first.');
+      goeyToast.warning('Cannot advance slide while the live quiz is actively collecting responses. Please close the quiz first.');
       return;
     }
     if (!activeSub || !activeLec) return;
@@ -204,7 +205,7 @@ export const useSlideViewerOrchestrator = () => {
 
   const handleNextSlide = useCallback(() => {
     if (activeQuizState?.status === 'active') {
-      alert('Cannot advance slide while the live quiz is actively collecting responses. Please close the quiz first.');
+      goeyToast.warning('Cannot advance slide while the live quiz is actively collecting responses. Please close the quiz first.');
       return;
     }
     const currentIndex = visibleSlideNumbers.indexOf(activeSlide);
@@ -213,6 +214,7 @@ export const useSlideViewerOrchestrator = () => {
       changeSlideWithTransition(nextSlideNum, 'forward');
     }
   }, [activeSlide, visibleSlideNumbers, changeSlideWithTransition, activeQuizState]);
+
 
   const activeTheme: Theme = viewerState.isProjectionView ? 'projection' : (presenterFeatures.isDark ? 'dark' : 'light');
 

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { BeamWorkspaceProvider } from '@/subjects/mechanics-of-solids/features/sfd-bmd/context/BeamWorkspaceContext';
 import { useBeamEngine } from '@/subjects/mechanics-of-solids/features/sfd-bmd/hooks/useBeamEngine';
 import { BeamCanvas } from '@/subjects/mechanics-of-solids/features/sfd-bmd/components/builder/BeamCanvas';
@@ -10,7 +10,7 @@ import { SlopeChart } from '@/subjects/mechanics-of-solids/features/sfd-bmd/comp
 import { DeflectionChart } from '@/subjects/mechanics-of-solids/features/sfd-bmd/components/diagrams/DeflectionChart';
 import { CalculationBreakdowns } from '@/subjects/mechanics-of-solids/features/sfd-bmd/components/breakdowns/CalculationBreakdowns';
 import { MathTextRenderer } from '@/subjects/mechanics-of-solids/features/sfd-bmd/components/breakdowns/MathTextRenderer';
-import { ArrowLeft, RefreshCw, Info } from 'lucide-react';
+import { ArrowLeft, RefreshCw, Info, FileDown } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useBeamWorkspace } from '@/subjects/mechanics-of-solids/features/sfd-bmd/context/BeamWorkspaceContext';
 import { BendingStressEnvelopeChart } from '@/subjects/mechanics-of-solids/features/stress/components/diagrams/BendingStressEnvelopeChart';
@@ -20,17 +20,24 @@ import { InteractiveStressTransformation } from '@/subjects/mechanics-of-solids/
 import { CrossSectionBuilder } from '@/subjects/mechanics-of-solids/features/stress/components/builder/CrossSectionBuilder';
 import { InteractiveProfileCanvas } from '@/subjects/mechanics-of-solids/features/stress/components/builder/InteractiveProfileCanvas';
 import { CrossSectionEngine } from '@/subjects/mechanics-of-solids/cores/stress/cross-section.engine';
+import { PDFExportModal } from '@/features/pdf-export/PDFExportModal';
 
 const SFDBMDSolverInternal: React.FC = () => {
-  const { solverResult } = useBeamEngine();
+  const { solverResult, deflectionResult } = useBeamEngine();
   const {
     isSectionBuilderOpen,
     setIsSectionBuilderOpen,
     selectedId,
     eiSegments,
     updateEISegment,
+    activeTab,
+    setActiveTab,
   } = useBeamWorkspace();
   const navigate = useNavigate();
+  const [isExportOpen, setIsExportOpen] = useState(false);
+
+  const isStressUnavailable = eiSegments.every(s => !s.shape || s.shape.type === 'custom');
+  const isDeflectionUnavailable = !deflectionResult.success || deflectionResult.points.length === 0;
 
   const activeEISegment = eiSegments.find(s => s.id === selectedId);
 
@@ -51,29 +58,44 @@ const SFDBMDSolverInternal: React.FC = () => {
             <p className="text-xs text-muted-foreground">Build determinate beams, calculate reactions, and view step-by-step calculations</p>
           </div>
         </div>
-        <button
-          onClick={() => window.location.reload()}
-          className="flex items-center gap-1.5 rounded-lg border border-border bg-background px-3 py-1.5 text-xs font-semibold text-foreground hover:bg-muted transition-all"
-        >
-          <RefreshCw className="h-3.5 w-3.5" />
-          <span>Reset Solver</span>
-        </button>
+        <div className="flex gap-2">
+          {/* Temporarily hidden for debugging */}
+          {false && (
+            <button
+              onClick={() => setIsExportOpen(true)}
+              disabled={!solverResult.success}
+              className="flex items-center gap-1.5 rounded-lg border border-border bg-background px-3 py-1.5 text-xs font-semibold text-foreground hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+            >
+              <FileDown className="h-3.5 w-3.5 text-primary" />
+              <span>Export Report</span>
+            </button>
+          )}
+          <button
+            onClick={() => window.location.reload()}
+            className="flex items-center gap-1.5 rounded-lg border border-border bg-background px-3 py-1.5 text-xs font-semibold text-foreground hover:bg-muted transition-all"
+          >
+            <RefreshCw className="h-3.5 w-3.5" />
+            <span>Reset Solver</span>
+          </button>
+        </div>
       </div>
 
       {/* Main Builder Area */}
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         <div className={`flex flex-col gap-6 ${isSectionBuilderOpen ? 'lg:col-span-2' : 'lg:col-span-3'}`}>
-          <BeamCanvas />
+          <div id="beam-canvas">
+            <BeamCanvas />
+          </div>
 
           {/* Diagrams Output */}
           {solverResult.success ? (
             <div className="flex flex-col gap-6">
-              <ShearForceChart />
-              <BendingMomentChart />
-              <SlopeChart />
-              <DeflectionChart />
-              <BendingStressEnvelopeChart />
-              <MaxShearStressChart />
+              <div id="chart-sfd"><ShearForceChart /></div>
+              <div id="chart-bmd"><BendingMomentChart /></div>
+              <div id="chart-slope"><SlopeChart /></div>
+              <div id="chart-deflection"><DeflectionChart /></div>
+              <div id="chart-stress-bending"><BendingStressEnvelopeChart /></div>
+              <div id="chart-stress-shear"><MaxShearStressChart /></div>
               <StressGradientProfile />
               <InteractiveStressTransformation />
             </div>
@@ -141,6 +163,64 @@ const SFDBMDSolverInternal: React.FC = () => {
       <div className="mt-2">
         <CalculationBreakdowns />
       </div>
+
+      {/* PDF Export Options Modal */}
+      <PDFExportModal
+        isOpen={isExportOpen}
+        onClose={() => setIsExportOpen(false)}
+        documentType="sfd-bmd"
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        defaultTitle="Beam Design & Stress Analysis Report"
+        availableCharts={[
+          { id: 'chart-sfd', label: 'Shear Force Diagram (SFD)' },
+          { id: 'chart-bmd', label: 'Bending Moment Diagram (BMD)' },
+          { 
+            id: 'chart-slope', 
+            label: 'Slope Diagram (θ)', 
+            disabled: isDeflectionUnavailable,
+            disabledReason: 'Deflection solver failed'
+          },
+          { 
+            id: 'chart-deflection', 
+            label: 'Deflection Diagram (Δ)', 
+            disabled: isDeflectionUnavailable,
+            disabledReason: 'Deflection solver failed'
+          },
+          { 
+            id: 'chart-stress-bending', 
+            label: 'Normal Bending Stress Envelope', 
+            disabled: isStressUnavailable,
+            disabledReason: 'Bending stress unavailable (requires cross-section template)'
+          },
+          { 
+            id: 'chart-stress-shear', 
+            label: 'Maximum Shear Stress Envelope', 
+            disabled: isStressUnavailable,
+            disabledReason: 'Shear stress unavailable (requires cross-section template)'
+          },
+        ]}
+        availableCalculations={[
+          { id: 'breakdown-doi', label: 'Indeterminacy analysis (DOI)', tabToActivate: 'doi' },
+          { id: 'breakdown-reactions', label: 'Support Reactions derivation', tabToActivate: 'reactions' },
+          { id: 'breakdown-section', label: 'Section Method (Internal equations)', tabToActivate: 'section' },
+          { id: 'breakdown-graphical', label: 'Graphical Method derivation', tabToActivate: 'graphical' },
+          { 
+            id: 'breakdown-deflection', 
+            label: 'Deflection Method derivation', 
+            tabToActivate: 'double-integration',
+            disabled: isDeflectionUnavailable,
+            disabledReason: 'Deflection solver failed'
+          },
+          { 
+            id: 'breakdown-stress', 
+            label: 'Stress Analysis properties', 
+            tabToActivate: 'stress',
+            disabled: isStressUnavailable,
+            disabledReason: 'Bending/Shear stress unavailable (requires cross-section template)'
+          },
+        ]}
+      />
     </div>
   );
 };
