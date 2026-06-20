@@ -14,12 +14,14 @@ import { MicroPrincipalRotation } from './diagrams/MicroPrincipalRotation';
 interface StepDiagramRendererProps {
   text: string;
   tab: string;
+  stepIndex?: number;
+  allSteps?: string[];
 }
 
 export const hasDiagram = (text: string, tab: string): boolean => {
   const trimmed = text.trim();
   if (
-    trimmed.startsWith('#') ||
+    (trimmed.startsWith('#') && !trimmed.toLowerCase().includes('interval')) ||
     trimmed === '' ||
     trimmed.toLowerCase().includes('calculation steps') ||
     trimmed.toLowerCase().includes('calculation breakdown') ||
@@ -61,7 +63,10 @@ export const hasDiagram = (text: string, tab: string): boolean => {
         trimmed.toLowerCase().includes('step 3')
       );
     case 'section':
-      return /\[([\d.]+),\s*([\d.]+)\]/.test(trimmed);
+      return (
+        trimmed.toLowerCase().includes('interval') &&
+        /\[([\d.]+),\s*([\d.]+)\]/.test(trimmed)
+      );
     case 'graphical':
       return (
         /\[([\d.]+),\s*([\d.]+)\]/.test(trimmed) ||
@@ -87,7 +92,7 @@ export const hasDiagram = (text: string, tab: string): boolean => {
 
 const stepLogger = logger.child('StepDiagramRenderer');
 
-export const StepDiagramRenderer: React.FC<StepDiagramRendererProps> = ({ text, tab }) => {
+export const StepDiagramRenderer: React.FC<StepDiagramRendererProps> = ({ text, tab, stepIndex, allSteps }) => {
   const hasDiag = hasDiagram(text, tab);
   stepLogger.debug('StepDiagramRenderer evaluation', { text, tab, hasDiag });
 
@@ -101,7 +106,7 @@ export const StepDiagramRenderer: React.FC<StepDiagramRendererProps> = ({ text, 
     case 'reactions':
       return <ReactionsStepVisual text={text} />;
     case 'section':
-      return <SectionStepVisual text={text} />;
+      return <SectionStepVisual text={text} stepIndex={stepIndex} allSteps={allSteps} />;
     case 'graphical':
       return <GraphicalStepVisual text={text} />;
     case 'double-integration':

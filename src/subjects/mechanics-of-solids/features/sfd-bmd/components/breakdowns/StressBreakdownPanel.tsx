@@ -158,6 +158,8 @@ export const StressBreakdownPanel: React.FC = () => {
               key={idx}
               step={step}
               tab="stress"
+              stepIndex={idx}
+              allSteps={steps}
               isExpanded={!!expandedDiagrams[`stress-${idx}`]}
               onToggle={() =>
                 setExpandedDiagrams(prev => ({

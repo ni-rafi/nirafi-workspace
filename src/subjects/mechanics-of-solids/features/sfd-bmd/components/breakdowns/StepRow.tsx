@@ -8,9 +8,11 @@ interface StepRowProps {
   tab: string;
   isExpanded: boolean;
   onToggle: () => void;
+  stepIndex?: number;
+  allSteps?: string[];
 }
 
-export const StepRow: React.FC<StepRowProps> = ({ step, tab, isExpanded, onToggle }) => {
+export const StepRow: React.FC<StepRowProps> = ({ step, tab, isExpanded, onToggle, stepIndex, allSteps }) => {
   const showToggle = hasDiagram(step, tab);
 
   return (
@@ -36,7 +38,7 @@ export const StepRow: React.FC<StepRowProps> = ({ step, tab, isExpanded, onToggl
 
       {showToggle && isExpanded && (
         <div className="mt-1 transition-all duration-200 ease-in-out">
-          <StepDiagramRenderer text={step} tab={tab} />
+          <StepDiagramRenderer text={step} tab={tab} stepIndex={stepIndex} allSteps={allSteps} />
         </div>
       )}
     </div>

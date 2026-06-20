@@ -7,9 +7,11 @@ interface BeamLoadsProps {
   fill: string;
   sw: number;
   transform: string;
+  strokeDasharray?: string;
+  momentHalf?: 'left' | 'right';
 }
 
-export const BeamLoads: React.FC<BeamLoadsProps> = ({ el, stroke, fill, sw, transform }) => {
+export const BeamLoads: React.FC<BeamLoadsProps> = ({ el, stroke, fill, sw, transform, strokeDasharray, momentHalf }) => {
   if (el.type === 'udl') {
     const S = el.udlSegmentsCount || 8;
     const ry = el.h * 0.45;
@@ -36,6 +38,7 @@ export const BeamLoads: React.FC<BeamLoadsProps> = ({ el, stroke, fill, sw, tran
             y2={y_bottom - 5}
             stroke={stroke}
             strokeWidth={sw}
+            strokeDasharray={strokeDasharray}
           />
           <path
             d={`M ${x_i - 3} ${y_bottom - 5} L ${x_i} ${y_bottom} L ${x_i + 3} ${y_bottom - 5} Z`}
@@ -47,7 +50,7 @@ export const BeamLoads: React.FC<BeamLoadsProps> = ({ el, stroke, fill, sw, tran
     
     return (
       <g transform={transform}>
-        <line x1={0} y1={y_bottom} x2={el.w} y2={y_bottom} stroke={stroke} strokeWidth={sw} />
+        <line x1={0} y1={y_bottom} x2={el.w} y2={y_bottom} stroke={stroke} strokeWidth={sw} strokeDasharray={strokeDasharray} />
         <path d={archesPath} fill="none" stroke={stroke} strokeWidth={sw} />
         {arrows}
       </g>
@@ -73,6 +76,7 @@ export const BeamLoads: React.FC<BeamLoadsProps> = ({ el, stroke, fill, sw, tran
             y2={y_bottom - 5}
             stroke={stroke}
             strokeWidth={sw}
+            strokeDasharray={strokeDasharray}
           />
           <path
             d={`M ${x_i - 3} ${y_bottom - 5} L ${x_i} ${y_bottom} L ${x_i + 3} ${y_bottom - 5} Z`}
@@ -98,25 +102,37 @@ export const BeamLoads: React.FC<BeamLoadsProps> = ({ el, stroke, fill, sw, tran
 
   if (el.type === 'moment') {
     const cw = el.momentDirection !== 'ccw';
-    const startAngle = Math.PI / 4;
-    const endAngle = 7 * Math.PI / 4;
+    const showRightHalf = momentHalf === 'right';
+    
+    const angleBottom = Math.PI / 2;
+    const angleTop = 3 * Math.PI / 2;
+    
+    const startAngle = showRightHalf
+      ? (cw ? angleTop : angleBottom)
+      : (cw ? angleBottom : angleTop);
+      
+    const endAngle = showRightHalf
+      ? (cw ? angleBottom : angleTop)
+      : (cw ? angleTop : angleBottom);
+      
+    const pathEndAngle = endAngle - (cw ? 0.35 : -0.35);
+    
     const r = Math.min(el.w, el.h) * 0.35;
     const cx = el.w / 2;
     const cy = el.h / 2;
 
     const x1 = cx + r * Math.cos(startAngle);
     const y1 = cy + r * Math.sin(startAngle);
-    const x2 = cx + r * Math.cos(endAngle);
-    const y2 = cy + r * Math.sin(endAngle);
+    const x2 = cx + r * Math.cos(pathEndAngle);
+    const y2 = cy + r * Math.sin(pathEndAngle);
 
-    const pathD = cw 
-      ? `M ${x1} ${y1} A ${r} ${r} 0 1 1 ${x2} ${y2}`
-      : `M ${x2} ${y2} A ${r} ${r} 0 1 0 ${x1} ${y1}`;
+    const sweepFlag = cw ? 1 : 0;
+    const pathD = `M ${x1} ${y1} A ${r} ${r} 0 1 ${sweepFlag} ${x2} ${y2}`;
     
-    const theta = cw ? endAngle : startAngle;
+    const theta = endAngle;
     const arrowLength = 9;
     const arrowAngle = Math.PI / 6;
-    const tangent = theta + (cw ? -Math.PI / 2 : Math.PI / 2);
+    const tangent = theta + (cw ? Math.PI / 2 : -Math.PI / 2);
     const ax = cx + r * Math.cos(theta);
     const ay = cy + r * Math.sin(theta);
     
@@ -128,7 +144,7 @@ export const BeamLoads: React.FC<BeamLoadsProps> = ({ el, stroke, fill, sw, tran
 
     return (
       <g transform={transform}>
-        <path d={pathD} fill="none" stroke={stroke} strokeWidth={Math.max(2.5, sw)} strokeLinecap="round" />
+        <path d={pathD} fill="none" stroke={stroke} strokeWidth={Math.max(2.5, sw)} strokeLinecap="round" strokeDasharray={strokeDasharray} />
         <path d={arrowheadD} fill={stroke} />
       </g>
     );
@@ -140,22 +156,22 @@ export const BeamLoads: React.FC<BeamLoadsProps> = ({ el, stroke, fill, sw, tran
     let arrowheadD = '';
     
     if (dir === 'down') {
-      x1 = el.w / 2; y1 = 0; x2 = el.w / 2; y2 = el.h;
-      arrowheadD = `M ${x2 - 6} ${y2 - 12} L ${x2} ${y2} L ${x2 + 6} ${y2 - 12} Z`;
+      x1 = el.w / 2; y1 = 0; x2 = el.w / 2; y2 = el.h - 9;
+      arrowheadD = `M ${el.w / 2 - 6} ${el.h - 12} L ${el.w / 2} ${el.h} L ${el.w / 2 + 6} ${el.h - 12} Z`;
     } else if (dir === 'up') {
-      x1 = el.w / 2; y1 = el.h; x2 = el.w / 2; y2 = 0;
-      arrowheadD = `M ${x2 - 6} 12 L ${x2} 0 L ${x2 + 6} 12 Z`;
+      x1 = el.w / 2; y1 = el.h; x2 = el.w / 2; y2 = 9;
+      arrowheadD = `M ${el.w / 2 - 6} 12 L ${el.w / 2} 0 L ${el.w / 2 + 6} 12 Z`;
     } else if (dir === 'left') {
-      x1 = el.w; y1 = el.h / 2; x2 = 0; y2 = el.h / 2;
-      arrowheadD = `M 12 ${y2 - 6} L 0 ${y2} L 12 ${y2 + 6} Z`;
+      x1 = el.w; y1 = el.h / 2; x2 = 9; y2 = el.h / 2;
+      arrowheadD = `M 12 ${el.h / 2 - 6} L 0 ${el.h / 2} L 12 ${el.h / 2 + 6} Z`;
     } else if (dir === 'right') {
-      x1 = 0; y1 = el.h / 2; x2 = el.w; y2 = el.h / 2;
-      arrowheadD = `M ${x2 - 12} ${y2 - 6} L ${x2} ${y2} L ${x2 - 12} ${y2 + 6} Z`;
+      x1 = 0; y1 = el.h / 2; x2 = el.w - 9; y2 = el.h / 2;
+      arrowheadD = `M ${el.w - 12} ${el.h / 2 - 6} L ${el.w} ${el.h / 2} L ${el.w - 12} ${el.h / 2 + 6} Z`;
     }
     
     return (
       <g transform={transform}>
-        <line x1={x1} y1={y1} x2={x2} y2={y2} stroke={stroke} strokeWidth={Math.max(3.5, sw + 1)} strokeLinecap="round" />
+        <line x1={x1} y1={y1} x2={x2} y2={y2} stroke={stroke} strokeWidth={Math.max(3.5, sw + 1)} strokeLinecap="round" strokeDasharray={strokeDasharray} />
         <path d={arrowheadD} fill={stroke} />
       </g>
     );
