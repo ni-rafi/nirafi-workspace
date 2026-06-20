@@ -3,6 +3,7 @@ import { SlideSchema } from '@/features/presentation/types/schema';
 import { SlideSchemaEngine } from '@/features/presentation/components/slides/SlideSchemaEngine';
 import { SlideProps } from '@/features/presentation/components/slides/SlideRenderer';
 import presenterData from '@/config/presenter.json';
+import strategyData from '@/config/cee-tl-assessment-strategy-v1.json';
 
 const metadata = {
   courseCode: 'CEE 0541 1233',
@@ -35,27 +36,7 @@ const contents = [
   { id: 7, title: 'Fundamentals of Impulse and Momentum', description: 'This chapter presents impulse and momentum, principle of impulse and momentum, angular impulse and angular momentum, linear momentum and conservation of linear momentum.' },
 ];
 
-const tlLegends = [
-  { code: 'TL 01', strategy: 'Lecture using board/LCD projectors/OHP Projectors' },
-  { code: 'TL 02', strategy: 'Assignment/project/seminar/workshop/tutorial' },
-  { code: 'TL 03', strategy: 'Laboratory/Other teaching aids (Audio-visual: film, documentaries, virtual classroom)' },
-  { code: 'TL 04', strategy: 'Guest lectures/industrial visit/field visit' },
-  { code: 'TL 05', strategy: 'Self-learning using reference books/research article/case study/other online materials' },
-  { code: 'TL 06', strategy: 'Simulation/field demonstration/Hands on practice' },
-  { code: 'TL 07', strategy: 'Examples and in class problem solving' },
-  { code: 'TL 08', strategy: 'Self-study, group discussion' },
-];
-
-const assessmentLegends = [
-  { code: 'CA 01', strategy: 'Midterm Examination 1' },
-  { code: 'CA 02', strategy: 'Midterm Examination 2' },
-  { code: 'CA 03', strategy: 'Assignment / Report' },
-  { code: 'CA 04', strategy: 'Quiz / Sudden test' },
-  { code: 'CA 05', strategy: 'Presentation (Individual/group) / Interim viva voce' },
-  { code: 'SA 01', strategy: 'Final Exam (Semester-end examination) / Final Quiz' },
-  { code: 'SA 02', strategy: 'Viva (Semester-end oral examination)' },
-  { code: 'SA 03', strategy: 'Seminar paper / field / thesis report evaluation' },
-];
+const { tlLegends, assessmentLegends } = strategyData;
 
 const references = [
   {

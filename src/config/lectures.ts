@@ -34,7 +34,7 @@ export type Subject = Course;
 
 // Eagerly import all lecture metadata configs across the workspace
 const metadataModules = import.meta.glob<{ metadata: Lecture }>(
-  '/src/subjects/*/lectures/session-*/lecture-*/metadata.ts',
+  '/src/subjects/*/lectures/session-*/*/metadata.ts',
   { eager: true }
 );
 

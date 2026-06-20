@@ -17,11 +17,11 @@ describe('Academic Slide Decks Registry & Schema Verification', () => {
   const deckModules = import.meta.glob<{
     slides: Record<number, React.ComponentType<{ slideNo: number; subject: unknown; lecture: unknown; session?: unknown }>>;
     slideMetadata: Record<number, z.infer<typeof slideMetadataSchema>>;
-  }>('/src/subjects/**/lectures/session-*/lecture-*/lecture.tsx');
+  }>('/src/subjects/**/lectures/session-*/*/lecture.tsx');
 
   Object.entries(deckModules).forEach(([path, loadDeck]) => {
-    // Extract a clean display name (e.g. quantity-surveying/lecture-1-concrete)
-    const match = path.match(/\/subjects\/(.+?\/lectures\/session-.+?\/lecture-.+?)\/lecture\.tsx$/);
+    // Extract a clean display name (e.g. quantity-surveying/lecture-1-concrete or engineering-mechanics/course-outline)
+    const match = path.match(/\/subjects\/(.+?\/lectures\/session-.+?\/.+?)\/lecture\.tsx$/);
     const displayName = match ? match[1] : path;
 
     describe(`Lecture Deck: ${displayName}`, () => {

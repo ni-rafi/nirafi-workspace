@@ -48,12 +48,12 @@ export const registerResolvedDeck = (
 const DECK_LOADERS = import.meta.glob<{
   slides: Record<number, React.ComponentType<SlideProps>>;
   slideMetadata: Record<number, SlideMetadata>;
-}>('/src/subjects/*/lectures/session-*/lecture-*/lecture.tsx');
+}>('/src/subjects/*/lectures/session-*/*/lecture.tsx');
 
 // Eager glob map of metadata files to resolve quiz visibility modes synchronously
 const metadataModules = import.meta.glob<{
   metadata: Lecture & { quizzes?: Record<string, 'stealth' | 'placeholder'> };
-}>('/src/subjects/*/lectures/session-*/lecture-*/metadata.ts', { eager: true });
+}>('/src/subjects/*/lectures/session-*/*/metadata.ts', { eager: true });
 
 /**
  * Dynamically resolves and loads a lecture deck on demand.
@@ -71,8 +71,8 @@ export const loadLectureDeck = async (
     const includesSubjectAndSession = path.includes(`/subjects/${subjectId}/`) && path.includes(`/${sessionId}/`);
     if (!includesSubjectAndSession) return false;
 
-    // Matches e.g. "/lecture-1-concrete/lecture.tsx" or "/lecture-concrete/lecture.tsx" ending with lectureId
-    const regex = new RegExp(`\\/lecture-(?:\\d+-)?${lectureId}\\/lecture\\.tsx$`);
+    // Matches e.g. "/lecture-1-concrete/lecture.tsx" or "/course-outline/lecture.tsx" ending with lectureId
+    const regex = new RegExp(`\\/(?:lecture-|course-)?(?:\\d+-)?${lectureId}\\/lecture\\.tsx$`);
     return regex.test(path);
   });
 
