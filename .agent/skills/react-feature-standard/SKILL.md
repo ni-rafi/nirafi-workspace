@@ -5,35 +5,33 @@ description: Standard structure and conventions for developing reusable React fe
 
 # React Feature & Lecture Development Standard
 
-This skill defines the folder structure and guidelines for developing core reusable UI components inside `src/features/` and lecture slide decks inside `src/lectures/`.
+This skill defines the folder structure and guidelines for developing core reusable UI components, mathematical engines, and lecture slide decks.
 
 ---
 
 ## 1. Directory Structure
 
-### 1.1 Core Features (`src/features/`)
-Every core feature is presentation-agnostic and reusable. It must follow this structure:
+The project separates global/app-wide concerns from subject-specific course domains to maintain high cohesion and prevent folder clutter.
+
+### 1.1 Global Directories
+* **`src/cores/`**: Global website-level core utilities (e.g., logger, user profiles, authentication). No UI code or subject-specific logic.
+* **`src/features/`**: Global presentation-agnostic UI features (e.g., slideshow presentation viewer, gate, general quiz templates).
+* **`src/routes/`**: React Router table configurations, path layouts, and route guards.
+* **`src/shared/`**: App-wide layouts, styles, components, and layout utilities.
+
+### 1.2 Subject Directories (`src/subjects/`)
+All academic course content is grouped inside `src/subjects/{subjectName}/` as isolated sub-applications:
 ```text
-src/features/{featureName}/
-├── components/       # Presentational components (Pure UI, props-driven)
-├── hooks/            # Controllers, custom hooks (Zustand, state integration)
-├── types/            # TypeScript interfaces internal to the feature
-└── index.ts          # Barrel exports exposing only public components and hooks
+src/subjects/{subjectName}/
+├── cores/         # Subject math: calculations, solvers, physics engines (pure TS)
+├── features/      # Subject UI: interactive builders, charts, breakdowns, state context/hooks
+└── lectures/      # Subject slides: session-XXXX/lecture-Name/lecture.tsx
 ```
 
-#### Reusable Features Examples:
-- **`presentation`**: Aspect-ratio slideshow viewer, keyboard shortcuts (`useNavShortcuts`), overlays, and element layout templates (`SlideBullet`, `SlideParagraph`, `SlideEquation`, `SlideTable`, `SlideList`, `LatexFormula`).
-- **`gate`**: Roll number validation dialog and guest log-in forms.
-- **`quiz`**: Real-time Interactive Quiz card (submits scores to Firestore).
-- **`qs-calculators`**: Civil Engineering math estimators (Concrete Wizard steps, BoQ spreadsheet).
-
-### 1.2 Lectures (`src/lectures/`)
-Slide decks are composed strictly of components, widgets, and layouts imported from `src/features/` and `src/shared/layouts/`. They are organized by subject and session:
-```text
-src/lectures/{subjectName}/session-{year}/{lectureName}/
-├── lecture.tsx   # Lecture slide configurations and text content composed in JSX
-└── ...           # Lecture-specific assets or helper configurations
-```
+#### Subject Structure Breakdown:
+1. **`cores/`**: Statically isolated, framework-agnostic mathematical engines (e.g., bending stress, concrete volume, or SFD-BMD calculations). Must contain companion unit tests in `__tests__/`.
+2. **`features/`**: Reusable interactive widgets, editors, charts, and state controllers (custom hooks/contexts) for this subject.
+3. **`lectures/`**: Specific slide decks (organized by session year) that compose layout templates and import components from `features/`.
 
 ---
 

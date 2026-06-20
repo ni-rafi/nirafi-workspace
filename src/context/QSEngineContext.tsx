@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useMemo } from 'react';
-import type { IQSEngine } from '@/cores/quantity-surveying/IQSEngine';
-import { QSEngine } from '@/cores/quantity-surveying/qsService';
+import type { IQSEngine } from '@/subjects/quantity-surveying/cores/IQSEngine';
+import { QSEngine } from '@/subjects/quantity-surveying/cores/qsService';
 
 const QSEngineContext = createContext<IQSEngine | null>(null);
 

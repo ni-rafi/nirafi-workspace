@@ -3,11 +3,11 @@ import type { Subject, Lecture, Session } from '@/config/lectures';
 import SlideConcepts from './SlideConcepts';
 
 // Import all constructed lecture slide decks
-import * as ConcreteLecture from '@/lectures/quantity-surveying/session-2026/lecture-1-concrete/lecture';
-import * as BrickworkLecture from '@/lectures/quantity-surveying/session-2026/lecture-2-brickwork/lecture';
-import * as SteelLecture from '@/lectures/quantity-surveying/session-2026/lecture-3-steel/lecture';
-import * as SlidevIntroLecture from '@/lectures/web-development/session-2026/lecture-1-slidev-intro/lecture';
-import * as EngineeringMechanicsOutline from '@/lectures/engineering-mechanics/session-2024/course-outline/lecture';
+import * as ConcreteLecture from '@/subjects/quantity-surveying/lectures/session-2026/lecture-1-concrete/lecture';
+import * as BrickworkLecture from '@/subjects/quantity-surveying/lectures/session-2026/lecture-2-brickwork/lecture';
+import * as SteelLecture from '@/subjects/quantity-surveying/lectures/session-2026/lecture-3-steel/lecture';
+import * as SlidevIntroLecture from '@/subjects/web-development/lectures/session-2026/lecture-1-slidev-intro/lecture';
+import * as EngineeringMechanicsOutline from '@/subjects/engineering-mechanics/lectures/session-2024/course-outline/lecture';
 
 export interface SlideProps {
   subject: Subject;

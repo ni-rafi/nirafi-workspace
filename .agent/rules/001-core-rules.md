@@ -9,12 +9,15 @@ description: Core Architecture and File Size Rules
 - Keep files under 200 lines when possible. The absolute hard limit is 250 lines unless explicitly justified.
 
 ## 2. Directory Topology
-- `cores/`: Isolated, pure mathematics/business logic files. Absolutely no UI code, React, or framework imports here.
-- `services/`: Shared infrastructure models, authentication handlers, and database connections. Pure TypeScript, no UI components.
-- `features/`: Reusable, presentation-agnostic core application features (e.g., slideshow player mechanisms, identification gates, quiz templates, and estimation forms).
-- `lectures/`: Specific lecture slide decks (organized by subject and session) that compose layout templates and interactive components imported from `features/`.
+- `cores/`: App-wide global utility libraries and services. No subject-specific calculations or UI code.
+- `services/`: Shared app-wide infrastructure models, authentication handlers, and database connections.
+- `features/`: Reusable, presentation-agnostic app-wide UI features (e.g., slideshow player mechanisms, login gates, general quiz templates).
 - `routes/`: React Router table configurations, middleware routing, and authorization guards.
 - `shared/`: App-wide cross-cutting layouts and layout utility components.
+- `subjects/`: Standalone directories for each course subject (e.g., `mechanics-of-solids/`, `quantity-surveying/`). Each subject folder contains:
+  - `cores/`: Subject-specific pure calculations and mathematical engines (no UI or framework code).
+  - `features/`: Reusable widgets, editors, charts, and state hooks/contexts specific to the subject.
+  - `lectures/`: Session-specific slide decks that compose layouts and import features.
 
 ## 3. Dependency Injection (DI) & Coding Principles
 - Use Dependency Injection (DI) via React Context Providers and custom hooks to resolve service instances. Register singletons at the app root context (e.g., `FirebaseContext.Provider`), and consume them inside components using dedicated hooks (e.g., `useFirebase()`).
@@ -39,7 +42,7 @@ description: Core Architecture and File Size Rules
   - Use `<SlideBullet>` for lists and bullets.
   - Use `<SlideParagraph>` for slide paragraph styling.
   - Use `<SlideEquation>` or `<LatexFormula>` for mathematical equations, adhering to flat, unshadowed container styles.
-- **Lecture Organization**: Organise slide decks under `src/lectures/{subjectCode}/session-{year}/` to enforce year-specific division. Keep slide structure presentation-only, importing estimate calculators or quizzes from `src/features/`.
+- **Lecture Organization**: Organize slide decks under `src/subjects/{subjectName}/lectures/session-{year}/` to enforce year-specific division. Keep slide structure presentation-only, importing estimate calculators or quizzes from subject `features/`.
 
 
 

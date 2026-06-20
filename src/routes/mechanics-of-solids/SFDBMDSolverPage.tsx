@@ -1,25 +1,25 @@
 import React from 'react';
-import { BeamWorkspaceProvider } from '@/features/mechanics-of-solids/sfd-bmd/context/BeamWorkspaceContext';
-import { useBeamEngine } from '@/features/mechanics-of-solids/sfd-bmd/hooks/useBeamEngine';
-import { BeamCanvas } from '@/features/mechanics-of-solids/sfd-bmd/components/builder/BeamCanvas';
-import { ToolBar } from '@/features/mechanics-of-solids/sfd-bmd/components/builder/ToolBar';
-import { ElementConfigurator } from '@/features/mechanics-of-solids/sfd-bmd/components/builder/ElementConfigurator';
-import { ShearForceChart } from '@/features/mechanics-of-solids/sfd-bmd/components/diagrams/ShearForceChart';
-import { BendingMomentChart } from '@/features/mechanics-of-solids/sfd-bmd/components/diagrams/BendingMomentChart';
-import { SlopeChart } from '@/features/mechanics-of-solids/sfd-bmd/components/diagrams/SlopeChart';
-import { DeflectionChart } from '@/features/mechanics-of-solids/sfd-bmd/components/diagrams/DeflectionChart';
-import { CalculationBreakdowns } from '@/features/mechanics-of-solids/sfd-bmd/components/breakdowns/CalculationBreakdowns';
-import { MathTextRenderer } from '@/features/mechanics-of-solids/sfd-bmd/components/breakdowns/MathTextRenderer';
+import { BeamWorkspaceProvider } from '@/subjects/mechanics-of-solids/features/sfd-bmd/context/BeamWorkspaceContext';
+import { useBeamEngine } from '@/subjects/mechanics-of-solids/features/sfd-bmd/hooks/useBeamEngine';
+import { BeamCanvas } from '@/subjects/mechanics-of-solids/features/sfd-bmd/components/builder/BeamCanvas';
+import { ToolBar } from '@/subjects/mechanics-of-solids/features/sfd-bmd/components/builder/ToolBar';
+import { ElementConfigurator } from '@/subjects/mechanics-of-solids/features/sfd-bmd/components/builder/ElementConfigurator';
+import { ShearForceChart } from '@/subjects/mechanics-of-solids/features/sfd-bmd/components/diagrams/ShearForceChart';
+import { BendingMomentChart } from '@/subjects/mechanics-of-solids/features/sfd-bmd/components/diagrams/BendingMomentChart';
+import { SlopeChart } from '@/subjects/mechanics-of-solids/features/sfd-bmd/components/diagrams/SlopeChart';
+import { DeflectionChart } from '@/subjects/mechanics-of-solids/features/sfd-bmd/components/diagrams/DeflectionChart';
+import { CalculationBreakdowns } from '@/subjects/mechanics-of-solids/features/sfd-bmd/components/breakdowns/CalculationBreakdowns';
+import { MathTextRenderer } from '@/subjects/mechanics-of-solids/features/sfd-bmd/components/breakdowns/MathTextRenderer';
 import { ArrowLeft, RefreshCw, Info } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { useBeamWorkspace } from '@/features/mechanics-of-solids/sfd-bmd/context/BeamWorkspaceContext';
-import { BendingStressEnvelopeChart } from '@/features/mechanics-of-solids/stress/components/diagrams/BendingStressEnvelopeChart';
-import { MaxShearStressChart } from '@/features/mechanics-of-solids/stress/components/diagrams/MaxShearStressChart';
-import { StressGradientProfile } from '@/features/mechanics-of-solids/stress/components/diagrams/StressGradientProfile';
-import { InteractiveStressTransformation } from '@/features/mechanics-of-solids/stress/components/diagrams/InteractiveStressTransformation';
-import { CrossSectionBuilder } from '@/features/mechanics-of-solids/stress/components/builder/CrossSectionBuilder';
-import { InteractiveProfileCanvas } from '@/features/mechanics-of-solids/stress/components/builder/InteractiveProfileCanvas';
-import { CrossSectionEngine } from '@/cores/mechanics-of-solids/stress/cross-section.engine';
+import { useBeamWorkspace } from '@/subjects/mechanics-of-solids/features/sfd-bmd/context/BeamWorkspaceContext';
+import { BendingStressEnvelopeChart } from '@/subjects/mechanics-of-solids/features/stress/components/diagrams/BendingStressEnvelopeChart';
+import { MaxShearStressChart } from '@/subjects/mechanics-of-solids/features/stress/components/diagrams/MaxShearStressChart';
+import { StressGradientProfile } from '@/subjects/mechanics-of-solids/features/stress/components/diagrams/StressGradientProfile';
+import { InteractiveStressTransformation } from '@/subjects/mechanics-of-solids/features/stress/components/diagrams/InteractiveStressTransformation';
+import { CrossSectionBuilder } from '@/subjects/mechanics-of-solids/features/stress/components/builder/CrossSectionBuilder';
+import { InteractiveProfileCanvas } from '@/subjects/mechanics-of-solids/features/stress/components/builder/InteractiveProfileCanvas';
+import { CrossSectionEngine } from '@/subjects/mechanics-of-solids/cores/stress/cross-section.engine';
 
 const SFDBMDSolverInternal: React.FC = () => {
   const { solverResult } = useBeamEngine();
@@ -64,7 +64,7 @@ const SFDBMDSolverInternal: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         <div className={`flex flex-col gap-6 ${isSectionBuilderOpen ? 'lg:col-span-2' : 'lg:col-span-3'}`}>
           <BeamCanvas />
-          
+
           {/* Diagrams Output */}
           {solverResult.success ? (
             <div className="flex flex-col gap-6">

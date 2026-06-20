@@ -48,7 +48,7 @@ export const slideMetadata = steelLectureData.reduce((acc, slide) => {
 const HYBRID_CODE = `import React from 'react';
 import { SlideSchemaEngine } from '@/features/presentation/components/slides/SlideSchemaEngine';
 import { steelLectureData } from './steelLectureData';
-import RebarCalculatorSandbox from '@/features/quantity-surveying/components/RebarCalculatorSandbox';
+import RebarCalculatorSandbox from '@/subjects/quantity-surveying/features/components/RebarCalculatorSandbox';
 
 const SchemaSlides = ({ slideNo }: { slideNo: number }) => (
   <SlideSchemaEngine slideNo={slideNo} deck={steelLectureData} />
