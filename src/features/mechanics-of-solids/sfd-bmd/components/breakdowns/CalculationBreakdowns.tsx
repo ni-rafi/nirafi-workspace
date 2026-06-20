@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useBeamWorkspace } from '../../context/BeamWorkspaceContext';
 import { useBeamEngine } from '../../hooks/useBeamEngine';
-import { MathTextRenderer } from './MathTextRenderer';
+import { StepRow } from './StepRow';
+import { StepListHeader } from './StepListHeader';
 
 type TabType = 
   | 'doi' 
@@ -16,6 +17,7 @@ export const CalculationBreakdowns: React.FC = () => {
   const { setDeflMethod, customInspectX, setCustomInspectX, length } = useBeamWorkspace();
   const { solverResult, deflectionResult } = useBeamEngine();
   const [activeTab, setActiveTab] = useState<TabType>('doi');
+  const [expandedDiagrams, setExpandedDiagrams] = useState<Record<string, boolean>>({});
 
   const { doiResult } = solverResult;
   const isSolved = solverResult.success;
@@ -87,17 +89,32 @@ export const CalculationBreakdowns: React.FC = () => {
         {/* DOI TAB */}
         {activeTab === 'doi' && (
           <div className="flex flex-col gap-3">
-            <div className="flex items-center justify-between border-b border-border/40 pb-2">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/80">Static Restraints Analysis</span>
-              <span className={`rounded-full border px-2.5 py-0.5 text-xs font-semibold ${alertClass}`}>
-                {alertTitle} (DOI = {doiResult.doi})
-              </span>
-            </div>
+            <StepListHeader
+              title="Static Restraints Analysis"
+              steps={doiResult.explanationSteps}
+              tab="doi"
+              expandedDiagrams={expandedDiagrams}
+              setExpandedDiagrams={setExpandedDiagrams}
+              rightElement={
+                <span className={`rounded-full border px-2.5 py-0.5 text-[10px] font-semibold ${alertClass}`}>
+                  {alertTitle} (DOI = {doiResult.doi})
+                </span>
+              }
+            />
             <div className="flex flex-col gap-2.5">
               {doiResult.explanationSteps.map((step, idx) => (
-                <div key={idx} className="flex flex-col gap-1 border-l-2 border-primary/20 pl-3.5 py-0.5">
-                  <MathTextRenderer text={step} />
-                </div>
+                <StepRow
+                  key={idx}
+                  step={step}
+                  tab="doi"
+                  isExpanded={!!expandedDiagrams[`doi-${idx}`]}
+                  onToggle={() =>
+                    setExpandedDiagrams(prev => ({
+                      ...prev,
+                      [`doi-${idx}`]: !prev[`doi-${idx}`],
+                    }))
+                  }
+                />
               ))}
             </div>
           </div>
@@ -106,14 +123,27 @@ export const CalculationBreakdowns: React.FC = () => {
         {/* REACTIONS TAB */}
         {activeTab === 'reactions' && isSolved && (
           <div className="flex flex-col gap-3">
-            <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/80 border-b border-border/40 pb-2">
-              Equilibrium Equations solver
-            </div>
+            <StepListHeader
+              title="Equilibrium Equations solver"
+              steps={solverResult.reactionSteps}
+              tab="reactions"
+              expandedDiagrams={expandedDiagrams}
+              setExpandedDiagrams={setExpandedDiagrams}
+            />
             <div className="flex flex-col gap-2.5">
               {solverResult.reactionSteps.map((step, idx) => (
-                <div key={idx} className="flex flex-col gap-1 border-l-2 border-primary/20 pl-3.5 py-0.5">
-                  <MathTextRenderer text={step} />
-                </div>
+                <StepRow
+                  key={idx}
+                  step={step}
+                  tab="reactions"
+                  isExpanded={!!expandedDiagrams[`reactions-${idx}`]}
+                  onToggle={() =>
+                    setExpandedDiagrams(prev => ({
+                      ...prev,
+                      [`reactions-${idx}`]: !prev[`reactions-${idx}`],
+                    }))
+                  }
+                />
               ))}
             </div>
           </div>
@@ -122,14 +152,27 @@ export const CalculationBreakdowns: React.FC = () => {
         {/* SECTION METHOD TAB */}
         {activeTab === 'section' && isSolved && (
           <div className="flex flex-col gap-3">
-            <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/80 border-b border-border/40 pb-2">
-              Interval Equations cut segments
-            </div>
+            <StepListHeader
+              title="Interval Equations cut segments"
+              steps={solverResult.sectionSteps}
+              tab="section"
+              expandedDiagrams={expandedDiagrams}
+              setExpandedDiagrams={setExpandedDiagrams}
+            />
             <div className="flex flex-col gap-2.5">
               {solverResult.sectionSteps.map((step, idx) => (
-                <div key={idx} className="flex flex-col gap-1 border-l-2 border-primary/20 pl-3.5 py-0.5">
-                  <MathTextRenderer text={step} />
-                </div>
+                <StepRow
+                  key={idx}
+                  step={step}
+                  tab="section"
+                  isExpanded={!!expandedDiagrams[`section-${idx}`]}
+                  onToggle={() =>
+                    setExpandedDiagrams(prev => ({
+                      ...prev,
+                      [`section-${idx}`]: !prev[`section-${idx}`],
+                    }))
+                  }
+                />
               ))}
             </div>
           </div>
@@ -138,14 +181,27 @@ export const CalculationBreakdowns: React.FC = () => {
         {/* GRAPHICAL METHOD TAB */}
         {activeTab === 'graphical' && isSolved && (
           <div className="flex flex-col gap-3">
-            <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/80 border-b border-border/40 pb-2">
-              Curvatures integration & shear jumps
-            </div>
+            <StepListHeader
+              title="Curvatures integration & shear jumps"
+              steps={solverResult.graphicalSteps}
+              tab="graphical"
+              expandedDiagrams={expandedDiagrams}
+              setExpandedDiagrams={setExpandedDiagrams}
+            />
             <div className="flex flex-col gap-2.5">
               {solverResult.graphicalSteps.map((step, idx) => (
-                <div key={idx} className="flex flex-col gap-1 border-l-2 border-primary/20 pl-3.5 py-0.5">
-                  <MathTextRenderer text={step} />
-                </div>
+                <StepRow
+                  key={idx}
+                  step={step}
+                  tab="graphical"
+                  isExpanded={!!expandedDiagrams[`graphical-${idx}`]}
+                  onToggle={() =>
+                    setExpandedDiagrams(prev => ({
+                      ...prev,
+                      [`graphical-${idx}`]: !prev[`graphical-${idx}`],
+                    }))
+                  }
+                />
               ))}
             </div>
           </div>
@@ -218,12 +274,27 @@ export const CalculationBreakdowns: React.FC = () => {
 
             {/* Method derivation steps */}
             <div className="flex flex-col gap-2.5 mt-2">
-              <div className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground/50">Mathematical Derivation steps</div>
+              <StepListHeader
+                title="Mathematical Derivation steps"
+                steps={deflectionResult.steps}
+                tab={activeTab}
+                expandedDiagrams={expandedDiagrams}
+                setExpandedDiagrams={setExpandedDiagrams}
+              />
               <div className="flex flex-col gap-3">
                 {deflectionResult.steps.map((step, idx) => (
-                  <div key={idx} className="flex flex-col gap-1 border-l-2 border-primary/20 pl-3.5 py-0.5">
-                    <MathTextRenderer text={step} />
-                  </div>
+                  <StepRow
+                    key={idx}
+                    step={step}
+                    tab={activeTab}
+                    isExpanded={!!expandedDiagrams[`${activeTab}-${idx}`]}
+                    onToggle={() =>
+                      setExpandedDiagrams(prev => ({
+                        ...prev,
+                        [`${activeTab}-${idx}`]: !prev[`${activeTab}-${idx}`],
+                      }))
+                    }
+                  />
                 ))}
               </div>
             </div>
