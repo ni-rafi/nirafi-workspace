@@ -8,4 +8,5 @@ export const ROUTE_PATHS = {
   ADMIN_DASHBOARD: '/:subjectId/:sessionId/admin',
   DOCS: '/docs',
   SHAPES_PLAYGROUND: '/playground/:subjectId/:sessionId/:lectureId/shapes',
+  SOLVER_SFD_BMD: '/mechanics-of-solids/sfd-bmd',
 };

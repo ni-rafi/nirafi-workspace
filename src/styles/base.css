@@ -90,3 +90,8 @@
     padding: 0;
   }
 }
+
+/* Hide KaTeX MathML elements to prevent duplicate rendering when stylesheet is overridden */
+.katex-mathml {
+  display: none !important;
+}

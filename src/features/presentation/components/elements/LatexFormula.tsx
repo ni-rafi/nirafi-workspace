@@ -16,6 +16,7 @@ export const LatexFormula: React.FC<LatexFormulaProps> = ({ math, block = false 
         katex.render(math, containerRef.current, {
           displayMode: block,
           throwOnError: false,
+          output: 'html',
         });
       } catch (err) {
         console.warn('KaTeX rendering error:', err);

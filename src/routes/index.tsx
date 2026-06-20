@@ -9,6 +9,7 @@ import RollNumberGate from '@/features/gate/components/RollNumberGate';
 import AdminClassDashboard from '@/features/portal/components/AdminClassDashboard';
 import SlideCustomizationDocs from '@/features/docs/SlideCustomizationDocs';
 import ShapeBuilderPlayground from '@/features/presentation/components/tools/playground/ShapeBuilderPlayground';
+import { SFDBMDSolverPage } from './mechanics-of-solids/SFDBMDSolverPage';
 
 /**
  * Handles legacy Slidev flat slide number requests (e.g. /5) by
@@ -121,6 +122,7 @@ export const AppRoutes: React.FC = () => {
         <Route path={ROUTE_PATHS.PORTAL_LEGACY} element={<Navigate to={ROUTE_PATHS.PORTAL} replace />} />
         <Route path={ROUTE_PATHS.SLIDE_FLAT} element={<FlatSlideRedirect />} />
         <Route path={ROUTE_PATHS.DOCS} element={<SlideCustomizationDocs />} />
+        <Route path={ROUTE_PATHS.SOLVER_SFD_BMD} element={<SFDBMDSolverPage />} />
 
         {/* Global Fallback Redirect to Dashboard */}
         <Route path="*" element={<Navigate to={ROUTE_PATHS.PORTAL} replace />} />
