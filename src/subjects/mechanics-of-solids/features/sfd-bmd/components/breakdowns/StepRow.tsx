@@ -14,7 +14,7 @@ export const StepRow: React.FC<StepRowProps> = ({ step, tab, isExpanded, onToggl
   const showToggle = hasDiagram(step);
 
   return (
-    <div className="flex flex-col gap-1.5 border-l-2 border-primary/20 pl-3.5 py-1">
+    <div className="flex flex-col gap-1.5 border-l-2 border-primary/20 pl-3.5 py-1 text-xs text-foreground/85">
       <div className="flex items-start justify-between gap-3 group">
         <div className="flex-1">
           <MathTextRenderer text={step} />

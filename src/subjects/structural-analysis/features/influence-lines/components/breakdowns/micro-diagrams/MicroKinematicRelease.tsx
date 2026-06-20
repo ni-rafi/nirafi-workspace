@@ -6,9 +6,9 @@ interface MicroKinematicReleaseProps {
 
 export const MicroKinematicRelease: React.FC<MicroKinematicReleaseProps> = ({ type }) => {
     return (
-        <div className="inline-flex flex-col items-center gap-1 bg-background/40 border border-border p-2 rounded-lg my-1.5 max-w-[140px]">
-            <span className="text-[8px] font-bold text-muted-foreground uppercase tracking-wider">Release Action</span>
-            <svg viewBox="0 0 100 40" className="w-24 h-10 overflow-visible">
+        <div className="inline-flex flex-col items-center gap-1.5 bg-background/40 border border-border p-2.5 rounded-lg my-1 max-w-[160px] shrink-0 shadow-sm">
+            <span className="text-[10px] font-bold text-muted-foreground/80 uppercase tracking-wider">Release Action</span>
+            <svg viewBox="0 0 100 40" className="w-28 h-11 overflow-visible">
                 {/* Dotted reference line */}
                 <line x1={5} y1={20} x2={95} y2={20} stroke="var(--border)" strokeWidth={1} strokeDasharray="2,2" />
 

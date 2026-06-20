@@ -27,7 +27,7 @@ export const StepListHeader: React.FC<StepListHeaderProps> = ({
     return (
       <div className="flex items-center justify-between border-b border-border/40 pb-2 w-full">
         <div className="flex items-center gap-3">
-          <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/80">{title}</span>
+          <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground/80">{title}</span>
           {rightElement}
         </div>
       </div>
@@ -49,12 +49,12 @@ export const StepListHeader: React.FC<StepListHeaderProps> = ({
   return (
     <div className="flex items-center justify-between border-b border-border/40 pb-2 w-full">
       <div className="flex items-center gap-3">
-        <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/80">{title}</span>
+        <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground/80">{title}</span>
         {rightElement}
       </div>
       <button
         onClick={handleToggleAll}
-        className="flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-wider text-primary hover:text-primary/80 transition-colors bg-primary/5 px-2 py-0.5 rounded border border-primary/10"
+        className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-primary hover:text-primary/80 transition-colors bg-primary/5 px-2 py-0.5 rounded border border-primary/10"
       >
         {allExpanded ? (
           <>

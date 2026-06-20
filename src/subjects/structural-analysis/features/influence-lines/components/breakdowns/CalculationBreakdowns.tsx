@@ -5,7 +5,7 @@ import { StepRow } from '@/subjects/mechanics-of-solids/features/sfd-bmd/compone
 import { StepListHeader } from '@/subjects/mechanics-of-solids/features/sfd-bmd/components/breakdowns/StepListHeader';
 import { MicroKinematicRelease } from './micro-diagrams/MicroKinematicRelease';
 import { MicroLoadConvolution } from './micro-diagrams/MicroLoadConvolution';
-import { BookOpen, Layers } from 'lucide-react';
+import { Layers } from 'lucide-react';
 
 type TabType = 'doi' | 'ild' | 'transit' | 'absMax';
 
@@ -47,35 +47,35 @@ export const CalculationBreakdowns: React.FC = () => {
     );
 
     return (
-        <div className="flex flex-col gap-4 rounded-xl border border-border bg-card/40 p-5 backdrop-blur-md">
-            {/* Tabs Header */}
-            <div className="flex flex-wrap items-center justify-between border-b border-border/40 pb-2">
-                <div className="flex items-center gap-1.5">
-                    <BookOpen className="h-4 w-4 text-primary" />
-                    <span className="text-sm font-bold text-foreground">Step-by-Step Educational Breakdown</span>
-                </div>
-                <div className="flex gap-1 bg-background/40 p-1 rounded-lg border border-border/50">
-                    {tabs.map((tab) => {
-                        const isActive = activeTab === tab.id;
-                        const isDisabled = !isSolved && tab.id !== 'doi';
-                        return (
-                            <button
-                                key={tab.id}
-                                disabled={isDisabled}
-                                onClick={() => setActiveTab(tab.id)}
-                                className={`rounded-md px-3 py-1 text-[10px] font-bold uppercase tracking-wider transition-all ${
-                                    isActive
-                                        ? 'bg-primary text-primary-foreground shadow-sm'
-                                        : isDisabled
-                                        ? 'opacity-40 cursor-not-allowed text-muted-foreground'
-                                        : 'text-muted-foreground hover:text-foreground'
-                                }`}
-                            >
-                                {tab.label}
-                            </button>
-                        );
-                    })}
-                </div>
+        <div className="flex flex-col gap-5 rounded-xl border border-border bg-card/30 p-5 backdrop-blur-md">
+            {/* Title block */}
+            <div>
+                <h3 className="text-sm font-semibold text-primary font-bold">Calculation Derivations</h3>
+                <p className="text-[10px] text-muted-foreground">Select a method tab to inspect step-by-step structural formulas</p>
+            </div>
+
+            {/* Tab Navigation Menu */}
+            <div className="flex flex-wrap gap-1 rounded-lg bg-background/40 p-1 border border-border/50">
+                {tabs.map((tab) => {
+                    const isActive = activeTab === tab.id;
+                    const isDisabled = !isSolved && tab.id !== 'doi';
+                    return (
+                        <button
+                            key={tab.id}
+                            disabled={isDisabled}
+                            onClick={() => setActiveTab(tab.id)}
+                            className={`rounded-md px-3 py-1 text-[10px] font-bold uppercase tracking-wider transition-all ${
+                                isActive
+                                    ? 'bg-primary text-primary-foreground shadow-sm'
+                                    : isDisabled
+                                    ? 'opacity-40 cursor-not-allowed text-muted-foreground'
+                                    : 'text-muted-foreground hover:text-foreground'
+                            }`}
+                        >
+                            {tab.label}
+                        </button>
+                    );
+                })}
             </div>
 
             {/* Tab Contents */}
@@ -115,8 +115,22 @@ export const CalculationBreakdowns: React.FC = () => {
                 )}
 
                 {activeTab === 'ild' && isSolved && (
-                    <div id="il-breakdown-ild" className="flex flex-col md:flex-row gap-6">
-                        <div className="flex-1 flex flex-col gap-3">
+                    <div id="il-breakdown-ild" className="flex flex-col gap-4">
+                        {/* Müller-Breslau Release Principle Callout */}
+                        <div className="flex flex-col sm:flex-row items-center gap-4 p-4 border border-border/40 rounded-xl bg-background/20 w-full shadow-sm">
+                            <MicroKinematicRelease type={analysisType} />
+                            <div className="flex flex-col gap-1 text-center sm:text-left">
+                                <span className="text-xs font-bold uppercase tracking-wider text-primary">
+                                    Müller-Breslau Release Principle
+                                </span>
+                                <p className="text-xs text-muted-foreground leading-relaxed">
+                                    Releases the internal restraint for <strong>{analysisType}</strong> to deflect the structure under a virtual displacement. The resulting deflected shape represents the quantitative shape of the Influence Line Diagram (ILD).
+                                </p>
+                            </div>
+                        </div>
+
+                        {/* Equations List */}
+                        <div className="flex flex-col gap-3">
                             <StepListHeader
                                 title="Equilibrium Mechanics Equations"
                                 steps={solverResult.calculationSteps}
@@ -140,15 +154,6 @@ export const CalculationBreakdowns: React.FC = () => {
                                     />
                                 ))}
                             </div>
-                        </div>
-                        <div className="flex flex-col items-center justify-center p-3 border border-border/40 rounded-xl bg-background/20 max-w-[200px] shrink-0 self-center">
-                            <span className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground text-center">
-                                Müller-Breslau release
-                            </span>
-                            <MicroKinematicRelease type={analysisType} />
-                            <p className="text-[9px] text-muted-foreground text-center mt-1 leading-relaxed">
-                                Releases the restraint for <strong>{analysisType}</strong> to deflect the shape.
-                            </p>
                         </div>
                     </div>
                 )}

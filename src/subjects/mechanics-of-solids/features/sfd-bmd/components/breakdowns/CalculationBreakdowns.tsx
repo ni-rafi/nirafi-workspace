@@ -64,7 +64,7 @@ export const CalculationBreakdowns: React.FC = () => {
       </div>
 
       {/* Tab Navigation Menu */}
-      <div className="flex flex-wrap gap-1 rounded-lg bg-muted/20 p-1 border border-border/40">
+      <div className="flex flex-wrap gap-1 rounded-lg bg-background/40 p-1 border border-border/50">
         {tabs.map(tab => {
           const isActive = activeTab === tab.id;
           const isDisabled = !isSolved && tab.id !== 'doi';
@@ -73,11 +73,11 @@ export const CalculationBreakdowns: React.FC = () => {
               key={tab.id}
               disabled={isDisabled}
               onClick={() => handleTabClick(tab.id)}
-              className={`rounded-md px-3 py-1.5 text-xs font-semibold transition-all ${isActive
-                ? 'bg-background text-primary shadow-sm'
+              className={`rounded-md px-3 py-1 text-[10px] font-bold uppercase tracking-wider transition-all ${isActive
+                ? 'bg-primary text-primary-foreground shadow-sm'
                 : isDisabled
                   ? 'opacity-40 cursor-not-allowed text-muted-foreground'
-                  : 'text-muted-foreground hover:bg-muted/10 hover:text-foreground'
+                  : 'text-muted-foreground hover:text-foreground'
                 }`}
             >
               {tab.label}
@@ -87,7 +87,7 @@ export const CalculationBreakdowns: React.FC = () => {
       </div>
 
       {/* Tab Content Panels */}
-      <div className="flex flex-col gap-4 text-xs text-foreground/80 min-h-[180px]">
+      <div className="flex flex-col gap-4 text-sm text-foreground/80 min-h-[180px]">
 
         {/* DOI TAB */}
         {currentTab === 'doi' && (
