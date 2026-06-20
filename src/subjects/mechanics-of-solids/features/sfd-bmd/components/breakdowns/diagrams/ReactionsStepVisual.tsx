@@ -18,19 +18,24 @@ export const ReactionsStepVisual: React.FC<ReactionsStepVisualProps> = ({ text }
   let pivotPos: number | null = null;
   let isMomentEquation = false;
   let isLeftOnly = false;
+  let isRightOnly = false;
 
   // Detect equation type and pivot/cut point
   if (
     trimmed.toLowerCase().includes('moment') ||
     trimmed.toLowerCase().includes('m_{') ||
     trimmed.toLowerCase().includes('m_') ||
-    trimmed.toLowerCase().includes('m_{\\text{left')
+    trimmed.toLowerCase().includes('m_{\\text{left') ||
+    trimmed.toLowerCase().includes('m_{\\text{right')
   ) {
     isMomentEquation = true;
   }
 
   if (trimmed.toLowerCase().includes('left')) {
     isLeftOnly = true;
+  }
+  if (trimmed.toLowerCase().includes('right')) {
+    isRightOnly = true;
   }
 
   if (isMomentEquation) {
@@ -52,7 +57,8 @@ export const ReactionsStepVisual: React.FC<ReactionsStepVisualProps> = ({ text }
     }
   }
 
-  const opacityRightOfX = isLeftOnly ? pivotPos : null;
+  const opacityRightOfX = (isLeftOnly || isRightOnly) ? pivotPos : null;
+  const opacitySide = isRightOnly ? 'left' : 'right';
 
   // 1. Identify active loads and compute equivalents/centroids
   interface IActiveLoadVisual {
@@ -73,40 +79,78 @@ export const ReactionsStepVisual: React.FC<ReactionsStepVisualProps> = ({ text }
     let label = '';
 
     if (l.type === 'point' && l.position !== undefined) {
+      if (isLeftOnly && pivotPos !== null && l.position > pivotPos + 1e-5) return;
+      if (isRightOnly && pivotPos !== null && l.position < pivotPos - 1e-5) return;
+
       cX = l.position;
       P = Math.abs(l.magnitude ?? 0);
       isUpward = (l.magnitude ?? 0) < 0;
       label = `${P.toFixed(1)} kN`;
     } else if (l.type === 'moment' && l.position !== undefined) {
+      if (isLeftOnly && pivotPos !== null && l.position > pivotPos + 1e-5) return;
+      if (isRightOnly && pivotPos !== null && l.position < pivotPos - 1e-5) return;
+
       cX = l.position;
       P = Math.abs(l.magnitude ?? 0);
       isUpward = false;
       label = `${P.toFixed(1)} kNm`;
     } else if (l.type === 'udl' && l.startPosition !== undefined && l.endPosition !== undefined) {
-      const L_load = l.endPosition - l.startPosition;
-      cX = l.startPosition + L_load / 2;
+      let start = l.startPosition;
+      let end = l.endPosition;
+      if (isLeftOnly && pivotPos !== null) {
+        end = Math.min(end, pivotPos);
+      }
+      if (isRightOnly && pivotPos !== null) {
+        start = Math.max(start, pivotPos);
+      }
+      const L_load = end - start;
+      if (L_load <= 1e-5) return;
+
+      cX = start + L_load / 2;
       P = Math.abs(l.magnitude ?? 0) * L_load;
       isUpward = (l.magnitude ?? 0) < 0;
       label = `${P.toFixed(1)} kN (equiv)`;
     } else if (l.type === 'uvl' && l.startPosition !== undefined && l.endPosition !== undefined) {
-      const L_load = l.endPosition - l.startPosition;
+      let start = l.startPosition;
+      let end = l.endPosition;
+      if (isLeftOnly && pivotPos !== null) {
+        end = Math.min(end, pivotPos);
+      }
+      if (isRightOnly && pivotPos !== null) {
+        start = Math.max(start, pivotPos);
+      }
+      const L_load = end - start;
+      if (L_load <= 1e-5) return;
+
       const w1 = l.startMagnitude ?? 0;
       const w2 = l.endMagnitude ?? 0;
-      P = 0.5 * Math.abs(w1 + w2) * L_load;
-      isUpward = w1 < 0 || w2 < 0;
+      const totalLen = l.endPosition - l.startPosition;
+      if (totalLen <= 0) return;
 
-      const absW1 = Math.abs(w1);
-      const absW2 = Math.abs(w2);
+      let rectW = w1;
+      let triW = w2 - w1;
+
+      if (isLeftOnly && pivotPos !== null && l.endPosition > pivotPos) {
+        const wx = w1 + ((w2 - w1) * L_load) / totalLen;
+        rectW = w1;
+        triW = wx - w1;
+      } else if (isRightOnly && pivotPos !== null && l.startPosition < pivotPos) {
+        const wx = w1 + ((w2 - w1) * (totalLen - L_load)) / totalLen;
+        rectW = wx;
+        triW = w2 - wx;
+      }
+
+      const absW1 = Math.abs(rectW);
+      const absW2 = Math.abs(rectW + triW);
+      P = 0.5 * Math.abs(rectW + (rectW + triW)) * L_load;
+      isUpward = rectW < 0 || (rectW + triW) < 0;
+
       if (absW1 + absW2 > 1e-4) {
-        cX = l.startPosition + L_load * (absW1 + 2 * absW2) / (3 * (absW1 + absW2));
+        cX = start + L_load * (absW1 + 2 * absW2) / (3 * (absW1 + absW2));
       } else {
-        cX = (l.startPosition + l.endPosition) / 2;
+        cX = start + L_load / 2;
       }
       label = `${P.toFixed(1)} kN (equiv)`;
-    }
-
-    if (isLeftOnly && cX > (pivotPos ?? 0) + 1e-5) {
-      return;
     }
 
     activeLoadVisuals.push({
@@ -136,6 +180,9 @@ export const ReactionsStepVisual: React.FC<ReactionsStepVisualProps> = ({ text }
     if (isLeftOnly && s.position >= (pivotPos ?? 0) - 1e-5) {
       return;
     }
+    if (isRightOnly && s.position <= (pivotPos ?? 0) + 1e-5) {
+      return;
+    }
 
     activeReactions.push({
       supportId: s.id,
@@ -146,28 +193,30 @@ export const ReactionsStepVisual: React.FC<ReactionsStepVisualProps> = ({ text }
     });
   });
 
+  // Filter and sort targets for dimension lines
+  const dimTargets: { x: number; label: string }[] = [];
+
+  if (pivotPos !== null) {
+    activeReactions.forEach(r => {
+      if (Math.abs(r.position - pivotPos!) > 0.05) {
+        dimTargets.push({ x: r.position, label: `${Math.abs(r.position - pivotPos!).toFixed(2)}m` });
+      }
+    });
+
+    activeLoadVisuals.forEach(l => {
+      if (Math.abs(l.centroidX - pivotPos!) > 0.05 && l.type !== 'moment') {
+        dimTargets.push({ x: l.centroidX, label: `${Math.abs(l.centroidX - pivotPos!).toFixed(2)}m` });
+      }
+    });
+
+    dimTargets.sort((a, b) => Math.abs(a.x - pivotPos!) - Math.abs(b.x - pivotPos!));
+  }
+
+  const dimCount = dimTargets.length;
+  const yBeam = Math.max(90, 69 + Math.max(0, dimCount - 1) * 12);
+  const height = yBeam + 75;
+
   const handleRenderOverlay = (toPixel: (x: number) => number) => {
-    const yBeam = 90;
-
-    // Filter and sort targets for dimension lines
-    const dimTargets: { x: number; label: string }[] = [];
-
-    if (pivotPos !== null) {
-      activeReactions.forEach(r => {
-        if (Math.abs(r.position - pivotPos!) > 0.05) {
-          dimTargets.push({ x: r.position, label: `${Math.abs(r.position - pivotPos!).toFixed(2)}m` });
-        }
-      });
-
-      activeLoadVisuals.forEach(l => {
-        if (Math.abs(l.centroidX - pivotPos!) > 0.05 && l.type !== 'moment') {
-          dimTargets.push({ x: l.centroidX, label: `${Math.abs(l.centroidX - pivotPos!).toFixed(2)}m` });
-        }
-      });
-
-      dimTargets.sort((a, b) => Math.abs(a.x - pivotPos!) - Math.abs(b.x - pivotPos!));
-    }
-
     return (
       <g>
         {/* Render Pivot indicator */}
@@ -310,9 +359,10 @@ export const ReactionsStepVisual: React.FC<ReactionsStepVisualProps> = ({ text }
 
   return (
     <MiniBeamVisual
-      height={165}
-      yBeam={90}
+      height={height}
+      yBeam={yBeam}
       opacityRightOfX={opacityRightOfX}
+      opacitySide={opacitySide}
       onRenderOverlay={handleRenderOverlay}
     />
   );

@@ -19,9 +19,11 @@ function formatNumber(val: number): string {
   return rounded.toString();
 }
 
-function getLoadsDetailedSum(loads: ILoad[], xLimit?: number): ILoadsBreakdown {
+function getLoadsDetailedSum(loads: ILoad[], xLimit?: number, side: 'left' | 'right' = 'left'): ILoadsBreakdown {
   const activeLoads = xLimit !== undefined
-    ? loads.filter(l => (l.position ?? l.startPosition ?? 0) < xLimit)
+    ? (side === 'left'
+        ? loads.filter(l => (l.position ?? l.startPosition ?? 0) < xLimit - 1e-5)
+        : loads.filter(l => (l.position ?? l.endPosition ?? 0) > xLimit + 1e-5))
     : loads;
 
   if (activeLoads.length === 0) {
@@ -43,7 +45,9 @@ function getLoadsDetailedSum(loads: ILoad[], xLimit?: number): ILoadsBreakdown {
       const w = l.magnitude ?? 0;
       const start = l.startPosition ?? 0;
       const end = l.endPosition ?? 0;
-      const len = xLimit !== undefined ? Math.min(end, xLimit) - start : end - start;
+      const len = xLimit !== undefined
+        ? (side === 'left' ? Math.min(end, xLimit) - start : end - Math.max(start, xLimit))
+        : end - start;
       if (len <= 0 || Math.abs(w) < 1e-4) return;
       parts.push(`(${formatNumber(w)} \\times ${formatNumber(len)})`);
       const val = w * len;
@@ -53,28 +57,43 @@ function getLoadsDetailedSum(loads: ILoad[], xLimit?: number): ILoadsBreakdown {
       const start = l.startPosition ?? 0;
       const end = l.endPosition ?? 0;
       const totalLen = end - start;
-      const len = xLimit !== undefined ? Math.min(end, xLimit) - start : totalLen;
-      if (len <= 0 || totalLen <= 0) return;
+      if (totalLen <= 0) return;
+      const len = xLimit !== undefined
+        ? (side === 'left' ? Math.min(end, xLimit) - start : end - Math.max(start, xLimit))
+        : totalLen;
+      if (len <= 0) return;
 
       const w1 = l.startMagnitude ?? 0;
       const w2 = l.endMagnitude ?? 0;
-      const wx = xLimit !== undefined && end > xLimit
-        ? w1 + ((w2 - w1) * len) / totalLen
-        : w2;
 
-      if (Math.abs(w1) < 1e-4) {
-        parts.push(`(0.5 \\times ${formatNumber(wx)} \\times ${formatNumber(len)})`);
-        const val = 0.5 * wx * len;
+      let rectW = w1;
+      let triW = w2 - w1;
+
+      if (xLimit !== undefined) {
+        if (side === 'left' && end > xLimit) {
+          const wx = w1 + ((w2 - w1) * len) / totalLen;
+          rectW = w1;
+          triW = wx - w1;
+        } else if (side === 'right' && start < xLimit) {
+          const wx = w1 + ((w2 - w1) * (totalLen - len)) / totalLen;
+          rectW = wx;
+          triW = w2 - wx;
+        }
+      }
+
+      if (Math.abs(rectW) < 1e-4) {
+        parts.push(`(0.5 \\times ${formatNumber(triW)} \\times ${formatNumber(len)})`);
+        const val = 0.5 * triW * len;
         vals.push(`${formatNumber(val)}`);
         total += val;
-      } else if (Math.abs(wx) < 1e-4) {
-        parts.push(`(0.5 \\times ${formatNumber(w1)} \\times ${formatNumber(len)})`);
-        const val = 0.5 * w1 * len;
+      } else if (Math.abs(triW) < 1e-4) {
+        parts.push(`(${formatNumber(rectW)} \\times ${formatNumber(len)})`);
+        const val = rectW * len;
         vals.push(`${formatNumber(val)}`);
         total += val;
       } else {
-        parts.push(`(${formatNumber(w1)} \\times ${formatNumber(len)} + 0.5 \\times (${formatNumber(wx - w1)}) \\times ${formatNumber(len)})`);
-        const val = w1 * len + 0.5 * (wx - w1) * len;
+        parts.push(`(${formatNumber(rectW)} \\times ${formatNumber(len)} + 0.5 \\times (${formatNumber(triW)}) \\times ${formatNumber(len)})`);
+        const val = rectW * len + 0.5 * triW * len;
         vals.push(`${formatNumber(val)}`);
         total += val;
       }
@@ -92,9 +111,11 @@ function getLoadsDetailedSum(loads: ILoad[], xLimit?: number): ILoadsBreakdown {
   };
 }
 
-function getLoadsDetailedMomentSum(loads: ILoad[], referenceX: number, xLimit?: number): ILoadsBreakdown {
+function getLoadsDetailedMomentSum(loads: ILoad[], referenceX: number, xLimit?: number, side: 'left' | 'right' = 'left'): ILoadsBreakdown {
   const activeLoads = xLimit !== undefined
-    ? loads.filter(l => (l.position ?? l.startPosition ?? 0) < xLimit)
+    ? (side === 'left'
+        ? loads.filter(l => (l.position ?? l.startPosition ?? 0) < xLimit - 1e-5)
+        : loads.filter(l => (l.position ?? l.endPosition ?? 0) > xLimit + 1e-5))
     : loads;
 
   if (activeLoads.length === 0) {
@@ -119,9 +140,11 @@ function getLoadsDetailedMomentSum(loads: ILoad[], referenceX: number, xLimit?: 
       const w = l.magnitude ?? 0;
       const start = l.startPosition ?? 0;
       const end = l.endPosition ?? 0;
-      const len = xLimit !== undefined ? Math.min(end, xLimit) - start : end - start;
+      const len = xLimit !== undefined
+        ? (side === 'left' ? Math.min(end, xLimit) - start : end - Math.max(start, xLimit))
+        : end - start;
       if (len <= 0 || Math.abs(w) < 1e-4) return;
-      const cg = start + len / 2;
+      const cg = side === 'left' ? start + len / 2 : end - len / 2;
       const arm = cg - referenceX;
       parts.push(`[(${formatNumber(w)} \\times ${formatNumber(len)}) \\times ${formatNumber(arm)}]`);
       const val = w * len * arm;
@@ -131,35 +154,57 @@ function getLoadsDetailedMomentSum(loads: ILoad[], referenceX: number, xLimit?: 
       const start = l.startPosition ?? 0;
       const end = l.endPosition ?? 0;
       const totalLen = end - start;
-      const len = xLimit !== undefined ? Math.min(end, xLimit) - start : totalLen;
-      if (len <= 0 || totalLen <= 0) return;
+      if (totalLen <= 0) return;
+      const len = xLimit !== undefined
+        ? (side === 'left' ? Math.min(end, xLimit) - start : end - Math.max(start, xLimit))
+        : totalLen;
+      if (len <= 0) return;
 
       const w1 = l.startMagnitude ?? 0;
       const w2 = l.endMagnitude ?? 0;
-      const wx = xLimit !== undefined && end > xLimit
-        ? w1 + ((w2 - w1) * len) / totalLen
-        : w2;
 
-      if (Math.abs(w1) < 1e-4) {
-        const cgTri = start + (2 / 3) * len;
+      let rectW = w1;
+      let triW = w2 - w1;
+      let segmentStart = start;
+
+      if (xLimit !== undefined) {
+        if (side === 'left') {
+          if (end > xLimit) {
+            const wx = w1 + ((w2 - w1) * len) / totalLen;
+            rectW = w1;
+            triW = wx - w1;
+          }
+          segmentStart = start;
+        } else {
+          if (start < xLimit) {
+            const wx = w1 + ((w2 - w1) * (totalLen - len)) / totalLen;
+            rectW = wx;
+            triW = w2 - wx;
+          }
+          segmentStart = xLimit;
+        }
+      }
+
+      if (Math.abs(rectW) < 1e-4) {
+        const cgTri = segmentStart + (2 / 3) * len;
         const armTri = cgTri - referenceX;
-        parts.push(`[(0.5 \\times ${formatNumber(wx)} \\times ${formatNumber(len)}) \\times ${formatNumber(armTri)}]`);
-        const val = 0.5 * wx * len * armTri;
+        parts.push(`[(0.5 \\times ${formatNumber(triW)} \\times ${formatNumber(len)}) \\times ${formatNumber(armTri)}]`);
+        const val = 0.5 * triW * len * armTri;
         vals.push(`${formatNumber(val)}`);
         total += val;
-      } else if (Math.abs(wx) < 1e-4) {
-        const cgTri = start + (1 / 3) * len;
-        const armTri = cgTri - referenceX;
-        parts.push(`[(0.5 \\times ${formatNumber(w1)} \\times ${formatNumber(len)}) \\times ${formatNumber(armTri)}]`);
-        const val = 0.5 * w1 * len * armTri;
+      } else if (Math.abs(triW) < 1e-4) {
+        const cgRect = segmentStart + len / 2;
+        const armRect = cgRect - referenceX;
+        parts.push(`[(${formatNumber(rectW)} \\times ${formatNumber(len)}) \\times ${formatNumber(armRect)}]`);
+        const val = rectW * len * armRect;
         vals.push(`${formatNumber(val)}`);
         total += val;
       } else {
-        const fRect = w1 * len;
-        const cgRect = start + len / 2;
-        const fTri = 0.5 * (wx - w1) * len;
-        const cgTri = start + (2 / 3) * len;
-        parts.push(`[(${formatNumber(w1)} \\times ${formatNumber(len)}) \\times ${formatNumber(cgRect - referenceX)} + (0.5 \\times (${formatNumber(wx - w1)}) \\times ${formatNumber(len)}) \\times ${formatNumber(cgTri - referenceX)}]`);
+        const fRect = rectW * len;
+        const cgRect = segmentStart + len / 2;
+        const fTri = 0.5 * triW * len;
+        const cgTri = segmentStart + (2 / 3) * len;
+        parts.push(`[(${formatNumber(rectW)} \\times ${formatNumber(len)}) \\times ${formatNumber(cgRect - referenceX)} + (0.5 \\times (${formatNumber(triW)}) \\times ${formatNumber(len)}) \\times ${formatNumber(cgTri - referenceX)}]`);
         const val = fRect * (cgRect - referenceX) + fTri * (cgTri - referenceX);
         vals.push(`${formatNumber(val)}`);
         total += val;
@@ -183,6 +228,60 @@ function getLoadsDetailedMomentSum(loads: ILoad[], referenceX: number, xLimit?: 
     steps: vals.join(' + '),
     value: total,
   };
+}
+
+function getLoadsRightOf(beam: IBeam, xLimit: number): { force: number; moment: number } {
+  let force = 0;
+  let moment = 0;
+
+  beam.loads.forEach(load => {
+    if (load.type === 'point' || load.type === 'moment') {
+      const pos = load.position ?? 0;
+      if (pos > xLimit) {
+        const res = getLoadForceAndMoment(load, xLimit);
+        force += res.force;
+        moment += res.moment;
+      }
+    } else if (load.type === 'udl' || load.type === 'uvl') {
+      const start = load.startPosition ?? 0;
+      const end = load.endPosition ?? 0;
+
+      if (end <= xLimit) return; // Entirely to the left
+
+      if (start >= xLimit) {
+        // Entirely to the right
+        const res = getLoadForceAndMoment(load, xLimit);
+        force += res.force;
+        moment += res.moment;
+      } else {
+        // Cut UDL/UVL at xLimit
+        const length = end - xLimit;
+        if (load.type === 'udl') {
+          const mag = load.magnitude ?? 0;
+          const partialForce = mag * length;
+          const cg = xLimit + length / 2;
+          force += partialForce;
+          moment += partialForce * (cg - xLimit);
+        } else {
+          // UVL
+          const w1 = load.startMagnitude ?? 0;
+          const w2 = load.endMagnitude ?? 0;
+          const totalLength = end - start;
+          const wx = w1 + ((w2 - w1) * (xLimit - start)) / totalLength;
+
+          const fRect = wx * length;
+          const cgRect = xLimit + length / 2;
+          const fTri = 0.5 * (w2 - wx) * length;
+          const cgTri = xLimit + (2 / 3) * length;
+
+          force += fRect + fTri;
+          moment += fRect * (cgRect - xLimit) + fTri * (cgTri - xLimit);
+        }
+      }
+    }
+  });
+
+  return { force, moment };
 }
 
 export function solveReactions(beam: IBeam): { reactions: IReaction[]; steps: string[]; success: boolean } {
@@ -215,52 +314,131 @@ export function solveReactions(beam: IBeam): { reactions: IReaction[]; steps: st
     }
   });
 
-  // Number of equations = number of variables (which is 2 + c for determinate stable beams)
   const n = vars.length;
   if (n === 0) {
     return { reactions: [], steps: ['No supports to solve.'], success: false };
   }
 
-  const A: number[][] = Array.from({ length: n }, () => new Array(n).fill(0));
-  const B: number[] = new Array(n).fill(0);
+  interface IEquationData {
+    title: string;
+    coefs: number[];
+    rhsValue: number;
+    latex: string;
+  }
 
-  // 1. Vertical force equation: sum(R_y) = sum(Load_y)
-  steps.push(`**Step 1: Vertical Equilibrium Equation ($\\sum F_y = 0$)**`);
-  let eqFyStr = '';
-  vars.forEach((v, idx) => {
-    if (v.type === 'R_y') {
-      A[0]![idx] = 1;
-      eqFyStr += `${eqFyStr ? ' + ' : ''}${v.label}`;
+  const condEqs: IEquationData[] = [];
+  let stepNum = 1;
+
+  // 1. Equations of condition from internal releases (Hinges & Rollers)
+  beam.releases.forEach(rel => {
+    if (rel.type === 'hinge' || rel.type === 'roller') {
+      // Determine which side has fewer unknown reaction variables
+      const unknownsLeft = vars.filter(v => v.x < rel.position).length;
+      const unknownsRight = vars.filter(v => v.x > rel.position).length;
+      const useLeft = unknownsLeft <= unknownsRight;
+      const side = useLeft ? 'left' : 'right';
+
+      // Hinge adds: M_left = 0 or M_right = 0
+      const title = `**Step ${stepNum}: Equation of condition from Hinge at $x = ${rel.position.toFixed(2)}\\text{ m}$ ($\\sum M_{\\text{${side}}, x_h} = 0$)**`;
+      stepNum++;
+
+      const coefs = new Array(n).fill(0);
+      let hMStr = '';
+
+      vars.forEach((v, vIdx) => {
+        const isActive = useLeft ? v.x < rel.position : v.x > rel.position;
+        if (isActive) {
+          if (v.type === 'R_y') {
+            const arm = useLeft ? rel.position - v.x : v.x - rel.position;
+            coefs[vIdx] = arm;
+            hMStr += `${hMStr ? ' + ' : ''}${v.label}(${arm.toFixed(2)})`;
+          } else if (v.type === 'M') {
+            coefs[vIdx] = -1; // support moments are consistently -1
+            hMStr += `${hMStr ? ' - ' : ''}${v.label}`;
+          }
+        }
+      });
+
+      const loadsDetail = getLoadsDetailedMomentSum(beam.loads, rel.position, rel.position, side);
+      const loadsMoment = useLeft ? getLoadsLeftOf(beam, rel.position).moment : getLoadsRightOf(beam, rel.position).moment;
+      const rhsVal = useLeft ? -loadsMoment : loadsMoment;
+
+      let hingeEqText = '';
+      if (loadsDetail.steps && loadsDetail.steps !== loadsDetail.terms && loadsDetail.terms !== '0') {
+        hingeEqText = useLeft
+          ? ` = -[${loadsDetail.terms}] = -[${loadsDetail.steps}] = ${formatNumber(rhsVal)}\\text{ kNm}`
+          : ` = ${loadsDetail.terms} = ${loadsDetail.steps} = ${formatNumber(rhsVal)}\\text{ kNm}`;
+      } else if (loadsDetail.terms !== '0') {
+        hingeEqText = useLeft
+          ? ` = -[${loadsDetail.terms}] = ${formatNumber(rhsVal)}\\text{ kNm}`
+          : ` = ${loadsDetail.terms} = ${formatNumber(rhsVal)}\\text{ kNm}`;
+      } else {
+        hingeEqText = ` = ${formatNumber(rhsVal)}\\text{ kNm}`;
+      }
+
+      condEqs.push({
+        title,
+        coefs,
+        rhsValue: rhsVal,
+        latex: `$$${hMStr || '0'}${hingeEqText}$$`,
+      });
+    }
+
+    if (rel.type === 'roller') {
+      // Roller also adds: V_left = 0 or V_right = 0
+      const unknownsLeft = vars.filter(v => v.x < rel.position).length;
+      const unknownsRight = vars.filter(v => v.x > rel.position).length;
+      const useLeft = unknownsLeft <= unknownsRight;
+      const side = useLeft ? 'left' : 'right';
+
+      const title = `**Step ${stepNum}: Equation of condition from Roller at $x = ${rel.position.toFixed(2)}\\text{ m}$ ($\\sum V_{\\text{${side}}, x_h} = 0$)**`;
+      stepNum++;
+
+      const coefs = new Array(n).fill(0);
+      let hVStr = '';
+
+      vars.forEach((v, vIdx) => {
+        const isActive = useLeft ? v.x < rel.position : v.x > rel.position;
+        if (isActive && v.type === 'R_y') {
+          coefs[vIdx] = 1;
+          hVStr += `${hVStr ? ' + ' : ''}${v.label}`;
+        }
+      });
+
+      const loadsDetail = getLoadsDetailedSum(beam.loads, rel.position, side);
+      const loadsForce = useLeft ? getLoadsLeftOf(beam, rel.position).force : getLoadsRightOf(beam, rel.position).force;
+      const rhsVal = loadsForce;
+
+      let rollerEqText = '';
+      if (loadsDetail.steps && loadsDetail.steps !== loadsDetail.terms && loadsDetail.terms !== '0') {
+        rollerEqText = ` = ${loadsDetail.terms} = ${loadsDetail.steps} = ${formatNumber(rhsVal)}\\text{ kN}`;
+      } else if (loadsDetail.terms !== '0') {
+        rollerEqText = ` = ${loadsDetail.terms} = ${formatNumber(rhsVal)}\\text{ kN}`;
+      } else {
+        rollerEqText = ` = ${formatNumber(rhsVal)}\\text{ kN}`;
+      }
+
+      condEqs.push({
+        title,
+        coefs,
+        rhsValue: rhsVal,
+        latex: `$$${hVStr || '0'}${rollerEqText}$$`,
+      });
     }
   });
 
-  let totalDownwardForce = 0;
-  beam.loads.forEach(load => {
-    const res = getLoadForceAndMoment(load, 0);
-    totalDownwardForce += res.force;
-  });
-  B[0] = totalDownwardForce;
-
-  const verticalDetail = getLoadsDetailedSum(beam.loads);
-  let verticalEqText = '';
-  if (verticalDetail.steps && verticalDetail.steps !== verticalDetail.terms && verticalDetail.terms !== '0') {
-    verticalEqText = ` = ${verticalDetail.terms} = ${verticalDetail.steps} = ${formatNumber(totalDownwardForce)}\\text{ kN}`;
-  } else if (verticalDetail.terms !== '0') {
-    verticalEqText = ` = ${verticalDetail.terms} = ${formatNumber(totalDownwardForce)}\\text{ kN}`;
-  } else {
-    verticalEqText = ` = ${formatNumber(totalDownwardForce)}\\text{ kN}`;
-  }
-  steps.push(`$$${eqFyStr}${verticalEqText}$$`);
-
   // 2. Moment equilibrium about x=0
-  steps.push(`**Step 2: Moment Equilibrium Equation about $x=0$ ($\\sum M_{x=0} = 0$)**`);
+  const titleMoment = `**Step ${stepNum}: Moment Equilibrium Equation about $x=0$ ($\\sum M_{x=0} = 0$)**`;
+  stepNum++;
+
+  const coefsMoment = new Array(n).fill(0);
   let eqMStr = '';
   vars.forEach((v, idx) => {
     if (v.type === 'R_y') {
-      A[1]![idx] = v.x;
+      coefsMoment[idx] = v.x;
       eqMStr += `${eqMStr ? ' + ' : ''}${v.label}(${v.x.toFixed(2)})`;
     } else if (v.type === 'M') {
-      A[1]![idx] = -1;
+      coefsMoment[idx] = -1;
       eqMStr += `${eqMStr ? ' - ' : ''}${v.label}`;
     }
   });
@@ -270,7 +448,6 @@ export function solveReactions(beam: IBeam): { reactions: IReaction[]; steps: st
     const res = getLoadForceAndMoment(load, 0);
     totalMomentsAboutZero += res.moment;
   });
-  B[1] = totalMomentsAboutZero;
 
   const momentDetail = getLoadsDetailedMomentSum(beam.loads, 0);
   let momentEqText = '';
@@ -281,67 +458,65 @@ export function solveReactions(beam: IBeam): { reactions: IReaction[]; steps: st
   } else {
     momentEqText = ` = ${formatNumber(totalMomentsAboutZero)}\\text{ kNm}`;
   }
-  steps.push(`$$${eqMStr}${momentEqText}$$`);
 
-  // 3. Equations of condition from internal releases
-  let eqIdx = 2;
-  beam.releases.forEach(rel => {
-    if (rel.type === 'hinge' || rel.type === 'roller') {
-      // Hinge adds: M_left = 0
-      steps.push(`**Step ${eqIdx + 1}: Equation of condition from Hinge at $x = ${rel.position.toFixed(2)}\\text{ m}$ ($\\sum M_{\\text{left}, x_h} = 0$)**`);
-      let hMStr = '';
-      vars.forEach((v, vIdx) => {
-        if (v.x < rel.position) {
-          if (v.type === 'R_y') {
-            A[eqIdx]![vIdx] = rel.position - v.x;
-            hMStr += `${hMStr ? ' + ' : ''}${v.label}(${(rel.position - v.x).toFixed(2)})`;
-          } else if (v.type === 'M') {
-            A[eqIdx]![vIdx] = -1;
-            hMStr += `${hMStr ? ' - ' : ''}${v.label}`;
-          }
-        }
-      });
-      const loadsLeft = getLoadsLeftOf(beam, rel.position);
-      B[eqIdx] = -loadsLeft.moment;
+  const momentEq: IEquationData = {
+    title: titleMoment,
+    coefs: coefsMoment,
+    rhsValue: totalMomentsAboutZero,
+    latex: `$$${eqMStr}${momentEqText}$$`,
+  };
 
-      const hingeDetail = getLoadsDetailedMomentSum(beam.loads, rel.position, rel.position);
-      let hingeEqText = '';
-      if (hingeDetail.steps && hingeDetail.steps !== hingeDetail.terms && hingeDetail.terms !== '0') {
-        hingeEqText = ` = -[${hingeDetail.terms}] = -[${hingeDetail.steps}] = ${formatNumber(-loadsLeft.moment)}\\text{ kNm}`;
-      } else if (hingeDetail.terms !== '0') {
-        hingeEqText = ` = -[${hingeDetail.terms}] = ${formatNumber(-loadsLeft.moment)}\\text{ kNm}`;
-      } else {
-        hingeEqText = ` = ${formatNumber(-loadsLeft.moment)}\\text{ kNm}`;
-      }
-      steps.push(`$$${hMStr || '0'}${hingeEqText}$$`);
-      eqIdx++;
+  // 3. Vertical equilibrium (sum Fy = 0)
+  const titleVertical = `**Step ${stepNum}: Vertical Equilibrium Equation ($\\sum F_y = 0$)**`;
+  stepNum++;
+
+  const coefsVertical = new Array(n).fill(0);
+  let eqFyStr = '';
+  vars.forEach((v, idx) => {
+    if (v.type === 'R_y') {
+      coefsVertical[idx] = 1;
+      eqFyStr += `${eqFyStr ? ' + ' : ''}${v.label}`;
     }
+  });
 
-    if (rel.type === 'roller') {
-      // Roller also adds: V_left = 0
-      steps.push(`**Step ${eqIdx + 1}: Equation of condition from Roller at $x = ${rel.position.toFixed(2)}\\text{ m}$ ($\\sum V_{\\text{left}, x_h} = 0$)**`);
-      let hVStr = '';
-      vars.forEach((v, vIdx) => {
-        if (v.x < rel.position && v.type === 'R_y') {
-          A[eqIdx]![vIdx] = 1;
-          hVStr += `${hVStr ? ' + ' : ''}${v.label}`;
-        }
-      });
-      const loadsLeft = getLoadsLeftOf(beam, rel.position);
-      B[eqIdx] = loadsLeft.force;
+  let totalDownwardForce = 0;
+  beam.loads.forEach(load => {
+    const res = getLoadForceAndMoment(load, 0);
+    totalDownwardForce += res.force;
+  });
 
-      const rollerDetail = getLoadsDetailedSum(beam.loads, rel.position);
-      let rollerEqText = '';
-      if (rollerDetail.steps && rollerDetail.steps !== rollerDetail.terms && rollerDetail.terms !== '0') {
-        rollerEqText = ` = ${rollerDetail.terms} = ${rollerDetail.steps} = ${formatNumber(loadsLeft.force)}\\text{ kN}`;
-      } else if (rollerDetail.terms !== '0') {
-        rollerEqText = ` = ${rollerDetail.terms} = ${formatNumber(loadsLeft.force)}\\text{ kN}`;
-      } else {
-        rollerEqText = ` = ${formatNumber(loadsLeft.force)}\\text{ kN}`;
-      }
-      steps.push(`$$${hVStr || '0'}${rollerEqText}$$`);
-      eqIdx++;
-    }
+  const verticalDetail = getLoadsDetailedSum(beam.loads);
+  let verticalEqText = '';
+  if (verticalDetail.steps && verticalDetail.steps !== verticalDetail.terms && verticalDetail.terms !== '0') {
+    verticalEqText = ` = ${verticalDetail.terms} = ${verticalDetail.steps} = ${formatNumber(totalDownwardForce)}\\text{ kN}`;
+  } else if (verticalDetail.terms !== '0') {
+    verticalEqText = ` = ${verticalDetail.terms} = ${formatNumber(totalDownwardForce)}\\text{ kN}`;
+  } else {
+    verticalEqText = ` = ${formatNumber(totalDownwardForce)}\\text{ kN}`;
+  }
+
+  const verticalEq: IEquationData = {
+    title: titleVertical,
+    coefs: coefsVertical,
+    rhsValue: totalDownwardForce,
+    latex: `$$${eqFyStr}${verticalEqText}$$`,
+  };
+
+  const allEqs = [...condEqs, momentEq, verticalEq];
+  const eqCount = allEqs.length;
+
+  if (eqCount !== n) {
+    return { reactions: [], steps: ['Error: Support system is unstable or statically redundant.'], success: false };
+  }
+
+  const A: number[][] = Array.from({ length: n }, () => new Array(n).fill(0));
+  const B: number[] = new Array(n).fill(0);
+
+  allEqs.forEach((eq, eqIdx) => {
+    A[eqIdx] = eq.coefs;
+    B[eqIdx] = eq.rhsValue;
+    steps.push(eq.title);
+    steps.push(eq.latex);
   });
 
   // Solve the system of equations
@@ -350,7 +525,7 @@ export function solveReactions(beam: IBeam): { reactions: IReaction[]; steps: st
     return { reactions: [], steps: [...steps, 'Error: Support system is unstable or statically redundant.'], success: false };
   }
 
-  steps.push(`**Step ${eqIdx + 1}: Solved Support Reactions**`);
+  steps.push(`**Step ${stepNum}: Solved Support Reactions**`);
   vars.forEach((v, idx) => {
     const val = parseFloat(solution[idx]!.toFixed(3));
     reactions.push({

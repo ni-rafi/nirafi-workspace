@@ -14,6 +14,7 @@ interface MiniBeamVisualProps {
   highlightedLoadId?: string | null;
   highlightedReleaseId?: string | null;
   opacityRightOfX?: number | null;
+  opacitySide?: 'left' | 'right';
   customSupportType?: Record<string, 'roller' | 'hinge' | 'fixed' | 'free' | 'internal-roller' | 'internal-hinge'>;
   customReactions?: Array<{ supportId: string; type: 'R_y' | 'M' | 'R_x'; value: number }>;
   showSupportLetters?: boolean;
@@ -32,6 +33,7 @@ export const MiniBeamVisual: React.FC<MiniBeamVisualProps> = ({
   highlightedLoadId = null,
   highlightedReleaseId = null,
   opacityRightOfX = null,
+  opacitySide = 'right',
   customSupportType = undefined,
   customReactions = undefined,
   showSupportLetters = true,
@@ -52,7 +54,13 @@ export const MiniBeamVisual: React.FC<MiniBeamVisualProps> = ({
   const toPixel = (pos: number) => paddingX + (pos / length) * beamW;
 
   const getOpacity = (x: number) => {
-    if (opacityRightOfX !== null && x > opacityRightOfX + 1e-5) return 0.2;
+    if (opacityRightOfX !== null) {
+      if (opacitySide === 'left') {
+        return x < opacityRightOfX - 1e-5 ? 0.2 : 1.0;
+      } else {
+        return x > opacityRightOfX + 1e-5 ? 0.2 : 1.0;
+      }
+    }
     return 1.0;
   };
 
@@ -76,11 +84,17 @@ export const MiniBeamVisual: React.FC<MiniBeamVisualProps> = ({
 
           // Compute opacity if we have a cut coordinate
           const opacity = opacityRightOfX !== null
-            ? (seg.endPosition <= opacityRightOfX
-                ? 1.0
-                : seg.startPosition >= opacityRightOfX
-                ? 0.2
-                : 1.0)
+            ? (opacitySide === 'left'
+                ? (seg.startPosition >= opacityRightOfX
+                    ? 1.0
+                    : seg.endPosition <= opacityRightOfX
+                    ? 0.2
+                    : 1.0)
+                : (seg.endPosition <= opacityRightOfX
+                    ? 1.0
+                    : seg.startPosition >= opacityRightOfX
+                    ? 0.2
+                    : 1.0))
             : 1.0;
 
           return (
