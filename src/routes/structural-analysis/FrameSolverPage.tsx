@@ -14,6 +14,7 @@ import { BendingMomentChart } from '@/subjects/mechanics-of-solids/features/sfd-
 import { DeflectionChart } from '@/subjects/mechanics-of-solids/features/sfd-bmd/components/diagrams/DeflectionChart';
 import { AxialForceChart } from '@/subjects/structural-analysis/features/frame-solver/components/diagrams/AxialForceChart';
 import { FrameSolverService } from '@/subjects/structural-analysis/cores/frame-solver/FrameSolverService';
+import { IndeterminateSolverPanel } from '@/subjects/structural-analysis/features/indeterminate/components/IndeterminateSolverPanel';
 
 const FrameSolverPageInternal: React.FC = () => {
   const { clearWorkspace, selectedElementId, nodes, members, supports, loads } = useFrameWorkspace();
@@ -163,11 +164,8 @@ const FrameSolverPageInternal: React.FC = () => {
             </div>
           )}
 
-          {/* Indeterminate Frame Solver Notice */}
-          <div className="rounded-xl border border-primary/20 bg-primary/5 p-4 text-xs text-muted-foreground leading-relaxed">
-            <span className="font-bold text-primary mr-1">Indeterminate Frame Solver:</span>
-            This workspace acts as the interactive drawing and topology builder. In the future, a matrix stiffness method core solver engine will consume this node-member list to calculate reactions, shear force diagrams (SFD), bending moment diagrams (BMD), axial force diagrams (AFD), and deflection curves for indeterminate frame structures.
-          </div>
+          {/* Indeterminate Solver & Educational Derivations */}
+          <IndeterminateSolverPanel />
         </div>
 
         {/* Sidebar Controls Area */}
