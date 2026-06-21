@@ -4,7 +4,8 @@ export type StepType =
   | 'CALCULATE_FEM' 
   | 'MATRIX_SETUP' 
   | 'MATRIX_INVERSION' 
-  | 'DOI_KINEMATIC';
+  | 'DOI_KINEMATIC'
+  | 'MEMBER_STIFFNESS_SETUP';
 
 export interface IFemPayload {
   memberId: string;
@@ -27,6 +28,14 @@ export interface IFemPayload {
   };
 }
 
+export interface IMemberStiffnessPayload {
+  memberId: string;
+  localMatrix: number[][];
+  transformationMatrix: number[][];
+  globalMatrix: number[][];
+  dofMap: number[];
+}
+
 export interface IMatrixPayload {
   matrix: number[][];
   vectorF: number[];
@@ -44,12 +53,14 @@ export interface IDoiPayload {
 }
 
 export type ICalculateFemStep = IAnalysisStep<'CALCULATE_FEM', IFemPayload>;
+export type IMemberStiffnessStep = IAnalysisStep<'MEMBER_STIFFNESS_SETUP', IMemberStiffnessPayload>;
 export type IMatrixSetupStep = IAnalysisStep<'MATRIX_SETUP', IMatrixPayload>;
 export type IMatrixInversionStep = IAnalysisStep<'MATRIX_INVERSION', IMatrixPayload>;
 export type IDoiKinematicStep = IAnalysisStep<'DOI_KINEMATIC', IDoiPayload>;
 
 export type IStructuralStep = 
   | ICalculateFemStep 
+  | IMemberStiffnessStep
   | IMatrixSetupStep 
   | IMatrixInversionStep 
   | IDoiKinematicStep;
