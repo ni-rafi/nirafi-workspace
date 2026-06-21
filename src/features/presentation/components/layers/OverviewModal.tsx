@@ -52,9 +52,9 @@ export const OverviewModal: React.FC<OverviewModalProps> = ({
       const timer = setTimeout(() => {
         const activeEl = document.querySelector('[data-active-slide="true"]');
         if (activeEl) {
-          activeEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          activeEl.scrollIntoView({ block: 'center' });
         }
-      }, 150);
+      }, 50);
       return () => clearTimeout(timer);
     }
   }, [isOpen]);
@@ -79,21 +79,23 @@ export const OverviewModal: React.FC<OverviewModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[9999] flex flex-col bg-background/95 p-8 backdrop-blur-md overflow-y-auto select-none animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-[9999] flex flex-col bg-background/95 p-8 pb-0 backdrop-blur-md select-none animate-in fade-in duration-200">
       {/* Header */}
-      <div className="mx-auto flex w-full max-w-6xl items-center justify-between border-b pb-4 mb-6">
+      <div className="mx-auto flex w-full max-w-6xl items-center justify-between border-b pb-4 mb-6 shrink-0">
         <h2 className="text-xl font-bold text-foreground">Slides Overview Grid</h2>
         <button
           onClick={onClose}
-          className="rounded-full bg-accent/50 p-2 text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
+          className="rounded-full bg-accent/50 p-2 text-muted-foreground hover:text-foreground hover:bg-accent transition-colors cursor-pointer"
           title="Close (Esc)"
         >
           <X className="h-5 w-5" />
         </button>
       </div>
 
-      {/* Sections List */}
-      <div className="mx-auto w-full max-w-6xl flex flex-col gap-8 pb-12">
+      {/* Scrollable body */}
+      <div className="w-full flex-1 overflow-y-auto min-h-0">
+        {/* Sections List */}
+        <div className="mx-auto w-full max-w-6xl flex flex-col gap-8 pb-12">
         {Object.entries(sections).map(([sectionName, items]) => {
           const isCollapsed = !!collapsedSections[sectionName];
           return (
@@ -176,6 +178,7 @@ export const OverviewModal: React.FC<OverviewModalProps> = ({
             </div>
           );
         })}
+        </div>
       </div>
     </div>
   );
