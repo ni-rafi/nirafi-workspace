@@ -8,7 +8,9 @@ export type StepType =
   | 'MEMBER_STIFFNESS_SETUP'
   | 'MDM_DF_SETUP'
   | 'MDM_CYCLE'
-  | 'MDM_FINAL_MOMENTS';
+  | 'MDM_FINAL_MOMENTS'
+  | 'SDM_EQUATIONS_SETUP'
+  | 'SDM_EQUILIBRIUM_SETUP';
 
 export interface IFemPayload {
   memberId: string;
@@ -94,6 +96,23 @@ export interface IMdmFinalMomentsPayload {
   }[];
 }
 
+export interface ISdmEquationsPayload {
+  equations: {
+    memberId: string;
+    equations: {
+      nearEnd: string;
+      farEnd: string;
+    };
+  }[];
+}
+
+export interface ISdmEquilibriumPayload {
+  equations: {
+    nodeId: string;
+    equation: string;
+  }[];
+}
+
 export type ICalculateFemStep = IAnalysisStep<'CALCULATE_FEM', IFemPayload>;
 export type IMemberStiffnessStep = IAnalysisStep<'MEMBER_STIFFNESS_SETUP', IMemberStiffnessPayload>;
 export type IMatrixSetupStep = IAnalysisStep<'MATRIX_SETUP', IMatrixPayload>;
@@ -102,6 +121,8 @@ export type IDoiKinematicStep = IAnalysisStep<'DOI_KINEMATIC', IDoiPayload>;
 export type IMdmDfSetupStep = IAnalysisStep<'MDM_DF_SETUP', IMdmDfSetupPayload>;
 export type IMdmCycleStep = IAnalysisStep<'MDM_CYCLE', IMdmCyclePayload>;
 export type IMdmFinalMomentsStep = IAnalysisStep<'MDM_FINAL_MOMENTS', IMdmFinalMomentsPayload>;
+export type ISdmEquationsStep = IAnalysisStep<'SDM_EQUATIONS_SETUP', ISdmEquationsPayload>;
+export type ISdmEquilibriumStep = IAnalysisStep<'SDM_EQUILIBRIUM_SETUP', ISdmEquilibriumPayload>;
 
 export type IStructuralStep = 
   | ICalculateFemStep 
@@ -111,5 +132,7 @@ export type IStructuralStep =
   | IDoiKinematicStep
   | IMdmDfSetupStep
   | IMdmCycleStep
-  | IMdmFinalMomentsStep;
+  | IMdmFinalMomentsStep
+  | ISdmEquationsStep
+  | ISdmEquilibriumStep;
 
