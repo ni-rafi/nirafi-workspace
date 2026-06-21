@@ -32,10 +32,10 @@ export {
 };
 
 export type ContentBlockType =
-  | { type: 'paragraph'; title?: string; text: React.ReactNode; revealAt?: number | string; revealPreset?: 'fade' | 'fade-in' | 'up' | 'down' | 'scale' | 'none'; variant?: 'info' | 'warning' | 'error' | 'success' | 'callout' | 'plain' | 'default' }
+  | { type: 'paragraph'; title?: string; text: React.ReactNode; revealAt?: number | string; revealPreset?: 'fade' | 'fade-in' | 'up' | 'down' | 'scale' | 'none'; variant?: 'info' | 'warning' | 'error' | 'success' | 'callout' | 'plain' | 'default'; revealMode?: 'each-click' | 'all-click' | 'auto-stagger' | 'none' }
   | { type: 'bullet'; title?: React.ReactNode; text: React.ReactNode; revealAt?: number | string; revealPreset?: 'fade' | 'fade-in' | 'up' | 'down' | 'scale' | 'none'; icon?: React.ReactNode }
   | { type: 'equation'; math: string; block?: boolean; label?: string; revealAt?: number | string; revealPreset?: 'fade' | 'fade-in' | 'up' | 'down' | 'scale' | 'none' }
-  | { type: 'table'; headers: Array<string | { label: string; align?: 'left' | 'center' | 'right' }>; rows: Array<Array<React.ReactNode>>; striped?: boolean; bordered?: boolean; hoverable?: boolean; revealAt?: number | string; revealPreset?: 'fade' | 'fade-in' | 'up' | 'down' | 'scale' | 'none' }
+  | { type: 'table'; headers: Array<string | { label: string; align?: 'left' | 'center' | 'right' }>; rows: Array<Array<React.ReactNode>>; striped?: boolean; bordered?: boolean; hoverable?: boolean; revealAt?: number | string; revealPreset?: 'fade' | 'fade-in' | 'up' | 'down' | 'scale' | 'none'; caption?: React.ReactNode }
   | { type: 'list'; listTitle?: string; description?: string; items: Array<{ title?: React.ReactNode; text: React.ReactNode; revealAt?: number | string; revealPreset?: 'fade' | 'fade-in' | 'up' | 'down' | 'scale' | 'none'; icon?: React.ReactNode }>; variant?: 'default' | 'plain' };
 
 interface SlideContentProps {
@@ -65,7 +65,7 @@ export const SlideContent: React.FC<SlideContentProps> = ({ blocks, className = 
           key={idx}
           title={block.title}
           text={block.text}
-          revealAt={block.revealAt}
+          revealAt={block.revealAt !== undefined ? block.revealAt : '+1'}
           revealPreset={block.revealPreset}
           icon={block.icon}
         />
@@ -80,6 +80,7 @@ export const SlideContent: React.FC<SlideContentProps> = ({ blocks, className = 
             text={block.text}
             revealAt={block.revealAt}
             revealPreset={block.revealPreset}
+            revealMode={block.revealMode}
             variant={block.variant}
           />
         );
@@ -105,6 +106,7 @@ export const SlideContent: React.FC<SlideContentProps> = ({ blocks, className = 
             hoverable={block.hoverable}
             revealAt={block.revealAt}
             revealPreset={block.revealPreset}
+            caption={block.caption}
           />
         );
       } else if (block.type === 'list') {

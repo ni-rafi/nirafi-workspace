@@ -15,6 +15,7 @@ interface OverviewModalProps {
   activeSub: Subject;
   activeLec: Lecture;
   activeSession?: Session;
+  currentSlide: number;
 }
 
 /**
@@ -29,6 +30,7 @@ export const OverviewModal: React.FC<OverviewModalProps> = ({
   activeSub,
   activeLec,
   activeSession,
+  currentSlide,
 }) => {
   const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>({});
   const presentation = useContext(PresentationContext);
@@ -44,6 +46,18 @@ export const OverviewModal: React.FC<OverviewModalProps> = ({
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, onClose]);
+
+  useEffect(() => {
+    if (isOpen) {
+      const timer = setTimeout(() => {
+        const activeEl = document.querySelector('[data-active-slide="true"]');
+        if (activeEl) {
+          activeEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }, 150);
+      return () => clearTimeout(timer);
+    }
+  }, [isOpen]);
 
   const slides = useMemo(() => Array.from({ length: totalSlides }, (_, i) => i + 1), [totalSlides]);
 
@@ -104,7 +118,7 @@ export const OverviewModal: React.FC<OverviewModalProps> = ({
                   {items.map(({ num, meta }) => {
                     const cardContextValue = {
                       theme: presentation?.theme || 'light',
-                      viewMode: presentation?.viewMode || 'scroll',
+                      viewMode: 'present' as const,
                       activeSubStep: 999,
                       slideNo: num,
                       isThumbnail: true,
@@ -113,10 +127,19 @@ export const OverviewModal: React.FC<OverviewModalProps> = ({
                       <div
                         key={num}
                         onClick={() => onSelectSlide(num)}
-                        className="group flex flex-col gap-2 rounded-xl border border-border/80 bg-card p-4 transition-all duration-300 hover:border-primary/80 hover:shadow-lg cursor-pointer"
+                        data-active-slide={num === currentSlide ? 'true' : 'false'}
+                        className={`group flex flex-col gap-2 rounded-xl border p-4 transition-all duration-300 cursor-pointer ${
+                          num === currentSlide
+                            ? 'ring-2 ring-primary border-primary bg-primary/5 shadow-md'
+                            : 'border-border/80 bg-card hover:border-primary/80 hover:shadow-lg'
+                        }`}
                       >
                         {/* Mini-Canvas frame */}
-                        <div className="relative flex aspect-[16/10] items-center justify-center rounded-lg bg-background border border-border/50 group-hover:bg-accent/30 group-hover:border-primary/50 transition-all duration-300 overflow-hidden select-none pointer-events-none">
+                        <div className={`relative flex aspect-[16/10] items-center justify-center rounded-lg bg-background border transition-all duration-300 overflow-hidden select-none pointer-events-none ${
+                          num === currentSlide
+                            ? 'border-primary/50'
+                            : 'border-border/50 group-hover:bg-accent/30 group-hover:border-primary/50'
+                        }`}>
                           <div className="absolute inset-0 w-full h-full flex items-center justify-center">
                             <SlideContainer scaleMode="fit" isThumbnail={true}>
                               <MorphingBackground variant={getBgVariant(meta.type)} />
@@ -129,7 +152,11 @@ export const OverviewModal: React.FC<OverviewModalProps> = ({
                               </div>
                             </SlideContainer>
                           </div>
-                          <span className="absolute bottom-2 right-2 z-10 rounded bg-black/60 px-1.5 py-0.5 font-mono text-[10px] font-bold text-white">
+                          <span className={`absolute bottom-2 right-2 z-10 rounded px-1.5 py-0.5 font-mono text-[10px] font-bold ${
+                            num === currentSlide
+                              ? 'bg-primary text-primary-foreground font-extrabold'
+                              : 'bg-black/60 text-white'
+                          }`}>
                             Slide {num}
                           </span>
                         </div>

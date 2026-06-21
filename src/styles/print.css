@@ -16,7 +16,7 @@
   }
 
   /* Hide app-wide UI elements */
-  header, footer, nav, aside, [data-sidebar], .no-print, [role="navigation"] {
+  header:not(.slide-header), footer:not(.slide-footer), nav, aside, [data-sidebar], .no-print, [role="navigation"] {
     display: none !important;
   }
 

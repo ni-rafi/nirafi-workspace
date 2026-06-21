@@ -33,6 +33,10 @@ This skill guides creating a new lecture, writing its slide components, and addi
    Create a `lecture.tsx` file in the new directory. It must export:
    * `slides`: A `Record<number, React.ComponentType<SlideProps>>` mapping slide numbers to React components.
    * `slideMetadata`: A `Record<number, SlideMetadata>` mapping slide numbers to slide information.
+   * **Layout Selection Standards**:
+     * **Main Cover Slide (Slide 1)**: Use `<TitleV2Layout>` for the main cover page of the lecture.
+     * **Topic/Section Opener Divider Slides**: Use `<TopicDividerLayout>` (imported from `@/shared/layouts/TopicDividerLayout`) for slides introducing a new topic or section within the deck. Do not use `<TitleLayout>` or `<TitleV2Layout>` for internal topic openers.
+     * **Content Slides**: Use `<FullWidthLayout>` or `<TwoColumnLayout>` for regular content slides.
 
 4. **Verify Dynamic Discovery**:
    - Save all files. Vite will automatically discover the new metadata and aggregate it into `SUBJECTS` at build time.

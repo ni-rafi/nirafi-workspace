@@ -152,10 +152,10 @@ function AnimatedBar({
   }
 
   const initial = isHorizontal
-    ? { width: 0, height, x: 0, y }
+    ? { width: 0, height, x, y }
     : { width, height: 0, x, y: innerHeight };
   const target = isHorizontal
-    ? { width, height, x: 0, y }
+    ? { width, height, x, y }
     : { width, height, x, y };
 
   return (
@@ -214,7 +214,9 @@ const BarInner = memo(function BarInner({
   const totalAnimDuration = animationDuration || 1100;
   const staggerSpread = totalAnimDuration * 0.4; // 40% of time for stagger spread
   const calculatedStaggerDelay =
-    staggerDelay ?? (data.length > 1 ? staggerSpread / 1000 / data.length : 0);
+    staggerDelay ?? (stacked
+      ? (lines.length > 1 ? staggerSpread / 1000 / lines.length : 0)
+      : (data.length > 1 ? staggerSpread / 1000 / data.length : 0));
   const uniqueId = useId();
 
   const isHorizontal = orientation === "horizontal";
@@ -286,13 +288,12 @@ const BarInner = memo(function BarInner({
 
         if (isHorizontal) {
           // Horizontal bars: category on y-axis, value on x-axis
-          const valuePos = scale(value) ?? 0;
-          barW = valuePos; // Width is the value position (grows from left)
           barHeight = barWidth;
 
           if (stacked && stackOffsets) {
             const offset = stackOffsets.get(i)?.get(dataKey) ?? 0;
             x = scale(offset) ?? 0;
+            const valuePos = scale(offset + value) ?? 0;
             barW = valuePos - x;
             // Apply stack gap for horizontal: shift right and reduce width
             const gapOffset = seriesIndex * stackGap;
@@ -302,6 +303,8 @@ const BarInner = memo(function BarInner({
             }
           } else {
             x = 0;
+            const valuePos = scale(value) ?? 0;
+            barW = valuePos; // Width is the value position (grows from left)
             // For grouped bars, offset y position
             const effectiveGroupGap = seriesCount > 1 ? groupGap : 0;
             y = bandPos + seriesIndex * (barWidth + effectiveGroupGap);
@@ -404,7 +407,7 @@ const BarInner = memo(function BarInner({
               fadedOpacity={fadedOpacity}
               fill={fill}
               height={barHeight}
-              index={i}
+              index={stacked ? seriesIndex : i}
               innerHeight={innerHeight}
               isFaded={isFaded}
               isHorizontal={isHorizontal}

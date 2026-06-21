@@ -48,10 +48,10 @@ const PrintSlideItem: React.FC<PrintSlideItemProps> = ({
   const presentation = useContext(PresentationContext);
   const cardContextValue = useMemo(() => ({
     theme: presentation?.theme || 'light',
-    viewMode: presentation?.viewMode || 'scroll',
+    viewMode: 'present',
     activeSubStep: 999,
     slideNo,
-    isThumbnail: true,
+    isThumbnail: false,
   }), [presentation, slideNo]);
 
   return (

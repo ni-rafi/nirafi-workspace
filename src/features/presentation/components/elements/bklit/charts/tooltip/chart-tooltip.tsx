@@ -223,28 +223,39 @@ const ChartTooltipInner = memo(function ChartTooltipInner({
           width="100%"
         >
           <g transform={`translate(${margin.left},${margin.top})`}>
-            <TooltipIndicator
-              animate={!discreteInteraction}
-              colorEdge={indicatorColor}
-              colorMid={indicatorColor}
-              columnWidth={columnWidth}
-              fadeEdges={
-                indicatorDasharray ? "none" : (indicatorFadeEdges ?? "both")
-              }
-              fadeLength={indicatorFadeLength}
-              height={innerHeight}
-              springConfig={springConfig}
-              strokeDasharray={indicatorDasharray}
-              visible={visible}
-              width="line"
-              x={x}
-            />
+            {isHorizontal ? (
+              <TooltipIndicatorHorizontal
+                animate={!discreteInteraction}
+                color={indicatorColor}
+                innerWidth={innerWidth}
+                springConfig={springConfig}
+                visible={visible}
+                y={firstLineY}
+              />
+            ) : (
+              <TooltipIndicator
+                animate={!discreteInteraction}
+                colorEdge={indicatorColor}
+                colorMid={indicatorColor}
+                columnWidth={columnWidth}
+                fadeEdges={
+                  indicatorDasharray ? "none" : (indicatorFadeEdges ?? "both")
+                }
+                fadeLength={indicatorFadeLength}
+                height={innerHeight}
+                springConfig={springConfig}
+                strokeDasharray={indicatorDasharray}
+                visible={visible}
+                width="line"
+                x={x}
+              />
+            )}
           </g>
         </svg>
       )}
 
-      {/* Dots on bars/lines - show for vertical charts only */}
-      {showDots && visible && !isHorizontal && (
+      {/* Dots on bars/lines */}
+      {showDots && visible && (
         <svg
           aria-hidden="true"
           className="pointer-events-none absolute inset-0"
@@ -293,21 +304,74 @@ const ChartTooltipInner = memo(function ChartTooltipInner({
             )}
       </TooltipBox>
 
-      {/* Date/Category Ticker - only show for vertical charts */}
+      {/* Date/Category Ticker */}
       <DatePillTracker
         currentIndex={tooltipData?.index ?? 0}
         discreteInteraction={discreteInteraction}
-        enabled={showDatePill && !isHorizontal}
+        enabled={showDatePill}
+        isHorizontal={isHorizontal}
         labels={dateLabels}
         springConfig={springConfig}
         visible={visible}
         xWithMargin={xWithMargin}
+        yWithMargin={yWithMargin}
       />
     </>
   );
 
   return createPortal(tooltipContent, container);
 });
+
+function TooltipIndicatorHorizontal({
+  y,
+  innerWidth,
+  visible,
+  color,
+  animate = true,
+  springConfig,
+}: {
+  y: number;
+  innerWidth: number;
+  visible: boolean;
+  color: string;
+  animate?: boolean;
+  springConfig?: SpringConfig;
+}) {
+  const { tooltipSpring } = useChartConfig();
+  const effectiveSpring = springConfig ?? tooltipSpring;
+  const animatedY = useSpring(y, effectiveSpring);
+
+  if (animate) {
+    animatedY.set(y);
+  }
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: jump the animatedY when visible changes
+  useEffect(() => {
+    animatedY.set(y);
+  }, [animatedY, y, visible]);
+
+  if (!visible) return null;
+
+  return animate ? (
+    <motion.line
+      stroke={color}
+      strokeWidth={1}
+      x1={0}
+      x2={innerWidth}
+      y1={animatedY}
+      y2={animatedY}
+    />
+  ) : (
+    <line
+      stroke={color}
+      strokeWidth={1}
+      x1={0}
+      x2={innerWidth}
+      y1={y}
+      y2={y}
+    />
+  );
+}
 
 export function ChartTooltip(props: ChartTooltipProps) {
   const { containerRef } = useChartStable();
@@ -334,6 +398,8 @@ interface DatePillTrackerProps {
   labels: string[];
   currentIndex: number;
   xWithMargin: number;
+  yWithMargin?: number;
+  isHorizontal?: boolean;
   discreteInteraction: boolean;
   springConfig?: SpringConfig;
 }
@@ -351,6 +417,8 @@ function DatePillTrackerInner({
   labels,
   currentIndex,
   xWithMargin,
+  yWithMargin = 0,
+  isHorizontal = false,
   discreteInteraction,
   springConfig,
   visible,
@@ -358,15 +426,43 @@ function DatePillTrackerInner({
   const { tooltipSpring } = useChartConfig();
   const effectiveSpring = springConfig ?? tooltipSpring;
   const animatedX = useSpring(xWithMargin, effectiveSpring);
+  const animatedY = useSpring(yWithMargin, effectiveSpring);
 
   if (!discreteInteraction) {
-    animatedX.set(xWithMargin);
+    if (isHorizontal) {
+      animatedY.set(yWithMargin);
+    } else {
+      animatedX.set(xWithMargin);
+    }
   }
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: we need to jump the animatedX when the visible prop changes
+  // biome-ignore lint/correctness/useExhaustiveDependencies: jump the spring when visible changes
   useEffect(() => {
-    animatedX.set(xWithMargin);
-  }, [animatedX, visible]);
+    if (isHorizontal) {
+      animatedY.set(yWithMargin);
+    } else {
+      animatedX.set(xWithMargin);
+    }
+  }, [animatedX, animatedY, xWithMargin, yWithMargin, visible, isHorizontal]);
+
+  if (isHorizontal) {
+    return (
+      <motion.div
+        className="pointer-events-none absolute z-50"
+        style={{
+          top: discreteInteraction ? yWithMargin : animatedY,
+          transform: "translateY(-50%)",
+          left: 4,
+        }}
+      >
+        <DateTicker
+          currentIndex={currentIndex}
+          labels={labels}
+          visible={visible}
+        />
+      </motion.div>
+    );
+  }
 
   return (
     <motion.div

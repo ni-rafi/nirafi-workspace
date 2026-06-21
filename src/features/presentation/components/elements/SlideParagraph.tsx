@@ -26,7 +26,7 @@ export const SlideParagraph: React.FC<SlideParagraphProps> = ({
   paragraphs,
   revealAt,
   revealPreset = 'fade-in',
-  revealMode = 'all-click',
+  revealMode = 'none',
   delayMs = 200,
   variant = 'default',
   className = '',
@@ -143,8 +143,8 @@ export const SlideParagraph: React.FC<SlideParagraphProps> = ({
     </div>
   );
 
-  // If revealMode is 'all-click' and we are in slide mode, reveal the entire component together
-  if (!isBlog && revealMode === 'all-click' && (revealAt !== undefined || revealMode === 'all-click')) {
+  // If revealMode is 'all-click' or we explicitly have revealAt, wrap in ClickReveal
+  if (!isBlog && (revealMode === 'all-click' || revealAt !== undefined)) {
     return (
       <ClickReveal at={revealAt ?? '+1'} preset={revealPreset}>
         {cardContent}

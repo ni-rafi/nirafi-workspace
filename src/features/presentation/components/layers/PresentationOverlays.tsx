@@ -143,6 +143,7 @@ export const PresentationOverlays: React.FC<PresentationOverlaysProps> = ({
         activeSub={activeSub}
         activeLec={activeLec}
         activeSession={activeSession}
+        currentSlide={currentSlide}
       />
 
       <LaserPointer active={isLaserActive} isProjectionView={isProjectionView} />

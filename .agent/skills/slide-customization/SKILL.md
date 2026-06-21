@@ -125,7 +125,12 @@ To prevent words from sticking together (e.g., preventing `metersfrom` rendering
 
 ## 2. Component Guidelines & Examples
 
-### 2.1 Native Highlighting in Paragraphs and Bullets
+### 2.1 Paragraph and Bullet Click-Reveal Behaviors
+* **Default Visibility (`revealMode: 'none'`)**: By default, paragraph blocks (`type: 'paragraph'`) in `SlideContent` render statically immediately on slide load (at step 0). This is the standard behavior for section headers, column headings, and descriptive text block introductions.
+* **Inline Highlight Sequence**: If a paragraph contains `<ClickHighlight>` elements (e.g. at step 1, 2, etc.), leave the paragraph's `revealMode` at its default (`'none'`) so that the paragraph text is visible on load, and subsequent clicks only trigger the highlights in sequence.
+* **Explicit Click Reveals**: If you explicitly want a paragraph to hide initially and reveal on click, specify a `revealAt` property (e.g. `revealAt={1}` or `revealAt="+1"`) or set `revealMode: 'all-click'`.
+
+### 2.2 Native Highlighting in Paragraphs and Bullets
 Slide paragraph and bullet components accept `React.ReactNode` in their `text` or `children` properties. Wrap target words in JSX.
 
 ```tsx
@@ -143,7 +148,7 @@ Slide paragraph and bullet components accept `React.ReactNode` in their `text` o
 />
 ```
 
-### 2.2 Table Highlight Integration
+### 2.3 Table Highlight Integration
 Table cells natively accept `React.ReactNode`. You can highlight specific cells, numbers, or headers by nesting `<ClickHighlight>` inside the `rows` cell arrays:
 
 ```tsx
@@ -160,7 +165,7 @@ Table cells natively accept `React.ReactNode`. You can highlight specific cells,
 />
 ```
 
-### 2.3 Math & Equation Step Highlights
+### 2.4 Math & Equation Step Highlights
 Instead of editing mathematical strings in raw LaTeX (which breaks KaTeX parser), split the formulation into sub-components or wrap relevant parts of the layout using `<ClickHighlight>` nested with `<LatexFormula>` nodes:
 
 ```tsx

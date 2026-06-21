@@ -11,12 +11,15 @@ interface SlideTableProps extends SlideElementProps {
       label: string;
       align?: 'left' | 'center' | 'right';
       revealAt?: number | string;
+      width?: string;
     }
   >;
   rows: Array<Array<React.ReactNode>>;
   striped?: boolean;
   bordered?: boolean;
   hoverable?: boolean;
+  caption?: React.ReactNode;
+  dense?: boolean | 'relaxed' | 'tight';
 }
 
 export const SlideTable: React.FC<SlideTableProps> = ({
@@ -28,6 +31,8 @@ export const SlideTable: React.FC<SlideTableProps> = ({
   revealAt,
   revealPreset,
   className = '',
+  caption,
+  dense = false,
 }) => {
   const presentation = useContext(PresentationContext);
   const isBlog = presentation?.viewMode === 'blog';
@@ -83,8 +88,16 @@ export const SlideTable: React.FC<SlideTableProps> = ({
   const getColClasses = (colIdx: number): string => {
     if (isBlog) return 'p-3';
     const visible = isColVisible(colIdx);
+    
+    let padding = 'py-2 px-3';
+    if (dense === true || dense === 'tight') {
+      padding = 'py-1 px-2 text-[10px]';
+    } else if (dense === 'relaxed') {
+      padding = 'py-1.5 px-3 text-[11px]';
+    }
+
     return visible
-      ? 'py-2 px-3 opacity-100 max-w-[300px] transition-all duration-500 ease-in-out'
+      ? `${padding} opacity-100 max-w-[300px] transition-all duration-500 ease-in-out`
       : 'p-0 opacity-0 max-w-0 border-r-0 border-l-0 pointer-events-none overflow-hidden whitespace-nowrap transition-all duration-500 ease-in-out';
   };
 
@@ -97,6 +110,17 @@ export const SlideTable: React.FC<SlideTableProps> = ({
   const content = (
     <div className={containerClass}>
       <table className={`w-full border-collapse ${isResponsive ? 'min-w-[640px]' : ''}`}>
+        {caption && (
+          <caption className={`font-extrabold text-primary ${
+            (dense === true || dense === 'tight')
+              ? 'pb-1 pt-1 text-[10px]'
+              : dense === 'relaxed'
+                ? 'pb-1.5 pt-1.5 text-[11px]'
+                : 'pb-2 pt-2 text-[10px] md:text-xs'
+          } text-center select-text uppercase tracking-widest border-b border-border/80 bg-muted/40 rounded-t-xl`}>
+            {caption}
+          </caption>
+        )}
         <thead>
           <tr className={`${isBlog ? 'bg-muted/20' : 'bg-muted'} text-foreground border-b font-bold`}>
             {headers.map((h, idx) => {
@@ -108,9 +132,10 @@ export const SlideTable: React.FC<SlideTableProps> = ({
               const animClass = getColClasses(idx);
               const isFirstVisible = idx === firstVisibleColIdx;
               const isLastVisible = idx === lastVisibleColIdx;
-              const cornerClass = isFirstVisible ? 'rounded-tl-xl' : (isLastVisible ? 'rounded-tr-xl' : '');
+              const cornerClass = !caption ? (isFirstVisible ? 'rounded-tl-xl' : (isLastVisible ? 'rounded-tr-xl' : '')) : '';
+              const widthStyle = typeof h !== 'string' && h.width ? { width: h.width } : undefined;
               return (
-                <th key={idx} className={`${alignClass} ${borderClass} ${animClass} ${cornerClass}`}>
+                <th key={idx} className={`${alignClass} ${borderClass} ${animClass} ${cornerClass}`} style={widthStyle}>
                   {label}
                 </th>
               );
@@ -140,8 +165,9 @@ export const SlideTable: React.FC<SlideTableProps> = ({
                   const cellFontClass = isMono ? 'font-mono' : '';
                   const cellBorderClass = bordered && visible && cellIdx < lastVisibleColIdx ? 'border-r border-border/80' : 'border-r-0';
                   const animClass = getColClasses(cellIdx);
+                  const widthStyle = h && typeof h !== 'string' && h.width ? { width: h.width } : undefined;
                   return (
-                    <td key={cellIdx} className={`${alignClass} ${cellFontClass} ${cellBorderClass} ${animClass}`}>
+                    <td key={cellIdx} className={`${alignClass} ${cellFontClass} ${cellBorderClass} ${animClass}`} style={widthStyle}>
                       {cell}
                     </td>
                   );
