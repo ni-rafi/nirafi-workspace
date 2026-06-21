@@ -5,7 +5,10 @@ export type StepType =
   | 'MATRIX_SETUP' 
   | 'MATRIX_INVERSION' 
   | 'DOI_KINEMATIC'
-  | 'MEMBER_STIFFNESS_SETUP';
+  | 'MEMBER_STIFFNESS_SETUP'
+  | 'MDM_DF_SETUP'
+  | 'MDM_CYCLE'
+  | 'MDM_FINAL_MOMENTS';
 
 export interface IFemPayload {
   memberId: string;
@@ -52,15 +55,61 @@ export interface IDoiPayload {
   details: string[];
 }
 
+export interface IMdmDfSetupPayload {
+  joints: {
+    nodeId: string;
+    members: {
+      memberId: string;
+      stiffness: number;
+      df: number;
+      farNodeId: string;
+      farEndCondition: 'FIXED' | 'PINNED' | 'CANTILEVER' | 'CONTINUOUS';
+    }[];
+  }[];
+}
+
+export interface IMdmCyclePayload {
+  cycleIndex: number;
+  balances: {
+    nodeId: string;
+    unbalancedMoment: number;
+    distributions: {
+      memberId: string;
+      distributedMoment: number;
+    }[];
+  }[];
+  carryOvers: {
+    fromMemberId: string;
+    fromNodeId: string;
+    toNodeId: string;
+    moment: number;
+  }[];
+}
+
+export interface IMdmFinalMomentsPayload {
+  memberEndMoments: {
+    memberId: string;
+    startMoment: number;
+    endMoment: number;
+  }[];
+}
+
 export type ICalculateFemStep = IAnalysisStep<'CALCULATE_FEM', IFemPayload>;
 export type IMemberStiffnessStep = IAnalysisStep<'MEMBER_STIFFNESS_SETUP', IMemberStiffnessPayload>;
 export type IMatrixSetupStep = IAnalysisStep<'MATRIX_SETUP', IMatrixPayload>;
 export type IMatrixInversionStep = IAnalysisStep<'MATRIX_INVERSION', IMatrixPayload>;
 export type IDoiKinematicStep = IAnalysisStep<'DOI_KINEMATIC', IDoiPayload>;
+export type IMdmDfSetupStep = IAnalysisStep<'MDM_DF_SETUP', IMdmDfSetupPayload>;
+export type IMdmCycleStep = IAnalysisStep<'MDM_CYCLE', IMdmCyclePayload>;
+export type IMdmFinalMomentsStep = IAnalysisStep<'MDM_FINAL_MOMENTS', IMdmFinalMomentsPayload>;
 
 export type IStructuralStep = 
   | ICalculateFemStep 
   | IMemberStiffnessStep
   | IMatrixSetupStep 
   | IMatrixInversionStep 
-  | IDoiKinematicStep;
+  | IDoiKinematicStep
+  | IMdmDfSetupStep
+  | IMdmCycleStep
+  | IMdmFinalMomentsStep;
+
