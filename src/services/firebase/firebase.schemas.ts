@@ -78,6 +78,7 @@ export type ThemeConfigPayload = z.infer<typeof ThemeConfigPayloadSchema>;
 
 export const LectureStatusSchema = z.object({
   locked: z.boolean(),
+  hidden: z.boolean().optional().default(false),
   hash: z.string(),
   updatedAt: z.number(),
 });

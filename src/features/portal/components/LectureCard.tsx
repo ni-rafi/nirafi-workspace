@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Clock, Lock, Play, ChevronDown, Printer, FileDown, Loader2 } from 'lucide-react';
+import { Clock, Lock, Play, ChevronDown, Printer, FileDown, Loader2, EyeOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -30,28 +30,44 @@ export const LectureCard: React.FC<LectureCardProps> = ({
   subjectId,
   sessionId,
 }) => {
-  const { isLectureLocked, setLectureLocked } = useLectureStatus();
+  const { isLectureLocked, isLectureHidden, setLectureStatus } = useLectureStatus();
   const { userProfile } = useUserContext();
   const isLocked = isLectureLocked(subjectId, sessionId, lecture.id);
+  const isHidden = isLectureHidden(subjectId, sessionId, lecture.id);
   const isAdmin = userProfile?.role === 'admin';
-  const [isToggling, setIsToggling] = React.useState(false);
+  const [isTogglingLock, setIsTogglingLock] = React.useState(false);
+  const [isTogglingHide, setIsTogglingHide] = React.useState(false);
 
-  const handleToggle = async () => {
-    if (isToggling) return;
-    setIsToggling(true);
+  const handleToggleLock = async () => {
+    if (isTogglingLock || isTogglingHide) return;
+    setIsTogglingLock(true);
     try {
-      await setLectureLocked(subjectId, sessionId, lecture.id, !isLocked);
+      await setLectureStatus(subjectId, sessionId, lecture.id, { locked: !isLocked });
     } catch (err) {
       console.error('Failed to toggle lecture lock status:', err);
     } finally {
-      setIsToggling(false);
+      setIsTogglingLock(false);
+    }
+  };
+
+  const handleToggleHide = async () => {
+    if (isTogglingLock || isTogglingHide) return;
+    setIsTogglingHide(true);
+    try {
+      await setLectureStatus(subjectId, sessionId, lecture.id, { hidden: !isHidden });
+    } catch (err) {
+      console.error('Failed to toggle lecture hide status:', err);
+    } finally {
+      setIsTogglingHide(false);
     }
   };
 
   return (
     <div
       className={`group relative flex flex-col justify-between overflow-hidden rounded-lg border bg-card shadow-xs transition-all duration-300 ${
-        isLocked
+        isHidden
+          ? 'opacity-65 border-dashed border-muted-foreground/45 bg-muted/10'
+          : isLocked
           ? 'opacity-75 border-muted bg-muted/20'
           : 'hover:border-primary/25'
       }`}
@@ -78,9 +94,17 @@ export const LectureCard: React.FC<LectureCardProps> = ({
               {lecture.title}
             </h4>
           </div>
-          {isLocked && (
-            <Lock className="h-4 w-4 text-muted-foreground shrink-0 mt-0.5" />
-          )}
+          <div className="flex items-center gap-1.5 shrink-0 mt-0.5">
+            {isHidden && (
+              <span className="inline-flex items-center gap-0.5 rounded-full bg-destructive/10 px-1.5 py-0.5 text-[9px] font-bold text-destructive">
+                <EyeOff className="h-2.5 w-2.5" />
+                <span>Hidden</span>
+              </span>
+            )}
+            {isLocked && (
+              <Lock className="h-3.5 w-3.5 text-muted-foreground" />
+            )}
+          </div>
         </div>
         <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">
           {lecture.description}
@@ -98,7 +122,7 @@ export const LectureCard: React.FC<LectureCardProps> = ({
         {/* Action Button & Toggles */}
         {isAdmin ? (
           <div className="flex flex-wrap items-center gap-2 sm:gap-2.5">
-            {/* Inline Publish Toggle for Admins */}
+            {/* Inline Lock Toggle for Admins */}
             <div className="flex items-center gap-1.5 bg-background border rounded-md px-2 h-8 shadow-xs">
               <span className={`text-[9px] sm:text-[10px] font-bold tracking-wider uppercase select-none transition-colors ${
                 isLocked ? 'text-muted-foreground' : 'text-primary'
@@ -107,21 +131,51 @@ export const LectureCard: React.FC<LectureCardProps> = ({
               </span>
               <button
                 type="button"
-                onClick={handleToggle}
-                disabled={isToggling}
+                onClick={handleToggleLock}
+                disabled={isTogglingLock || isTogglingHide}
                 className={`relative inline-flex h-4.5 w-8 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-hidden disabled:opacity-50 ${
                   isLocked ? 'bg-muted' : 'bg-primary'
                 }`}
                 role="switch"
                 aria-checked={!isLocked}
               >
-                {isToggling ? (
+                {isTogglingLock ? (
                   <Loader2 className="h-2.5 w-2.5 animate-spin text-muted-foreground mx-auto" />
                 ) : (
                   <span
                     aria-hidden="true"
                     className={`pointer-events-none inline-block h-3.5 w-3.5 transform rounded-full bg-background shadow-xs ring-0 transition duration-200 ease-in-out ${
                       isLocked ? 'translate-x-0' : 'translate-x-3.5'
+                    }`}
+                  />
+                )}
+              </button>
+            </div>
+
+            {/* Inline Hide Toggle for Admins */}
+            <div className="flex items-center gap-1.5 bg-background border rounded-md px-2 h-8 shadow-xs">
+              <span className={`text-[9px] sm:text-[10px] font-bold tracking-wider uppercase select-none transition-colors ${
+                isHidden ? 'text-destructive font-extrabold' : 'text-muted-foreground'
+              }`}>
+                {isHidden ? 'Hidden' : 'Visible'}
+              </span>
+              <button
+                type="button"
+                onClick={handleToggleHide}
+                disabled={isTogglingLock || isTogglingHide}
+                className={`relative inline-flex h-4.5 w-8 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-hidden disabled:opacity-50 ${
+                  isHidden ? 'bg-destructive' : 'bg-muted'
+                }`}
+                role="switch"
+                aria-checked={isHidden}
+              >
+                {isTogglingHide ? (
+                  <Loader2 className="h-2.5 w-2.5 animate-spin text-muted-foreground mx-auto" />
+                ) : (
+                  <span
+                    aria-hidden="true"
+                    className={`pointer-events-none inline-block h-3.5 w-3.5 transform rounded-full bg-background shadow-xs ring-0 transition duration-200 ease-in-out ${
+                      isHidden ? 'translate-x-3.5' : 'translate-x-0'
                     }`}
                   />
                 )}

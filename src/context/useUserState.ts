@@ -341,9 +341,19 @@ export const useUserState = () => {
   );
 
   const logout = useCallback(() => {
-    localStorage.removeItem(STORAGE_KEY_ROLL);
-    localStorage.removeItem(STORAGE_KEY_SESSION);
-    localStorage.removeItem('offline_student_profile');
+    // Clear all localStorage keys
+    localStorage.clear();
+
+    // Clear all registers in IndexedDB (including Firestore offline persistence cache)
+    if (typeof window !== 'undefined' && 'indexedDB' in window) {
+      window.indexedDB.databases().then((databases) => {
+        databases.forEach((db) => {
+          if (db.name) {
+            window.indexedDB.deleteDatabase(db.name);
+          }
+        });
+      });
+    }
 
     firebaseService.signOut().catch((err) => {
       console.warn('[UserProvider] Failed to sign out from Firebase:', err);

@@ -30,15 +30,17 @@ const FlatSlideRedirect: React.FC = () => {
  */
 const LectureRouteGuard: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { subjectId, sessionId, lectureId } = useParams<{ subjectId: string; sessionId: string; lectureId: string }>();
-  const { isLectureLocked } = useLectureStatus();
+  const { isLectureLocked, isLectureHidden } = useLectureStatus();
   const { userProfile } = useUserContext();
 
   if (subjectId && sessionId && lectureId) {
     const isLocked = isLectureLocked(subjectId, sessionId, lectureId);
+    const isHidden = isLectureHidden(subjectId, sessionId, lectureId);
     const isAdmin = userProfile?.role === 'admin';
-    if (isLocked && !isAdmin) {
-      console.warn(`[LectureRouteGuard] Direct access denied to locked lecture: ${subjectId}/${sessionId}/${lectureId}`);
-      return <Navigate to={ROUTE_PATHS.PORTAL} state={{ alertMessage: 'This lecture is currently locked.' }} replace />;
+    if ((isLocked || isHidden) && !isAdmin) {
+      console.warn(`[LectureRouteGuard] Direct access denied to locked/hidden lecture: ${subjectId}/${sessionId}/${lectureId}`);
+      const alertMessage = isHidden ? 'This lecture is currently unavailable.' : 'This lecture is currently locked.';
+      return <Navigate to={ROUTE_PATHS.PORTAL} state={{ alertMessage }} replace />;
     }
   }
 

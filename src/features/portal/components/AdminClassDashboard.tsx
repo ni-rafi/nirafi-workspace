@@ -25,7 +25,7 @@ export const AdminClassDashboard: React.FC = () => {
 
     const setupDashboard = async () => {
       try {
-        const answersMod = await import(`../../../lectures/${subjectId}/${sessionId}/answers.ts`);
+        const answersMod = await import(`../../../subjects/${subjectId}/lectures/${sessionId}/answers.ts`);
         if (isCancelled) return;
         setQuizMetadata(answersMod.QUIZ_METADATA || []);
         setQuizAnswers(answersMod.QUIZ_ANSWERS || {});

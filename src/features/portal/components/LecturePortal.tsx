@@ -1,6 +1,6 @@
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { useUserContext } from '@/context';
+import { useUserContext, useLectureStatus } from '@/context';
 import { Sparkles, LayoutDashboard, Calculator } from 'lucide-react';
 import { SUBJECTS } from '@/config/lectures';
 import {
@@ -20,6 +20,7 @@ export const LecturePortal: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { userProfile } = useUserContext();
+  const { isLectureHidden } = useLectureStatus();
   const isAdmin = userProfile?.role === 'admin';
   const [alertMessage, setAlertMessage] = React.useState<string | null>(null);
 
@@ -84,7 +85,12 @@ export const LecturePortal: React.FC = () => {
 
       {/* Subjects Catalog */}
       <div className="flex flex-col gap-10">
-        {SUBJECTS.map((subject) => (
+        {SUBJECTS.filter((subject) => {
+          if (isAdmin) return true;
+          return subject.sessions.some((session) =>
+            session.lectures.some((lecture) => !isLectureHidden(subject.id, session.id, lecture.id))
+          );
+        }).map((subject) => (
           <section
             key={subject.id}
             id={`subject-${subject.id}`}
@@ -131,7 +137,10 @@ export const LecturePortal: React.FC = () => {
               defaultValue={subject.sessions.map((s) => s.id)}
               className="w-full gap-3 flex flex-col"
             >
-              {subject.sessions.map((session) => (
+              {subject.sessions.filter((session) => {
+                if (isAdmin) return true;
+                return session.lectures.some((lecture) => !isLectureHidden(subject.id, session.id, lecture.id));
+              }).map((session) => (
                 <AccordionItem
                   key={session.id}
                   value={session.id}
@@ -163,7 +172,10 @@ export const LecturePortal: React.FC = () => {
                       </div>
                     )}
                     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                       {session.lectures.map((lecture) => {
+                       {session.lectures.filter((lecture) => {
+                        if (isAdmin) return true;
+                        return !isLectureHidden(subject.id, session.id, lecture.id);
+                       }).map((lecture) => {
                         const deckUrl = `/${subject.id}/${session.id}/${lecture.id}`;
                         return (
                           <ErrorBoundary

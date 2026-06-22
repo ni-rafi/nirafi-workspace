@@ -63,7 +63,7 @@ export const useQuizState = (
 
       const setupSubscription = async () => {
         try {
-          const answersMod = await import(`../../../lectures/${subjectId}/${sessionId}/answers.ts`);
+          const answersMod = await import(`../../../subjects/${subjectId}/lectures/${sessionId}/answers.ts`);
           if (isCancelled) return;
 
           const realCorrectAnswer = answersMod.QUIZ_ANSWERS[quizId] || '';

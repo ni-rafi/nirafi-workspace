@@ -10,9 +10,9 @@ describe('hash.ts cryptographic security helpers', () => {
   });
 
   it('generates reproducible lecture status hash signature', async () => {
-    const hash1 = await generateLectureStatusHash('subject-a', 'session-1', 'lecture-1', false, salt);
-    const hash2 = await generateLectureStatusHash('subject-a', 'session-1', 'lecture-1', false, salt);
-    const hash3 = await generateLectureStatusHash('subject-a', 'session-1', 'lecture-1', true, salt);
+    const hash1 = await generateLectureStatusHash('subject-a', 'session-1', 'lecture-1', false, false, salt);
+    const hash2 = await generateLectureStatusHash('subject-a', 'session-1', 'lecture-1', false, false, salt);
+    const hash3 = await generateLectureStatusHash('subject-a', 'session-1', 'lecture-1', true, false, salt);
 
     expect(hash1).toBe(hash2);
     expect(hash1).not.toBe(hash3);
@@ -20,20 +20,20 @@ describe('hash.ts cryptographic security helpers', () => {
   });
 
   it('verifies valid hash signature correctly', async () => {
-    const hash = await generateLectureStatusHash('subject-a', 'session-1', 'lecture-1', false, salt);
-    const isValid = await verifyLectureStatusHash('subject-a', 'session-1', 'lecture-1', false, hash, salt);
+    const hash = await generateLectureStatusHash('subject-a', 'session-1', 'lecture-1', false, false, salt);
+    const isValid = await verifyLectureStatusHash('subject-a', 'session-1', 'lecture-1', false, false, hash, salt);
     expect(isValid).toBe(true);
   });
 
   it('rejects invalid, modified, or blank signatures', async () => {
-    const hash = await generateLectureStatusHash('subject-a', 'session-1', 'lecture-1', false, salt);
+    const hash = await generateLectureStatusHash('subject-a', 'session-1', 'lecture-1', false, false, salt);
     
     // Different locked status
-    const isValid1 = await verifyLectureStatusHash('subject-a', 'session-1', 'lecture-1', true, hash, salt);
+    const isValid1 = await verifyLectureStatusHash('subject-a', 'session-1', 'lecture-1', true, false, hash, salt);
     // Modified hash
-    const isValid2 = await verifyLectureStatusHash('subject-a', 'session-1', 'lecture-1', false, hash + 'a', salt);
+    const isValid2 = await verifyLectureStatusHash('subject-a', 'session-1', 'lecture-1', false, false, hash + 'a', salt);
     // Blank hash
-    const isValid3 = await verifyLectureStatusHash('subject-a', 'session-1', 'lecture-1', false, '', salt);
+    const isValid3 = await verifyLectureStatusHash('subject-a', 'session-1', 'lecture-1', false, false, '', salt);
 
     expect(isValid1).toBe(false);
     expect(isValid2).toBe(false);

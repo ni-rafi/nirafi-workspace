@@ -21,7 +21,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { useUserContext } from '@/context';
+import { useUserContext, useLectureStatus } from '@/context';
 import { SUBJECTS } from '@/config/lectures';
 
 /**
@@ -37,6 +37,7 @@ export const AppSidebar: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { rollNumber, session, logout, userProfile, isAdmin } = useUserContext();
+  const { isLectureHidden } = useLectureStatus();
   const { setOpenMobile } = useSidebar();
 
   const isSlideMode = !!(subjectId && sessionId && lectureId);
@@ -153,7 +154,12 @@ export const AppSidebar: React.FC = () => {
               </SidebarGroupLabel>
               <SidebarGroupContent className="mt-2">
                 <SidebarMenu>
-                  {SUBJECTS.map((sub) => {
+                  {SUBJECTS.filter((sub) => {
+                    if (isAdmin) return true;
+                    return sub.sessions.some((sess) =>
+                      sess.lectures.some((lec) => !isLectureHidden(sub.id, sess.id, lec.id))
+                    );
+                  }).map((sub) => {
                     let SubjectIcon = BookOpen;
                     if (sub.id === 'quantity-surveying') {
                       SubjectIcon = Calculator;

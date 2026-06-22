@@ -7,7 +7,13 @@ import type { SessionStatusPayload } from '@/services/firebase/IFirebaseService'
 
 interface LectureStatusContextType {
   isLectureLocked: (subjectId: string, sessionId: string, lectureId: string) => boolean;
-  setLectureLocked: (subjectId: string, sessionId: string, lectureId: string, locked: boolean) => Promise<void>;
+  isLectureHidden: (subjectId: string, sessionId: string, lectureId: string) => boolean;
+  setLectureStatus: (
+    subjectId: string,
+    sessionId: string,
+    lectureId: string,
+    updates: { locked?: boolean; hidden?: boolean }
+  ) => Promise<void>;
   isLoading: boolean;
 }
 
@@ -30,6 +36,7 @@ export const LectureStatusProvider: React.FC<LectureStatusProviderProps> = ({ ch
   const { userProfile } = useUserContext();
   const [sessionStatuses, setSessionStatuses] = useState<Record<string, SessionStatusPayload>>({});
   const [verifiedLocks, setVerifiedLocks] = useState<Record<string, boolean>>({});
+  const [verifiedHiddens, setVerifiedHiddens] = useState<Record<string, boolean>>({});
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   const salt = import.meta.env['VITE_ADMIN_HASH_SALT'] || 'mock-admin-salt-12345';
@@ -53,11 +60,12 @@ export const LectureStatusProvider: React.FC<LectureStatusProviderProps> = ({ ch
     };
   }, [firebaseService]);
 
-  // Performs cryptographic validation of lock states asynchronously when sessionStatuses changes
+  // Performs cryptographic validation of lock and hidden states asynchronously when sessionStatuses changes
   useEffect(() => {
     let active = true;
     const validateAllLocks = async () => {
       const locksMap: Record<string, boolean> = {};
+      const hiddensMap: Record<string, boolean> = {};
 
       for (const subject of SUBJECTS) {
         for (const session of subject.sessions) {
@@ -75,20 +83,24 @@ export const LectureStatusProvider: React.FC<LectureStatusProviderProps> = ({ ch
                 session.id,
                 lecture.id,
                 liveStatus.locked,
+                liveStatus.hidden || false,
                 liveStatus.hash,
                 salt
               );
 
               if (isValid) {
                 locksMap[lockKey] = liveStatus.locked;
+                hiddensMap[lockKey] = liveStatus.hidden || false;
               } else {
-                // Cryptographic validation failed -> Force Locked for safety
-                console.error(`[LectureStatusProvider] Cryptographic signature validation FAILED for ${lockKey}. Defaulting to locked.`);
+                // Cryptographic validation failed -> Force Locked & Hidden for safety
+                console.error(`[LectureStatusProvider] Cryptographic signature validation FAILED for ${lockKey}. Defaulting to locked and hidden.`);
                 locksMap[lockKey] = true;
+                hiddensMap[lockKey] = true;
               }
             } else {
               // Fallback to static configuration if no database override exists
               locksMap[lockKey] = lecture.locked;
+              hiddensMap[lockKey] = false;
             }
           }
         }
@@ -96,6 +108,7 @@ export const LectureStatusProvider: React.FC<LectureStatusProviderProps> = ({ ch
 
       if (active) {
         setVerifiedLocks(locksMap);
+        setVerifiedHiddens(hiddensMap);
       }
     };
 
@@ -121,22 +134,43 @@ export const LectureStatusProvider: React.FC<LectureStatusProviderProps> = ({ ch
     [verifiedLocks]
   );
 
-  const setLectureLocked = useCallback(
-    async (subjectId: string, sessionId: string, lectureId: string, locked: boolean): Promise<void> => {
+  const isLectureHidden = useCallback(
+    (subjectId: string, sessionId: string, lectureId: string): boolean => {
+      const lockKey = `${subjectId}_${sessionId}_${lectureId}`;
+      if (verifiedHiddens[lockKey] !== undefined) {
+        return verifiedHiddens[lockKey];
+      }
+      return false; // Visible by default if not loaded
+    },
+    [verifiedHiddens]
+  );
+
+  const setLectureStatus = useCallback(
+    async (
+      subjectId: string,
+      sessionId: string,
+      lectureId: string,
+      updates: { locked?: boolean; hidden?: boolean }
+    ): Promise<void> => {
       const isAdmin = userProfile?.role === 'admin';
       if (!isAdmin) {
-        throw new Error('Access Denied: Only administrators can modify lecture locks.');
+        throw new Error('Access Denied: Only administrators can modify lecture statuses.');
       }
 
       const docId = `${subjectId}_${sessionId}`;
       const currentDoc = sessionStatuses[docId];
+      const currentLecture = currentDoc?.lectures?.[lectureId];
 
-      const hash = await generateLectureStatusHash(subjectId, sessionId, lectureId, locked, salt);
+      const locked = updates.locked !== undefined ? updates.locked : (currentLecture?.locked ?? false);
+      const hidden = updates.hidden !== undefined ? updates.hidden : (currentLecture?.hidden ?? false);
+
+      const hash = await generateLectureStatusHash(subjectId, sessionId, lectureId, locked, hidden, salt);
 
       const updatedLectures = {
         ...(currentDoc?.lectures || {}),
         [lectureId]: {
           locked,
+          hidden,
           updatedAt: Date.now(),
           hash,
         },
@@ -152,10 +186,11 @@ export const LectureStatusProvider: React.FC<LectureStatusProviderProps> = ({ ch
   const contextValue = React.useMemo(
     () => ({
       isLectureLocked,
-      setLectureLocked,
+      isLectureHidden,
+      setLectureStatus,
       isLoading,
     }),
-    [isLectureLocked, setLectureLocked, isLoading]
+    [isLectureLocked, isLectureHidden, setLectureStatus, isLoading]
   );
 
   return <LectureStatusContext.Provider value={contextValue}>{children}</LectureStatusContext.Provider>;
