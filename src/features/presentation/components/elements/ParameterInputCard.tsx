@@ -9,7 +9,7 @@ interface ParameterInputCardProps {
   min?: number;
   max?: number;
   className?: string;
-  variant?: 'row' | 'square';
+  variant?: 'row' | 'square' | 'compact';
 }
 
 export const ParameterInputCard: React.FC<ParameterInputCardProps> = ({
@@ -45,8 +45,35 @@ export const ParameterInputCard: React.FC<ParameterInputCardProps> = ({
   };
 
   const isSquare = variant === 'square';
+  const isCompact = variant === 'compact';
 
   if (isEditing) {
+    if (isCompact) {
+      return (
+        <div
+          className={`p-3 border border-primary rounded-lg bg-card flex flex-col justify-center items-center text-center shadow-md ${className}`}
+        >
+          <span className="text-[9px] font-bold uppercase tracking-wider text-primary mb-1 select-none">
+            {label}
+          </span>
+          <div className="flex items-center gap-1.5 w-full justify-center">
+            <input
+              type="number"
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+              onBlur={handleSave}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') handleSave();
+              }}
+              autoFocus
+              className="w-16 text-center bg-background border border-border/60 rounded px-1.5 py-0.5 text-primary text-base font-extrabold font-mono focus:outline-none focus:ring-1 focus:ring-primary/50 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+            />
+            <span className="text-[10px] text-muted-foreground/80 font-semibold select-none">{unit}</span>
+          </div>
+        </div>
+      );
+    }
+
     if (isSquare) {
       return (
         <div
@@ -107,6 +134,29 @@ export const ParameterInputCard: React.FC<ParameterInputCardProps> = ({
             </svg>
           </button>
         </div>
+      </div>
+    );
+  }
+
+  if (isCompact) {
+    return (
+      <div
+        onClick={() => setIsEditing(true)}
+        className={`group p-3 border border-border/30 rounded-lg transition-all cursor-pointer bg-card/65 hover:bg-muted/10 hover:border-primary/50 flex flex-col justify-center items-center text-center shadow-xs relative ${className}`}
+      >
+        {/* Edit indicator icon */}
+        <div className="absolute top-1.5 right-1.5 opacity-40 group-hover:opacity-100 transition-opacity text-muted-foreground group-hover:text-primary p-0.5 rounded">
+          <svg className="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+          </svg>
+        </div>
+
+        <span className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider mb-0.5 select-none group-hover:text-primary transition-colors pr-2">
+          {label}
+        </span>
+        <span className="text-lg font-extrabold text-primary flex items-center gap-1 select-all">
+          {value} <span className="text-[10px] text-muted-foreground/80 font-semibold select-none">{unit}</span>
+        </span>
       </div>
     );
   }

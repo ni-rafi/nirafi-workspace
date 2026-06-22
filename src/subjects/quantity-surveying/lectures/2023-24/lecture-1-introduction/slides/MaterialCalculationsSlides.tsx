@@ -19,7 +19,7 @@ import { CONCRETE_SHRINKAGE_FACTOR } from '@/subjects/quantity-surveying/cores';
 import { UnitConverter } from '@/cores/shared/utils/unitConverter';
 
 import { BarChart, Bar, ChartTooltip } from '@/features/presentation/components/elements/bklit/charts';
-import { ConcreteMixVolumeDrawing, BrickworkEstimationInfographic } from '@/subjects/quantity-surveying/features';
+import { ConcreteMixVolumeDrawing, BrickworkEstimationInfographic, CementBagInfographic } from '@/subjects/quantity-surveying/features';
 
 const ConcreteMixInfographic: React.FC<{
   cement: number;
@@ -181,6 +181,13 @@ export const Slide28: React.FC = () => (
       </div>
     }
   />
+);
+
+// Slide 28b: Cement Volumetric & Mass Standard
+export const Slide28b: React.FC = () => (
+  <FullWidthLayout title="Cement Volumetric &amp; Mass Standard" bgVariant="default">
+    <CementBagInfographic />
+  </FullWidthLayout>
 );
 
 // Slide 29: Common Mix Ratios: Where and Why
