@@ -51,7 +51,7 @@ export const ParameterInputCard: React.FC<ParameterInputCardProps> = ({
     if (isCompact) {
       return (
         <div
-          className={`p-3 border border-primary rounded-lg bg-card flex flex-col justify-center items-center text-center shadow-md ${className}`}
+          className={`p-2 border border-primary rounded-lg bg-card flex flex-col justify-center items-center text-center shadow-md ${className}`}
         >
           <span className="text-[9px] font-bold uppercase tracking-wider text-primary mb-1 select-none">
             {label}
@@ -142,7 +142,7 @@ export const ParameterInputCard: React.FC<ParameterInputCardProps> = ({
     return (
       <div
         onClick={() => setIsEditing(true)}
-        className={`group p-3 border border-border/30 rounded-lg transition-all cursor-pointer bg-card/65 hover:bg-muted/10 hover:border-primary/50 flex flex-col justify-center items-center text-center shadow-xs relative ${className}`}
+        className={`group p-2 border border-border/30 rounded-lg transition-all cursor-pointer bg-card/65 hover:bg-muted/10 hover:border-primary/50 flex flex-col justify-center items-center text-center shadow-xs relative ${className}`}
       >
         {/* Edit indicator icon */}
         <div className="absolute top-1.5 right-1.5 opacity-40 group-hover:opacity-100 transition-opacity text-muted-foreground group-hover:text-primary p-0.5 rounded">

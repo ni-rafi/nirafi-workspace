@@ -42,7 +42,7 @@ export const ParameterSlider: React.FC<ParameterSliderProps> = ({
   };
 
   return (
-    <div className={`flex flex-col gap-1.5 p-3 rounded-xl border transition-all ${
+    <div className={`flex flex-col gap-1 p-2.5 rounded-lg border transition-all ${
       isBlog ? 'bg-transparent border-border/30 shadow-none' : 'bg-card border-border/60 shadow-xs'
     } ${className}`}>
       <label className="text-muted-foreground font-sans text-xs flex justify-between items-center select-none gap-2">

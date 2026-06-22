@@ -1,7 +1,7 @@
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useUserContext } from '@/context/UserContext';
-import { Sparkles, LayoutDashboard } from 'lucide-react';
+import { Sparkles, LayoutDashboard, Calculator } from 'lucide-react';
 import { SUBJECTS } from '@/config/lectures';
 import {
   Accordion,
@@ -108,7 +108,16 @@ export const LecturePortal: React.FC = () => {
                   </p>
                 </div>
               </div>
-              <div className="flex shrink-0">
+              <div className="flex items-center gap-3 shrink-0">
+                {subject.id === 'quantity-surveying' && (
+                  <button
+                    onClick={() => navigate('/quantity-surveying/calculators')}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold bg-primary/10 hover:bg-primary/20 text-primary border border-primary/20 rounded-md cursor-pointer transition-all duration-200"
+                  >
+                    <Calculator className="h-3.5 w-3.5" />
+                    <span>Launch Calculators</span>
+                  </button>
+                )}
                 <span className="inline-flex items-center rounded-md px-2.5 py-1 text-xs font-bold font-mono tracking-wider border bg-primary/10 text-primary uppercase">
                   {subject.courseCode}
                 </span>

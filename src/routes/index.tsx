@@ -12,6 +12,7 @@ import ShapeBuilderPlayground from '@/features/presentation/components/tools/pla
 import { SFDBMDSolverPage } from './mechanics-of-solids/SFDBMDSolverPage';
 import { InfluenceLinesPage } from './structural-analysis/InfluenceLinesPage';
 import { FrameSolverPage } from './structural-analysis/FrameSolverPage';
+import { QSCalculatorsPage } from './quantity-surveying/QSCalculatorsPage';
 
 /**
  * Handles legacy Slidev flat slide number requests (e.g. /5) by
@@ -127,6 +128,7 @@ export const AppRoutes: React.FC = () => {
         <Route path={ROUTE_PATHS.SOLVER_SFD_BMD} element={<SFDBMDSolverPage />} />
         <Route path={ROUTE_PATHS.SOLVER_INFLUENCE_LINES} element={<InfluenceLinesPage />} />
         <Route path={ROUTE_PATHS.SOLVER_FRAME} element={<FrameSolverPage />} />
+        <Route path={ROUTE_PATHS.SOLVER_QS_CALCULATORS} element={<QSCalculatorsPage />} />
 
         {/* Global Fallback Redirect to Dashboard */}
         <Route path="*" element={<Navigate to={ROUTE_PATHS.PORTAL} replace />} />

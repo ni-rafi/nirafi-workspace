@@ -1,11 +1,11 @@
 import React from 'react';
-import { useUrlSyncedState } from '@/features/presentation/hooks/useUrlSyncedState';
 import { LectureCover } from '@/shared/layouts/LectureCover';
 import { TwoColumnLayout } from '@/shared/layouts/TwoColumnLayout';
 import { FullWidthLayout } from '@/shared/layouts/FullWidthLayout';
 import { LectureThankYou } from '@/shared/layouts/LectureThankYou';
-import { calculateBrickwork } from '../calculations/brickwork';
-import { SlideContent, SlideTable, ClickHighlight, LatexFormula, InteractiveCard, ParameterSlider, CalculationOutput } from '@/features/presentation/components/elements';
+import { SlideContent, SlideTable, ClickHighlight, LatexFormula, InteractiveCard } from '@/features/presentation/components/elements';
+
+import { BrickworkCalculator } from '../../../features';
 import { QuizCardOrchestrator } from '@/features/quiz';
 import { SlideProps } from '@/features/presentation/components/slides/SlideRenderer';
 
@@ -104,64 +104,8 @@ const Slide2: React.FC = () => {
 
 // Slide 3: Live Masonry Calculator
 const Slide3: React.FC = () => {
-  const [area, setArea] = useUrlSyncedState<number>('area', 15);
-  const [thickness, setThickness] = useUrlSyncedState<number>('thickness', 0.24);
-  const [mortar, setMortar] = useUrlSyncedState<number>('mortar', 0.01);
-
-  const result = calculateBrickwork(area, thickness, 0.24, 0.115, 0.07, mortar);
-
   return (
-    <TwoColumnLayout
-      title="Masonry Calculation Sandbox"
-      bgVariant="calculation"
-      leftWidth="45%"
-      leftContent={
-        <InteractiveCard title="Parameters (SI Meters)">
-          <ParameterSlider
-            label="Wall Surface Area:"
-            value={area}
-            unit="m²"
-            min={1}
-            max={100}
-            step={1}
-            onChange={setArea}
-          />
-          <ParameterSlider
-            label="Wall Thickness:"
-            value={thickness}
-            unit="m"
-            min={0.115}
-            max={0.5}
-            step={0.005}
-            onChange={setThickness}
-          />
-          <ParameterSlider
-            label="Mortar Joints:"
-            value={mortar}
-            unit="mm"
-            min={0.005}
-            max={0.02}
-            step={0.001}
-            displayValue={`${Math.round(mortar * 1000)}mm`}
-            onChange={setMortar}
-          />
-        </InteractiveCard>
-      }
-      rightContent={
-        <div className="flex flex-col gap-4 h-full justify-center">
-          <CalculationOutput
-            title="Bricks Output"
-            value={result.brickCount}
-            unit="Bricks"
-          />
-          <CalculationOutput
-            title="Mortar Output"
-            value={result.mortarVolume.toFixed(3)}
-            unit="m³"
-          />
-        </div>
-      }
-    />
+    <BrickworkCalculator inputMode="card" />
   );
 };
 

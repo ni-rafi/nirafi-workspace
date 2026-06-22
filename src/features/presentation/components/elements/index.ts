@@ -31,6 +31,7 @@ export { CodeMagicMove } from './CodeMagicMove';
 export { LatexFormula } from './LatexFormula';
 export { MermaidDiagram } from './MermaidDiagram';
 export { FormulaBreakdown, type FormulaStep } from './FormulaBreakdown';
+export { CalculationStepCard } from './CalculationStepCard';
 
 // Interactive calculation elements
 export { InteractiveCard } from './InteractiveCard';

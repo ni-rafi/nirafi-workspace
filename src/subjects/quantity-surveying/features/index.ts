@@ -3,3 +3,5 @@ export { UnitConversionInfographic } from './components/UnitConversionInfographi
 export { BrickworkEstimationInfographic } from './components/BrickworkEstimationInfographic';
 export { FootingDrawingCanvas } from './components/FootingDrawingCanvas';
 export { CementBagInfographic } from './components/CementBagInfographic';
+export * from './calculators';
+

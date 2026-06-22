@@ -1,11 +1,11 @@
 import React from 'react';
-import { useUrlSyncedState } from '@/features/presentation/hooks/useUrlSyncedState';
 import { LectureCover } from '@/shared/layouts/LectureCover';
 import { TwoColumnLayout } from '@/shared/layouts/TwoColumnLayout';
 import { FullWidthLayout } from '@/shared/layouts/FullWidthLayout';
 import { LectureThankYou } from '@/shared/layouts/LectureThankYou';
-import { calculateConcreteVolume } from '../calculations/concrete';
-import { SlideContent, SlideTable, ClickHighlight, LatexFormula, InteractiveCard, ParameterSlider, CalculationOutput } from '@/features/presentation/components/elements';
+import { SlideContent, SlideTable, ClickHighlight, LatexFormula, InteractiveCard } from '@/features/presentation/components/elements';
+
+import { ConcreteVolumeCalculator } from '../../../features';
 import SlideBklitChart from '@/features/presentation/components/slides/SlideBklitChart';
 import { QuizCardOrchestrator } from '@/features/quiz';
 import { SlideProps } from '@/features/presentation/components/slides/SlideRenderer';
@@ -97,58 +97,8 @@ const Slide2: React.FC = () => {
 
 // Slide 3: Live Volumetric Calculator
 const Slide3: React.FC = () => {
-  const [length, setLength] = useUrlSyncedState<number>('length', 10);
-  const [width, setWidth] = useUrlSyncedState<number>('width', 0.3);
-  const [height, setHeight] = useUrlSyncedState<number>('height', 0.4);
-  const [wastage] = useUrlSyncedState<number>('wastage', 0.05);
-
-  const result = calculateConcreteVolume(length, width, height, wastage);
-
   return (
-    <TwoColumnLayout
-      title="Volumetric Calculation Sandbox"
-      bgVariant="calculation"
-      leftWidth="45%"
-      leftContent={
-        <InteractiveCard title="Parameters (SI Meters)">
-          <ParameterSlider
-            label="Length:"
-            value={length}
-            unit="m"
-            min={1}
-            max={50}
-            step={0.5}
-            onChange={setLength}
-          />
-          <ParameterSlider
-            label="Width:"
-            value={width}
-            unit="m"
-            min={0.1}
-            max={2}
-            step={0.05}
-            onChange={setWidth}
-          />
-          <ParameterSlider
-            label="Height:"
-            value={height}
-            unit="m"
-            min={0.1}
-            max={2}
-            step={0.05}
-            onChange={setHeight}
-          />
-        </InteractiveCard>
-      }
-      rightContent={
-        <CalculationOutput
-          title="Casting Volume Output"
-          value={result.volume.toFixed(3)}
-          unit="m³"
-          subtitle={`Automatic wastage factor multiplier: ${Math.round(wastage * 100)}%`}
-        />
-      }
-    />
+    <ConcreteVolumeCalculator inputMode="card" />
   );
 };
 

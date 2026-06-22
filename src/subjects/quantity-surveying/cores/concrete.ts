@@ -1,4 +1,5 @@
-import type { ConcreteResult } from './IQSEngine';
+import type { ConcreteResult, ConcreteMixResult } from './IQSEngine';
+import { CONCRETE_SHRINKAGE_FACTOR } from './constants';
 
 /**
  * Calculates concrete volume with a wastage factor.
@@ -24,3 +25,42 @@ export function calculateConcreteVolumeInternal(
     volume: Math.round(volume * 1000) / 1000,
   };
 }
+
+/**
+ * Calculates raw concrete ingredients (cement, sand, stone volumes) from design wet volume.
+ * All volume inputs/outputs are in base SI units (cubic meters).
+ */
+export function calculateConcreteMixIngredients(
+  wetVolume: number,
+  sandPart: number,
+  stonePart: number,
+  cementPart: number = 1,
+  shrinkageFactor: number = CONCRETE_SHRINKAGE_FACTOR
+): ConcreteMixResult {
+  const wetVol = wetVolume < 0 ? 0 : wetVolume;
+  const sand = sandPart < 0 ? 0 : sandPart;
+  const stone = stonePart < 0 ? 0 : stonePart;
+  const cement = cementPart < 0 ? 0 : cementPart;
+  const sf = shrinkageFactor < 0 ? 0 : shrinkageFactor;
+
+  const dryVolume = wetVol * sf;
+  const totalParts = cement + sand + stone;
+
+  let cementVolume = 0;
+  let sandVolume = 0;
+  let stoneVolume = 0;
+
+  if (totalParts > 0) {
+    cementVolume = (cement / totalParts) * dryVolume;
+    sandVolume = (sand / totalParts) * dryVolume;
+    stoneVolume = (stone / totalParts) * dryVolume;
+  }
+
+  return {
+    dryVolume: Math.round(dryVolume * 1000) / 1000,
+    cementVolume: Math.round(cementVolume * 1000) / 1000,
+    sandVolume: Math.round(sandVolume * 1000) / 1000,
+    stoneVolume: Math.round(stoneVolume * 1000) / 1000,
+  };
+}
+

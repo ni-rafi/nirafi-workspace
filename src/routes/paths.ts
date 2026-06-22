@@ -11,4 +11,6 @@ export const ROUTE_PATHS = {
   SOLVER_SFD_BMD: '/mechanics-of-solids/sfd-bmd',
   SOLVER_FRAME: '/structural-analysis/frame-solver',
   SOLVER_INFLUENCE_LINES: '/structural-analysis/influence-lines',
+  SOLVER_QS_CALCULATORS: '/quantity-surveying/calculators',
 };
+

@@ -1,5 +1,5 @@
 import { describe, test, expect } from 'vitest';
-import { calculateConcreteVolumeInternal } from '../concrete';
+import { calculateConcreteVolumeInternal, calculateConcreteMixIngredients } from '../concrete';
 
 describe('Concrete Volumetric Module', () => {
   test('should calculate volume with default wastage of 5%', () => {
@@ -33,3 +33,36 @@ describe('Concrete Volumetric Module', () => {
     expect(result.volume).toBe(1.2);
   });
 });
+
+describe('Concrete Mix Ingredients Module', () => {
+  test('should calculate mix ingredients correctly for standard 1:2:4 ratio', () => {
+    // wetVolume = 100, sand = 2, stone = 4, cement = 1, sf = 1.54
+    // dryVolume = 100 * 1.54 = 154
+    // totalParts = 1 + 2 + 4 = 7
+    // cementVolume = (1/7) * 154 = 22
+    // sandVolume = (2/7) * 154 = 44
+    // stoneVolume = (4/7) * 154 = 88
+    const result = calculateConcreteMixIngredients(100, 2, 4, 1, 1.54);
+    expect(result.dryVolume).toBe(154);
+    expect(result.cementVolume).toBe(22);
+    expect(result.sandVolume).toBe(44);
+    expect(result.stoneVolume).toBe(88);
+  });
+
+  test('should handle zero volumes gracefully', () => {
+    const result = calculateConcreteMixIngredients(0, 2, 4);
+    expect(result.dryVolume).toBe(0);
+    expect(result.cementVolume).toBe(0);
+    expect(result.sandVolume).toBe(0);
+    expect(result.stoneVolume).toBe(0);
+  });
+
+  test('should default cement proportion to 1 and shrinkage factor to 1.54', () => {
+    const result = calculateConcreteMixIngredients(100, 2, 4);
+    expect(result.dryVolume).toBe(154);
+    expect(result.cementVolume).toBe(22);
+    expect(result.sandVolume).toBe(44);
+    expect(result.stoneVolume).toBe(88);
+  });
+});
+

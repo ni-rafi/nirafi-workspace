@@ -11,15 +11,15 @@ import {
   ClickHighlight,
   LatexFormula,
   InteractiveCard,
-  ParameterInputCard,
-  ClickReveal
+  ClickReveal,
+  CalculationStepCard
 } from '@/features/presentation/components/elements';
 import { QuizCardOrchestrator } from '@/features/quiz';
-import { CONCRETE_SHRINKAGE_FACTOR } from '@/subjects/quantity-surveying/cores';
+import { CONCRETE_SHRINKAGE_FACTOR, calculateConcreteMixIngredients } from '@/subjects/quantity-surveying/cores';
 import { UnitConverter } from '@/cores/shared/utils/unitConverter';
 
 import { BarChart, Bar, ChartTooltip } from '@/features/presentation/components/elements/bklit/charts';
-import { ConcreteMixVolumeDrawing, BrickworkEstimationInfographic, CementBagInfographic } from '@/subjects/quantity-surveying/features';
+import { BrickworkEstimationInfographic, CementBagInfographic, ConcreteMixCalculator } from '@/subjects/quantity-surveying/features';
 
 const ConcreteMixInfographic: React.FC<{
   cement: number;
@@ -278,15 +278,17 @@ export const Slide30: React.FC = () => {
   const [stonePart] = useUrlSyncedState<number>('stonePart', 4);
   const { currentClick } = useClickStepsContext();
 
-  const dryMultiplier = CONCRETE_SHRINKAGE_FACTOR;
-  const dryVolume = wetVolume * dryMultiplier;
+  // Delegate calculation to core engine (converting cft to m3 first)
+  const wetVolM3 = UnitConverter.volume.cftToM3(wetVolume);
+  const mix = calculateConcreteMixIngredients(wetVolM3, sandPart, stonePart, 1, CONCRETE_SHRINKAGE_FACTOR);
+
+  // Convert outputs back to cft/bags for presentation UI
+  const dryVolume = UnitConverter.volume.m3ToCft(mix.dryVolume);
+  const sandVol = UnitConverter.volume.m3ToCft(mix.sandVolume);
+  const stoneVol = UnitConverter.volume.m3ToCft(mix.stoneVolume);
+  const cementVolCft = UnitConverter.volume.m3ToCft(mix.cementVolume);
+  const cementBags = UnitConverter.cement.cftToBags(cementVolCft);
   const totalParts = 1 + sandPart + stonePart;
-
-  const cementVol = (1 / totalParts) * dryVolume;
-  const cementBags = UnitConverter.cement.cftToBags(cementVol);
-
-  const sandVol = (sandPart / totalParts) * dryVolume;
-  const stoneVol = (stonePart / totalParts) * dryVolume;
 
   return (
     <TwoColumnLayout
@@ -384,7 +386,7 @@ export const Slide30: React.FC = () => {
                     <rect x="15" y="185" width="76" height="85" rx="6" fill="var(--chart-1)" opacity="0.12" stroke="var(--chart-1)" strokeWidth="1.5" />
                     <text x="53" y="205" fill="currentColor" fontWeight="extrabold" fontSize="9" textAnchor="middle">Cement</text>
                     <text x="53" y="225" fill="currentColor" fontSize="8" textAnchor="middle">1 / {totalParts} share</text>
-                    <text x="53" y="240" fill="currentColor" fontSize="8" fontWeight="bold" textAnchor="middle">{cementVol.toFixed(1)} cft</text>
+                    <text x="53" y="240" fill="currentColor" fontSize="8" fontWeight="bold" textAnchor="middle">{cementVolCft.toFixed(1)} cft</text>
                     <text x="53" y="258" fill="var(--color-primary, #0284c7)" fontWeight="extrabold" fontSize="9" textAnchor="middle">
                       {cementBags.toFixed(1)} bags
                     </text>
@@ -423,15 +425,17 @@ export const Slide31: React.FC = () => {
   const [sandPart] = useUrlSyncedState<number>('sandPart', 2);
   const [stonePart] = useUrlSyncedState<number>('stonePart', 4);
 
-  const dryMultiplier = CONCRETE_SHRINKAGE_FACTOR;
-  const dryVolume = wetVolume * dryMultiplier;
+  // Delegate calculation to core engine (converting cft to m3 first)
+  const wetVolM3 = UnitConverter.volume.cftToM3(wetVolume);
+  const mix = calculateConcreteMixIngredients(wetVolM3, sandPart, stonePart, 1, CONCRETE_SHRINKAGE_FACTOR);
+
+  // Convert outputs back to cft/bags for presentation UI
+  const dryVolume = UnitConverter.volume.m3ToCft(mix.dryVolume);
+  const sandVol = UnitConverter.volume.m3ToCft(mix.sandVolume);
+  const stoneVol = UnitConverter.volume.m3ToCft(mix.stoneVolume);
+  const cementVolCft = UnitConverter.volume.m3ToCft(mix.cementVolume);
+  const cementBags = UnitConverter.cement.cftToBags(cementVolCft);
   const totalParts = 1 + sandPart + stonePart;
-
-  const cementVol = (1 / totalParts) * dryVolume;
-  const cementBags = UnitConverter.cement.cftToBags(cementVol);
-
-  const sandVol = (sandPart / totalParts) * dryVolume;
-  const stoneVol = (stonePart / totalParts) * dryVolume;
 
   return (
     <FullWidthLayout title="RCC Step-by-Step Math Walkthrough" bgVariant="default">
@@ -441,41 +445,47 @@ export const Slide31: React.FC = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4 select-text">
-          <ClickReveal at={1} className="border border-border/40 p-3.5 bg-muted/10 rounded-xl">
-            <span className="font-extrabold text-foreground block mb-1 uppercase text-[10px] tracking-wider text-primary">Step 1: Dry Volume Conversion</span>
-            <span>Multiply by PWD shrinkage factor ({CONCRETE_SHRINKAGE_FACTOR}) to find dry ingredients volume:</span>
-            <div className="mt-1.5 font-semibold text-primary">
-              <LatexFormula math={`V_{\\text{dry}} = ${wetVolume} \\text{ cft} \\times ${CONCRETE_SHRINKAGE_FACTOR} = ${dryVolume.toFixed(2)} \\text{ cft}`} />
-            </div>
-          </ClickReveal>
+          <CalculationStepCard
+            step={1}
+            title="Dry Volume Conversion"
+            revealAt={1}
+            description={`Multiply by PWD shrinkage factor (${CONCRETE_SHRINKAGE_FACTOR}) to find dry ingredients volume:`}
+            formula={`V_{\\text{dry}} = ${wetVolume} \\text{ cft} \\times ${CONCRETE_SHRINKAGE_FACTOR} = ${dryVolume.toFixed(2)} \\text{ cft}`}
+          />
 
-          <ClickReveal at={2} className="border border-border/40 p-3.5 bg-muted/10 rounded-xl">
-            <span className="font-extrabold text-foreground block mb-1 uppercase text-[10px] tracking-wider text-primary">Step 2: Sum of Ratio Parts</span>
-            <span>Sum the volumetric ratio parts (Cement : Sand : Aggregate):</span>
-            <div className="mt-1.5 font-semibold text-primary">
-              <LatexFormula math={`\\text{Total Parts} = 1 + ${sandPart} + ${stonePart} = ${totalParts}`} />
-            </div>
-          </ClickReveal>
+          <CalculationStepCard
+            step={2}
+            title="Sum of Ratio Parts"
+            revealAt={2}
+            description="Sum the volumetric ratio parts (Cement : Sand : Aggregate):"
+            formula={`\\text{Total Parts} = 1 + ${sandPart} + ${stonePart} = ${totalParts}`}
+          />
 
-          <ClickReveal at={3} className="border border-border/40 p-3.5 bg-muted/10 rounded-xl md:col-span-2">
-            <span className="font-extrabold text-foreground block mb-1 uppercase text-[10px] tracking-wider text-primary">Step 3: Cement Quantity (Bags)</span>
-            <span>Evaluate cement share and convert to standard 50 kg bags (1.25 cft per bag):</span>
-            <div className="mt-1.5 flex flex-col md:flex-row md:gap-8 font-semibold text-primary">
-              <LatexFormula math={`\\text{Volume} = \\frac{1}{${totalParts}} \\times ${dryVolume.toFixed(2)} \\text{ cft} = ${cementVol.toFixed(3)} \\text{ cft}`} />
+          <CalculationStepCard
+            step={3}
+            title="Cement Quantity (Bags)"
+            revealAt={3}
+            description="Evaluate cement share and convert to standard 50 kg bags (1.25 cft per bag):"
+          >
+            <div className="flex flex-col gap-2 font-semibold text-primary">
+              <LatexFormula math={`\\text{Volume} = \\frac{1}{${totalParts}} \\times ${dryVolume.toFixed(2)} \\text{ cft} = ${cementVolCft.toFixed(3)} \\text{ cft}`} />
               <ClickHighlight at={4} variant="paint">
-                <LatexFormula math={`\\text{Bags} = \\frac{${cementVol.toFixed(3)}}{1.25} = ${cementBags.toFixed(2)} \\text{ bags}`} />
+                <LatexFormula math={`\\text{Bags} = \\frac{${cementVolCft.toFixed(3)}}{1.25} = ${cementBags.toFixed(2)} \\text{ bags}`} />
               </ClickHighlight>
             </div>
-          </ClickReveal>
+          </CalculationStepCard>
 
-          <ClickReveal at={5} className="border border-border/40 p-3.5 bg-muted/10 rounded-xl md:col-span-2">
-            <span className="font-extrabold text-foreground block mb-1 uppercase text-[10px] tracking-wider text-primary">Step 4: Fine &amp; Coarse Aggregates (cft)</span>
-            <span>Evaluate sand (fine aggregate) and stone/brick chips (coarse aggregate) shares:</span>
-            <div className="mt-1.5 flex flex-col md:flex-row md:gap-8 font-semibold text-primary">
+          <CalculationStepCard
+            step={4}
+            title="Fine &amp; Coarse Aggregates (cft)"
+            revealAt={5}
+            description="Evaluate sand (fine aggregate) and stone/brick chips (coarse aggregate) shares:"
+          >
+            <div className="flex flex-col gap-2 font-semibold text-primary">
               <LatexFormula math={`\\text{Sand (Fine)} = \\frac{${sandPart}}{${totalParts}} \\times ${dryVolume.toFixed(2)} \\text{ cft} = ${sandVol.toFixed(2)} \\text{ cft}`} />
               <LatexFormula math={`\\text{Stone (Coarse)} = \\frac{${stonePart}}{${totalParts}} \\times ${dryVolume.toFixed(2)} \\text{ cft} = ${stoneVol.toFixed(2)} \\text{ cft}`} />
             </div>
-          </ClickReveal>
+          </CalculationStepCard>
         </div>
       </div>
     </FullWidthLayout>
@@ -484,70 +494,10 @@ export const Slide31: React.FC = () => {
 
 // Slide 32: Dynamic RCC Volume Sandbox
 export const Slide32: React.FC = () => {
-  const [wetVolume, setWetVolume] = useUrlSyncedState<number>('wetVol', 100);
-  const [sandPart, setSandPart] = useUrlSyncedState<number>('sandPart', 2);
-  const [stonePart, setStonePart] = useUrlSyncedState<number>('stonePart', 4);
-
-  const dryMultiplier = CONCRETE_SHRINKAGE_FACTOR;
-  const dryVolume = wetVolume * dryMultiplier;
-  const totalParts = 1 + sandPart + stonePart;
-
-  const cementVol = (1 / totalParts) * dryVolume;
-  const cementBags = UnitConverter.cement.cftToBags(cementVol);
-
-  const sandVol = (sandPart / totalParts) * dryVolume;
-  const stoneVol = (stonePart / totalParts) * dryVolume;
-
   return (
-    <TwoColumnLayout
-      title="Dynamic RCC Material Calculation"
-      bgVariant="calculation"
-      leftWidth="48%"
-      leftContent={
-        <div className="flex flex-col gap-4">
-          <InteractiveCard title="Design Parameters">
-            <div className="grid grid-cols-3 gap-3">
-              <ParameterInputCard
-                label="Wet Volume"
-                value={wetVolume}
-                unit="cft"
-                min={0.1}
-                variant="square"
-                onChange={setWetVolume}
-              />
-              <ParameterInputCard
-                label="Sand Prop."
-                value={sandPart}
-                unit="part"
-                min={0.1}
-                variant="square"
-                onChange={setSandPart}
-              />
-              <ParameterInputCard
-                label="Agg. Prop."
-                value={stonePart}
-                unit="parts"
-                min={0.1}
-                variant="square"
-                onChange={setStonePart}
-              />
-            </div>
-          </InteractiveCard>
-        </div>
-      }
-      rightContent={
-        <div className="flex flex-col gap-4 h-full justify-center">
-          <ConcreteMixVolumeDrawing
-            dryVolume={dryVolume}
-            cementBags={cementBags}
-            sandVol={sandVol}
-            stoneVol={stoneVol}
-            sandPart={sandPart}
-            stonePart={stonePart}
-          />
-        </div>
-      }
-    />
+    <FullWidthLayout title="Dynamic RCC Material Calculation" bgVariant="calculation">
+      <ConcreteMixCalculator inputMode="card" />
+    </FullWidthLayout>
   );
 };
 
