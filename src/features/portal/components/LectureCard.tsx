@@ -65,9 +65,19 @@ export const LectureCard: React.FC<LectureCardProps> = ({
       {/* Lecture Meta info */}
       <div className="p-5 flex-1 flex flex-col gap-2">
         <div className="flex items-start justify-between gap-2">
-          <h4 className="font-bold text-sm leading-tight text-foreground group-hover:text-primary transition-colors">
-            {lecture.title}
-          </h4>
+          <div className="flex flex-col gap-1 flex-1">
+            {lecture.lectureNumber !== undefined && (
+              <span
+                className="text-[10px] font-bold tracking-wider uppercase opacity-90"
+                style={{ color: subjectColor }}
+              >
+                {typeof lecture.lectureNumber === 'number' ? `Lecture ${lecture.lectureNumber}` : lecture.lectureNumber}
+              </span>
+            )}
+            <h4 className="font-bold text-sm leading-tight text-foreground group-hover:text-primary transition-colors">
+              {lecture.title}
+            </h4>
+          </div>
           {isLocked && (
             <Lock className="h-4 w-4 text-muted-foreground shrink-0 mt-0.5" />
           )}

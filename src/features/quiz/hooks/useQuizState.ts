@@ -34,15 +34,14 @@ export const useQuizState = (
   const [allSubmissions, setAllSubmissions] = useState<QuizSubmission[]>([]);
 
   const subjectId = 'quantity-surveying'; // default mock
-  const sessionId = 'session-2026';
+  const sessionId = '2023-24';
 
   // 1. Subscribe to active Quiz State
   useEffect(() => {
-    if (!userProfile || userProfile.isGuest) return;
     return firebaseService.subscribeQuizState(quizId, (state) => {
       setQuizStateState(state);
     });
-  }, [quizId, firebaseService, userProfile]);
+  }, [quizId, firebaseService]);
 
   // 2. Fetch student's existing answer if any
   useEffect(() => {

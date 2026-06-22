@@ -58,7 +58,6 @@ export const SessionStatusDefinition: FirestoreDefinition<SessionStatusPayload> 
   collectionPath: 'lecture_status',
   schema: SessionStatusPayloadSchema,
   roles: {
-    read: ['student', 'admin'],
     write: ['admin']
   }
 };
@@ -67,7 +66,6 @@ export const QuizStatesDefinition: FirestoreDefinition<QuizState> = {
   collectionPath: 'quiz_states',
   schema: QuizStateSchema,
   roles: {
-    read: ['student', 'admin'],
     write: ['admin']
   }
 };

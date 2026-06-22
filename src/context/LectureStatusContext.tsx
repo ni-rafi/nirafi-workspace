@@ -36,12 +36,6 @@ export const LectureStatusProvider: React.FC<LectureStatusProviderProps> = ({ ch
 
   // Listen to Firestore real-time session status updates
   useEffect(() => {
-    if (!userProfile || userProfile.isGuest) {
-      setSessionStatuses({});
-      setIsLoading(false);
-      return;
-    }
-
     setIsLoading(true);
     const unsubscribe = firebaseService.subscribeSessionStatuses((statusesList) => {
       const statusesMap: Record<string, SessionStatusPayload> = {};

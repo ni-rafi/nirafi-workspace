@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { useFirebase } from '@/context/FirebaseContext';
-import { useUserContext } from '@/context';
 import { getLectureDeck } from '../components/slides/SlideRenderer';
 import type { QuizState } from '@/services/firebase/IFirebaseService';
 import type { Subject, Lecture } from '@/config/lectures';
@@ -11,11 +10,10 @@ export const useQuizSubscriptions = (
   isLoadingDeck: boolean
 ) => {
   const firebaseService = useFirebase();
-  const { userProfile } = useUserContext();
   const [quizStates, setQuizStates] = useState<Record<string, QuizState>>({});
 
   useEffect(() => {
-    if (isLoadingDeck || !activeLec || !activeSub || !userProfile || userProfile.isGuest) return;
+    if (isLoadingDeck || !activeLec || !activeSub) return;
     const deck = getLectureDeck(activeLec.id);
     const quizIds = (Object.values(deck.slideMetadata) as Array<{ quizId?: string }>)
       .map((m) => m.quizId)
@@ -37,7 +35,7 @@ export const useQuizSubscriptions = (
     return () => {
       unsubscribes.forEach((unsub) => unsub());
     };
-  }, [activeLec, activeSub, firebaseService, isLoadingDeck, userProfile]);
+  }, [activeLec, activeSub, firebaseService, isLoadingDeck]);
 
   return quizStates;
 };

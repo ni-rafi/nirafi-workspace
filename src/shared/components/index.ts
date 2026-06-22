@@ -4,4 +4,5 @@ export * from './ThemeToggle';
 export * from './Layout/PageLayout';
 export * from './MorphingPath';
 export * from './MorphingBackground';
+export * from './ErrorBoundary';
 

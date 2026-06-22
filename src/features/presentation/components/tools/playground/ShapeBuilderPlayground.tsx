@@ -38,8 +38,8 @@ export const ShapeBuilderPlayground: React.FC = () => {
     updateActivePageScaleFactor,
   } = usePlaygroundData(
     subjectId || 'quantity-surveying',
-    sessionId || 'session-2026',
-    lectureId || 'lecture-1-concrete'
+    sessionId || '2023-24',
+    lectureId || 'lecture-1-introduction'
   );
 
   const elements = activePage.elements;

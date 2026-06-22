@@ -1,3 +1,4 @@
+import { getApps } from 'firebase/app';
 import type { SessionStatusPayload, QuizState } from './IFirebaseService';
 import { SessionStatusRepository } from './repositories/lectures/SessionStatusRepository';
 import { QuizStatesRepository } from './repositories/quiz-states/QuizStatesRepository';
@@ -41,7 +42,10 @@ export class FirebaseSessionService {
     try {
       return await this.sessionStatusRepo.set(id, payload);
     } catch (error) {
-      console.warn('[FirebaseSessionService] Failed to save session status in Firestore, saving locally:', error);
+      console.warn('[FirebaseSessionService] Failed to save session status in Firestore:', error);
+      if (getApps().length > 0) {
+        throw error;
+      }
       localStorage.setItem(`offline_status_${id}`, JSON.stringify(payload));
       return { id, ...payload };
     }
@@ -97,7 +101,10 @@ export class FirebaseSessionService {
     try {
       return await this.quizStatesRepo.set(quizId, state);
     } catch (error) {
-      console.warn('[FirebaseSessionService] Failed to save quiz state in Firestore, saving locally:', error);
+      console.warn('[FirebaseSessionService] Failed to save quiz state in Firestore:', error);
+      if (getApps().length > 0) {
+        throw error;
+      }
       localStorage.setItem(`offline_quiz_state_${quizId}`, JSON.stringify(state));
       return { id: quizId, ...state };
     }

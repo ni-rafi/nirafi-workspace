@@ -150,10 +150,27 @@ Object.entries(metadataModules).forEach(([path, module]) => {
   session.lectures.push(module.metadata);
 });
 
-// Sort lectures by slideNo within each session for consistent order
+// Sort lectures by lectureNumber (Outline first, then numeric ascending), falling back to slideNo
 Object.values(COURSE_SHELLS).forEach((course) => {
   course.sessions.forEach((session) => {
-    session.lectures.sort((a, b) => a.slideNo - b.slideNo);
+    session.lectures.sort((a, b) => {
+      const getSortValue = (lecture: Lecture): number => {
+        const num = lecture.lectureNumber;
+        if (num === undefined || num === null) return Infinity;
+        if (typeof num === 'number') return num;
+        if (typeof num === 'string') {
+          if (num.toLowerCase() === 'outline') return 0;
+          const parsed = parseFloat(num);
+          return isNaN(parsed) ? Infinity : parsed;
+        }
+        return Infinity;
+      };
+
+      const valA = getSortValue(a);
+      const valB = getSortValue(b);
+      if (valA !== valB) return valA - valB;
+      return a.slideNo - b.slideNo;
+    });
   });
 });
 

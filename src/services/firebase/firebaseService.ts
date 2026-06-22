@@ -6,6 +6,7 @@ import { FirebaseThemeService } from './firebaseThemeService';
 import { FirebaseSessionService } from './firebaseSessionService';
 import { FirebaseSubmissionsService } from './firebaseSubmissionsService';
 import { FirebasePlaygroundService } from './firebasePlaygroundService';
+import { logger } from '@/cores/logger/logger';
 
 export class FirebaseService implements IFirebaseService {
   private authService = new FirebaseAuthService();
@@ -17,6 +18,20 @@ export class FirebaseService implements IFirebaseService {
   private playgroundService = new FirebasePlaygroundService();
 
   public initializeFirebase(): void {
+    const isDev = import.meta.env.DEV;
+    const projectId = import.meta.env.VITE_FIREBASE_PROJECT_ID;
+    const hasApiKey = !!import.meta.env.VITE_FIREBASE_API_KEY;
+    const hasClientId = !!import.meta.env.VITE_GOOGLE_CLIENT_ID;
+    const hasSalt = !!import.meta.env.VITE_ADMIN_HASH_SALT;
+
+    logger.info('[FirebaseService] Startup diagnostics', {
+      mode: isDev ? 'dev' : 'prod',
+      projectId: projectId || 'undefined',
+      hasApiKey,
+      hasClientId,
+      hasSalt,
+    });
+
     this.authService.initialize();
     this.userService.initialize();
     this.feedbackService.initialize();

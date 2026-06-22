@@ -10,6 +10,7 @@ import {
   AccordionContent,
 } from '@/components/ui/accordion';
 import LectureCard from './LectureCard';
+import { ErrorBoundary } from '@/shared/components';
 
 /**
  * LecturePortal renders the main student dashboard listing registered subjects,
@@ -162,17 +163,22 @@ export const LecturePortal: React.FC = () => {
                       </div>
                     )}
                     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                      {session.lectures.map((lecture) => {
+                       {session.lectures.map((lecture) => {
                         const deckUrl = `/${subject.id}/${session.id}/${lecture.id}`;
                         return (
-                          <LectureCard
+                          <ErrorBoundary
                             key={lecture.id}
-                            lecture={lecture}
-                            deckUrl={deckUrl}
-                            subjectColor={subject.color}
-                            subjectId={subject.id}
-                            sessionId={session.id}
-                          />
+                            variant="card"
+                            contextTitle={typeof lecture.lectureNumber === 'number' ? `Lecture ${lecture.lectureNumber}: ${lecture.title}` : lecture.title}
+                          >
+                            <LectureCard
+                              lecture={lecture}
+                              deckUrl={deckUrl}
+                              subjectColor={subject.color}
+                              subjectId={subject.id}
+                              sessionId={session.id}
+                            />
+                          </ErrorBoundary>
                         );
                       })}
                     </div>

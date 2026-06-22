@@ -31,13 +31,13 @@ service cloud.firestore {
 
     // 3. Lecture Status
     match /lecture_status/{statusId} {
-      allow read: if isAuthenticated();
+      allow read: if true;
       allow write: if isAdmin();
     }
 
     // 4. Quiz States
     match /quiz_states/{quizId} {
-      allow read: if isAuthenticated();
+      allow read: if true;
       allow write: if isAdmin();
     }
 
