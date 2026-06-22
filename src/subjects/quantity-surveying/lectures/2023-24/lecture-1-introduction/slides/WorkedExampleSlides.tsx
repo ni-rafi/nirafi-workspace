@@ -3,6 +3,7 @@ import { CONCRETE_SHRINKAGE_FACTOR } from '@/subjects/quantity-surveying/cores';
 import { FullWidthLayout } from '@/shared/layouts/FullWidthLayout';
 import { TwoColumnLayout } from '@/shared/layouts/TwoColumnLayout';
 import { SlideContent, SlideTable, ClickHighlight, ClickReveal } from '@/features/presentation/components/elements';
+import { UnitConverter } from '@/cores/shared/utils/unitConverter';
 
 // Slide 9: Worked Example: Isolated Footing Excavation & Base
 export const Slide9: React.FC = () => (
@@ -166,7 +167,7 @@ export const Slide11: React.FC = () => (
           text: (
             <span>
               <strong>1. Earthwork Excavation:</strong> Volume = Length x Width x Depth. Math:{' '}
-              <ClickHighlight at={1} variant="paint">1.50 m x 1.50 m x 1.80 m = 4.050 m³</ClickHighlight> (Field conversion: 4.05 x 35.315 = 143.03 cft).
+              <ClickHighlight at={1} variant="paint">1.50 m x 1.50 m x 1.80 m = 4.050 m³</ClickHighlight> (Field conversion: 4.05 x {UnitConverter.volume.m3ToCft(1, 3)} = {UnitConverter.volume.m3ToCft(4.05, 2)} cft).
             </span>
           ),
         },
@@ -175,7 +176,7 @@ export const Slide11: React.FC = () => (
           text: (
             <span>
               <strong>2. Brick Flat Soling (BFS):</strong> Soling is flat work, measured strictly by surface area. Math:{' '}
-              <ClickHighlight at={2} variant="paint">1.50 m x 1.50 m = 2.25 m²</ClickHighlight> (Field conversion: 2.25 x 10.764 = 24.22 sft).
+              <ClickHighlight at={2} variant="paint">1.50 m x 1.50 m = 2.25 m²</ClickHighlight> (Field conversion: 2.25 x {UnitConverter.area.m2ToSft(1, 3)} = {UnitConverter.area.m2ToSft(2.25, 2)} sft).
             </span>
           ),
         },

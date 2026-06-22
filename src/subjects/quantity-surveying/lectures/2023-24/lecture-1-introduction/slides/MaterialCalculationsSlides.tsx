@@ -16,6 +16,7 @@ import {
 } from '@/features/presentation/components/elements';
 import { QuizCardOrchestrator } from '@/features/quiz';
 import { CONCRETE_SHRINKAGE_FACTOR } from '@/subjects/quantity-surveying/cores';
+import { UnitConverter } from '@/cores/shared/utils/unitConverter';
 
 import { BarChart, Bar, ChartTooltip } from '@/features/presentation/components/elements/bklit/charts';
 import { ConcreteMixVolumeDrawing, BrickworkEstimationInfographic } from '@/subjects/quantity-surveying/features';
@@ -275,7 +276,7 @@ export const Slide30: React.FC = () => {
   const totalParts = 1 + sandPart + stonePart;
 
   const cementVol = (1 / totalParts) * dryVolume;
-  const cementBags = cementVol / 1.25;
+  const cementBags = UnitConverter.cement.cftToBags(cementVol);
 
   const sandVol = (sandPart / totalParts) * dryVolume;
   const stoneVol = (stonePart / totalParts) * dryVolume;
@@ -420,7 +421,7 @@ export const Slide31: React.FC = () => {
   const totalParts = 1 + sandPart + stonePart;
 
   const cementVol = (1 / totalParts) * dryVolume;
-  const cementBags = cementVol / 1.25;
+  const cementBags = UnitConverter.cement.cftToBags(cementVol);
 
   const sandVol = (sandPart / totalParts) * dryVolume;
   const stoneVol = (stonePart / totalParts) * dryVolume;
@@ -485,7 +486,7 @@ export const Slide32: React.FC = () => {
   const totalParts = 1 + sandPart + stonePart;
 
   const cementVol = (1 / totalParts) * dryVolume;
-  const cementBags = cementVol / 1.25;
+  const cementBags = UnitConverter.cement.cftToBags(cementVol);
 
   const sandVol = (sandPart / totalParts) * dryVolume;
   const stoneVol = (stonePart / totalParts) * dryVolume;

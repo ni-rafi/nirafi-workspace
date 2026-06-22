@@ -1,6 +1,7 @@
 import React, { useContext } from 'react';
 import { PresentationContext } from '@/features/presentation/context/PresentationContext';
 import { LatexFormula, ClickHighlight } from '@/features/presentation/components/elements';
+import { VOLUME, AREA } from '@/cores/shared/utils/unitConverter';
 
 export const UnitConversionInfographic: React.FC = () => {
   const presentation = useContext(PresentationContext);
@@ -52,7 +53,7 @@ export const UnitConversionInfographic: React.FC = () => {
               <span className="text-[10px] text-muted-foreground uppercase font-bold block mb-1">Conversion Ratio</span>
               <ClickHighlight at={1} variant="paint">
                 <span className="font-mono text-xs font-bold text-primary">
-                  <LatexFormula math="1 \text{ m}^3 = 35.315 \text{ cft}" />
+                  <LatexFormula math={`1 \\text{ m}^3 = ${VOLUME.M3_TO_CFT.toFixed(3)} \\text{ cft}`} />
                 </span>
               </ClickHighlight>
             </div>
@@ -86,7 +87,7 @@ export const UnitConversionInfographic: React.FC = () => {
               <span className="text-[10px] text-muted-foreground uppercase font-bold block mb-1">Conversion Ratio</span>
               <ClickHighlight at={2} variant="paint">
                 <span className="font-mono text-xs font-bold text-primary">
-                  <LatexFormula math="1 \text{ m}^2 = 10.764 \text{ sft}" />
+                  <LatexFormula math={`1 \\text{ m}^2 = ${AREA.M2_TO_SFT.toFixed(3)} \\text{ sft}`} />
                 </span>
               </ClickHighlight>
             </div>
