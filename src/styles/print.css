@@ -70,6 +70,23 @@
     visibility: visible !important;
     page-break-inside: avoid;
   }
+  /* Force horizontal layout divisions when printing to bypass mobile vertical stacking */
+  .print-slide-page .grid-cols-1.md\:grid-cols-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  .print-slide-page .grid-cols-1.md\:grid-cols-3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+
+  .print-slide-page .flex-col.md\:flex-row {
+    flex-direction: row !important;
+  }
+
+  /* Force desktop column widths for calculator layouts to prevent visualizer from stretching to w-full */
+  .print-slide-page .md\:w-\[360px\] {
+    width: 360px !important;
+  }
 }
 
 /* PDF Export clean academic report overrides */

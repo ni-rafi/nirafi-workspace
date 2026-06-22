@@ -31,9 +31,16 @@ export const ClickSyncedTabs: React.FC<ClickSyncedTabsProps> = ({
   leftWidth = '55%',
   bgVariant = 'default',
 }) => {
-  const { currentClick, setClick } = useClickStepsContext();
+  const clickContext = useClickStepsContext();
+  const { currentClick, setClick } = clickContext;
   const presentation = React.useContext(PresentationContext);
   const viewMode = presentation?.viewMode || 'present';
+
+  React.useEffect(() => {
+    if (clickContext.setIsTabbedSlide) {
+      clickContext.setIsTabbedSlide(true);
+    }
+  }, [clickContext]);
 
   const [localActiveIndex, setLocalActiveIndex] = React.useState<number | null>(0);
 

@@ -8,6 +8,8 @@ interface ClickStepsContextType {
   deregisterClick: (id: string) => void;
   setClick: (step: number) => void;
   resetClicks: () => void;
+  isTabbedSlide?: boolean;
+  setIsTabbedSlide?: (val: boolean) => void;
 }
 
 export const ClickStepsContext = createContext<ClickStepsContextType | null>(null);
@@ -27,6 +29,8 @@ export const useClickStepsContext = (): ClickStepsContextType => {
       deregisterClick: () => {},
       setClick: () => {},
       resetClicks: () => {},
+      isTabbedSlide: false,
+      setIsTabbedSlide: () => {},
     };
   }
   return context;
@@ -83,6 +87,7 @@ export const ClickStepsProvider: React.FC<ClickStepsProviderProps> = ({
 
   const currentClick = currentClickOverride !== undefined ? currentClickOverride : currentClickState;
   const [totalClicks, setTotalClicks] = useState(0);
+  const [isTabbedSlide, setIsTabbedSlide] = useState(false);
 
   // Stays true across all registration calls during backward entry (initialClick=999)
   // so that currentClick tracks maxStep as each element registers, regardless of
@@ -174,8 +179,10 @@ export const ClickStepsProvider: React.FC<ClickStepsProviderProps> = ({
       deregisterClick,
       setClick,
       resetClicks,
+      isTabbedSlide,
+      setIsTabbedSlide,
     }),
-    [currentClick, totalClicks, registerClick, deregisterClick, setClick, resetClicks]
+    [currentClick, totalClicks, registerClick, deregisterClick, setClick, resetClicks, isTabbedSlide]
   );
 
   return <ClickStepsContext.Provider value={contextValue}>{children}</ClickStepsContext.Provider>;

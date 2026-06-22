@@ -4,7 +4,7 @@ import presenter from '@/config/presenter.json';
 import sustLogoUrl from '@/assets/Logos/SUST Logo.svg';
 
 interface GlobalBottomProps {
-  current: number;
+  current: number | string;
   total: number;
   hide?: boolean;
 }
@@ -31,8 +31,11 @@ export const GlobalBottom: React.FC<GlobalBottomProps> = ({
     return null;
   }
 
-  // Calculate slide percentage progress
-  const progressPercent = Math.max(0, Math.min(100, (current / total) * 100));
+  // Parse numeric prefix from a string current slide (e.g. "21-A" -> 21) for progress
+  const numericCurrent = typeof current === 'string'
+    ? parseInt(current, 10) || 1
+    : current;
+  const progressPercent = Math.max(0, Math.min(100, (numericCurrent / total) * 100));
 
   const renderCounter = () => {
     if (footerStyle === 'hidden' || footerStyle === 'progress-bar') {

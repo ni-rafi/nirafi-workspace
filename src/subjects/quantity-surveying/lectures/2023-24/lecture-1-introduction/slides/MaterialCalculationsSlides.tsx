@@ -18,8 +18,7 @@ import { QuizCardOrchestrator } from '@/features/quiz';
 import { CONCRETE_SHRINKAGE_FACTOR, calculateConcreteMixIngredients } from '@/subjects/quantity-surveying/cores';
 import { UnitConverter } from '@/cores/shared/utils/unitConverter';
 
-import { BarChart, Bar, ChartTooltip } from '@/features/presentation/components/elements/bklit/charts';
-import { BrickworkEstimationInfographic, CementBagInfographic, ConcreteMixCalculator } from '@/subjects/quantity-surveying/features';
+import { BrickworkEstimationInfographic, CementBagInfographic, ConcreteMixCalculator, ConcreteMixVolumeDrawing } from '@/subjects/quantity-surveying/features';
 
 const ConcreteMixInfographic: React.FC<{
   cement: number;
@@ -27,10 +26,6 @@ const ConcreteMixInfographic: React.FC<{
   stone: number;
   label: string;
 }> = ({ cement, sand, stone, label }) => {
-  const data = React.useMemo(() => [
-    { name: label, cement, sand, stone }
-  ], [label, cement, sand, stone]);
-
   return (
     <div className="mt-4 border border-border/40 bg-muted/10 rounded-xl p-3 flex flex-col gap-2 select-none">
       <div className="flex justify-between items-center text-[10px] uppercase font-bold text-muted-foreground tracking-wider">
@@ -38,35 +33,13 @@ const ConcreteMixInfographic: React.FC<{
         <span className="font-mono text-primary">{cement} : {sand} : {stone}</span>
       </div>
 
-      <div className="h-14 w-full relative">
-        <BarChart
-          data={data}
-          xDataKey="name"
+      <div className="w-full relative">
+        <ConcreteMixVolumeDrawing
           orientation="horizontal"
-          stacked
-          aspectRatio="5 / 1"
-          margin={{ top: 2, right: 2, bottom: 2, left: 2 }}
-        >
-          <Bar dataKey="cement" fill="var(--chart-1)" lineCap={0} />
-          <Bar dataKey="sand" fill="var(--chart-2)" lineCap={0} />
-          <Bar dataKey="stone" fill="var(--chart-3)" lineCap={0} />
-          <ChartTooltip showCrosshair={false} />
-        </BarChart>
-      </div>
-
-      <div className="flex gap-4 text-[9px] text-muted-foreground font-medium justify-center border-t border-border/20 pt-2">
-        <div className="flex items-center gap-1">
-          <span className="w-2.5 h-2.5 rounded inline-block border border-border/30" style={{ backgroundColor: 'var(--chart-1)' }}></span>
-          <span>Cement</span>
-        </div>
-        <div className="flex items-center gap-1">
-          <span className="w-2.5 h-2.5 rounded inline-block border border-border/30" style={{ backgroundColor: 'var(--chart-2)' }}></span>
-          <span>Sand (Fine Agg.)</span>
-        </div>
-        <div className="flex items-center gap-1">
-          <span className="w-2.5 h-2.5 rounded inline-block border border-border/30" style={{ backgroundColor: 'var(--chart-3)' }}></span>
-          <span>Stone (Coarse Agg.)</span>
-        </div>
+          cementPart={cement}
+          sandPart={sand}
+          stonePart={stone}
+        />
       </div>
     </div>
   );
