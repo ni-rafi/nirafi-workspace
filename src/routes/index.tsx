@@ -4,16 +4,26 @@ import { ROUTE_PATHS } from './paths';
 import { useUserContext, useLectureStatus } from '@/context';
 import { PageLayout } from '@/shared/components/Layout/PageLayout';
 import { ErrorBoundary } from '@/shared/components';
-import LecturePortal from '@/features/portal';
-import { SlideViewer } from '@/features/presentation/components/core';
-import RegNoGate from '@/features/gate/components/RegNoGate';
-import AdminClassDashboard from '@/features/portal/components/AdminClassDashboard';
-import SlideCustomizationDocs from '@/features/docs/SlideCustomizationDocs';
-import ShapeBuilderPlayground from '@/features/presentation/components/tools/playground/ShapeBuilderPlayground';
-import { SFDBMDSolverPage } from './mechanics-of-solids/SFDBMDSolverPage';
-import { InfluenceLinesPage } from './structural-analysis/InfluenceLinesPage';
-import { FrameSolverPage } from './structural-analysis/FrameSolverPage';
-import { QSCalculatorsPage } from './quantity-surveying/QSCalculatorsPage';
+// Lazy load page components to enable code splitting and reduce initial bundle size
+const LecturePortal = React.lazy(() => import('@/features/portal'));
+const SlideViewer = React.lazy(() => import('@/features/presentation/components/core/SlideViewer'));
+const RegNoGate = React.lazy(() => import('@/features/gate/components/RegNoGate'));
+const AdminClassDashboard = React.lazy(() => import('@/features/portal/components/AdminClassDashboard'));
+const SlideCustomizationDocs = React.lazy(() => import('@/features/docs/SlideCustomizationDocs'));
+const ShapeBuilderPlayground = React.lazy(() => import('@/features/presentation/components/tools/playground/ShapeBuilderPlayground'));
+const SFDBMDSolverPage = React.lazy(() => import('./mechanics-of-solids/SFDBMDSolverPage').then((m) => ({ default: m.SFDBMDSolverPage })));
+const InfluenceLinesPage = React.lazy(() => import('./structural-analysis/InfluenceLinesPage').then((m) => ({ default: m.InfluenceLinesPage })));
+const FrameSolverPage = React.lazy(() => import('./structural-analysis/FrameSolverPage').then((m) => ({ default: m.FrameSolverPage })));
+const QSCalculatorsPage = React.lazy(() => import('./quantity-surveying/QSCalculatorsPage').then((m) => ({ default: m.QSCalculatorsPage })));
+
+const PageLoader: React.FC = () => (
+  <div className="flex h-screen w-screen items-center justify-center bg-background">
+    <div className="flex flex-col items-center gap-2">
+      <span className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+      <span className="text-xs font-medium text-muted-foreground">Loading page...</span>
+    </div>
+  </div>
+);
 
 /**
  * Handles legacy Slidev flat slide number requests (e.g. /5) by
@@ -80,64 +90,66 @@ export const AppRoutes: React.FC = () => {
     );
   }
 
-  if (!isLoggedIn) {
-    return <RegNoGate />;
-  }
-
   return (
     <ErrorBoundary variant="page">
-      <Routes>
-        {/* Immersive Slide Deck Viewer outside of dashboard layout */}
-        <Route
-          path={ROUTE_PATHS.SLIDE_NESTED}
-          element={
-            <LectureRouteGuard>
-              <SlideViewer />
-            </LectureRouteGuard>
-          }
-        />
-        <Route
-          path={ROUTE_PATHS.LECTURE_VIEW}
-          element={
-            <LectureRouteGuard>
-              <SlideViewer />
-            </LectureRouteGuard>
-          }
-        />
-        <Route
-          path={ROUTE_PATHS.BLOG_VIEW}
-          element={
-            <LectureRouteGuard>
-              <SlideViewer />
-            </LectureRouteGuard>
-          }
-        />
-        <Route
-          path={ROUTE_PATHS.SHAPES_PLAYGROUND}
-          element={
-            <AdminRouteGuard>
-              <ShapeBuilderPlayground />
-            </AdminRouteGuard>
-          }
-        />
+      <React.Suspense fallback={<PageLoader />}>
+        {!isLoggedIn ? (
+          <RegNoGate />
+        ) : (
+          <Routes>
+            {/* Immersive Slide Deck Viewer outside of dashboard layout */}
+            <Route
+              path={ROUTE_PATHS.SLIDE_NESTED}
+              element={
+                <LectureRouteGuard>
+                  <SlideViewer />
+                </LectureRouteGuard>
+              }
+            />
+            <Route
+              path={ROUTE_PATHS.LECTURE_VIEW}
+              element={
+                <LectureRouteGuard>
+                  <SlideViewer />
+                </LectureRouteGuard>
+              }
+            />
+            <Route
+              path={ROUTE_PATHS.BLOG_VIEW}
+              element={
+                <LectureRouteGuard>
+                  <SlideViewer />
+                </LectureRouteGuard>
+              }
+            />
+            <Route
+              path={ROUTE_PATHS.SHAPES_PLAYGROUND}
+              element={
+                <AdminRouteGuard>
+                  <ShapeBuilderPlayground />
+                </AdminRouteGuard>
+              }
+            />
 
-        {/* PageLayout wraps all authenticated routes with app sidebar and headers */}
-        <Route element={<PageLayout />}>
-          {/* Main Lecture Portal Dashboard */}
-          <Route path={ROUTE_PATHS.PORTAL} element={<LecturePortal />} />
-          <Route path={ROUTE_PATHS.ADMIN_DASHBOARD} element={<AdminClassDashboard />} />
-          <Route path={ROUTE_PATHS.PORTAL_LEGACY} element={<Navigate to={ROUTE_PATHS.PORTAL} replace />} />
-          <Route path={ROUTE_PATHS.SLIDE_FLAT} element={<FlatSlideRedirect />} />
-          <Route path={ROUTE_PATHS.DOCS} element={<SlideCustomizationDocs />} />
-          <Route path={ROUTE_PATHS.SOLVER_SFD_BMD} element={<SFDBMDSolverPage />} />
-          <Route path={ROUTE_PATHS.SOLVER_INFLUENCE_LINES} element={<InfluenceLinesPage />} />
-          <Route path={ROUTE_PATHS.SOLVER_FRAME} element={<FrameSolverPage />} />
-          <Route path={ROUTE_PATHS.SOLVER_QS_CALCULATORS} element={<QSCalculatorsPage />} />
+            {/* PageLayout wraps all authenticated routes with app sidebar and headers */}
+            <Route element={<PageLayout />}>
+              {/* Main Lecture Portal Dashboard */}
+              <Route path={ROUTE_PATHS.PORTAL} element={<LecturePortal />} />
+              <Route path={ROUTE_PATHS.ADMIN_DASHBOARD} element={<AdminClassDashboard />} />
+              <Route path={ROUTE_PATHS.PORTAL_LEGACY} element={<Navigate to={ROUTE_PATHS.PORTAL} replace />} />
+              <Route path={ROUTE_PATHS.SLIDE_FLAT} element={<FlatSlideRedirect />} />
+              <Route path={ROUTE_PATHS.DOCS} element={<SlideCustomizationDocs />} />
+              <Route path={ROUTE_PATHS.SOLVER_SFD_BMD} element={<SFDBMDSolverPage />} />
+              <Route path={ROUTE_PATHS.SOLVER_INFLUENCE_LINES} element={<InfluenceLinesPage />} />
+              <Route path={ROUTE_PATHS.SOLVER_FRAME} element={<FrameSolverPage />} />
+              <Route path={ROUTE_PATHS.SOLVER_QS_CALCULATORS} element={<QSCalculatorsPage />} />
 
-          {/* Global Fallback Redirect to Dashboard */}
-          <Route path="*" element={<Navigate to={ROUTE_PATHS.PORTAL} replace />} />
-        </Route>
-      </Routes>
+              {/* Global Fallback Redirect to Dashboard */}
+              <Route path="*" element={<Navigate to={ROUTE_PATHS.PORTAL} replace />} />
+            </Route>
+          </Routes>
+        )}
+      </React.Suspense>
     </ErrorBoundary>
   );
 };
