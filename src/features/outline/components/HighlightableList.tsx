@@ -36,8 +36,8 @@ export const HighlightableList: React.FC<HighlightableListProps> = ({
       {!isBlog && <ClickHighlight at={1} className="hidden">{" "}</ClickHighlight>}
 
       <div className="flex items-center justify-between border-b pb-1.5 mb-0.5">
-        <h3 className="text-xs font-extrabold flex items-center gap-1.5">
-          <Award className="h-3.5 w-3.5 text-primary" />
+        <h3 className="text-sm md:text-base font-extrabold flex items-center gap-1.5">
+          <Award className="h-4 w-4 text-primary" />
           {listTitle}
         </h3>
         {!isBlog && currentClick >= 1 && (
@@ -66,11 +66,11 @@ export const HighlightableList: React.FC<HighlightableListProps> = ({
                   : 'border-border/50 hover:border-primary/20'
               }`}
             >
-              <span className="flex h-4 shrink-0 items-center justify-center rounded-full bg-primary/10 px-1.5 text-[8px] font-bold text-primary whitespace-nowrap">
+              <span className="flex h-5 shrink-0 items-center justify-center rounded-full bg-primary/10 px-2 text-[10px] font-bold text-primary whitespace-nowrap">
                 {item.badgeLabel || `${badgePrefix} ${item.id}`}
               </span>
               <div className="flex-1 min-w-0">
-                <p className="text-[9px] text-muted-foreground leading-normal">
+                <p className="text-[11px] md:text-[12px] text-muted-foreground leading-normal">
                   {item.description}
                 </p>
                 {isBlog && !isHighlightedItem && notHighlightedMessage && (

@@ -322,7 +322,7 @@ export const Slide30: React.FC = () => {
                 {/* Wet Volume Box (always visible) */}
                 <g className="transition-all duration-500 ease-in-out opacity-100">
                   <rect x="20" y="10" width="240" height="35" rx="6" fill="var(--color-primary, #0284c7)" opacity="0.1" stroke="currentColor" strokeWidth="1.5" />
-                  <text x="140" y="32" fill="currentColor" fontWeight="bold" fontSize="10" textAnchor="middle">
+                  <text x="140" y="32" fill="currentColor" fontWeight="bold" fontSize="13" textAnchor="middle">
                     Wet Concrete Volume: {wetVolume.toFixed(1)} cft
                   </text>
                 </g>
@@ -332,13 +332,13 @@ export const Slide30: React.FC = () => {
                   {/* Down Arrow */}
                   <line x1="140" y1="45" x2="140" y2="85" stroke="currentColor" strokeWidth="1.5" strokeDasharray="3,3" />
                   <polygon points="140,89 136,81 144,81" fill="currentColor" />
-                  <text x="155" y="70" fill="var(--color-primary, #0284c7)" fontWeight="extrabold" fontSize="9" textAnchor="start">
+                  <text x="155" y="70" fill="var(--color-primary, #0284c7)" fontWeight="extrabold" fontSize="12" textAnchor="start">
                     × {CONCRETE_SHRINKAGE_FACTOR} Factor
                   </text>
 
                   {/* Dry Volume Box */}
                   <rect x="20" y="90" width="240" height="52" rx="6" fill="currentColor" opacity="0.05" stroke="currentColor" strokeWidth="1.5" />
-                  <text x="140" y="120" fill="currentColor" fontWeight="bold" fontSize="10" textAnchor="middle">
+                  <text x="140" y="121" fill="currentColor" fontWeight="bold" fontSize="13" textAnchor="middle">
                     Dry Mix Volume: {dryVolume.toFixed(1)} cft
                   </text>
                 </g>
@@ -347,7 +347,7 @@ export const Slide30: React.FC = () => {
                 <g className={`transition-all duration-500 ease-in-out ${currentClick >= 2 ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
                   <line x1="140" y1="142" x2="140" y2="175" stroke="currentColor" strokeWidth="1.5" strokeDasharray="3,3" />
                   <polygon points="140,179 136,171 144,171" fill="currentColor" />
-                  <text x="155" y="162" fill="currentColor" fontWeight="bold" fontSize="8" textAnchor="start">
+                  <text x="155" y="163" fill="currentColor" fontWeight="bold" fontSize="11" textAnchor="start">
                     Ratio: 1 : {sandPart} : {stonePart} ({totalParts} parts)
                   </text>
                 </g>
@@ -357,10 +357,10 @@ export const Slide30: React.FC = () => {
                   {/* Cement Box */}
                   <g>
                     <rect x="15" y="185" width="76" height="85" rx="6" fill="var(--chart-1)" opacity="0.12" stroke="var(--chart-1)" strokeWidth="1.5" />
-                    <text x="53" y="205" fill="currentColor" fontWeight="extrabold" fontSize="9" textAnchor="middle">Cement</text>
-                    <text x="53" y="225" fill="currentColor" fontSize="8" textAnchor="middle">1 / {totalParts} share</text>
-                    <text x="53" y="240" fill="currentColor" fontSize="8" fontWeight="bold" textAnchor="middle">{cementVolCft.toFixed(1)} cft</text>
-                    <text x="53" y="258" fill="var(--color-primary, #0284c7)" fontWeight="extrabold" fontSize="9" textAnchor="middle">
+                    <text x="53" y="206" fill="currentColor" fontWeight="extrabold" fontSize="12" textAnchor="middle">Cement</text>
+                    <text x="53" y="225" fill="currentColor" fontSize="10" textAnchor="middle">1 / {totalParts} share</text>
+                    <text x="53" y="241" fill="currentColor" fontSize="10" fontWeight="bold" textAnchor="middle">{cementVolCft.toFixed(1)} cft</text>
+                    <text x="53" y="261" fill="var(--color-primary, #0284c7)" fontWeight="extrabold" fontSize="12" textAnchor="middle">
                       {cementBags.toFixed(1)} bags
                     </text>
                   </g>
@@ -368,19 +368,19 @@ export const Slide30: React.FC = () => {
                   {/* Sand Box */}
                   <g>
                     <rect x="102" y="185" width="76" height="85" rx="6" fill="var(--chart-2)" opacity="0.12" stroke="var(--chart-2)" strokeWidth="1.5" />
-                    <text x="140" y="205" fill="currentColor" fontWeight="extrabold" fontSize="9" textAnchor="middle">Sand</text>
-                    <text x="140" y="225" fill="currentColor" fontSize="8" textAnchor="middle">{sandPart} / {totalParts} share</text>
-                    <text x="140" y="245" fill="currentColor" fontWeight="extrabold" fontSize="10" textAnchor="middle">{sandVol.toFixed(1)} cft</text>
-                    <text x="140" y="258" fill="currentColor" fontSize="8" opacity="0.7" textAnchor="middle">(Fine Agg.)</text>
+                    <text x="140" y="206" fill="currentColor" fontWeight="extrabold" fontSize="12" textAnchor="middle">Sand</text>
+                    <text x="140" y="225" fill="currentColor" fontSize="10" textAnchor="middle">{sandPart} / {totalParts} share</text>
+                    <text x="140" y="243" fill="currentColor" fontWeight="extrabold" fontSize="12" textAnchor="middle">{sandVol.toFixed(1)} cft</text>
+                    <text x="140" y="260" fill="currentColor" fontSize="10" opacity="0.7" textAnchor="middle">(Fine Agg.)</text>
                   </g>
 
                   {/* Stone Box */}
                   <g>
                     <rect x="189" y="185" width="76" height="85" rx="6" fill="var(--chart-3)" opacity="0.12" stroke="var(--chart-3)" strokeWidth="1.5" />
-                    <text x="227" y="205" fill="currentColor" fontWeight="extrabold" fontSize="9" textAnchor="middle">Stone</text>
-                    <text x="227" y="225" fill="currentColor" fontSize="8" textAnchor="middle">{stonePart} / {totalParts} share</text>
-                    <text x="227" y="245" fill="currentColor" fontWeight="extrabold" fontSize="10" textAnchor="middle">{stoneVol.toFixed(1)} cft</text>
-                    <text x="227" y="258" fill="currentColor" fontSize="8" opacity="0.7" textAnchor="middle">(Coarse Agg.)</text>
+                    <text x="227" y="206" fill="currentColor" fontWeight="extrabold" fontSize="12" textAnchor="middle">Stone</text>
+                    <text x="227" y="225" fill="currentColor" fontSize="10" textAnchor="middle">{stonePart} / {totalParts} share</text>
+                    <text x="227" y="243" fill="currentColor" fontWeight="extrabold" fontSize="12" textAnchor="middle">{stoneVol.toFixed(1)} cft</text>
+                    <text x="227" y="260" fill="currentColor" fontSize="10" opacity="0.7" textAnchor="middle">(Coarse Agg.)</text>
                   </g>
                 </g>
               </svg>

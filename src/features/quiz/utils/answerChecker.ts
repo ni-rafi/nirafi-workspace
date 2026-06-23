@@ -36,16 +36,15 @@ export function parseNumericAnswer(input: string): ParsedAnswer | null {
   const cleanInput = input.trim();
   if (!cleanInput) return null;
 
-  // Match leading number (optional sign, decimal), optional spacing, and trailing text (unit)
   const match = cleanInput.match(/^([+-]?(?:\d+(?:\.\d*)?|\.\d+))\s*(.*)$/);
-  if (!match) return null;
+  if (!match || !match[1]) return null;
 
   const numVal = parseFloat(match[1]);
   if (isNaN(numVal)) return null;
 
   return {
     value: numVal,
-    unit: match[2].trim(),
+    unit: (match[2] || '').trim(),
   };
 }
 

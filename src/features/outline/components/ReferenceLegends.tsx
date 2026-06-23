@@ -38,10 +38,10 @@ export const ReferenceLegends: React.FC<ReferenceLegendsProps> = ({
           key={item.code}
           className="flex items-start gap-2.5 py-1 px-2 border border-transparent rounded hover:bg-card/25 hover:border-border/30 transition-all duration-150"
         >
-          <span className="shrink-0 bg-primary/10 border border-primary/20 text-primary text-[9px] font-bold font-mono px-1.5 py-0.5 rounded leading-none mt-0.5">
+          <span className="shrink-0 bg-primary/10 border border-primary/20 text-primary text-[11px] font-bold font-mono px-2 py-0.5 rounded leading-none mt-0.5">
             {item.code}
           </span>
-          <span className="text-[10px] text-muted-foreground leading-snug font-medium">
+          <span className="text-[12px] md:text-[13px] text-muted-foreground leading-snug font-medium">
             {item.strategy}
           </span>
         </div>
