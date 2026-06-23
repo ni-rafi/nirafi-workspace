@@ -182,3 +182,67 @@ Renders interactive sessional multiple-choice or numeric-input assessments synce
   />
   ```
 
+---
+
+### 5.2 Dynamic & Parameterized Quizzes (Registration-Aware Variables)
+To prevent copying during live sessions, classroom quizzes support registration-aware parameterization. Variables (e.g., slab dimensions or concrete covers) shift dynamically based on student registration numbers.
+
+#### The Parameter Resolver Utility
+The `parameterResolver` module provides helpers to inspect and evaluate dynamic parameters:
+* `parameterResolver.isDynamic(value)`: Checks if a question text, option list, or answer target is a dynamic function or a parameterized parameter object.
+* `parameterResolver.resolve(value, reg?)`: Overloaded resolver signature.
+  - If `reg` is passed as a `string` (e.g. student roll), evaluates and returns `T`.
+  - If `reg` is omitted/undefined (e.g. empty presenter preview), returns the `.formula` string representation.
+* `parameterResolver.resolveTemplate(template, params, reg?)`: Scans a template string and replaces placeholders (e.g., `{L}`) using a parameter dictionary.
+* `parameterResolver.lastDigit(offset, multiplier, suffix)`: Builder returning a `{ formula, resolve }` object for last-digit calculations.
+* `parameterResolver.lastTwoDigits(offset, multiplier, suffix)`: Builder returning a `{ formula, resolve }` object for last-two-digits calculations.
+
+#### Declaring Dynamic Parameters
+You can declare dynamic questions and correct answers using builders or custom generator functions:
+```typescript
+import { QuizCardOrchestrator } from '@/features/quiz';
+import { parameterResolver } from '@/features/quiz/utils/parameterResolver';
+
+// 1. Defining Dynamic Questions with Templates
+const slabParams = {
+  L: parameterResolver.lastDigit(4.0, 0.1, 'm'),
+  H: parameterResolver.lastTwoDigits(0.15, 0.005, 'm')
+};
+// Templates evaluate L to "4.0 + [last digit] × 0.1 m" (when empty) and concrete values (when roll is entered)
+const questionText = 'Calculate the concrete volume for a slab with length L = {L} and thickness H = {H}.';
+
+// 2. Defining Generator Functions with formula descriptions
+const concreteAnswer = (reg: string) => String(4.0 * (4.0 + parameterResolver.getLastDigit(reg) * 0.1));
+Object.assign(concreteAnswer, { formula: '4.0 × (4.0 + [last digit] × 0.1)' });
+```
+
+In the lecture `answers.ts` registry:
+```typescript
+// src/subjects/quantity-surveying/lectures/2023-24/answers.ts
+import { parameterResolver } from '@/features/quiz/utils/parameterResolver';
+
+export const QUIZ_ANSWERS = {
+  qs_2023_lec4_q1: {
+    formula: '120 + [last digit] × 10 mm',
+    resolve: (reg) => String(120 + parameterResolver.getLastDigit(reg) * 10)
+  }
+};
+```
+
+#### Admin Inspector Panel
+* **Conditional Visibility**: The "Inspector Roll" input panel and evaluated header tags are automatically hidden if the active quiz does not contain any dynamic variables.
+* **Layout Relocation**: The inspector panel is positioned cleanly at the bottom of the presenter dashboard.
+* **Formula Previews**: When the roll input is left empty, the preview cards render the raw mathematical formulas and placeholder expressions. Typing any registration roll instantly replaces formulas with the exact calculated values.
+
+#### Type Safety Rules
+1. **No `any` Casts**: Do not use `as any` when extending function metadata. Use the type-safe `Object.assign` helper:
+   ```typescript
+   // Correct
+   Object.assign(myGenerator, { formula: 'x + [last digit]' });
+   
+   // Incorrect
+   (myGenerator as any).formula = '...';
+   ```
+2. **Strict Props Contracts**: All orchestrator, student view, and admin view props enforce unions allowing parameter resolver constructs. Overloads are maintained inside `IParameterResolver` to guarantee type deduction without forcing manual type assertions in components.
+
+

@@ -3,6 +3,7 @@ import { NumericQuizAdmin } from './types/NumericQuiz';
 import { MultipleChoiceQuizAdmin } from './types/MultipleChoiceQuiz';
 import { Play, RotateCcw, BarChart, List, Clock, RefreshCw, Eye, EyeOff } from 'lucide-react';
 import type { SubQuestionDefinition } from '../hooks/useQuizState';
+import { parameterResolver } from '../utils/parameterResolver';
 
 interface QuizSubmission {
   studentName: string;
@@ -29,8 +30,8 @@ interface AdminQuizViewProps {
   setAdminView: (view: 'chart' | 'details') => void;
   handleAdminReactivate: (extraSeconds: number) => Promise<void>;
   quizType: 'numeric-input' | 'multiple-choice';
-  correctAnswer: string;
-  correctAnswers: Record<string, string>;
+  correctAnswer: string | ((reg: string) => string) | { formula: string; resolve: (reg: string) => string };
+  correctAnswers: Record<string, string | ((reg: string) => string) | { formula: string; resolve: (reg: string) => string }>;
   options: string[];
   allSubmissions: QuizSubmission[];
   allSubmissionsMap: Record<string, QuizSubmission[]>;
@@ -64,6 +65,7 @@ export const AdminQuizView: React.FC<AdminQuizViewProps> = ({
 }) => {
   const [isInspectRevealed, setIsInspectRevealed] = React.useState(false);
   const [activeTabIndex, setActiveTabIndex] = React.useState(0);
+  const [inspectorRoll, setInspectorRoll] = React.useState('');
 
   React.useEffect(() => {
     setIsInspectRevealed(false);
@@ -72,6 +74,7 @@ export const AdminQuizView: React.FC<AdminQuizViewProps> = ({
   React.useEffect(() => {
     if (status === 'hidden') {
       setActiveTabIndex(0);
+      setInspectorRoll('');
     }
   }, [status]);
 
@@ -82,13 +85,32 @@ export const AdminQuizView: React.FC<AdminQuizViewProps> = ({
     quizType: 'numeric-input' as const,
     options: [] as string[],
   };
-  
-  const curQuestionText = currentQuestion.questionText;
+
+  const hasDynamicParams = React.useMemo(() => {
+    return questions.some((q) => {
+      if (parameterResolver.isDynamic(q.questionText)) return true;
+      if (q.options && parameterResolver.isDynamic(q.options)) return true;
+      const rawAns = correctAnswers[q.idSuffix];
+      if (rawAns && parameterResolver.isDynamic(rawAns)) return true;
+      return false;
+    });
+  }, [questions, correctAnswers]);
+
+  const activeRoll = inspectorRoll.trim() || undefined;
+  const curQuestionText = parameterResolver.resolve(currentQuestion.questionText, activeRoll);
   const curQuizType = currentQuestion.quizType;
-  const curOptions = currentQuestion.options || [];
+  const curOptions = parameterResolver.resolve(currentQuestion.options || [], activeRoll);
   const curSubmissions = allSubmissionsMap[currentQuestion.idSuffix] || [];
   const curIsRevealed = isRevealedMap[currentQuestion.idSuffix] || false;
-  const curCorrectAnswer = correctAnswers[currentQuestion.idSuffix] || '';
+  const curCorrectAnswerRaw = correctAnswers[currentQuestion.idSuffix] || '';
+  const curCorrectAnswer = parameterResolver.resolve(curCorrectAnswerRaw, activeRoll);
+
+  const previewTitle = React.useMemo(() => {
+    const base = isMultiQuestion ? `Admin Question ${activeTabIndex + 1} Preview` : `Admin Preview`;
+    if (!hasDynamicParams) return `${base}:`;
+    if (activeRoll) return `${base} (Evaluating Roll: ${activeRoll}):`;
+    return `${base} (Showing Raw Formulas):`;
+  }, [isMultiQuestion, activeTabIndex, hasDynamicParams, activeRoll]);
 
   // Submission count for the first question acts as the global student count
   const globalSubmissionCount = allSubmissionsMap[questions[0]?.idSuffix || '']?.length || 0;
@@ -133,11 +155,11 @@ export const AdminQuizView: React.FC<AdminQuizViewProps> = ({
       )}
 
       <div className="flex flex-col gap-4">
-        <div className="text-xs font-medium text-foreground select-text border bg-muted/20 p-3 rounded-xl mb-1">
+        <div className="text-xs font-medium text-foreground select-text border bg-muted/20 p-3 rounded-xl mb-1 flex flex-col gap-2.5">
           <div className="flex justify-between items-start gap-4">
             <div className="flex-1">
               <span className="font-bold text-muted-foreground block mb-0.5 select-none">
-                {isMultiQuestion ? `Admin Question ${activeTabIndex + 1} Preview:` : 'Admin Preview:'}
+                {previewTitle}
               </span>
               {(() => {
                 const shouldHide = status === 'hidden' || (status === 'active' && isLagging);
@@ -319,6 +341,7 @@ export const AdminQuizView: React.FC<AdminQuizViewProps> = ({
                   <NumericQuizAdmin
                     key={currentQuestion.idSuffix}
                     correctAnswer={curCorrectAnswer}
+                    correctAnswerRaw={curCorrectAnswerRaw}
                     submissions={curSubmissions}
                     activeView={adminView}
                     isRevealed={curIsRevealed}
@@ -327,17 +350,35 @@ export const AdminQuizView: React.FC<AdminQuizViewProps> = ({
                   <MultipleChoiceQuizAdmin
                     key={currentQuestion.idSuffix}
                     correctAnswer={curCorrectAnswer}
-                    options={curOptions}
+                    correctAnswerRaw={curCorrectAnswerRaw}
+                    options={Array.isArray(curOptions) ? curOptions : curOptions ? [curOptions] : []}
                     submissions={curSubmissions}
                     activeView={adminView}
                     isRevealed={curIsRevealed}
                   />
                 )}
               </>
-            )}
-          </div>
-        )}
-      </div>
-    </div>
+             )}
+           </div>
+         )}
+       </div>
+       {hasDynamicParams && (
+         <div className="flex items-center gap-2 mt-4 border-t border-border/40 pt-3 select-none">
+           <span className="text-[10px] font-bold text-muted-foreground uppercase whitespace-nowrap">Inspector Roll:</span>
+           <input
+             type="text"
+             value={inspectorRoll}
+             onChange={(e) => setInspectorRoll(e.target.value)}
+             placeholder="Type student registration roll number to inspect parameters (e.g. 2020331045)..."
+             className="flex-1 text-[11px] px-2.5 py-1 border border-border/60 rounded bg-background text-foreground focus:outline-hidden focus:ring-1 focus:ring-primary focus:border-primary"
+           />
+           {inspectorRoll.trim() && (
+             <span className="text-[10px] font-semibold text-emerald-600 dark:text-emerald-400 font-mono bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20 whitespace-nowrap">
+               Resolved: {curCorrectAnswer}
+             </span>
+           )}
+         </div>
+       )}
+     </div>
   );
 };

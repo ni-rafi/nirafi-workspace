@@ -3,6 +3,8 @@ import { NumericQuizStudent } from './types/NumericQuiz';
 import { MultipleChoiceQuizStudent } from './types/MultipleChoiceQuiz';
 import { Clock, ChevronLeft, ChevronRight, Check } from 'lucide-react';
 import type { SubQuestionDefinition } from '../hooks/useQuizState';
+import { useUserContext } from '@/context';
+import { parameterResolver } from '../utils/parameterResolver';
 
 interface StudentQuizViewProps {
   status: string;
@@ -19,8 +21,8 @@ interface StudentQuizViewProps {
   handleStudentSubmit: () => Promise<void>;
   isSubmitting: boolean;
   hasSubmitted: boolean;
-  correctAnswer: string;
-  correctAnswers: Record<string, string>;
+  correctAnswer: string | ((reg: string) => string) | { formula: string; resolve: (reg: string) => string };
+  correctAnswers: Record<string, string | ((reg: string) => string) | { formula: string; resolve: (reg: string) => string }>;
   formatTime: (seconds: number) => string;
   questions: SubQuestionDefinition[];
 }
@@ -40,6 +42,7 @@ export const StudentQuizView: React.FC<StudentQuizViewProps> = ({
   formatTime,
   questions,
 }) => {
+  const { userProfile } = useUserContext();
   const [activeStep, setActiveStep] = React.useState(0);
 
   React.useEffect(() => {
@@ -114,6 +117,8 @@ export const StudentQuizView: React.FC<StudentQuizViewProps> = ({
     );
   }
 
+  const registration = userProfile?.registration || '2020331000';
+
   const isMultiQuestion = questions.length > 1;
   const currentQuestion = questions[activeStep] || questions[0] || {
     idSuffix: '',
@@ -121,8 +126,13 @@ export const StudentQuizView: React.FC<StudentQuizViewProps> = ({
     quizType: 'numeric-input' as const,
     options: [] as string[],
   };
+  
+  const curQuestionText = parameterResolver.resolve(currentQuestion.questionText, registration);
+  const curOptions = parameterResolver.resolve(currentQuestion.options || [], registration);
   const curAnswer = studentAnswers[currentQuestion.idSuffix] || '';
-  const curCorrectAnswer = correctAnswers[currentQuestion.idSuffix] || '';
+  
+  const curCorrectAnswerRaw = correctAnswers[currentQuestion.idSuffix] || '';
+  const curCorrectAnswer = parameterResolver.resolve(curCorrectAnswerRaw, registration);
 
   const isAnswerValid = (ans: string, type: 'numeric-input' | 'multiple-choice') => {
     if (type === 'multiple-choice') return ans.trim().length > 0;
@@ -167,7 +177,7 @@ export const StudentQuizView: React.FC<StudentQuizViewProps> = ({
         {currentQuestion.quizType === 'numeric-input' ? (
           <NumericQuizStudent
             key={currentQuestion.idSuffix}
-            questionText={currentQuestion.questionText}
+            questionText={curQuestionText}
             userAnswer={curAnswer}
             setUserAnswer={(val) => setStudentAnswer(currentQuestion.idSuffix, val)}
             onSubmit={handleStudentSubmit}
@@ -180,8 +190,8 @@ export const StudentQuizView: React.FC<StudentQuizViewProps> = ({
         ) : (
           <MultipleChoiceQuizStudent
             key={currentQuestion.idSuffix}
-            questionText={currentQuestion.questionText}
-            options={currentQuestion.options || []}
+            questionText={curQuestionText}
+            options={curOptions}
             userAnswer={curAnswer}
             setUserAnswer={(val) => setStudentAnswer(currentQuestion.idSuffix, val)}
             onSubmit={handleStudentSubmit}

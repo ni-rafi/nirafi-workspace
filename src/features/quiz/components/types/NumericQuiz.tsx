@@ -1,6 +1,7 @@
 import React from 'react';
 import { AnimatedCount } from '../AnimatedCount';
 import { parseNumericAnswer } from '../../utils/answerChecker';
+import { parameterResolver } from '../../utils/parameterResolver';
 
 export interface NumericQuizStudentProps {
   questionText: string;
@@ -16,6 +17,7 @@ export interface NumericQuizStudentProps {
 
 export interface NumericQuizAdminProps {
   correctAnswer: string;
+  correctAnswerRaw?: string | ((reg: string) => string) | { formula: string; resolve: (reg: string) => string };
   submissions: { studentName: string; studentRegistration: string; answer: string; isCorrect: boolean }[];
   activeView: 'chart' | 'details';
   isRevealed: boolean;
@@ -87,6 +89,7 @@ export const NumericQuizStudent: React.FC<NumericQuizStudentProps> = ({
 
 export const NumericQuizAdmin: React.FC<NumericQuizAdminProps> = ({
   correctAnswer,
+  correctAnswerRaw,
   submissions,
   activeView,
   isRevealed,
@@ -140,22 +143,30 @@ export const NumericQuizAdmin: React.FC<NumericQuizAdminProps> = ({
           </tr>
         </thead>
         <tbody>
-          {submissions.map((sub, i) => (
-            <tr key={i} className="border-b border-border/20 last:border-0 hover:bg-muted/10">
-              <td className="p-2 font-mono">{sub.studentRegistration}</td>
-              <td className="p-2 truncate max-w-[120px]">{sub.studentName}</td>
-              <td className="p-2 text-right font-semibold font-mono">{isRevealed ? sub.answer : '✓ Submitted'}</td>
-              {isRevealed && (
-                <td className="p-2 text-center">
-                  <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${
-                    sub.isCorrect ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 'bg-red-500/10 text-red-600 dark:text-red-400'
-                  }`}>
-                    {sub.isCorrect ? 'Correct' : 'Incorrect'}
-                  </span>
-                </td>
-              )}
-            </tr>
-          ))}
+          {submissions.map((sub, i) => {
+            const resolvedCorrect = correctAnswerRaw
+              ? parameterResolver.resolve(correctAnswerRaw, sub.studentRegistration)
+              : correctAnswer;
+            return (
+              <tr key={i} className="border-b border-border/20 last:border-0 hover:bg-muted/10">
+                <td className="p-2 font-mono">{sub.studentRegistration}</td>
+                <td className="p-2 truncate max-w-[120px]">{sub.studentName}</td>
+                <td className="p-2 text-right font-semibold font-mono">{isRevealed ? sub.answer : '✓ Submitted'}</td>
+                {isRevealed && (
+                  <td className="p-2 text-center select-none">
+                    <span 
+                      className={`px-1.5 py-0.5 rounded text-[10px] font-bold cursor-help ${
+                        sub.isCorrect ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 'bg-red-500/10 text-red-600 dark:text-red-400'
+                      }`}
+                      title={`Target correct answer: ${resolvedCorrect}`}
+                    >
+                      {sub.isCorrect ? 'Correct' : 'Incorrect'}
+                    </span>
+                  </td>
+                )}
+              </tr>
+            );
+          })}
           {submissions.length === 0 && (
             <tr>
               <td colSpan={isRevealed ? 4 : 3} className="p-4 text-center text-muted-foreground">No submissions yet.</td>

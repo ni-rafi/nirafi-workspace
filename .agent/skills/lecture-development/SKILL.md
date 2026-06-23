@@ -123,6 +123,7 @@ Classroom slides must adapt to Blog/mobile viewports and synchronize parameters 
   * *Parameter Sandbox*: `<InteractiveCard>`, `<ParameterSlider>`, and `<CalculationOutput>`
   * *Real-Time Sync*: `useUrlSyncedState` hook for cross-window presenter-follower state sync
   * *Separation of Drawings/SVGs*: Keeping SVG markup outside slide files and parameterizing drawings.
+  * *Interactive Parameterized Quizzes*: `<QuizCardOrchestrator>` leveraging `parameterResolver` to evaluate registration-aware variables, rendering formulas when empty and checking correctness dynamically.
 
 ---
 

@@ -3,6 +3,7 @@ import { useFirebase } from '@/context/FirebaseContext';
 import { useUserContext } from '@/context';
 import type { QuizState } from '@/services/firebase/IFirebaseService';
 import { checkQuizAnswerCorrectness } from '../utils/answerChecker';
+import { parameterResolver } from '../utils/parameterResolver';
 
 interface QuizSubmission {
   studentName: string;
@@ -13,9 +14,9 @@ interface QuizSubmission {
 
 export interface SubQuestionDefinition {
   idSuffix: string;
-  questionText: string;
+  questionText: string | ((reg: string) => string) | { formula: string; resolve: (reg: string) => string };
   quizType: 'numeric-input' | 'multiple-choice';
-  options?: string[];
+  options?: string[] | ((reg: string) => string[]) | { formula: string; resolve: (reg: string) => string[] };
 }
 
 export const useQuizState = (
@@ -36,7 +37,7 @@ export const useQuizState = (
     },
   ];
 
-  const [resolvedCorrectAnswers, setResolvedCorrectAnswers] = useState<Record<string, string>>({});
+  const [resolvedCorrectAnswers, setResolvedCorrectAnswers] = useState<Record<string, string | ((reg: string) => string)>>({});
   const [quizState, setQuizStateState] = useState<QuizState | null>(null);
   const [studentAnswers, setStudentAnswers] = useState<Record<string, string>>({});
   const [hasSubmitted, setHasSubmitted] = useState(false);
@@ -97,7 +98,7 @@ export const useQuizState = (
           const answersMod = await import(`../../../subjects/${subjectId}/lectures/${sessionId}/answers.ts`);
           if (isCancelled) return;
 
-          const correctMap: Record<string, string> = {};
+          const correctMap: Record<string, string | ((reg: string) => string)> = {};
           normalizedQuestions.forEach((q) => {
             const fullId = getAnswerKey(quizId, q.idSuffix);
             correctMap[q.idSuffix] = answersMod.QUIZ_ANSWERS[fullId] || '';
@@ -116,9 +117,10 @@ export const useQuizState = (
                 .filter((s) => s.answers[qId] !== undefined)
                 .map((s) => {
                   const ans = s.answers[qId]!;
+                  const evaluatedTarget = parameterResolver.resolve(realCorrectAnswer, s.studentRegistration);
                   const isCorrect = ans.isOverridden
                     ? ans.isCorrect
-                    : checkQuizAnswerCorrectness(ans.answer, realCorrectAnswer, q.quizType);
+                    : checkQuizAnswerCorrectness(ans.answer, evaluatedTarget, q.quizType);
                   return {
                     studentName: s.studentName,
                     studentRegistration: s.studentRegistration,
@@ -195,11 +197,13 @@ export const useQuizState = (
     if (!uid || !userProfile || hasSubmitted) return;
     setIsSubmitting(true);
 
+    const studentReg = userProfile.registration || '0000000000';
     const batchAnswers: Record<string, { answer: string; isCorrect: boolean }> = {};
     normalizedQuestions.forEach((q) => {
       const qId = getAnswerKey(quizId, q.idSuffix);
       const ans = studentAnswers[q.idSuffix] || '';
-      const correctAns = resolvedCorrectAnswers[q.idSuffix] || '';
+      const correctAnsRaw = resolvedCorrectAnswers[q.idSuffix] || '';
+      const correctAns = parameterResolver.resolve(correctAnsRaw, studentReg);
       const isCorrect = checkQuizAnswerCorrectness(ans, correctAns, q.quizType);
       batchAnswers[qId] = {
         answer: ans,
@@ -211,7 +215,7 @@ export const useQuizState = (
       subjectId,
       sessionId,
       uid,
-      { name: userProfile.name, reg: userProfile.registration || '0000000000' },
+      { name: userProfile.name, reg: studentReg },
       batchAnswers
     );
 
