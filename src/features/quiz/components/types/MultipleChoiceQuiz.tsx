@@ -11,6 +11,7 @@ export interface MultipleChoiceQuizStudentProps {
   isLocked: boolean;
   correctAnswer: string;
   hasSubmitted: boolean;
+  hideSubmit?: boolean;
 }
 
 export interface MultipleChoiceQuizAdminProps {
@@ -30,6 +31,7 @@ export const MultipleChoiceQuizStudent: React.FC<MultipleChoiceQuizStudentProps>
   isSubmitting,
   isLocked,
   hasSubmitted,
+  hideSubmit = false,
 }) => {
   const letters = ['A', 'B', 'C', 'D', 'E', 'F'];
 
@@ -65,13 +67,15 @@ export const MultipleChoiceQuizStudent: React.FC<MultipleChoiceQuizStudentProps>
               </button>
             );
           })}
-          <button
-            onClick={onSubmit}
-            disabled={isLocked || isSubmitting || !userAnswer}
-            className="w-full mt-2 py-2.5 bg-primary hover:bg-primary/95 text-primary-foreground font-semibold rounded-lg text-sm transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {isSubmitting ? 'Submitting...' : 'Submit Choice'}
-          </button>
+          {!hideSubmit && (
+            <button
+              onClick={onSubmit}
+              disabled={isLocked || isSubmitting || !userAnswer}
+              className="w-full mt-2 py-2.5 bg-primary hover:bg-primary/95 text-primary-foreground font-semibold rounded-lg text-sm transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isSubmitting ? 'Submitting...' : 'Submit Choice'}
+            </button>
+          )}
         </div>
       ) : (
         <div className="flex flex-col gap-3 p-4 border rounded-xl bg-muted/10">

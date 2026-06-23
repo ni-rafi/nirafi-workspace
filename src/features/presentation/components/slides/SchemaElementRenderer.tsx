@@ -117,14 +117,42 @@ export const SchemaElementRenderer: React.FC<SchemaElementRendererProps> = ({
     }
 
     case 'quiz': {
-      const quizData = elem.data as { question: string; correctAnswer: string };
-      const quizConfig = elem.config as { quizId: string; quizType?: 'numeric-input' | 'multiple-choice' } | undefined;
+      const quizConfig = elem.config as { quizId: string; quizType?: 'numeric-input' | 'multiple-choice'; options?: string[] } | undefined;
       if (!quizConfig) return null;
+      
+      const quizData = elem.data as { 
+        question?: string; 
+        correctAnswer?: string; 
+        questions?: Array<{
+          idSuffix: string;
+          questionText: string;
+          quizType: 'numeric-input' | 'multiple-choice';
+          options?: string[];
+        }>;
+      };
+
+      const normalizedQuestions = quizData.questions || [
+        {
+          idSuffix: '',
+          questionText: quizData.question || '',
+          quizType: quizConfig.quizType || 'numeric-input',
+          options: quizConfig.options || [],
+        }
+      ];
+
+      const firstQuestion = normalizedQuestions[0] || {
+        questionText: '',
+        quizType: 'numeric-input' as const,
+        options: [] as string[],
+      };
+
       return (
         <QuizCardOrchestrator
           quizId={quizConfig.quizId}
-          questionText={quizData.question}
-          quizType={quizConfig.quizType || 'numeric-input'}
+          questionText={firstQuestion.questionText}
+          quizType={firstQuestion.quizType}
+          options={firstQuestion.options}
+          questions={normalizedQuestions}
         />
       );
     }

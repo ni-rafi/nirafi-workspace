@@ -1,6 +1,6 @@
 import React from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { useQuizState } from '../hooks/useQuizState';
+import { useQuizState, type SubQuestionDefinition } from '../hooks/useQuizState';
 import { getQuizVisibilityMode } from '@/features/presentation/components/slides/SlideRenderer';
 import { StudentQuizView } from './StudentQuizView';
 import { AdminQuizView } from './AdminQuizView';
@@ -13,6 +13,7 @@ interface QuizCardOrchestratorProps {
   questionText: string;
   quizType?: QuizType;
   options?: string[]; // Required for multiple choice
+  questions?: SubQuestionDefinition[];
 }
 
 export const QuizCardOrchestrator: React.FC<QuizCardOrchestratorProps> = ({
@@ -20,13 +21,23 @@ export const QuizCardOrchestrator: React.FC<QuizCardOrchestratorProps> = ({
   questionText,
   quizType = 'numeric-input',
   options = [],
+  questions,
 }) => {
   const { userProfile } = useUserContext();
+
+  const normalizedQuestions = questions || [
+    {
+      idSuffix: '',
+      questionText,
+      quizType,
+      options,
+    },
+  ];
 
   const {
     isAdmin,
     quizState,
-    studentAnswer,
+    studentAnswers,
     setStudentAnswer,
     hasSubmitted,
     isSubmitting,
@@ -39,16 +50,16 @@ export const QuizCardOrchestrator: React.FC<QuizCardOrchestratorProps> = ({
     setDurationInput,
     bufferInput,
     setBufferInput,
-    allSubmissions,
+    allSubmissionsMap,
     handleStudentSubmit,
     handleAdminActivate,
     handleAdminReactivate,
     handleAdminClose,
     handleAdminReset,
-    isRevealed,
+    isRevealedMap,
     handleAdminReveal,
-    correctAnswer,
-  } = useQuizState(quizId, quizType);
+    correctAnswers,
+  } = useQuizState(quizId, quizType, normalizedQuestions);
 
   const formatTime = (seconds: number) => {
     const m = Math.floor(seconds / 60);
@@ -128,13 +139,16 @@ export const QuizCardOrchestrator: React.FC<QuizCardOrchestratorProps> = ({
             quizType={quizType}
             questionText={questionText}
             options={options}
-            studentAnswer={studentAnswer}
+            studentAnswer={studentAnswers[''] || ''}
+            studentAnswers={studentAnswers}
             setStudentAnswer={setStudentAnswer}
             handleStudentSubmit={handleStudentSubmit}
             isSubmitting={isSubmitting}
             hasSubmitted={hasSubmitted}
-            correctAnswer={correctAnswer}
+            correctAnswer={correctAnswers[''] || ''}
+            correctAnswers={correctAnswers}
             formatTime={formatTime}
+            questions={normalizedQuestions}
           />
         </div>
         {renderPrintPlaceholder()}
@@ -163,11 +177,15 @@ export const QuizCardOrchestrator: React.FC<QuizCardOrchestratorProps> = ({
           setAdminView={setAdminView}
           handleAdminReactivate={handleAdminReactivate}
           quizType={quizType}
-          correctAnswer={correctAnswer}
+          correctAnswer={correctAnswers[''] || ''}
+          correctAnswers={correctAnswers}
           options={options}
-          allSubmissions={allSubmissions}
-          isRevealed={isRevealed}
+          allSubmissions={allSubmissionsMap[''] || []}
+          allSubmissionsMap={allSubmissionsMap}
+          isRevealed={quizState?.isRevealed || false}
+          isRevealedMap={isRevealedMap}
           handleAdminReveal={handleAdminReveal}
+          questions={normalizedQuestions}
         />
       </div>
       {renderPrintPlaceholder()}

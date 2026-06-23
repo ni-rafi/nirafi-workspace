@@ -2,6 +2,7 @@ import React from 'react';
 import { NumericQuizAdmin } from './types/NumericQuiz';
 import { MultipleChoiceQuizAdmin } from './types/MultipleChoiceQuiz';
 import { Play, RotateCcw, BarChart, List, Clock, RefreshCw, Eye, EyeOff } from 'lucide-react';
+import type { SubQuestionDefinition } from '../hooks/useQuizState';
 
 interface QuizSubmission {
   studentName: string;
@@ -29,15 +30,18 @@ interface AdminQuizViewProps {
   handleAdminReactivate: (extraSeconds: number) => Promise<void>;
   quizType: 'numeric-input' | 'multiple-choice';
   correctAnswer: string;
+  correctAnswers: Record<string, string>;
   options: string[];
   allSubmissions: QuizSubmission[];
+  allSubmissionsMap: Record<string, QuizSubmission[]>;
   isRevealed: boolean;
-  handleAdminReveal: () => Promise<void>;
+  isRevealedMap: Record<string, boolean>;
+  handleAdminReveal: (idSuffix?: string) => Promise<void>;
+  questions: SubQuestionDefinition[];
 }
 
 export const AdminQuizView: React.FC<AdminQuizViewProps> = ({
   status,
-  questionText,
   durationInput,
   setDurationInput,
   bufferInput,
@@ -52,22 +56,46 @@ export const AdminQuizView: React.FC<AdminQuizViewProps> = ({
   adminView,
   setAdminView,
   handleAdminReactivate,
-  quizType,
-  correctAnswer,
-  options,
-  allSubmissions,
-  isRevealed,
+  correctAnswers,
+  allSubmissionsMap,
+  isRevealedMap,
   handleAdminReveal,
+  questions,
 }) => {
   const [isInspectRevealed, setIsInspectRevealed] = React.useState(false);
+  const [activeTabIndex, setActiveTabIndex] = React.useState(0);
 
   React.useEffect(() => {
     setIsInspectRevealed(false);
   }, [status, isLagging]);
 
+  React.useEffect(() => {
+    if (status === 'hidden') {
+      setActiveTabIndex(0);
+    }
+  }, [status]);
+
+  const isMultiQuestion = questions.length > 1;
+  const currentQuestion = questions[activeTabIndex] || questions[0] || {
+    idSuffix: '',
+    questionText: '',
+    quizType: 'numeric-input' as const,
+    options: [] as string[],
+  };
+  
+  const curQuestionText = currentQuestion.questionText;
+  const curQuizType = currentQuestion.quizType;
+  const curOptions = currentQuestion.options || [];
+  const curSubmissions = allSubmissionsMap[currentQuestion.idSuffix] || [];
+  const curIsRevealed = isRevealedMap[currentQuestion.idSuffix] || false;
+  const curCorrectAnswer = correctAnswers[currentQuestion.idSuffix] || '';
+
+  // Submission count for the first question acts as the global student count
+  const globalSubmissionCount = allSubmissionsMap[questions[0]?.idSuffix || '']?.length || 0;
+
   return (
     <div className="w-full max-w-2xl mx-auto bg-card border border-border/80 rounded-2xl p-5 md:p-6 shadow-sm flex flex-col gap-4 text-left">
-      <div className="flex justify-between items-center select-none">
+      <div className="flex justify-between items-center select-none border-b border-border/40 pb-2">
         <span className="text-[10px] font-bold text-primary tracking-widest uppercase">Classroom Quiz</span>
         {status === 'active' && (
           <span className={`flex items-center gap-1 text-xs font-bold font-mono px-2 py-0.5 rounded-full border ${
@@ -81,16 +109,41 @@ export const AdminQuizView: React.FC<AdminQuizViewProps> = ({
         )}
       </div>
 
+      {isMultiQuestion && (status === 'active' || status === 'closed') && (
+        <div className="flex border-b border-border/40 select-none overflow-x-auto gap-1 mb-2">
+          {questions.map((q, idx) => {
+            const isActive = activeTabIndex === idx;
+            const isQRevealed = isRevealedMap[q.idSuffix];
+            return (
+              <button
+                key={idx}
+                type="button"
+                onClick={() => setActiveTabIndex(idx)}
+                className={`px-4 py-2 text-xs font-bold transition-all border-b-2 hover:text-foreground cursor-pointer whitespace-nowrap ${
+                  isActive
+                    ? 'border-primary text-primary'
+                    : 'border-transparent text-muted-foreground'
+                }`}
+              >
+                Question {idx + 1} {isQRevealed && '✓'}
+              </button>
+            );
+          })}
+        </div>
+      )}
+
       <div className="flex flex-col gap-4">
         <div className="text-xs font-medium text-foreground select-text border bg-muted/20 p-3 rounded-xl mb-1">
           <div className="flex justify-between items-start gap-4">
             <div className="flex-1">
-              <span className="font-bold text-muted-foreground block mb-0.5 select-none">Admin Preview:</span>
+              <span className="font-bold text-muted-foreground block mb-0.5 select-none">
+                {isMultiQuestion ? `Admin Question ${activeTabIndex + 1} Preview:` : 'Admin Preview:'}
+              </span>
               {(() => {
                 const shouldHide = status === 'hidden' || (status === 'active' && isLagging);
                 if (shouldHide) {
                   if (isInspectRevealed) {
-                    return <span className="text-foreground">{questionText}</span>;
+                    return <span className="text-foreground">{curQuestionText}</span>;
                   }
                   return (
                     <span className="italic text-muted-foreground font-normal">
@@ -98,7 +151,7 @@ export const AdminQuizView: React.FC<AdminQuizViewProps> = ({
                     </span>
                   );
                 }
-                return <span className="text-foreground">{questionText}</span>;
+                return <span className="text-foreground">{curQuestionText}</span>;
               })()}
             </div>
             {(status === 'hidden' || (status === 'active' && isLagging)) && (
@@ -223,9 +276,9 @@ export const AdminQuizView: React.FC<AdminQuizViewProps> = ({
                     )}
                     {status === 'closed' && (
                       <>
-                        {!isRevealed && allSubmissions.length >= 1 && (
+                        {!curIsRevealed && globalSubmissionCount >= 1 && (
                           <button
-                            onClick={handleAdminReveal}
+                            onClick={() => handleAdminReveal(currentQuestion.idSuffix)}
                             className="px-3 py-1.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg text-[10px] font-bold flex items-center gap-1 cursor-pointer"
                           >
                             Reveal Answer
@@ -262,20 +315,22 @@ export const AdminQuizView: React.FC<AdminQuizViewProps> = ({
                   </div>
                 </div>
 
-                {quizType === 'numeric-input' ? (
+                {curQuizType === 'numeric-input' ? (
                   <NumericQuizAdmin
-                    correctAnswer={correctAnswer}
-                    submissions={allSubmissions}
+                    key={currentQuestion.idSuffix}
+                    correctAnswer={curCorrectAnswer}
+                    submissions={curSubmissions}
                     activeView={adminView}
-                    isRevealed={isRevealed}
+                    isRevealed={curIsRevealed}
                   />
                 ) : (
                   <MultipleChoiceQuizAdmin
-                    correctAnswer={correctAnswer}
-                    options={options}
-                    submissions={allSubmissions}
+                    key={currentQuestion.idSuffix}
+                    correctAnswer={curCorrectAnswer}
+                    options={curOptions}
+                    submissions={curSubmissions}
                     activeView={adminView}
-                    isRevealed={isRevealed}
+                    isRevealed={curIsRevealed}
                   />
                 )}
               </>

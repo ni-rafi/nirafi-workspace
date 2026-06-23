@@ -11,6 +11,7 @@ export interface NumericQuizStudentProps {
   isLocked: boolean;
   correctAnswer: string;
   hasSubmitted: boolean;
+  hideSubmit?: boolean;
 }
 
 export interface NumericQuizAdminProps {
@@ -28,6 +29,7 @@ export const NumericQuizStudent: React.FC<NumericQuizStudentProps> = ({
   isSubmitting,
   isLocked,
   hasSubmitted,
+  hideSubmit = false,
 }) => {
   const parsed = parseNumericAnswer(userAnswer);
   const isValid = parsed !== null;
@@ -49,13 +51,15 @@ export const NumericQuizStudent: React.FC<NumericQuizStudentProps> = ({
               disabled={isLocked || isSubmitting}
               className="flex-1 px-3 py-2 border rounded-lg bg-background text-sm text-foreground focus:outline-hidden focus:ring-1 focus:ring-primary focus:border-primary disabled:opacity-50 disabled:cursor-not-allowed"
             />
-            <button
-              onClick={onSubmit}
-              disabled={isLocked || isSubmitting || !userAnswer.trim() || !isValid}
-              className="px-4 py-2 bg-primary hover:bg-primary/95 text-primary-foreground font-semibold rounded-lg text-sm transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed select-none"
-            >
-              {isSubmitting ? 'Submitting...' : 'Submit'}
-            </button>
+            {!hideSubmit && (
+              <button
+                onClick={onSubmit}
+                disabled={isLocked || isSubmitting || !userAnswer.trim() || !isValid}
+                className="px-4 py-2 bg-primary hover:bg-primary/95 text-primary-foreground font-semibold rounded-lg text-sm transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed select-none"
+              >
+                {isSubmitting ? 'Submitting...' : 'Submit'}
+              </button>
+            )}
           </div>
           {hasText && (
             <div className="px-1 text-[10px] font-medium select-none">

@@ -136,13 +136,18 @@ Synchronizes interactive parameters in real-time across student screens and sess
 ## 5. Live Classroom Quizzes
 
 ### QuizCardOrchestrator
-Renders interactive sessional multiple-choice or numeric-input assessments synced with Firebase.
+Renders interactive sessional multiple-choice or numeric-input assessments synced with Firebase. Supports single questions or multi-question paginated step wizards.
 * **Props**:
   * `quizId: string` (Must match the sessional active quiz key in database)
-  * `questionText: string`
-  * `quizType?: 'numeric-input' | 'multiple-choice'`
-  * `correctAnswer?: string`
-* **Example**:
+  * `questionText: string` (Used as question text for single question configuration)
+  * `quizType?: 'numeric-input' | 'multiple-choice'` (Used as type for single question configuration)
+  * `options?: string[]` (Options for single multiple-choice question configuration)
+  * `questions?: SubQuestionDefinition[]` (List of questions for paginated multi-question wizard)
+    * `idSuffix: string` (Appended to base quiz ID: `{quizId}-{idSuffix}`)
+    * `questionText: string`
+    * `quizType: 'numeric-input' | 'multiple-choice'`
+    * `options?: string[]` (Required for multiple-choice steps)
+* **Single Question Example**:
   ```tsx
   import { QuizCardOrchestrator } from '@/features/quiz';
 
@@ -150,7 +155,30 @@ Renders interactive sessional multiple-choice or numeric-input assessments synce
     quizId="concrete_lec1_q1"
     questionText="What is the unit weight of RCC?"
     quizType="numeric-input"
-    correctAnswer="2400"
+  />
+  ```
+* **Multi-Question Example**:
+  ```tsx
+  import { QuizCardOrchestrator } from '@/features/quiz';
+
+  const pileQuizQuestions = [
+    {
+      idSuffix: 'q0',
+      questionText: 'Calculate the total volume of concrete in pile cap (m3).',
+      quizType: 'numeric-input' as const,
+    },
+    {
+      idSuffix: 'q1',
+      questionText: 'Identify the cement type suitable for underwater piling.',
+      quizType: 'multiple-choice' as const,
+      options: ['OPC (Ordinary Portland)', 'PPC (Portland Pozzolana)', 'SRPC (Sulfate Resisting)'],
+    }
+  ];
+
+  <QuizCardOrchestrator
+    quizId="piling_lec4_quiz1"
+    questionText=""
+    questions={pileQuizQuestions}
   />
   ```
 

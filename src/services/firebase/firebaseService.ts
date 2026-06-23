@@ -125,6 +125,16 @@ export class FirebaseService implements IFirebaseService {
     return this.submissionsService.submitQuizAnswer(subjectId, sessionId, studentUid, studentInfo, questionId, answer, isCorrect);
   }
 
+  public submitQuizAnswersBatch(
+    subjectId: string,
+    sessionId: string,
+    studentUid: string,
+    studentInfo: { name: string; reg: string },
+    answers: Record<string, { answer: string; isCorrect: boolean }>
+  ): Promise<void> {
+    return this.submissionsService.submitQuizAnswersBatch(subjectId, sessionId, studentUid, studentInfo, answers);
+  }
+
   public overrideQuizAnswer(
     subjectId: string,
     sessionId: string,

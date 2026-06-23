@@ -11,31 +11,50 @@ interface QuizSubmission {
   isCorrect: boolean;
 }
 
+export interface SubQuestionDefinition {
+  idSuffix: string;
+  questionText: string;
+  quizType: 'numeric-input' | 'multiple-choice';
+  options?: string[];
+}
+
 export const useQuizState = (
   quizId: string,
-  quizType: 'numeric-input' | 'multiple-choice'
+  quizType: 'numeric-input' | 'multiple-choice',
+  questions?: SubQuestionDefinition[]
 ) => {
   const firebaseService = useFirebase();
   const { userProfile, uid } = useUserContext();
 
   const isAdmin = userProfile?.role === 'admin';
-  const [resolvedCorrectAnswer, setResolvedCorrectAnswer] = useState('');
 
+  const normalizedQuestions: SubQuestionDefinition[] = questions || [
+    {
+      idSuffix: '',
+      questionText: '',
+      quizType,
+    },
+  ];
 
+  const [resolvedCorrectAnswers, setResolvedCorrectAnswers] = useState<Record<string, string>>({});
   const [quizState, setQuizStateState] = useState<QuizState | null>(null);
-  const [studentAnswer, setStudentAnswer] = useState('');
+  const [studentAnswers, setStudentAnswers] = useState<Record<string, string>>({});
   const [hasSubmitted, setHasSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [timeLeft, setTimeLeft] = useState(0);
   const [isLagging, setIsLagging] = useState(false);
   const [lagTimeLeft, setLagTimeLeft] = useState(0);
   const [adminView, setAdminView] = useState<'chart' | 'details'>('chart');
-  const [durationInput, setDurationInput] = useState(300); // Default 5 mins
-  const [bufferInput, setBufferInput] = useState(20); // Default 20 seconds lag
-  const [allSubmissions, setAllSubmissions] = useState<QuizSubmission[]>([]);
+  const [durationInput, setDurationInput] = useState(300);
+  const [bufferInput, setBufferInput] = useState(20);
+  const [allSubmissionsMap, setAllSubmissionsMap] = useState<Record<string, QuizSubmission[]>>({});
 
-  const subjectId = 'quantity-surveying'; // default mock
+  const subjectId = 'quantity-surveying';
   const sessionId = '2023-24';
+
+  const getAnswerKey = (baseId: string, idSuffix: string) => {
+    return idSuffix ? `${baseId}-${idSuffix}` : baseId;
+  };
 
   // 1. Subscribe to active Quiz State
   useEffect(() => {
@@ -44,13 +63,24 @@ export const useQuizState = (
     });
   }, [quizId, firebaseService]);
 
-  // 2. Fetch student's existing answer if any
+  // 2. Fetch student's existing answers if any
   useEffect(() => {
     if (uid && !isAdmin) {
       firebaseService.getSubjectSubmissions(subjectId, sessionId, uid).then((sub) => {
-        if (sub && sub.answers[quizId]) {
-          setStudentAnswer(sub.answers[quizId].answer);
-          setHasSubmitted(true);
+        if (sub) {
+          const initialAnswers: Record<string, string> = {};
+          let submittedCount = 0;
+          normalizedQuestions.forEach((q) => {
+            const qId = getAnswerKey(quizId, q.idSuffix);
+            if (sub.answers[qId]) {
+              initialAnswers[q.idSuffix] = sub.answers[qId].answer;
+              submittedCount++;
+            }
+          });
+          setStudentAnswers(initialAnswers);
+          if (submittedCount === normalizedQuestions.length && normalizedQuestions.length > 0) {
+            setHasSubmitted(true);
+          }
         }
       });
     }
@@ -67,26 +97,37 @@ export const useQuizState = (
           const answersMod = await import(`../../../subjects/${subjectId}/lectures/${sessionId}/answers.ts`);
           if (isCancelled) return;
 
-          const realCorrectAnswer = answersMod.QUIZ_ANSWERS[quizId] || '';
-          setResolvedCorrectAnswer(realCorrectAnswer);
+          const correctMap: Record<string, string> = {};
+          normalizedQuestions.forEach((q) => {
+            const fullId = getAnswerKey(quizId, q.idSuffix);
+            correctMap[q.idSuffix] = answersMod.QUIZ_ANSWERS[fullId] || '';
+          });
+          setResolvedCorrectAnswers(correctMap);
 
           unsubscribe = firebaseService.subscribeAllSubmissions(subjectId, sessionId, (subs) => {
             if (isCancelled) return;
-            const quizSubs = subs
-              .filter((s) => s.answers[quizId] !== undefined)
-              .map((s) => {
-                const ans = s.answers[quizId]!;
-                const isCorrect = ans.isOverridden
-                  ? ans.isCorrect
-                  : checkQuizAnswerCorrectness(ans.answer, realCorrectAnswer, quizType);
-                return {
-                  studentName: s.studentName,
-                  studentRegistration: s.studentRegistration,
-                  answer: ans.answer,
-                  isCorrect,
-                };
-              });
-            setAllSubmissions(quizSubs);
+
+            const submissionsMap: Record<string, QuizSubmission[]> = {};
+            normalizedQuestions.forEach((q) => {
+              const qId = getAnswerKey(quizId, q.idSuffix);
+              const realCorrectAnswer = correctMap[q.idSuffix] || '';
+
+              submissionsMap[q.idSuffix] = subs
+                .filter((s) => s.answers[qId] !== undefined)
+                .map((s) => {
+                  const ans = s.answers[qId]!;
+                  const isCorrect = ans.isOverridden
+                    ? ans.isCorrect
+                    : checkQuizAnswerCorrectness(ans.answer, realCorrectAnswer, q.quizType);
+                  return {
+                    studentName: s.studentName,
+                    studentRegistration: s.studentRegistration,
+                    answer: ans.answer,
+                    isCorrect,
+                  };
+                });
+            });
+            setAllSubmissionsMap(submissionsMap);
           });
         } catch (e) {
           console.error('Failed to setup real-time submissions listener:', e);
@@ -100,10 +141,9 @@ export const useQuizState = (
         if (unsubscribe) unsubscribe();
       };
     } else {
-      setAllSubmissions([]);
+      setAllSubmissionsMap({});
     }
   }, [isAdmin, quizState?.status, quizId, firebaseService]);
-
 
   // 4. Timer Logic
   useEffect(() => {
@@ -118,7 +158,7 @@ export const useQuizState = (
 
       const runTimer = () => {
         const elapsed = Math.floor((Date.now() - activatedTime) / 1000);
-        
+
         if (elapsed < buffer) {
           setIsLagging(true);
           setLagTimeLeft(buffer - elapsed);
@@ -126,10 +166,10 @@ export const useQuizState = (
         } else {
           setIsLagging(false);
           setLagTimeLeft(0);
-          
+
           const answeringElapsed = elapsed - buffer;
           const remaining = quizState.durationSeconds - answeringElapsed;
-          
+
           if (remaining <= 0) {
             setTimeLeft(0);
             if (isAdmin) {
@@ -154,15 +194,27 @@ export const useQuizState = (
   const handleStudentSubmit = async () => {
     if (!uid || !userProfile || hasSubmitted) return;
     setIsSubmitting(true);
-    await firebaseService.submitQuizAnswer(
+
+    const batchAnswers: Record<string, { answer: string; isCorrect: boolean }> = {};
+    normalizedQuestions.forEach((q) => {
+      const qId = getAnswerKey(quizId, q.idSuffix);
+      const ans = studentAnswers[q.idSuffix] || '';
+      const correctAns = resolvedCorrectAnswers[q.idSuffix] || '';
+      const isCorrect = checkQuizAnswerCorrectness(ans, correctAns, q.quizType);
+      batchAnswers[qId] = {
+        answer: ans,
+        isCorrect,
+      };
+    });
+
+    await firebaseService.submitQuizAnswersBatch(
       subjectId,
       sessionId,
       uid,
       { name: userProfile.name, reg: userProfile.registration || '0000000000' },
-      quizId,
-      studentAnswer,
-      false
+      batchAnswers
     );
+
     setHasSubmitted(true);
     setIsSubmitting(false);
   };
@@ -176,6 +228,7 @@ export const useQuizState = (
       quizType,
       loadingBufferSeconds: lagTime,
       isRevealed: false,
+      revealedQuestions: {},
     });
   };
 
@@ -188,6 +241,7 @@ export const useQuizState = (
       quizType,
       loadingBufferSeconds: 0,
       isRevealed: false,
+      revealedQuestions: quizState?.revealedQuestions || {},
     });
   };
 
@@ -205,22 +259,45 @@ export const useQuizState = (
       quizType,
       loadingBufferSeconds: 0,
       isRevealed: false,
+      revealedQuestions: {},
     });
+    setStudentAnswers({});
+    setHasSubmitted(false);
   };
 
-  const handleAdminReveal = async () => {
+  const handleAdminReveal = async (idSuffix?: string) => {
     if (quizState) {
+      const suffix = idSuffix || '';
+      const nextRevealed = {
+        ...(quizState.revealedQuestions || {}),
+        [suffix]: true,
+      };
       await firebaseService.setQuizState(quizId, {
         ...quizState,
-        isRevealed: true,
+        revealedQuestions: nextRevealed,
+        isRevealed: Object.values(nextRevealed).some((v) => v),
       });
     }
   };
 
+  const setStudentAnswer = (valOrSuffix: string, val?: string) => {
+    if (val !== undefined) {
+      setStudentAnswers((prev) => ({ ...prev, [valOrSuffix]: val }));
+    } else {
+      setStudentAnswers((prev) => ({ ...prev, '': valOrSuffix }));
+    }
+  };
+
+  const isRevealedMap: Record<string, boolean> = {};
+  normalizedQuestions.forEach((q) => {
+    isRevealedMap[q.idSuffix] = quizState?.revealedQuestions?.[q.idSuffix] || false;
+  });
+
   return {
     isAdmin,
     quizState,
-    studentAnswer,
+    studentAnswer: studentAnswers[''] || '',
+    studentAnswers,
     setStudentAnswer,
     hasSubmitted,
     isSubmitting,
@@ -233,14 +310,17 @@ export const useQuizState = (
     setDurationInput,
     bufferInput,
     setBufferInput,
-    allSubmissions,
+    allSubmissions: allSubmissionsMap[''] || [],
+    allSubmissionsMap,
     handleStudentSubmit,
     handleAdminActivate,
     handleAdminReactivate,
     handleAdminClose,
     handleAdminReset,
     isRevealed: quizState?.isRevealed || false,
+    isRevealedMap,
     handleAdminReveal,
-    correctAnswer: resolvedCorrectAnswer,
+    correctAnswer: resolvedCorrectAnswers[''] || '',
+    correctAnswers: resolvedCorrectAnswers,
   };
 };

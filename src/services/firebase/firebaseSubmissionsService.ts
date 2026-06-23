@@ -103,6 +103,53 @@ export class FirebaseSubmissionsService {
     }
   }
 
+  public async submitQuizAnswersBatch(
+    subjectId: string,
+    sessionId: string,
+    studentUid: string,
+    studentInfo: { name: string; reg: string },
+    answers: Record<string, { answer: string; isCorrect: boolean }>
+  ): Promise<void> {
+    if (studentUid === GUEST_UID) {
+      console.warn('[FirebaseSubmissionsService] Guest users are not allowed to submit quiz answers.');
+      return;
+    }
+
+    let submission = await this.getSubjectSubmissions(subjectId, sessionId, studentUid);
+    if (!submission) {
+      submission = {
+        studentUid,
+        studentName: studentInfo.name,
+        studentRegistration: studentInfo.reg,
+        answers: {},
+      };
+    }
+
+    Object.entries(answers).forEach(([questionId, data]) => {
+      submission!.answers[questionId] = {
+        answer: data.answer,
+        isCorrect: data.isCorrect,
+        submittedAt: Date.now(),
+      };
+    });
+
+    if (!this.subjectSubmissionsRepo) {
+      localStorage.setItem(`offline_submissions_${subjectId}_${sessionId}_${studentUid}`, JSON.stringify(submission));
+      return;
+    }
+    try {
+      await this.subjectSubmissionsRepo.saveStudentSubmission(subjectId, sessionId, studentUid, {
+        studentUid: submission.studentUid,
+        studentName: submission.studentName,
+        studentRegistration: submission.studentRegistration,
+        answers: submission.answers,
+      });
+    } catch (error) {
+      console.warn('[FirebaseSubmissionsService] Failed to save batch in Firestore, saving locally:', error);
+      localStorage.setItem(`offline_submissions_${subjectId}_${sessionId}_${studentUid}`, JSON.stringify(submission));
+    }
+  }
+
   public async overrideQuizAnswer(
     subjectId: string,
     sessionId: string,
