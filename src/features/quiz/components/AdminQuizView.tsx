@@ -1,7 +1,7 @@
 import React from 'react';
 import { NumericQuizAdmin } from './types/NumericQuiz';
 import { MultipleChoiceQuizAdmin } from './types/MultipleChoiceQuiz';
-import { Play, RotateCcw, BarChart, List, Clock, RefreshCw } from 'lucide-react';
+import { Play, RotateCcw, BarChart, List, Clock, RefreshCw, Eye, EyeOff } from 'lucide-react';
 
 interface QuizSubmission {
   studentName: string;
@@ -59,6 +59,11 @@ export const AdminQuizView: React.FC<AdminQuizViewProps> = ({
   isRevealed,
   handleAdminReveal,
 }) => {
+  const [isInspectRevealed, setIsInspectRevealed] = React.useState(false);
+
+  React.useEffect(() => {
+    setIsInspectRevealed(false);
+  }, [status, isLagging]);
 
   return (
     <div className="w-full max-w-2xl mx-auto bg-card border border-border/80 rounded-2xl p-5 md:p-6 shadow-sm flex flex-col gap-4 text-left">
@@ -78,12 +83,39 @@ export const AdminQuizView: React.FC<AdminQuizViewProps> = ({
 
       <div className="flex flex-col gap-4">
         <div className="text-xs font-medium text-foreground select-text border bg-muted/20 p-3 rounded-xl mb-1">
-          <span className="font-bold text-muted-foreground block mb-0.5 select-none">Admin Preview:</span>
-          {isLagging ? (
-            <span className="italic text-muted-foreground font-normal">[Question hidden during buffer time]</span>
-          ) : (
-            questionText
-          )}
+          <div className="flex justify-between items-start gap-4">
+            <div className="flex-1">
+              <span className="font-bold text-muted-foreground block mb-0.5 select-none">Admin Preview:</span>
+              {(() => {
+                const shouldHide = status === 'hidden' || (status === 'active' && isLagging);
+                if (shouldHide) {
+                  if (isInspectRevealed) {
+                    return <span className="text-foreground">{questionText}</span>;
+                  }
+                  return (
+                    <span className="italic text-muted-foreground font-normal">
+                      {status === 'hidden' ? '[Question hidden until active]' : '[Question hidden during buffer time]'}
+                    </span>
+                  );
+                }
+                return <span className="text-foreground">{questionText}</span>;
+              })()}
+            </div>
+            {(status === 'hidden' || (status === 'active' && isLagging)) && (
+              <button
+                type="button"
+                onClick={() => setIsInspectRevealed((prev) => !prev)}
+                className="p-1 rounded-md hover:bg-muted text-muted-foreground hover:text-foreground transition-colors cursor-pointer shrink-0"
+                title={isInspectRevealed ? 'Hide question text' : 'Inspect question text'}
+              >
+                {isInspectRevealed ? (
+                  <EyeOff className="h-4 w-4" />
+                ) : (
+                  <Eye className="h-4 w-4" />
+                )}
+              </button>
+            )}
+          </div>
         </div>
 
         {status === 'hidden' && (

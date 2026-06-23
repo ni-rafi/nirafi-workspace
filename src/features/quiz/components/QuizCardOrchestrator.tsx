@@ -59,14 +59,6 @@ export const QuizCardOrchestrator: React.FC<QuizCardOrchestratorProps> = ({
   };
 
   if (userProfile?.isGuest) {
-    if (viewMode === 'blog') {
-      return (
-        <div className="w-full border p-4 rounded-xl bg-transparent text-left">
-          <h4 className="font-extrabold text-sm text-primary mb-2">QUIZ: {questionText}</h4>
-          <p className="text-xs text-muted-foreground">This is an interactive classroom assessment. Please visit the live session slides to participate.</p>
-        </div>
-      );
-    }
     const status = quizState?.status || 'hidden';
     const visibilityMode = getQuizVisibilityMode(quizId);
     
@@ -87,15 +79,6 @@ export const QuizCardOrchestrator: React.FC<QuizCardOrchestratorProps> = ({
             Interactive Quiz: Only available to signed-in students. Sign in with Google to participate.
           </p>
         </div>
-      </div>
-    );
-  }
-
-  if (viewMode === 'blog') {
-    return (
-      <div className="w-full border p-4 rounded-xl bg-transparent text-left">
-        <h4 className="font-extrabold text-sm text-primary mb-2">QUIZ: {questionText}</h4>
-        <p className="text-xs text-muted-foreground">This is an interactive classroom assessment. Please visit the live session slides to participate.</p>
       </div>
     );
   }
