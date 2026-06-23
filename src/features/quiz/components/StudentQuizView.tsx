@@ -13,8 +13,6 @@ interface StudentQuizViewProps {
   lagTimeLeft: number;
   timeLeft: number;
   quizType: 'numeric-input' | 'multiple-choice';
-  questionText: string;
-  options: string[];
   studentAnswer: string;
   studentAnswers: Record<string, string>;
   setStudentAnswer: (valOrSuffix: string, val?: string) => void;

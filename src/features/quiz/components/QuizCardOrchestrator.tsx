@@ -10,9 +10,9 @@ export type QuizType = 'numeric-input' | 'multiple-choice';
 
 interface QuizCardOrchestratorProps {
   quizId: string;
-  questionText: string;
+  questionText: string | ((reg: string) => string) | { formula: string; resolve: (reg: string) => string };
   quizType?: QuizType;
-  options?: string[]; // Required for multiple choice
+  options?: string[] | ((reg: string) => string[]) | { formula: string; resolve: (reg: string) => string[] }; // Required for multiple choice
   questions?: SubQuestionDefinition[];
 }
 
@@ -137,8 +137,6 @@ export const QuizCardOrchestrator: React.FC<QuizCardOrchestratorProps> = ({
             lagTimeLeft={lagTimeLeft}
             timeLeft={timeLeft}
             quizType={quizType}
-            questionText={questionText}
-            options={options}
             studentAnswer={studentAnswers[''] || ''}
             studentAnswers={studentAnswers}
             setStudentAnswer={setStudentAnswer}
@@ -161,7 +159,6 @@ export const QuizCardOrchestrator: React.FC<QuizCardOrchestratorProps> = ({
       <div className="print:hidden w-full flex justify-center">
         <AdminQuizView
           status={status}
-          questionText={questionText}
           durationInput={durationInput}
           setDurationInput={setDurationInput}
           bufferInput={bufferInput}
@@ -179,7 +176,6 @@ export const QuizCardOrchestrator: React.FC<QuizCardOrchestratorProps> = ({
           quizType={quizType}
           correctAnswer={correctAnswers[''] || ''}
           correctAnswers={correctAnswers}
-          options={options}
           allSubmissions={allSubmissionsMap[''] || []}
           allSubmissionsMap={allSubmissionsMap}
           isRevealed={quizState?.isRevealed || false}

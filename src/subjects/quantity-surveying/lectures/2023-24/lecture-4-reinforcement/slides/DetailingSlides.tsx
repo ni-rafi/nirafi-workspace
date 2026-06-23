@@ -16,6 +16,7 @@ import { StirrupCountingDrawing } from '@/subjects/quantity-surveying/features/c
 import { useUrlSyncedState } from '@/features/presentation/hooks/useUrlSyncedState';
 import { calculateStirrupsCountInternal } from '@/subjects/quantity-surveying/cores';
 import { QuizCardOrchestrator } from '@/features/quiz';
+import { parameterResolver } from '@/features/quiz/utils/parameterResolver';
 
 // ============================================================================
 // Slide 7: Section Title Deck
@@ -182,12 +183,23 @@ export const Slide9: React.FC = () => (
 // Slide 8C: Quiz 3 (Stirrups Count - Numeric)
 // ============================================================================
 export const Slide8C: React.FC = () => {
+  const questionText = React.useMemo(() => {
+    const qFn = (reg: string) => parameterResolver.resolveTemplate(
+      'A reinforced concrete beam has a clear span of {S}. The structural drawing specifies transverse stirrups spaced at exactly 125 mm center-to-center. Calculate the total number of stirrups required for this span. (Apply the start/end spacing offset rule (+1) with a 50 mm clearance offset on both ends).',
+      { S: parameterResolver.lastDigit(4.350, 0.125, ' m') },
+      reg
+    );
+    return Object.assign(qFn, {
+      formula: 'A reinforced concrete beam has a clear span of (4.350 + [last digit] × 0.125) m. The structural drawing specifies transverse stirrups spaced at exactly 125 mm center-to-center. Calculate the total number of stirrups required for this span. (Apply the start/end spacing offset rule (+1) with a 50 mm clearance offset on both ends).'
+    });
+  }, []);
+
   return (
     <FullWidthLayout title="Transverse Ties Spacing Checkpoint Quiz">
       <div className="w-full max-w-[720px] mx-auto mt-6">
         <QuizCardOrchestrator
           quizId="qs_2023_lec4_q3"
-          questionText="A reinforced concrete beam has a clear span of 4.350 m. The structural drawing specifies transverse stirrups spaced at exactly 125 mm center-to-center. Calculate the total number of stirrups required for this span. (Apply the start/end spacing offset rule (+1))."
+          questionText={questionText}
           quizType="numeric-input"
         />
       </div>

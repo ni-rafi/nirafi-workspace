@@ -16,6 +16,7 @@ import { BasePlatePedestalDrawing } from '@/subjects/quantity-surveying/features
 import { useUrlSyncedState } from '@/features/presentation/hooks/useUrlSyncedState';
 import { calculatePlateWeightInternal } from '@/subjects/quantity-surveying/cores';
 import { QuizCardOrchestrator } from '@/features/quiz';
+import { parameterResolver } from '@/features/quiz/utils/parameterResolver';
 
 // ============================================================================
 // Slide 4: Section 2 Cover
@@ -163,12 +164,23 @@ export const Slide5B: React.FC = () => {
 // Slide 5C: Quiz 2 (Base Plate Weight - Numeric)
 // ============================================================================
 export const Slide5C: React.FC = () => {
+  const questionText = React.useMemo(() => {
+    const qFn = (reg: string) => parameterResolver.resolveTemplate(
+      'Calculate the total weight in kilograms of a steel base plate of dimensions 600 mm × 500 mm and thickness {T} mm. (Take steel density constant as 7850 kg/m³). Round your answer to exactly 3 decimal places.',
+      { T: parameterResolver.lastDigit(28, 1) },
+      reg
+    );
+    return Object.assign(qFn, {
+      formula: 'Calculate the total weight in kilograms of a steel base plate of dimensions 600 mm × 500 mm and thickness (28 + [last digit]) mm. (Take steel density constant as 7850 kg/m³). Round your answer to exactly 3 decimal places.'
+    });
+  }, []);
+
   return (
     <FullWidthLayout title="Base Plate Weight Checkpoint Quiz">
       <div className="w-full max-w-[720px] mx-auto mt-6">
         <QuizCardOrchestrator
           quizId="qs_2023_lec5_q2"
-          questionText="Calculate the total weight in kilograms of a steel base plate of dimensions 600 mm × 500 mm and thickness 28 mm. (Take steel density constant as 7850 kg/m³). Round your answer to exactly 3 decimal places."
+          questionText={questionText}
           quizType="numeric-input"
         />
       </div>

@@ -6,6 +6,7 @@
 export interface DynamicParameter<T = string | number> {
   formula: string;
   resolve: (reg: string) => T;
+  digitsRequired?: number;
 }
 
 export interface IParameterResolver {
@@ -98,13 +99,19 @@ export const parameterResolver: IParameterResolver = {
     const formula = offset === 0 && multiplier === 1
       ? '[last digit]'
       : `${offset} + [last digit]${multiplier !== 1 ? ` × ${multiplier}` : ''}`;
+    const fullFormula = formula + (suffix ? ` ${suffix}` : '');
     return {
-      formula: formula + (suffix ? ` ${suffix}` : ''),
+      formula: fullFormula,
       resolve: (reg: string) => {
+        const digits = reg.replace(/\D/g, '');
+        if (digits.length < 1) {
+          return fullFormula;
+        }
         const val = offset + this.getLastDigit(reg) * multiplier;
         const rounded = Math.round(val * 1000) / 1000;
         return suffix ? `${rounded}${suffix}` : rounded;
-      }
+      },
+      digitsRequired: 1
     };
   },
 
@@ -112,13 +119,19 @@ export const parameterResolver: IParameterResolver = {
     const formula = offset === 0 && multiplier === 1
       ? '[last 2 digits]'
       : `${offset} + [last 2 digits]${multiplier !== 1 ? ` × ${multiplier}` : ''}`;
+    const fullFormula = formula + (suffix ? ` ${suffix}` : '');
     return {
-      formula: formula + (suffix ? ` ${suffix}` : ''),
+      formula: fullFormula,
       resolve: (reg: string) => {
+        const digits = reg.replace(/\D/g, '');
+        if (digits.length < 2) {
+          return fullFormula;
+        }
         const val = offset + this.getLastTwoDigits(reg) * multiplier;
         const rounded = Math.round(val * 1000) / 1000;
         return suffix ? `${rounded}${suffix}` : rounded;
-      }
+      },
+      digitsRequired: 2
     };
   }
 };

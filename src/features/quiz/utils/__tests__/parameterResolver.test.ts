@@ -96,4 +96,31 @@ describe('parameterResolver', () => {
       expect(resolved).toBe('Length = 20mm, Width = 500');
     });
   });
+
+  describe('parameter builders minimum digits enforcement', () => {
+    it('lastDigit should resolve with 1 or more digits', () => {
+      const p = parameterResolver.lastDigit(10, 2, 'mm');
+      expect(p.resolve('5')).toBe('20mm');
+      expect(p.resolve('12345')).toBe('20mm');
+    });
+
+    it('lastDigit should return formula if digits are fewer than 1', () => {
+      const p = parameterResolver.lastDigit(10, 2, 'mm');
+      expect(p.resolve('')).toBe('10 + [last digit] × 2 mm');
+      expect(p.resolve('abc')).toBe('10 + [last digit] × 2 mm');
+    });
+
+    it('lastTwoDigits should resolve with 2 or more digits', () => {
+      const p = parameterResolver.lastTwoDigits(10, 2, 'mm');
+      expect(p.resolve('45')).toBe('100mm');
+      expect(p.resolve('12345')).toBe('100mm');
+    });
+
+    it('lastTwoDigits should return formula if digits are fewer than 2', () => {
+      const p = parameterResolver.lastTwoDigits(10, 2, 'mm');
+      expect(p.resolve('5')).toBe('10 + [last 2 digits] × 2 mm');
+      expect(p.resolve('')).toBe('10 + [last 2 digits] × 2 mm');
+      expect(p.resolve('abc')).toBe('10 + [last 2 digits] × 2 mm');
+    });
+  });
 });

@@ -17,6 +17,7 @@ import { CrossSectionSpec } from '@/features/building-drawing/types/sectionSchem
 import { LectureCover } from '@/shared/layouts/LectureCover';
 import { SlideProps } from '@/features/presentation/components/slides/SlideRenderer';
 import { QuizCardOrchestrator } from '@/features/quiz';
+import { parameterResolver } from '@/features/quiz/utils/parameterResolver';
 
 // ============================================================================
 // Slide 1: Main Lecture Cover (TitleV2Layout representation)
@@ -238,14 +239,40 @@ export const Slide3B: React.FC = () => {
 // Slide 3C: Quiz 1 (Clear Cover MCQ)
 // ============================================================================
 export const Slide3C: React.FC = () => {
+  const questionText = React.useMemo(() => {
+    const qFn = (reg: string) => parameterResolver.resolveTemplate(
+      'A structural column of size {W} has a clear cover of 40 mm. It is reinforced with longitudinal bars of 20 mm diameter and 10 mm stirrups. If there are exactly 2 longitudinal bars on one face, what is the center-to-center distance between them?',
+      { W: parameterResolver.lastDigit(400, 10, 'x400 mm') },
+      reg
+    );
+    return Object.assign(qFn, {
+      formula: 'A structural column of size (400 + [last digit] × 10)x400 mm has a clear cover of 40 mm. It is reinforced with longitudinal bars of 20 mm diameter and 10 mm stirrups. If there are exactly 2 longitudinal bars on one face, what is the center-to-center distance between them?'
+    });
+  }, []);
+
+  const options = React.useMemo(() => {
+    const optFn = (reg: string) => {
+      const correctVal = 400 + parameterResolver.getLastDigit(reg) * 10 - 120;
+      return [
+        `${correctVal + 40} mm`,
+        `${correctVal} mm`,
+        `${correctVal + 20} mm`,
+        `${correctVal - 20} mm`
+      ];
+    };
+    return Object.assign(optFn, {
+      formula: ['W - 80 mm', 'W - 120 mm (Correct)', 'W - 100 mm', 'W - 140 mm']
+    });
+  }, []);
+
   return (
     <FullWidthLayout title="Clear Cover Checkpoint Quiz">
       <div className="w-full max-w-[720px] mx-auto mt-6">
         <QuizCardOrchestrator
           quizId="qs_2023_lec4_q1"
-          questionText="A structural column of size 400x400 mm has a clear cover of 40 mm. It is reinforced with longitudinal bars of 20 mm diameter and 10 mm stirrups. If there are exactly 2 longitudinal bars on one face, what is the center-to-center distance between them?"
+          questionText={questionText}
           quizType="multiple-choice"
-          options={['320 mm', '280 mm', '300 mm', '260 mm']}
+          options={options}
         />
       </div>
     </FullWidthLayout>

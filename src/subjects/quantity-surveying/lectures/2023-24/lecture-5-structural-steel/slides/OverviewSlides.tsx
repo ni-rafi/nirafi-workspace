@@ -17,6 +17,7 @@ import { useUrlSyncedState } from '@/features/presentation/hooks/useUrlSyncedSta
 import { LectureCover } from '@/shared/layouts/LectureCover';
 import { SlideProps } from '@/features/presentation/components/slides/SlideRenderer';
 import { QuizCardOrchestrator } from '@/features/quiz';
+import { parameterResolver } from '@/features/quiz/utils/parameterResolver';
 
 // ============================================================================
 // Slide 1: Main Lecture Cover
@@ -264,19 +265,45 @@ export const Slide3B: React.FC = () => {
 // Slide 3C: Quiz 1 (Steel Nomenclature MCQ)
 // ============================================================================
 export const Slide3C: React.FC = () => {
+  const questionText = React.useMemo(() => {
+    const qFn = (reg: string) => parameterResolver.resolveTemplate(
+      "An angle member is designated on a roof truss detail drawing as '2 ISA 75 × 50 × {T}'. Select the correct interpretation of this structural nomenclature:",
+      { T: parameterResolver.lastDigit(6, 2) },
+      reg
+    );
+    return Object.assign(qFn, {
+      formula: "An angle member is designated on a roof truss detail drawing as '2 ISA 75 × 50 × (6 + [last digit] × 2)'. Select the correct interpretation of this structural nomenclature:"
+    });
+  }, []);
+
+  const options = React.useMemo(() => {
+    const optFn = (reg: string) => {
+      const thickness = 6 + parameterResolver.getLastDigit(reg) * 2;
+      return [
+        `1 Indian Standard Angle with legs of 75mm and 50mm, leg thickness ${thickness}mm, and 2m length`,
+        `2 separate Indian Standard Angles, legs 75mm & 50mm, thickness ${thickness}mm`,
+        `2 separate Indian Standard Channels with web depth 75mm, flange 50mm, and ${thickness}mm thickness`,
+        `2 separate Indian Standard Angles with equal legs of 75mm, thickness 50mm, and length ${thickness}m`
+      ];
+    };
+    return Object.assign(optFn, {
+      formula: [
+        '1 Indian Standard Angle with legs of 75mm and 50mm, leg thickness T mm, and 2m length',
+        '2 separate Indian Standard Angles, legs 75mm & 50mm, thickness T mm',
+        '2 separate Indian Standard Channels with web depth 75mm, flange 50mm, and T mm thickness',
+        '2 separate Indian Standard Angles with equal legs of 75mm, thickness 50mm, and length T m'
+      ]
+    });
+  }, []);
+
   return (
     <FullWidthLayout title="Standard Steel Nomenclature Checkpoint Quiz">
       <div className="w-full max-w-[720px] mx-auto mt-6">
         <QuizCardOrchestrator
           quizId="qs_2023_lec5_q1"
-          questionText="An angle member is designated on a roof truss detail drawing as '2 ISA 75 × 50 × 8'. Select the correct interpretation of this structural nomenclature:"
+          questionText={questionText}
           quizType="multiple-choice"
-          options={[
-            '1 Indian Standard Angle with legs of 75mm and 50mm, leg thickness 8mm, and 2m length',
-            '2 separate Indian Standard Angles, legs 75mm & 50mm, thickness 8mm',
-            '2 separate Indian Standard Channels with web depth 75mm, flange 50mm, and 8mm thickness',
-            '2 separate Indian Standard Angles with equal legs of 75mm, thickness 50mm, and length 8m'
-          ]}
+          options={options}
         />
       </div>
     </FullWidthLayout>

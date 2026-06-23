@@ -12,6 +12,7 @@ import {
   CalculationOutput
 } from '@/features/presentation/components/elements';
 import { QuizCardOrchestrator } from '@/features/quiz';
+import { parameterResolver } from '@/features/quiz/utils/parameterResolver';
 import { WeightConversionDrawing } from '@/subjects/quantity-surveying/features/components/WeightConversionDrawing';
 import { useUrlSyncedState } from '@/features/presentation/hooks/useUrlSyncedState';
 import { calculateSteelWeightInternal } from '@/subjects/quantity-surveying/cores';
@@ -189,12 +190,23 @@ export const Slide12: React.FC = () => (
 // Slide 11C: Quiz 4 (Tonnage Conversion - Numeric)
 // ============================================================================
 export const Slide11C: React.FC = () => {
+  const questionText = React.useMemo(() => {
+    const qFn = (reg: string) => parameterResolver.resolveTemplate(
+      'Calculate the total weight in kilograms of exactly {N} pieces of 20 mm diameter longitudinal rebars, each having a cut length of 8.500 m. Round your final answer to the nearest whole number (integer) value.',
+      { N: parameterResolver.lastDigit(15, 1) },
+      reg
+    );
+    return Object.assign(qFn, {
+      formula: 'Calculate the total weight in kilograms of exactly (15 + [last digit]) pieces of 20 mm diameter longitudinal rebars, each having a cut length of 8.500 m. Round your final answer to the nearest whole number (integer) value.'
+    });
+  }, []);
+
   return (
     <FullWidthLayout title="Tonnage Conversion Checkpoint Quiz">
       <div className="w-full max-w-[720px] mx-auto mt-6">
         <QuizCardOrchestrator
           quizId="qs_2023_lec4_q4"
-          questionText="Calculate the total weight in kilograms of exactly 15 pieces of 20 mm diameter longitudinal rebars, each having a cut length of 8.500 m. Round your final answer to the nearest whole number (integer) value."
+          questionText={questionText}
           quizType="numeric-input"
         />
       </div>

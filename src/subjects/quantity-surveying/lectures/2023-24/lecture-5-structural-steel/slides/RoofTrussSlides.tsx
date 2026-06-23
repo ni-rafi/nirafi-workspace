@@ -16,6 +16,7 @@ import { RoofTrussLayoutDrawing } from '@/subjects/quantity-surveying/features/c
 import { useUrlSyncedState } from '@/features/presentation/hooks/useUrlSyncedState';
 import { calculateRafterLengthInternal, calculatePurlinsCountInternal } from '@/subjects/quantity-surveying/cores';
 import { QuizCardOrchestrator } from '@/features/quiz';
+import { parameterResolver } from '@/features/quiz/utils/parameterResolver';
 
 // ============================================================================
 // Slide 7: Section 3 Cover
@@ -167,12 +168,23 @@ export const Slide8B: React.FC = () => {
 // Slide 8C: Quiz 3 (Truss Purlins - Numeric)
 // ============================================================================
 export const Slide8C: React.FC = () => {
+  const questionText = React.useMemo(() => {
+    const qFn = (reg: string) => parameterResolver.resolveTemplate(
+      'A sloped roof truss has a rise of 2.800 m and a total span of 9.600 m. Purlins are spaced at exactly {S} along the sloped rafter. Calculate the total number of purlin lines required for the entire roof (both sides). (Apply the spacing offset rule: floor(Rafter Length / Spacing) + 1 per side).',
+      { S: parameterResolver.lastDigit(1.200, 0.05, ' m') },
+      reg
+    );
+    return Object.assign(qFn, {
+      formula: 'A sloped roof truss has a rise of 2.800 m and a total span of 9.600 m. Purlins are spaced at exactly (1.200 + [last digit] × 0.05) m along the sloped rafter. Calculate the total number of purlin lines required for the entire roof (both sides). (Apply the spacing offset rule: floor(Rafter Length / Spacing) + 1 per side).'
+    });
+  }, []);
+
   return (
     <FullWidthLayout title="Roof Truss & Purlin Lines Checkpoint Quiz">
       <div className="w-full max-w-[720px] mx-auto mt-6">
         <QuizCardOrchestrator
           quizId="qs_2023_lec5_q3"
-          questionText="A sloped roof truss has a rise of 2.800 m and a total span of 9.600 m. Purlins are spaced at exactly 1.200 m intervals along the sloped rafter. Calculate the total number of purlin lines required for the entire roof (both sides). (Apply the spacing offset rule: floor(Rafter Length / Spacing) + 1 per side)."
+          questionText={questionText}
           quizType="numeric-input"
         />
       </div>

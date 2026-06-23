@@ -16,6 +16,7 @@ import { GussetPlateBoundingDrawing } from '@/subjects/quantity-surveying/featur
 import { useUrlSyncedState } from '@/features/presentation/hooks/useUrlSyncedState';
 import { calculatePlateWeightInternal } from '@/subjects/quantity-surveying/cores';
 import { QuizCardOrchestrator } from '@/features/quiz';
+import { parameterResolver } from '@/features/quiz/utils/parameterResolver';
 
 // ============================================================================
 // Slide 10: Section 4 Cover
@@ -138,12 +139,23 @@ export const Slide11B: React.FC = () => {
 // Slide 11C: Quiz 4 (Gusset Irregular Shape - Numeric)
 // ============================================================================
 export const Slide11C: React.FC = () => {
+  const questionText = React.useMemo(() => {
+    const qFn = (reg: string) => parameterResolver.resolveTemplate(
+      'An irregular pentagonal gusset plate has maximum bounding dimensions of 450 mm × 350 mm and a thickness of {T} mm. Calculate the weight of the plate in kilograms using the standard gross bounding box measurement rule. (Use density = 7850 kg/m³). Round your answer to exactly 3 decimal places.',
+      { T: parameterResolver.lastDigit(12, 1) },
+      reg
+    );
+    return Object.assign(qFn, {
+      formula: 'An irregular pentagonal gusset plate has maximum bounding dimensions of 450 mm × 350 mm and a thickness of (12 + [last digit]) mm. Calculate the weight of the plate in kilograms using the standard gross bounding box measurement rule. (Use density = 7850 kg/m³). Round your answer to exactly 3 decimal places.'
+    });
+  }, []);
+
   return (
     <FullWidthLayout title="Irregular Plate Checkpoint Quiz">
       <div className="w-full max-w-[720px] mx-auto mt-6">
         <QuizCardOrchestrator
           quizId="qs_2023_lec5_q4"
-          questionText="An irregular pentagonal gusset plate has maximum bounding dimensions of 450 mm × 350 mm and a thickness of 12 mm. Calculate the weight of the plate in kilograms using the standard gross bounding box measurement rule. (Use density = 7850 kg/m³). Round your answer to exactly 3 decimal places."
+          questionText={questionText}
           quizType="numeric-input"
         />
       </div>

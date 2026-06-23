@@ -1,9 +1,14 @@
 import React from 'react';
+import { Clock } from 'lucide-react';
 import { NumericQuizAdmin } from './types/NumericQuiz';
 import { MultipleChoiceQuizAdmin } from './types/MultipleChoiceQuiz';
-import { Play, RotateCcw, BarChart, List, Clock, RefreshCw, Eye, EyeOff } from 'lucide-react';
 import type { SubQuestionDefinition } from '../hooks/useQuizState';
 import { parameterResolver } from '../utils/parameterResolver';
+
+import { AdminQuestionPreview } from './admin/AdminQuestionPreview';
+import { AdminQuizSetup } from './admin/AdminQuizSetup';
+import { AdminControlsHeader } from './admin/AdminControlsHeader';
+import { AdminRegNoInspector } from './admin/AdminRegNoInspector';
 
 interface QuizSubmission {
   studentName: string;
@@ -14,7 +19,6 @@ interface QuizSubmission {
 
 interface AdminQuizViewProps {
   status: string;
-  questionText: string;
   durationInput: number;
   setDurationInput: (val: number) => void;
   bufferInput: number;
@@ -32,7 +36,6 @@ interface AdminQuizViewProps {
   quizType: 'numeric-input' | 'multiple-choice';
   correctAnswer: string | ((reg: string) => string) | { formula: string; resolve: (reg: string) => string };
   correctAnswers: Record<string, string | ((reg: string) => string) | { formula: string; resolve: (reg: string) => string }>;
-  options: string[];
   allSubmissions: QuizSubmission[];
   allSubmissionsMap: Record<string, QuizSubmission[]>;
   isRevealed: boolean;
@@ -65,7 +68,7 @@ export const AdminQuizView: React.FC<AdminQuizViewProps> = ({
 }) => {
   const [isInspectRevealed, setIsInspectRevealed] = React.useState(false);
   const [activeTabIndex, setActiveTabIndex] = React.useState(0);
-  const [inspectorRoll, setInspectorRoll] = React.useState('');
+  const [inspectorRegNo, setInspectorRegNo] = React.useState('');
 
   React.useEffect(() => {
     setIsInspectRevealed(false);
@@ -74,7 +77,7 @@ export const AdminQuizView: React.FC<AdminQuizViewProps> = ({
   React.useEffect(() => {
     if (status === 'hidden') {
       setActiveTabIndex(0);
-      setInspectorRoll('');
+      setInspectorRegNo('');
     }
   }, [status]);
 
@@ -96,21 +99,62 @@ export const AdminQuizView: React.FC<AdminQuizViewProps> = ({
     });
   }, [questions, correctAnswers]);
 
-  const activeRoll = inspectorRoll.trim() || undefined;
-  const curQuestionText = parameterResolver.resolve(currentQuestion.questionText, activeRoll);
+  const maxDigitsRequired = React.useMemo(() => {
+    let max = 0;
+    const checkValue = (val: unknown) => {
+      if (val && typeof val === 'object') {
+        const obj = val as Record<string, unknown>;
+        if ('digitsRequired' in obj && typeof obj.digitsRequired === 'number') {
+          max = Math.max(max, obj.digitsRequired);
+        } else if ('formula' in obj && typeof obj.formula === 'string') {
+          if (obj.formula.includes('[last 2 digits]')) {
+            max = Math.max(max, 2);
+          } else if (obj.formula.includes('[last digit]')) {
+            max = Math.max(max, 1);
+          }
+        }
+      }
+    };
+
+    questions.forEach((q) => {
+      checkValue(q.questionText);
+      if (Array.isArray(q.options)) {
+        q.options.forEach(checkValue);
+      } else {
+        checkValue(q.options);
+      }
+      const rawAns = correctAnswers[q.idSuffix];
+      checkValue(rawAns);
+    });
+
+    return max || 1;
+  }, [questions, correctAnswers]);
+
+  const activeRegNo = inspectorRegNo.trim() || undefined;
+  const curQuestionText = parameterResolver.resolve(currentQuestion.questionText, activeRegNo);
   const curQuizType = currentQuestion.quizType;
-  const curOptions = parameterResolver.resolve(currentQuestion.options || [], activeRoll);
+  const curOptions = parameterResolver.resolve(currentQuestion.options || [], activeRegNo);
   const curSubmissions = allSubmissionsMap[currentQuestion.idSuffix] || [];
   const curIsRevealed = isRevealedMap[currentQuestion.idSuffix] || false;
   const curCorrectAnswerRaw = correctAnswers[currentQuestion.idSuffix] || '';
-  const curCorrectAnswer = parameterResolver.resolve(curCorrectAnswerRaw, activeRoll);
+  const curCorrectAnswer = parameterResolver.resolve(curCorrectAnswerRaw, activeRegNo);
 
   const previewTitle = React.useMemo(() => {
     const base = isMultiQuestion ? `Admin Question ${activeTabIndex + 1} Preview` : `Admin Preview`;
     if (!hasDynamicParams) return `${base}:`;
-    if (activeRoll) return `${base} (Evaluating Roll: ${activeRoll}):`;
+
+    // Check if the resolved question or answer still contains unresolved placeholders
+    const isUnresolved =
+      curQuestionText.includes('[last digit]') ||
+      curQuestionText.includes('[last 2 digits]') ||
+      curCorrectAnswer.includes('[last digit]') ||
+      curCorrectAnswer.includes('[last 2 digits]');
+
+    if (activeRegNo && !isUnresolved) {
+      return `${base} (Evaluating Reg No: ${activeRegNo}):`;
+    }
     return `${base} (Showing Raw Formulas):`;
-  }, [isMultiQuestion, activeTabIndex, hasDynamicParams, activeRoll]);
+  }, [isMultiQuestion, activeTabIndex, hasDynamicParams, activeRegNo, curQuestionText, curCorrectAnswer]);
 
   // Submission count for the first question acts as the global student count
   const globalSubmissionCount = allSubmissionsMap[questions[0]?.idSuffix || '']?.length || 0;
@@ -121,8 +165,8 @@ export const AdminQuizView: React.FC<AdminQuizViewProps> = ({
         <span className="text-[10px] font-bold text-primary tracking-widest uppercase">Classroom Quiz</span>
         {status === 'active' && (
           <span className={`flex items-center gap-1 text-xs font-bold font-mono px-2 py-0.5 rounded-full border ${
-            isLagging 
-              ? 'text-amber-500 bg-amber-500/10 border-amber-500/25' 
+            isLagging
+              ? 'text-amber-500 bg-amber-500/10 border-amber-500/25'
               : 'text-red-500 bg-red-500/10 border-red-500/25'
           }`}>
             <Clock className={`h-3.5 w-3.5 ${isLagging ? 'animate-spin' : 'animate-pulse'}`} />
@@ -155,80 +199,23 @@ export const AdminQuizView: React.FC<AdminQuizViewProps> = ({
       )}
 
       <div className="flex flex-col gap-4">
-        <div className="text-xs font-medium text-foreground select-text border bg-muted/20 p-3 rounded-xl mb-1 flex flex-col gap-2.5">
-          <div className="flex justify-between items-start gap-4">
-            <div className="flex-1">
-              <span className="font-bold text-muted-foreground block mb-0.5 select-none">
-                {previewTitle}
-              </span>
-              {(() => {
-                const shouldHide = status === 'hidden' || (status === 'active' && isLagging);
-                if (shouldHide) {
-                  if (isInspectRevealed) {
-                    return <span className="text-foreground">{curQuestionText}</span>;
-                  }
-                  return (
-                    <span className="italic text-muted-foreground font-normal">
-                      {status === 'hidden' ? '[Question hidden until active]' : '[Question hidden during buffer time]'}
-                    </span>
-                  );
-                }
-                return <span className="text-foreground">{curQuestionText}</span>;
-              })()}
-            </div>
-            {(status === 'hidden' || (status === 'active' && isLagging)) && (
-              <button
-                type="button"
-                onClick={() => setIsInspectRevealed((prev) => !prev)}
-                className="p-1 rounded-md hover:bg-muted text-muted-foreground hover:text-foreground transition-colors cursor-pointer shrink-0"
-                title={isInspectRevealed ? 'Hide question text' : 'Inspect question text'}
-              >
-                {isInspectRevealed ? (
-                  <EyeOff className="h-4 w-4" />
-                ) : (
-                  <Eye className="h-4 w-4" />
-                )}
-              </button>
-            )}
-          </div>
-        </div>
+        <AdminQuestionPreview
+          previewTitle={previewTitle}
+          status={status}
+          isLagging={isLagging}
+          curQuestionText={curQuestionText}
+          isInspectRevealed={isInspectRevealed}
+          setIsInspectRevealed={setIsInspectRevealed}
+        />
 
         {status === 'hidden' && (
-          <div className="flex flex-col sm:flex-row gap-3 items-end">
-            <div className="flex flex-col gap-1 w-full sm:w-auto">
-              <label className="text-[10px] font-bold text-muted-foreground uppercase select-none">Duration</label>
-              <select
-                value={durationInput}
-                onChange={(e) => setDurationInput(parseInt(e.target.value))}
-                className="w-full text-xs border rounded-lg bg-background p-2 h-9 min-w-[110px]"
-              >
-                <option value={60}>1 Minute</option>
-                <option value={120}>2 Minutes</option>
-                <option value={300}>5 Minutes</option>
-                <option value={600}>10 Minutes</option>
-              </select>
-            </div>
-            <div className="flex flex-col gap-1 w-full sm:w-auto">
-              <label className="text-[10px] font-bold text-muted-foreground uppercase select-none">Buffer (Max 30s)</label>
-              <select
-                value={bufferInput}
-                onChange={(e) => setBufferInput(parseInt(e.target.value))}
-                className="w-full text-xs border rounded-lg bg-background p-2 h-9 min-w-[125px]"
-              >
-                <option value={0}>0s (No Lag)</option>
-                <option value={10}>10 Seconds</option>
-                <option value={20}>20 Seconds</option>
-                <option value={30}>30 Seconds</option>
-              </select>
-            </div>
-            <button
-              onClick={handleAdminActivate}
-              className="w-full sm:flex-1 py-2 bg-primary hover:bg-primary/95 text-white font-bold rounded-lg text-xs flex items-center justify-center gap-1 cursor-pointer h-9"
-            >
-              <Play className="h-3.5 w-3.5 fill-current" />
-              Activate Quiz
-            </button>
-          </div>
+          <AdminQuizSetup
+            durationInput={durationInput}
+            setDurationInput={setDurationInput}
+            bufferInput={bufferInput}
+            setBufferInput={setBufferInput}
+            handleAdminActivate={handleAdminActivate}
+          />
         )}
 
         {status !== 'hidden' && (
@@ -244,6 +231,7 @@ export const AdminQuizView: React.FC<AdminQuizViewProps> = ({
                 </p>
                 <div className="flex gap-2 mt-2 w-full justify-center">
                   <button
+                    type="button"
                     onClick={handleAdminClose}
                     className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg text-xs font-bold cursor-pointer"
                   >
@@ -253,89 +241,20 @@ export const AdminQuizView: React.FC<AdminQuizViewProps> = ({
               </div>
             ) : (
               <>
-                <div className="flex justify-between items-center border-b pb-2 border-border/40 select-none">
-                  <div className="flex gap-1">
-                    <button
-                      onClick={() => setAdminView('chart')}
-                      className={`p-1.5 rounded-lg border transition-colors cursor-pointer ${
-                        adminView === 'chart' ? 'bg-primary/10 border-primary text-primary' : 'bg-background hover:bg-muted text-muted-foreground'
-                      }`}
-                    >
-                      <BarChart className="h-3.5 w-3.5" />
-                    </button>
-                    <button
-                      onClick={() => setAdminView('details')}
-                      className={`p-1.5 rounded-lg border transition-colors cursor-pointer ${
-                        adminView === 'details' ? 'bg-primary/10 border-primary text-primary' : 'bg-background hover:bg-muted text-muted-foreground'
-                      }`}
-                    >
-                      <List className="h-3.5 w-3.5" />
-                    </button>
-                  </div>
-                  <div className="flex gap-2">
-                    {status === 'active' && (
-                      <>
-                        <button
-                          onClick={handleAdminReset}
-                          className="px-2.5 py-1.5 bg-sky-500 hover:bg-sky-600 text-white rounded-lg text-[10px] font-bold cursor-pointer flex items-center gap-1"
-                        >
-                          <RefreshCw className="h-3 w-3" />
-                          Reset
-                        </button>
-                        <button
-                          onClick={() => handleAdminReactivate(60)}
-                          className="px-2.5 py-1.5 bg-amber-500 hover:bg-amber-600 text-white rounded-lg text-[10px] font-bold cursor-pointer"
-                        >
-                          +1 Min
-                        </button>
-                        <button
-                          onClick={handleAdminClose}
-                          className="px-2.5 py-1.5 bg-red-500 hover:bg-red-600 text-white rounded-lg text-[10px] font-bold cursor-pointer"
-                        >
-                          Close
-                        </button>
-                      </>
-                    )}
-                    {status === 'closed' && (
-                      <>
-                        {!curIsRevealed && globalSubmissionCount >= 1 && (
-                          <button
-                            onClick={() => handleAdminReveal(currentQuestion.idSuffix)}
-                            className="px-3 py-1.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg text-[10px] font-bold flex items-center gap-1 cursor-pointer"
-                          >
-                            Reveal Answer
-                          </button>
-                        )}
-                        <button
-                          onClick={handleAdminReset}
-                          className="px-3 py-1.5 bg-sky-500 hover:bg-sky-600 text-white rounded-lg text-[10px] font-bold flex items-center gap-1 cursor-pointer"
-                        >
-                          <RefreshCw className="h-3 w-3" />
-                          Reset
-                        </button>
-                        <div className="flex items-center gap-1">
-                          <select
-                            value={durationInput}
-                            onChange={(e) => setDurationInput(parseInt(e.target.value))}
-                            className="text-[10px] font-bold border rounded-lg bg-background px-1.5 py-1 h-[28px] min-w-[85px] cursor-pointer"
-                          >
-                            <option value={60}>1 Min</option>
-                            <option value={120}>2 Mins</option>
-                            <option value={300}>5 Mins</option>
-                            <option value={600}>10 Mins</option>
-                          </select>
-                          <button
-                            onClick={() => handleAdminReactivate(durationInput)}
-                            className="px-2.5 py-1.5 bg-primary hover:bg-primary/95 text-white rounded-lg text-[10px] font-bold flex items-center gap-1 cursor-pointer h-[28px]"
-                          >
-                            <RotateCcw className="h-3 w-3" />
-                            Reopen
-                          </button>
-                        </div>
-                      </>
-                    )}
-                  </div>
-                </div>
+                <AdminControlsHeader
+                  status={status}
+                  adminView={adminView}
+                  setAdminView={setAdminView}
+                  handleAdminReset={handleAdminReset}
+                  handleAdminReactivate={handleAdminReactivate}
+                  handleAdminClose={handleAdminClose}
+                  curIsRevealed={curIsRevealed}
+                  globalSubmissionCount={globalSubmissionCount}
+                  handleAdminReveal={handleAdminReveal}
+                  currentQuestionIdSuffix={currentQuestion.idSuffix}
+                  durationInput={durationInput}
+                  setDurationInput={setDurationInput}
+                />
 
                 {curQuizType === 'numeric-input' ? (
                   <NumericQuizAdmin
@@ -358,27 +277,20 @@ export const AdminQuizView: React.FC<AdminQuizViewProps> = ({
                   />
                 )}
               </>
-             )}
-           </div>
-         )}
-       </div>
-       {hasDynamicParams && (
-         <div className="flex items-center gap-2 mt-4 border-t border-border/40 pt-3 select-none">
-           <span className="text-[10px] font-bold text-muted-foreground uppercase whitespace-nowrap">Inspector Roll:</span>
-           <input
-             type="text"
-             value={inspectorRoll}
-             onChange={(e) => setInspectorRoll(e.target.value)}
-             placeholder="Type student registration roll number to inspect parameters (e.g. 2020331045)..."
-             className="flex-1 text-[11px] px-2.5 py-1 border border-border/60 rounded bg-background text-foreground focus:outline-hidden focus:ring-1 focus:ring-primary focus:border-primary"
-           />
-           {inspectorRoll.trim() && (
-             <span className="text-[10px] font-semibold text-emerald-600 dark:text-emerald-400 font-mono bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20 whitespace-nowrap">
-               Resolved: {curCorrectAnswer}
-             </span>
-           )}
-         </div>
-       )}
-     </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      {hasDynamicParams && (
+        <AdminRegNoInspector
+          inspectorRegNo={inspectorRegNo}
+          setInspectorRegNo={setInspectorRegNo}
+          maxDigitsRequired={maxDigitsRequired}
+          activeRegNo={activeRegNo}
+          curCorrectAnswer={curCorrectAnswer}
+        />
+      )}
+    </div>
   );
 };

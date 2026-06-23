@@ -170,7 +170,7 @@ export const MultipleChoiceQuizAdmin: React.FC<MultipleChoiceQuizAdminProps> = (
       <table className="w-full text-left border-collapse">
         <thead>
           <tr className="bg-muted/30 border-b border-border/40 font-bold text-muted-foreground select-none">
-            <th className="p-2">Roll</th>
+            <th className="p-2">Reg No</th>
             <th className="p-2">Name</th>
             <th className="p-2 text-right">Choice</th>
             {isRevealed && <th className="p-2 text-center">Result</th>}

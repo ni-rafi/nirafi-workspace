@@ -13,6 +13,7 @@ import {
   LatexFormula
 } from '@/features/presentation/components/elements';
 import { QuizCardOrchestrator } from '@/features/quiz';
+import { parameterResolver } from '@/features/quiz/utils/parameterResolver';
 import { HookCrankDrawing } from '@/subjects/quantity-surveying/features/components/HookCrankDrawing';
 import { useUrlSyncedState } from '@/features/presentation/hooks/useUrlSyncedState';
 import { 
@@ -195,12 +196,23 @@ export const Slide6: React.FC = () => (
 // Slide 5C: Quiz 2 (Hooks & Cranks Math - Numeric)
 // ============================================================================
 export const Slide5C: React.FC = () => {
+  const questionText = React.useMemo(() => {
+    const qFn = (reg: string) => parameterResolver.resolveTemplate(
+      'A 16mm diameter rebar spans a straight distance of exactly {L}. It has standard 180° anchor hooks on both ends (9d addition per hook) and is cranked twice at 45° where the effective slab depth (D) is 110 mm. Calculate the total required cut length of the bar in meters. Round your answer to exactly 3 decimal places.',
+      { L: parameterResolver.lastDigit(4.200, 0.1, ' m') },
+      reg
+    );
+    return Object.assign(qFn, {
+      formula: 'A 16mm diameter rebar spans a straight distance of exactly (4.200 + [last digit] × 0.1) m. It has standard 180° anchor hooks on both ends (9d addition per hook) and is cranked twice at 45° where the effective slab depth (D) is 110 mm. Calculate the total required cut length of the bar in meters. Round your answer to exactly 3 decimal places.'
+    });
+  }, []);
+
   return (
     <FullWidthLayout title="Anchor Hooks & Cranks Checkpoint Quiz">
       <div className="w-full max-w-[720px] mx-auto mt-6">
         <QuizCardOrchestrator
           quizId="qs_2023_lec4_q2"
-          questionText="A 16mm diameter rebar spans a straight distance of exactly 4.200 m. It has standard 180° anchor hooks on both ends (9d addition per hook) and is cranked twice at 45° where the effective slab depth (D) is 110 mm. Calculate the total required cut length of the bar in meters. Round your answer to exactly 3 decimal places."
+          questionText={questionText}
           quizType="numeric-input"
         />
       </div>
