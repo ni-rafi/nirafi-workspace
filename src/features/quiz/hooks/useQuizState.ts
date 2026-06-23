@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useFirebase } from '@/context/FirebaseContext';
 import { useUserContext } from '@/context';
 import type { QuizState } from '@/services/firebase/IFirebaseService';
+import { checkQuizAnswerCorrectness } from '../utils/answerChecker';
 
 interface QuizSubmission {
   studentName: string;
@@ -77,7 +78,7 @@ export const useQuizState = (
                 const ans = s.answers[quizId]!;
                 const isCorrect = ans.isOverridden
                   ? ans.isCorrect
-                  : ans.answer.trim().toLowerCase() === realCorrectAnswer.trim().toLowerCase();
+                  : checkQuizAnswerCorrectness(ans.answer, realCorrectAnswer, quizType);
                 return {
                   studentName: s.studentName,
                   studentRegistration: s.studentRegistration,

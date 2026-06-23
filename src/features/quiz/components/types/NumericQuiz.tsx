@@ -1,5 +1,6 @@
 import React from 'react';
 import { AnimatedCount } from '../AnimatedCount';
+import { parseNumericAnswer } from '../../utils/answerChecker';
 
 export interface NumericQuizStudentProps {
   questionText: string;
@@ -28,28 +29,47 @@ export const NumericQuizStudent: React.FC<NumericQuizStudentProps> = ({
   isLocked,
   hasSubmitted,
 }) => {
+  const parsed = parseNumericAnswer(userAnswer);
+  const isValid = parsed !== null;
+  const hasText = userAnswer.trim().length > 0;
+
   return (
     <div className="flex flex-col gap-4 w-full max-w-md mx-auto text-left">
       <div className="p-4 bg-muted/20 border rounded-xl font-medium text-sm text-foreground">
         {questionText}
       </div>
       {!hasSubmitted ? (
-        <div className="flex gap-2">
-          <input
-            type="text"
-            value={userAnswer}
-            onChange={(e) => setUserAnswer(e.target.value)}
-            placeholder="Enter your calculation answer..."
-            disabled={isLocked || isSubmitting}
-            className="flex-1 px-3 py-2 border rounded-lg bg-background text-sm text-foreground focus:outline-hidden focus:ring-1 focus:ring-primary focus:border-primary disabled:opacity-50 disabled:cursor-not-allowed"
-          />
-          <button
-            onClick={onSubmit}
-            disabled={isLocked || isSubmitting || !userAnswer.trim()}
-            className="px-4 py-2 bg-primary hover:bg-primary/95 text-primary-foreground font-semibold rounded-lg text-sm transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {isSubmitting ? 'Submitting...' : 'Submit'}
-          </button>
+        <div className="flex flex-col gap-1.5">
+          <div className="flex gap-2">
+            <input
+              type="text"
+              value={userAnswer}
+              onChange={(e) => setUserAnswer(e.target.value)}
+              placeholder="Enter your calculation answer (e.g. 308 cft)..."
+              disabled={isLocked || isSubmitting}
+              className="flex-1 px-3 py-2 border rounded-lg bg-background text-sm text-foreground focus:outline-hidden focus:ring-1 focus:ring-primary focus:border-primary disabled:opacity-50 disabled:cursor-not-allowed"
+            />
+            <button
+              onClick={onSubmit}
+              disabled={isLocked || isSubmitting || !userAnswer.trim() || !isValid}
+              className="px-4 py-2 bg-primary hover:bg-primary/95 text-primary-foreground font-semibold rounded-lg text-sm transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed select-none"
+            >
+              {isSubmitting ? 'Submitting...' : 'Submit'}
+            </button>
+          </div>
+          {hasText && (
+            <div className="px-1 text-[10px] font-medium select-none">
+              {isValid ? (
+                <span className="text-emerald-600 dark:text-emerald-400">
+                  ✓ Interpreted as: <strong className="font-bold font-mono">{parsed.value}</strong>{parsed.unit ? ` ${parsed.unit}` : ''}
+                </span>
+              ) : (
+                <span className="text-red-500">
+                  ⚠️ Please enter a number first (e.g., 308 or 308 cft)
+                </span>
+              )}
+            </div>
+          )}
         </div>
       ) : (
         <div className="flex flex-col gap-2 p-4 border rounded-xl bg-muted/10">
