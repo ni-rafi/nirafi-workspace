@@ -1,5 +1,10 @@
 import { describe, test, expect } from 'vitest';
-import { calculateSteelWeightInternal } from '../steel';
+import {
+  calculateSteelWeightInternal,
+  calculateStirrupsCountInternal,
+  calculateHookAdditionInternal,
+  calculateCrankAdditionInternal
+} from '../steel';
 
 describe('Steel Reinforcement Module', () => {
   test('should calculate correct rebar weight in kilograms', () => {
@@ -26,4 +31,59 @@ describe('Steel Reinforcement Module', () => {
     const result12 = calculateSteelWeightInternal(12, 10);
     expect(result12.weightKg).toBe(8.889);
   });
+
+  describe('Stirrup Count Calculation', () => {
+    test('should return correct number of stirrups for basic cases', () => {
+      // Clear span = 3.0m, Spacing = 0.15m -> (3.0 / 0.15) + 1 = 20 + 1 = 21
+      expect(calculateStirrupsCountInternal(3.0, 0.15)).toBe(21);
+
+      // Clear span = 2.0m, Spacing = 0.20m -> (2.0 / 0.20) + 1 = 10 + 1 = 11
+      expect(calculateStirrupsCountInternal(2.0, 0.20)).toBe(11);
+    });
+
+    test('should round down if clear span / spacing does not divide evenly', () => {
+      // Clear span = 3.05m, Spacing = 0.15m -> floor(20.33) + 1 = 21
+      expect(calculateStirrupsCountInternal(3.05, 0.15)).toBe(21);
+
+      // Clear span = 3.14m, Spacing = 0.15m -> floor(20.93) + 1 = 21
+      expect(calculateStirrupsCountInternal(3.14, 0.15)).toBe(21);
+    });
+
+    test('should return 0 for negative or zero inputs', () => {
+      expect(calculateStirrupsCountInternal(-3.0, 0.15)).toBe(0);
+      expect(calculateStirrupsCountInternal(3.0, -0.15)).toBe(0);
+      expect(calculateStirrupsCountInternal(0, 0.15)).toBe(0);
+    });
+  });
+
+  describe('Hook Addition Length', () => {
+    test('should calculate correct hook length addition in meters', () => {
+      // 16mm diameter, 2 hooks -> 2 * 9 * 16 = 288mm = 0.288m
+      expect(calculateHookAdditionInternal(16, 2)).toBe(0.288);
+
+      // 10mm diameter, 1 hook -> 1 * 9 * 10 = 90mm = 0.090m
+      expect(calculateHookAdditionInternal(10, 1)).toBe(0.09);
+    });
+
+    test('should return 0 for invalid inputs', () => {
+      expect(calculateHookAdditionInternal(-10, 2)).toBe(0);
+      expect(calculateHookAdditionInternal(10, -2)).toBe(0);
+    });
+  });
+
+  describe('Crank Addition Length', () => {
+    test('should calculate correct crank length addition in meters', () => {
+      // effective depth = 0.12m, 2 cranks -> 2 * 0.42 * 0.12 = 0.1008 -> 0.101m
+      expect(calculateCrankAdditionInternal(0.12, 2)).toBe(0.101);
+
+      // effective depth = 0.15m, 1 crank -> 1 * 0.42 * 0.15 = 0.063m
+      expect(calculateCrankAdditionInternal(0.15, 1)).toBe(0.063);
+    });
+
+    test('should return 0 for invalid inputs', () => {
+      expect(calculateCrankAdditionInternal(-0.12, 2)).toBe(0);
+      expect(calculateCrankAdditionInternal(0.12, 0)).toBe(0);
+    });
+  });
 });
+

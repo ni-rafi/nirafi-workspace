@@ -20,3 +20,51 @@ export function calculateSteelWeightInternal(
     weightKg: Math.round(totalWeight * 1000) / 1000,
   };
 }
+
+/**
+ * Calculates number of stirrups/ties.
+ * Formula: No. = (Clear Span / Spacing) + 1 (rounded down)
+ * inputs are in meters (SI base units).
+ */
+export function calculateStirrupsCountInternal(
+  clearSpanM: number,
+  spacingM: number
+): number {
+  if (clearSpanM <= 0 || spacingM <= 0) return 0;
+  // Guard against float precision issues (e.g. 3.0 / 0.15 = 20.000000000004)
+  const ratio = clearSpanM / spacingM;
+  return Math.floor(Math.round(ratio * 100000) / 100000) + 1;
+}
+
+/**
+ * Calculates additional length needed for hooks in meters.
+ * Standard addition: +9d per hook (semi-circular 180 bend)
+ * diameterMm is in millimeters (e.g. 10, 12, 16).
+ * hookCount is count (e.g. 2 hooks for a simple bar).
+ * returns addition in meters.
+ */
+export function calculateHookAdditionInternal(
+  diameterMm: number,
+  hookCount: number
+): number {
+  if (diameterMm <= 0 || hookCount <= 0) return 0;
+  const additionM = (hookCount * 9 * diameterMm) / 1000;
+  return Math.round(additionM * 1000) / 1000;
+}
+
+/**
+ * Calculates additional length needed for crank bends in meters.
+ * Standard addition: +0.42 * D per crank bend (45 degrees)
+ * effectiveDepthM is in meters.
+ * crankCount is count (e.g. 2 cranks for standard main bar).
+ * returns addition in meters.
+ */
+export function calculateCrankAdditionInternal(
+  effectiveDepthM: number,
+  crankCount: number
+): number {
+  if (effectiveDepthM <= 0 || crankCount <= 0) return 0;
+  const additionM = crankCount * 0.42 * effectiveDepthM;
+  return Math.round(additionM * 1000) / 1000;
+}
+

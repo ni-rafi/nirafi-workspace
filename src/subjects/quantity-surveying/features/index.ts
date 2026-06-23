@@ -8,6 +8,9 @@ export { ParapetWallDrawing } from './components/ParapetWallDrawing';
 export { JunctionDrawing } from './components/JunctionDrawing';
 export { ShoringDewateringDrawing } from './components/ShoringDewateringDrawing';
 export { EarthworkVolumeDrawing } from './components/EarthworkVolumeDrawing';
+export { HookCrankDrawing } from './components/HookCrankDrawing';
+export { StirrupCountingDrawing } from './components/StirrupCountingDrawing';
+export { WeightConversionDrawing } from './components/WeightConversionDrawing';
 export * from './calculators';
 
 
