@@ -146,6 +146,13 @@ export const getQuizVisibilityMode = (quizId: string): 'stealth' | 'placeholder'
       return module.metadata.quizzes[quizId];
     }
   }
+  for (const deck of Object.values(RESOLVED_DECKS)) {
+    for (const meta of Object.values(deck.slideMetadata)) {
+      if (meta.quizId === quizId && meta.quizVisibilityMode) {
+        return meta.quizVisibilityMode;
+      }
+    }
+  }
   return 'placeholder';
 };
 
