@@ -9,6 +9,7 @@ import { ThankYouLayout } from '@/shared/layouts/ThankYouLayout';
 import { TopicDividerLayout } from '@/shared/layouts/TopicDividerLayout';
 import { SlideSchema, PlaygroundPage } from '../../types/schema';
 import SchemaElementRenderer from './SchemaElementRenderer';
+import { ClickSyncedTabs, SlideParagraph } from '../elements';
 
 interface SlideSchemaEngineProps {
   slideNo: number;
@@ -97,6 +98,36 @@ export const SlideSchemaEngine: React.FC<SlideSchemaEngineProps> = ({
           leftWidth={config.props.leftWidth || '45%'}
           leftContent={<SchemaElementRenderer elem={config.props.leftElement} dbPages={dbPages} />}
           rightContent={<SchemaElementRenderer elem={config.props.rightElement} dbPages={dbPages} />}
+        />
+      );
+    }
+
+    case 'click-synced-tabs': {
+      const { props } = config;
+      const mappedItems = (props.items || []).map((item) => ({
+        title: item.title,
+        description: item.description,
+        badge: item.badge,
+        badgeColor: item.badgeColor,
+        rightContent: (
+          <div className="w-full h-full flex flex-col justify-start text-left select-text">
+            {typeof item.rightContent === 'string' ? (
+              <SlideParagraph>{item.rightContent}</SlideParagraph>
+            ) : (
+              <SchemaElementRenderer elem={item.rightContent} dbPages={dbPages} />
+            )}
+          </div>
+        )
+      }));
+
+      return (
+        <ClickSyncedTabs
+          title={props.title || config.metadata?.title || ''}
+          leftTitle={props.leftTitle}
+          rightTitle={props.rightTitle}
+          leftWidth={props.leftWidth}
+          bgVariant={props.bgVariant === 'cover' ? undefined : props.bgVariant}
+          items={mappedItems}
         />
       );
     }

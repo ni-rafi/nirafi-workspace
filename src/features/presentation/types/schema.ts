@@ -196,7 +196,7 @@ export interface SlideSchemaElement {
 
 export type TransitionType = 'morph' | 'slide' | 'fade' | 'zoom' | 'none';
 export type SlideBgVariant = 'default' | 'calculation' | 'gallery' | 'cover';
-export type SlideLayoutType = 'title' | 'twocolumn' | 'fullwidth' | 'thankyou' | 'title-v2' | 'topic-divider';
+export type SlideLayoutType = 'title' | 'twocolumn' | 'fullwidth' | 'thankyou' | 'title-v2' | 'topic-divider' | 'click-synced-tabs';
 
 export interface SlideSchema {
   id: number;
@@ -220,6 +220,15 @@ export interface SlideSchema {
     leftElement?: SlideSchemaElement;
     rightElement?: SlideSchemaElement;
     element?: SlideSchemaElement;
+    leftTitle?: string;
+    rightTitle?: string;
+    items?: Array<{
+      title: string;
+      description: string;
+      badge?: string;
+      badgeColor?: string;
+      rightContent: string | SlideSchemaElement;
+    }>;
     courseCode?: string;
     courseTitle?: string;
     yearSemester?: string;

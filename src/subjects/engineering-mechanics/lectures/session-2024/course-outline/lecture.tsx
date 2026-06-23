@@ -113,18 +113,47 @@ export const courseOutlineData: SlideSchema[] = [
   },
   {
     id: 3,
-    section: 'Outcomes & Contents',
-    metadata: { title: 'Outcomes & Chapters', type: 'Syllabus Breakdown' },
+    section: 'Course Outcomes',
+    metadata: { title: 'Course Outcomes', type: 'Syllabus Breakdown' },
     layout: 'twocolumn',
     props: {
-      title: 'Course Outcomes & Content Structure',
-      leftWidth: '28%',
-      leftElement: { type: 'highlightable-list', data: { outcomes, coCoveredIds: [1, 2, 3] } },
-      rightElement: { type: 'master-detail-panel', data: { contents, ccCoveredIds: [1, 2, 3, 4] } },
+      title: 'Course Outcomes (COs)',
+      leftWidth: '60%',
+      leftElement: {
+        type: 'highlightable-list',
+        data: { outcomes, coCoveredIds: [1, 2, 3], listTitle: 'By the end of this course, students will be able to:', highlightLabel: 'Active Goals' },
+      },
+      rightElement: {
+        type: 'rich-paragraph',
+        data: {
+          fragments: [
+            "These outcomes guide our learning journey, aligning specific engineering principles with practical problem-solving skillsets."
+          ],
+        },
+      },
     },
   },
   {
     id: 4,
+    section: 'Course Contents',
+    metadata: { title: 'Course Content Structure', type: 'Syllabus Breakdown' },
+    layout: 'click-synced-tabs',
+    props: {
+      title: 'Course Content Structure',
+      leftTitle: 'Syllabus Chapters (CCs)',
+      rightTitle: 'Chapter Detailed Overview',
+      leftWidth: '42%',
+      items: contents.map((c) => ({
+        title: c.title,
+        description: `Chapter ${c.id} outline and objectives.`,
+        badge: `CC ${c.id}`,
+        badgeColor: 'border-primary/30 text-primary bg-primary/5',
+        rightContent: c.description,
+      })),
+    },
+  },
+  {
+    id: 5,
     section: 'Schedule Part 1',
     metadata: { title: 'Schedule Weeks 1-7', type: 'Weekly Outline' },
     layout: 'fullwidth',
@@ -138,7 +167,7 @@ export const courseOutlineData: SlideSchema[] = [
     },
   },
   {
-    id: 5,
+    id: 6,
     section: 'Schedule Part 2',
     metadata: { title: 'Schedule Weeks 8-14', type: 'Weekly Outline' },
     layout: 'fullwidth',
@@ -152,7 +181,7 @@ export const courseOutlineData: SlideSchema[] = [
     },
   },
   {
-    id: 6,
+    id: 7,
     section: 'Legends',
     metadata: { title: 'Teaching & Assessment', type: 'Strategies index' },
     layout: 'fullwidth',
@@ -165,7 +194,7 @@ export const courseOutlineData: SlideSchema[] = [
     },
   },
   {
-    id: 7,
+    id: 8,
     section: 'References',
     metadata: { title: 'Reference Books', type: 'Course Materials' },
     layout: 'fullwidth',
@@ -178,7 +207,7 @@ export const courseOutlineData: SlideSchema[] = [
     },
   },
   {
-    id: 8,
+    id: 9,
     section: 'Wrap Up',
     metadata: { title: 'Conclusion', type: 'Thank You Slide' },
     layout: 'thankyou',

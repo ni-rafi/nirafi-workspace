@@ -107,16 +107,23 @@ export const MasterDetailPanel: React.FC<MasterDetailPanelProps> = ({
             }
 
             return (
-              <button
+              <div
                 key={item.id}
+                role="button"
+                tabIndex={0}
                 onClick={() => setActiveItemId(item.id)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    setActiveItemId(item.id);
+                  }
+                }}
                 className={`w-full flex items-center justify-between text-left p-2 rounded-md text-[10px] font-semibold border transition-all duration-300 cursor-pointer ${btnStyleClasses}`}
               >
                 <span className="truncate pr-1">
                   {item.id}. {item.title}
                 </span>
                 <ChevronRight className={`h-3 w-3 shrink-0 transition-transform ${isActive ? 'translate-x-0.5' : ''}`} />
-              </button>
+              </div>
             );
           })}
         </div>
