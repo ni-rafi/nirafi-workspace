@@ -1,5 +1,5 @@
 import { describe, test, expect } from 'vitest';
-import { calculateIPCBill } from '../budget';
+import { calculateIPCBill, calculateSteelCostWithMarkupInternal } from '../budget';
 
 describe('Project Budgeting & IPC Core Calculations', () => {
   test('should calculate correct values with zero progress', () => {
@@ -82,5 +82,32 @@ describe('Project Budgeting & IPC Core Calculations', () => {
     // Net value = 30% of 4,200,000 BDT = 1,260,000 BDT
     expect(res.totalNetValue).toBe(1260000);
     expect(res.netPayableCheck).toBe(1260000);
+  });
+});
+
+describe('Steel Cost with Markup Calculations', () => {
+  test('should calculate correct material and markup costs', () => {
+    // Weight = 1000 kg, Base rate = 120 BDT/kg, markup = 10%
+    // Material cost = 1000 * 120 = 120,000 BDT
+    // Markup cost = 120,000 * 0.1 = 12,000 BDT
+    // Total cost = 132,000 BDT
+    const result = calculateSteelCostWithMarkupInternal(1000, 120, 10);
+    expect(result.materialCost).toBe(120000);
+    expect(result.erectionMarkupCost).toBe(12000);
+    expect(result.totalCost).toBe(132000);
+  });
+
+  test('should default to 10% markup if not provided', () => {
+    const result = calculateSteelCostWithMarkupInternal(2000, 100);
+    expect(result.materialCost).toBe(200000);
+    expect(result.erectionMarkupCost).toBe(20000);
+    expect(result.totalCost).toBe(220000);
+  });
+
+  test('should return 0 for negative inputs', () => {
+    const result = calculateSteelCostWithMarkupInternal(-1000, 120, 10);
+    expect(result.materialCost).toBe(0);
+    expect(result.erectionMarkupCost).toBe(0);
+    expect(result.totalCost).toBe(0);
   });
 });

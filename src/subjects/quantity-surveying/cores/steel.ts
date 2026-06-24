@@ -168,5 +168,21 @@ export function calculateSlabBarsCountInternal(
   };
 }
 
+/**
+ * Calculates total weight of a ledger row.
+ * Formula: Weight = Quantity * Length * Unit Weight
+ * All inputs are numbers. Output rounded to 3 decimal places.
+ */
+export function calculateSteelLedgerRowInternal(
+  qty: number,
+  length: number,
+  unitWeight: number
+): number {
+  if (qty <= 0 || length <= 0 || unitWeight <= 0) return 0;
+  const total = qty * length * unitWeight;
+  return Math.round(total * 1000) / 1000;
+}
+
+
 
 

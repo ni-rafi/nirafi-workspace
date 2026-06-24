@@ -120,3 +120,36 @@ export function calculateIPCBill(
     netPayableCheck,
   };
 }
+
+export interface SteelCostResult {
+  materialCost: number;
+  erectionMarkupCost: number;
+  totalCost: number;
+}
+
+/**
+ * Calculates raw steel material cost and erection markup cost.
+ * totalWeightKg: total weight in kg (or lb, unit agnostic).
+ * baseRatePerKg: unit rate of the steel grade.
+ * erectionMarkupPercent: erection/welding cost markup (default 10%).
+ */
+export function calculateSteelCostWithMarkupInternal(
+  totalWeightKg: number,
+  baseRatePerKg: number,
+  erectionMarkupPercent: number = 10
+): SteelCostResult {
+  const weight = Math.max(0, totalWeightKg);
+  const rate = Math.max(0, baseRatePerKg);
+  const markupPercent = Math.max(0, erectionMarkupPercent);
+
+  const materialCost = weight * rate;
+  const erectionMarkupCost = materialCost * (markupPercent / 100);
+  const totalCost = materialCost + erectionMarkupCost;
+
+  return {
+    materialCost: round3(materialCost),
+    erectionMarkupCost: round3(erectionMarkupCost),
+    totalCost: round3(totalCost),
+  };
+}
+

@@ -26,6 +26,8 @@ export { RoadwaySectionDrawing } from './components/RoadwaySectionDrawing';
 export { RoadPavementDrawing } from './components/RoadPavementDrawing';
 export { RetainingWallDrawing } from './components/RetainingWallDrawing';
 export { CulvertDrawing } from './components/CulvertDrawing';
+export { TrussTypologyDrawing } from './components/TrussTypologyDrawing';
+export { SteelLedgerTrussDrawing } from './components/SteelLedgerTrussDrawing';
 export * from './calculators';
 
 

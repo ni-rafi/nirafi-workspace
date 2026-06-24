@@ -7,7 +7,8 @@ import {
   calculatePlateWeightInternal,
   calculateRafterLengthInternal,
   calculatePurlinsCountInternal,
-  calculateSlabBarsCountInternal
+  calculateSlabBarsCountInternal,
+  calculateSteelLedgerRowInternal
 } from '../steel';
 
 describe('Steel Reinforcement Module', () => {
@@ -153,6 +154,20 @@ describe('Steel Reinforcement Module', () => {
       expect(result.straightCount).toBe(0);
       expect(result.crankedCount).toBe(0);
       expect(result.extraTopCount).toBe(0);
+    });
+  });
+
+  describe('Steel Calculation Ledger Row', () => {
+    test('should calculate correct total weight for a ledger row', () => {
+      // 12 Qty * 7.453 ft * 5.40 lb/ft = 482.9544 -> 482.954
+      expect(calculateSteelLedgerRowInternal(12, 7.453, 5.40)).toBe(482.954);
+      // 5 Qty * 25 ft * 9.80 lb/ft = 1225
+      expect(calculateSteelLedgerRowInternal(5, 25, 9.80)).toBe(1225);
+    });
+
+    test('should return 0 for negative or zero inputs', () => {
+      expect(calculateSteelLedgerRowInternal(-12, 7.453, 5.40)).toBe(0);
+      expect(calculateSteelLedgerRowInternal(12, 0, 5.40)).toBe(0);
     });
   });
 });
