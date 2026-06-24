@@ -64,3 +64,43 @@ export function calculateConcreteMixIngredients(
   };
 }
 
+/**
+ * Calculates net column height by deducting beam depth.
+ */
+export function calculateNetColumnHeight(
+  floorHeight: number,
+  beamDepth: number
+): number {
+  const fH = floorHeight < 0 ? 0 : floorHeight;
+  const bD = beamDepth < 0 ? 0 : beamDepth;
+  return Math.round(Math.max(0, fH - bD) * 1000) / 1000;
+}
+
+/**
+ * Calculates concrete column volume.
+ */
+export function calculateColumnVolume(
+  width: number,
+  length: number,
+  floorHeight: number,
+  beamDepth: number
+): { netHeight: number; volume: number } {
+  const w = width < 0 ? 0 : width;
+  const l = length < 0 ? 0 : length;
+  const netHeight = calculateNetColumnHeight(floorHeight, beamDepth);
+  const volume = Math.round(w * l * netHeight * 1000) / 1000;
+  return { netHeight, volume };
+}
+
+/**
+ * Calculates clear span of a beam by deducting column support width from grid center-to-center span.
+ */
+export function calculateBeamClearSpan(
+  gridSpan: number,
+  columnSupportWidth: number
+): number {
+  const gS = gridSpan < 0 ? 0 : gridSpan;
+  const cW = columnSupportWidth < 0 ? 0 : columnSupportWidth;
+  return Math.round(Math.max(0, gS - cW) * 1000) / 1000;
+}
+
