@@ -2,7 +2,7 @@ import React from 'react';
 import { TopicDividerLayout } from '@/shared/layouts/TopicDividerLayout';
 import { FullWidthLayout } from '@/shared/layouts/FullWidthLayout';
 import { TwoColumnLayout } from '@/shared/layouts/TwoColumnLayout';
-import { ClickHighlight, SlideGrid, InteractiveCard } from '@/features/presentation/components/elements';
+import { ClickHighlight, SlideGrid, InteractiveCard, SlideParagraph } from '@/features/presentation/components/elements';
 
 // Slide 14: Title Page
 export const Slide14: React.FC = () => (
@@ -79,6 +79,40 @@ export const Slide16: React.FC = () => (
       </InteractiveCard>
     }
   />
+);
+
+// Slide 16B: Expanded Types of Estimates
+export const Slide16B: React.FC = () => (
+  <FullWidthLayout title="Expanded Classifications of Estimates" bgVariant="default">
+    <div className="flex flex-col gap-3 select-text">
+      <SlideParagraph variant="plain" className="text-xs md:text-sm text-muted-foreground select-none">
+        Estimates expand as design details lock or structural revisions are introduced in the project timeline.
+      </SlideParagraph>
+
+      <SlideGrid cols={2} gap="md">
+        <InteractiveCard title="Quantity Estimate" variant="default">
+          <p className="text-xs text-muted-foreground leading-relaxed">
+            A complete, comprehensive list of quantities for all items of work required to complete the project. It provides the physical material quantities without applying unit prices or rates.
+          </p>
+        </InteractiveCard>
+        <InteractiveCard title="Revised Estimate" variant="default">
+          <p className="text-xs text-muted-foreground leading-relaxed">
+            Prepared when quantities or rates deviate from the original, but <ClickHighlight at={1} variant="paint">no material changes of a structural nature</ClickHighlight> are made to the approved design.
+          </p>
+        </InteractiveCard>
+        <InteractiveCard title="Supplementary Estimate" variant="default">
+          <p className="text-xs text-muted-foreground leading-relaxed">
+            Prepared to incorporate additional items or <ClickHighlight at={2} variant="paint">works of a structural nature</ClickHighlight> that become necessary while the project is active.
+          </p>
+        </InteractiveCard>
+        <InteractiveCard title="Complete Estimate" variant="default">
+          <p className="text-xs text-muted-foreground leading-relaxed">
+            Encompasses the core detailed construction cost plus <ClickHighlight at={3} variant="paint">auxiliary expenses</ClickHighlight> (e.g. land acquisition, legal fees, surveying, and engineering consultancies).
+          </p>
+        </InteractiveCard>
+      </SlideGrid>
+    </div>
+  </FullWidthLayout>
 );
 
 // Slide 17: Study of Drawings: The Surveyor's Protocol

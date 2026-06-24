@@ -1,6 +1,13 @@
 export type * from './IQSEngine';
 export { QSEngine } from './qsService';
-export { calculateConcreteVolumeInternal, calculateConcreteMixIngredients, calculateNetColumnHeight, calculateColumnVolume, calculateBeamClearSpan } from './concrete';
+export {
+  calculateConcreteVolumeInternal,
+  calculateConcreteMixIngredients,
+  calculateNetColumnHeight,
+  calculateColumnVolume,
+  calculateBeamClearSpan,
+  calculateStaircaseConcreteVolumeInternal
+} from './concrete';
 export { calculateBrickworkInternal, calculateNetWallVolume, calculateFinishingAreas, calculateDpcArea, calculateNetWallHeight } from './brickwork';
 export {
   calculateSteelWeightInternal,
@@ -10,7 +17,8 @@ export {
   calculatePlateWeightInternal,
   calculateRafterLengthInternal,
   calculatePurlinsCountInternal,
-  calculateEffectiveDepth
+  calculateEffectiveDepth,
+  calculateSlabBarsCountInternal
 } from './steel';
 export {
   calculatePipeLengthWithAllowanceInternal,

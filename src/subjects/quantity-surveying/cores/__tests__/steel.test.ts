@@ -6,7 +6,8 @@ import {
   calculateCrankAdditionInternal,
   calculatePlateWeightInternal,
   calculateRafterLengthInternal,
-  calculatePurlinsCountInternal
+  calculatePurlinsCountInternal,
+  calculateSlabBarsCountInternal
 } from '../steel';
 
 describe('Steel Reinforcement Module', () => {
@@ -131,6 +132,27 @@ describe('Steel Reinforcement Module', () => {
     test('should return 0 for invalid inputs', () => {
       expect(calculatePurlinsCountInternal(-6.5, 1.3)).toBe(0);
       expect(calculatePurlinsCountInternal(6.5, -1.3)).toBe(0);
+    });
+  });
+
+  describe('Slab Bar Count Calculation', () => {
+    test('should calculate correct number of straight, cranked, and extra top bars', () => {
+      // Span = 5.0m, Cover = 0.05m, Spacing = 0.15m
+      // Net span = 5.0 - 2 * 0.05 = 4.90m
+      // Ratio = 4.9 / 0.15 = 32.6667 -> ceil to 33 -> 33 + 1 = 34 straight bars.
+      // Cranked bars = 34 - 1 = 33.
+      // Extra top bars = (33 - 1) * 2 = 64.
+      const result = calculateSlabBarsCountInternal(5.0, 0.05, 0.15);
+      expect(result.straightCount).toBe(34);
+      expect(result.crankedCount).toBe(33);
+      expect(result.extraTopCount).toBe(64);
+    });
+
+    test('should return all zeros for invalid or negative inputs', () => {
+      const result = calculateSlabBarsCountInternal(-5.0, 0.05, 0.15);
+      expect(result.straightCount).toBe(0);
+      expect(result.crankedCount).toBe(0);
+      expect(result.extraTopCount).toBe(0);
     });
   });
 });

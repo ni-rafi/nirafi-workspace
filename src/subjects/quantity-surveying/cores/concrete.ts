@@ -104,3 +104,58 @@ export function calculateBeamClearSpan(
   return Math.round(Math.max(0, gS - cW) * 1000) / 1000;
 }
 
+export interface StaircaseConcreteResult {
+  waistVolume: number;
+  stepsVolume: number;
+  landingVolume: number;
+  totalVolume: number;
+}
+
+/**
+ * Calculates concrete volume for a standard RCC Staircase.
+ * Inputs (SI base units: meters):
+ * waistLength: Length of the sloping waist slab.
+ * waistWidth: Width of the staircase flight.
+ * waistThickness: Structural thickness of the waist slab.
+ * stepCount: Total number of steps in this flight.
+ * tread: Horizontal tread dimension of a step.
+ * riser: Vertical riser dimension of a step.
+ * landingLength: Length of the landing.
+ * landingWidth: Width of the landing.
+ * landingThickness: Structural thickness of the landing.
+ */
+export function calculateStaircaseConcreteVolumeInternal(
+  waistLength: number,
+  waistWidth: number,
+  waistThickness: number,
+  stepCount: number,
+  tread: number,
+  riser: number,
+  landingLength: number,
+  landingWidth: number,
+  landingThickness: number
+): StaircaseConcreteResult {
+  const wl = Math.max(0, waistLength);
+  const ww = Math.max(0, waistWidth);
+  const wt = Math.max(0, waistThickness);
+  const sc = Math.max(0, stepCount);
+  const tr = Math.max(0, tread);
+  const rs = Math.max(0, riser);
+  const ll = Math.max(0, landingLength);
+  const lw = Math.max(0, landingWidth);
+  const lt = Math.max(0, landingThickness);
+
+  const waistVolume = wl * ww * wt;
+  const stepsVolume = sc * ww * (0.5 * tr * rs);
+  const landingVolume = ll * lw * lt;
+  const totalVolume = waistVolume + stepsVolume + landingVolume;
+
+  return {
+    waistVolume: Math.round(waistVolume * 1000) / 1000,
+    stepsVolume: Math.round(stepsVolume * 1000) / 1000,
+    landingVolume: Math.round(landingVolume * 1000) / 1000,
+    totalVolume: Math.round(totalVolume * 1000) / 1000,
+  };
+}
+
+

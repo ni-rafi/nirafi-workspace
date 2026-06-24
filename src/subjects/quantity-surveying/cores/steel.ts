@@ -128,4 +128,45 @@ export function calculateEffectiveDepth(
   return Math.round(Math.max(0, effDepth) * 1000) / 1000;
 }
 
+export interface SlabBarsResult {
+  straightCount: number;
+  crankedCount: number;
+  extraTopCount: number;
+}
+
+/**
+ * Calculates numbers of straight, cranked, and extra top bars in a slab span.
+ * Straight Bars: No. = [(Total Length - 2 * Clear Cover) / Spacing] + 1 (always round up)
+ * Cranked Bars: No. = Straight Bars - 1
+ * Extra Top Bars (One Side): No. = (Cranked Bars - 1) * 2
+ * Inputs: spanLengthM (meters), clearCoverM (meters), spacingM (meters)
+ */
+export function calculateSlabBarsCountInternal(
+  spanLengthM: number,
+  clearCoverM: number,
+  spacingM: number
+): SlabBarsResult {
+  if (spanLengthM <= 0 || spacingM <= 0) {
+    return { straightCount: 0, crankedCount: 0, extraTopCount: 0 };
+  }
+
+  const netSpan = spanLengthM - 2 * clearCoverM;
+  if (netSpan <= 0) {
+    return { straightCount: 0, crankedCount: 0, extraTopCount: 0 };
+  }
+
+  const ratio = netSpan / spacingM;
+  const adjustedRatio = Math.round(ratio * 100000) / 100000;
+  const straightCount = Math.ceil(adjustedRatio) + 1;
+  const crankedCount = Math.max(0, straightCount - 1);
+  const extraTopCount = crankedCount > 1 ? (crankedCount - 1) * 2 : 0;
+
+  return {
+    straightCount,
+    crankedCount,
+    extraTopCount,
+  };
+}
+
+
 

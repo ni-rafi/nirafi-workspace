@@ -1,5 +1,9 @@
 import { describe, test, expect } from 'vitest';
-import { calculateConcreteVolumeInternal, calculateConcreteMixIngredients } from '../concrete';
+import {
+  calculateConcreteVolumeInternal,
+  calculateConcreteMixIngredients,
+  calculateStaircaseConcreteVolumeInternal
+} from '../concrete';
 
 describe('Concrete Volumetric Module', () => {
   test('should calculate volume with default wastage of 5%', () => {
@@ -63,6 +67,28 @@ describe('Concrete Mix Ingredients Module', () => {
     expect(result.cementVolume).toBe(22);
     expect(result.sandVolume).toBe(44);
     expect(result.stoneVolume).toBe(88);
+  });
+});
+
+describe('Staircase Concrete Volume Module', () => {
+  test('should calculate correct volumes for waist slab, steps, and landing', () => {
+    // waist: 3.5m length, 1.2m width, 0.15m thick -> 3.5 * 1.2 * 0.15 = 0.63 m³
+    // steps: 10 steps, 1.2m width, tread = 0.25m, riser = 0.15m -> 10 * 1.2 * (0.5 * 0.25 * 0.15) = 12 * 0.01875 = 0.225 m³
+    // landing: 1.5m length, 1.2m width, 0.15m thick -> 1.5 * 1.2 * 0.15 = 0.27 m³
+    // total: 0.63 + 0.225 + 0.27 = 1.125 m³
+    const result = calculateStaircaseConcreteVolumeInternal(3.5, 1.2, 0.15, 10, 0.25, 0.15, 1.5, 1.2, 0.15);
+    expect(result.waistVolume).toBe(0.63);
+    expect(result.stepsVolume).toBe(0.225);
+    expect(result.landingVolume).toBe(0.27);
+    expect(result.totalVolume).toBe(1.125);
+  });
+
+  test('should return 0 volumes for negative inputs', () => {
+    const result = calculateStaircaseConcreteVolumeInternal(-3.5, 1.2, 0.15, 10, 0.25, 0.15, 1.5, 1.2, 0.15);
+    expect(result.waistVolume).toBe(0);
+    expect(result.stepsVolume).toBe(0.225);
+    expect(result.landingVolume).toBe(0.27);
+    expect(result.totalVolume).toBe(0.495);
   });
 });
 

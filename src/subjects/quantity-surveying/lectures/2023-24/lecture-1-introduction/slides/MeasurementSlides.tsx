@@ -1,7 +1,7 @@
 import React from 'react';
 import { TopicDividerLayout } from '@/shared/layouts/TopicDividerLayout';
 import { FullWidthLayout } from '@/shared/layouts/FullWidthLayout';
-import { ClickReveal, SlideBullet, ClickSyncedTabs, type ClickSyncedTabItem, SlideGrid, InteractiveCard, SlideParagraph, DimensionPaperGrid } from '@/features/presentation/components/elements';
+import { ClickReveal, SlideBullet, ClickSyncedTabs, type ClickSyncedTabItem, SlideGrid, InteractiveCard, SlideParagraph, DimensionPaperGrid, ClickHighlight } from '@/features/presentation/components/elements';
 import { Box, Square, Ruler, Hash } from 'lucide-react';
 
 // Slide 23: Title Page
@@ -202,5 +202,34 @@ export const Slide25: React.FC = () => {
     />
   );
 };
+
+// Slide 25B: Methods of Taking Out Quantities
+export const Slide25B: React.FC = () => (
+  <FullWidthLayout title="Methods of Taking Out Quantities" bgVariant="default">
+    <div className="flex flex-col gap-3 select-text">
+      <SlideParagraph variant="plain" className="text-xs md:text-sm text-muted-foreground select-none">
+        There are three primary methodologies utilized to extract work item dimensions from structural floor plans.
+      </SlideParagraph>
+
+      <SlideGrid cols={3} gap="md">
+        <InteractiveCard title="Long Wall - Short Wall Method" variant="default">
+          <p className="text-xs text-muted-foreground leading-relaxed">
+            The walls running along the length of a room are "long walls" (measured out-to-out by adding half the wall's breadth at each end to its center line length). The perpendicular walls are "short walls" (measured in-to-in by deducting half the breadth at each end).
+          </p>
+        </InteractiveCard>
+        <InteractiveCard title="Center Line Method" variant="default">
+          <p className="text-xs text-muted-foreground leading-relaxed">
+            The total center line length of all walls is calculated and multiplied by breadth and depth. For junctions (like cross walls), the center line length is reduced by <ClickHighlight at={1} variant="bold">half the breadth</ClickHighlight> for each junction. Highly accurate and quick for uniform cross-sections.
+          </p>
+        </InteractiveCard>
+        <InteractiveCard title="Partly Center Line and Cross Wall" variant="default">
+          <p className="text-xs text-muted-foreground leading-relaxed">
+            Applies the center line method to external walls and the long wall-short wall method to internal cross walls. Ideal for buildings with different wall thicknesses and varying foundation levels.
+          </p>
+        </InteractiveCard>
+      </SlideGrid>
+    </div>
+  </FullWidthLayout>
+);
 
 

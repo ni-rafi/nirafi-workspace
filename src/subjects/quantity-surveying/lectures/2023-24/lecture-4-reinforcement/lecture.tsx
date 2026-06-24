@@ -4,6 +4,8 @@ import { SlideProps } from '@/features/presentation/components/slides/SlideRende
 import { Slide1, Slide1B, Slide2, Slide3, Slide3B, Slide3C } from './slides/OverviewSlides';
 import { Slide4, Slide5, Slide5B, Slide5C, Slide6 } from './slides/MechanicsSlides';
 import { Slide7, Slide8, Slide8B, Slide8C, Slide9 } from './slides/DetailingSlides';
+import { Slide16B, Slide16C, Slide16D, Slide16E } from './slides/SlabSlides';
+import { Slide16F, Slide16G, Slide16H } from './slides/StaircaseSlides';
 import { Slide10, Slide11, Slide11B, Slide11C, Slide12 } from './slides/TonnageSlides';
 
 import { LectureThankYou } from '@/shared/layouts/LectureThankYou';
@@ -25,12 +27,19 @@ export const slides: Record<number, React.ComponentType<SlideProps>> = {
   14: Slide8B,
   15: Slide8C,
   16: Slide9,
-  17: Slide10,
-  18: Slide11,
-  19: Slide11B,
-  20: Slide11C,
-  21: Slide12,
-  22: (props) => <LectureThankYou {...props} />,
+  17: Slide16B,
+  18: Slide16C,
+  19: Slide16D,
+  20: Slide16E,
+  21: Slide16F,
+  22: Slide16G,
+  23: Slide16H,
+  24: Slide10,
+  25: Slide11,
+  26: Slide11B,
+  27: Slide11C,
+  28: Slide12,
+  29: (props) => <LectureThankYou {...props} />,
 };
 
 export const slideMetadata: Record<
@@ -53,10 +62,17 @@ export const slideMetadata: Record<
   14: { title: 'Stirrup Spacing Sandbox', type: 'Live Sandbox', section: 'Element Detailing' },
   15: { title: 'Stirrups Count Quiz', type: 'Concept Details', section: 'Element Detailing' },
   16: { title: 'Floor Slab Detailing', type: 'Concept Details', section: 'Element Detailing' },
-  17: { title: 'Tonnage & BoQ Integration', type: 'Cover Slide', section: 'Tonnage & BoQ' },
-  18: { title: 'Rebar Weight Conversion', type: 'Concept Details', section: 'Tonnage & BoQ' },
-  19: { title: 'Weight Converter Sandbox', type: 'Live Sandbox', section: 'Tonnage & BoQ' },
-  20: { title: 'Weight Tonnage Quiz', type: 'Concept Details', section: 'Tonnage & BoQ' },
-  21: { title: 'Allowances & Lab Report 4', type: 'Concept Details', section: 'Tonnage & BoQ' },
-  22: { title: 'Conclusion', type: 'Thank You Slide', section: 'Conclusion' },
+  17: { title: 'Slab Reinforcement Rules', type: 'Concept Details', section: 'Element Detailing' },
+  18: { title: 'Slab Bar Counting Math', type: 'Concept Details', section: 'Element Detailing' },
+  19: { title: 'Slab Bar Spacing Sandbox', type: 'Live Sandbox', section: 'Element Detailing' },
+  20: { title: 'Slab Hooks & Cranks Geometry', type: 'Concept Details', section: 'Element Detailing' },
+  21: { title: 'Staircase Concrete Volume', type: 'Concept Details', section: 'Element Detailing' },
+  22: { title: 'Staircase Volume Sandbox', type: 'Live Sandbox', section: 'Element Detailing' },
+  23: { title: 'Staircase Reinforcement Detailing', type: 'Concept Details', section: 'Element Detailing' },
+  24: { title: 'Tonnage & BoQ Integration', type: 'Cover Slide', section: 'Tonnage & BoQ' },
+  25: { title: 'Rebar Weight Conversion', type: 'Concept Details', section: 'Tonnage & BoQ' },
+  26: { title: 'Weight Converter Sandbox', type: 'Live Sandbox', section: 'Tonnage & BoQ' },
+  27: { title: 'Weight Tonnage Quiz', type: 'Concept Details', section: 'Tonnage & BoQ' },
+  28: { title: 'Allowances & Lab Report 4', type: 'Concept Details', section: 'Tonnage & BoQ' },
+  29: { title: 'Conclusion', type: 'Thank You Slide', section: 'Conclusion' },
 };

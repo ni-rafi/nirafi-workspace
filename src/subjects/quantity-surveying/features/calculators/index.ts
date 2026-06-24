@@ -19,4 +19,6 @@ export { StirrupCountingSandbox } from './StirrupCountingSandbox';
 export { ProgressIPCSandbox } from './ProgressIPCSandbox';
 export { HooksCranksSandbox } from './HooksCranksSandbox';
 export { TonnageSandbox } from './TonnageSandbox';
+export { SlabBarCountingSandbox } from './SlabBarCountingSandbox';
+export { StaircaseVolumeSandbox } from './StaircaseVolumeSandbox';
 
