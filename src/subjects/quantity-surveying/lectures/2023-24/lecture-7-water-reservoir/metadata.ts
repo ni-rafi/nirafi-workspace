@@ -4,7 +4,7 @@ export const metadata: Lecture = {
   id: 'water-reservoir',
   title: 'Estimation of Water Reservoir and Septic Tank',
   description: 'Deep volumetric excavation, structural concrete containment shells, internal plastering/waterproofing, baffle walls, sanitary fittings, and soak pit void ratio filter parameters.',
-  slideNo: 1,
+  slideNo: 23,
   durationMins: 45,
   locked: false,
   tags: ['water-reservoir', 'septic-tank', 'soak-pit', 'void-ratio', 'waterproofing'],

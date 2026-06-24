@@ -29,6 +29,8 @@ export { CulvertDrawing } from './components/CulvertDrawing';
 export { TrussTypologyDrawing } from './components/TrussTypologyDrawing';
 export { SteelLedgerTrussDrawing } from './components/SteelLedgerTrussDrawing';
 export { PipeFittingsDrawing } from './components/PipeFittingsDrawing';
+export { ReservoirBBSDrawing } from './components/ReservoirBBSDrawing';
+export { InspectionPitDrawing } from './components/InspectionPitDrawing';
 export * from './calculators';
 
 

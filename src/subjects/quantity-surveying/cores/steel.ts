@@ -183,6 +183,20 @@ export function calculateSteelLedgerRowInternal(
   return Math.round(total * 1000) / 1000;
 }
 
+/**
+ * Calculates clear reinforcement bar length (with covers and hooks).
+ */
+export function calculateBarLengthInternal(
+  clearSpanM: number,
+  clearCoverM: number,
+  hookAdditionM: number
+): number {
+  if (clearSpanM <= 0) return 0;
+  const len = clearSpanM - 2 * clearCoverM + hookAdditionM;
+  return Math.round(Math.max(0, len) * 1000) / 1000;
+}
+
+
 
 
 

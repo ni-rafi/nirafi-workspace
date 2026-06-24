@@ -167,4 +167,48 @@ export function calculatePlumbingBudgetInternal(
   return round3(baseCost * (percent / 100));
 }
 
+export interface SepticCostResult {
+  earthworkCost: number;
+  concreteCost: number;
+  brickworkCost: number;
+  plasterCost: number;
+  rcCost: number;
+  totalCost: number;
+}
+
+/**
+ * Calculates itemized costs and grand total for a septic tank BoQ.
+ */
+export function calculateSepticTankCostInternal(
+  earthworkQty: number,
+  concreteQty: number,
+  brickworkQty: number,
+  plasterQty: number,
+  rcQty: number,
+  rates: {
+    earthwork: number;
+    concrete: number;
+    brickwork: number;
+    plaster: number;
+    rc: number;
+  }
+): SepticCostResult {
+  const earthworkCost = Math.max(0, earthworkQty) * Math.max(0, rates.earthwork);
+  const concreteCost = Math.max(0, concreteQty) * Math.max(0, rates.concrete);
+  const brickworkCost = Math.max(0, brickworkQty) * Math.max(0, rates.brickwork);
+  const plasterCost = Math.max(0, plasterQty) * Math.max(0, rates.plaster);
+  const rcCost = Math.max(0, rcQty) * Math.max(0, rates.rc);
+  const total = earthworkCost + concreteCost + brickworkCost + plasterCost + rcCost;
+
+  return {
+    earthworkCost: round3(earthworkCost),
+    concreteCost: round3(concreteCost),
+    brickworkCost: round3(brickworkCost),
+    plasterCost: round3(plasterCost),
+    rcCost: round3(rcCost),
+    totalCost: round3(total)
+  };
+}
+
+
 

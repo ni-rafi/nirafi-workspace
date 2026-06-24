@@ -8,7 +8,8 @@ import {
   calculateRafterLengthInternal,
   calculatePurlinsCountInternal,
   calculateSlabBarsCountInternal,
-  calculateSteelLedgerRowInternal
+  calculateSteelLedgerRowInternal,
+  calculateBarLengthInternal
 } from '../steel';
 
 describe('Steel Reinforcement Module', () => {
@@ -168,6 +169,24 @@ describe('Steel Reinforcement Module', () => {
     test('should return 0 for negative or zero inputs', () => {
       expect(calculateSteelLedgerRowInternal(-12, 7.453, 5.40)).toBe(0);
       expect(calculateSteelLedgerRowInternal(12, 0, 5.40)).toBe(0);
+    });
+  });
+
+  describe('Clear Reinforcement Bar Length', () => {
+    test('should calculate correct clear length with hooks', () => {
+      // span = 5.0m, cover = 0.05m, hooks = 0.18m
+      // 5.0 - 2*0.05 + 0.18 = 4.90 + 0.18 = 5.08
+      expect(calculateBarLengthInternal(5.0, 0.05, 0.18)).toBe(5.08);
+    });
+
+    test('should return 0 for invalid or negative spans', () => {
+      expect(calculateBarLengthInternal(-5.0, 0.05, 0.18)).toBe(0);
+      expect(calculateBarLengthInternal(0, 0.05, 0.18)).toBe(0);
+    });
+
+    test('should handle zero cover or zero hooks correctly', () => {
+      expect(calculateBarLengthInternal(6.0, 0, 0.20)).toBe(6.20);
+      expect(calculateBarLengthInternal(4.5, 0.04, 0)).toBe(4.42);
     });
   });
 });

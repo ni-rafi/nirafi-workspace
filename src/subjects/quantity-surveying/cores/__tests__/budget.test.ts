@@ -1,5 +1,5 @@
 import { describe, test, expect } from 'vitest';
-import { calculateIPCBill, calculateSteelCostWithMarkupInternal, calculatePlumbingBudgetInternal } from '../budget';
+import { calculateIPCBill, calculateSteelCostWithMarkupInternal, calculatePlumbingBudgetInternal, calculateSepticTankCostInternal } from '../budget';
 
 describe('Project Budgeting & IPC Core Calculations', () => {
   test('should calculate correct values with zero progress', () => {
@@ -131,5 +131,61 @@ describe('Plumbing Preliminary Budget Calculations', () => {
     expect(calculatePlumbingBudgetInternal(-500000)).toBe(0);
     expect(calculatePlumbingBudgetInternal(1000000, -2.5)).toBe(0);
     expect(calculatePlumbingBudgetInternal(0)).toBe(0);
+  });
+});
+
+describe('Septic Tank Cost calculations', () => {
+  test('should calculate correct itemized costs and grand total', () => {
+    const qty = {
+      earthwork: 46.2,
+      concrete: 2.0,
+      brickwork: 4.2,
+      plaster: 24.5,
+      rc: 4.2
+    };
+    const rates = {
+      earthwork: 150,
+      concrete: 4500,
+      brickwork: 5200,
+      plaster: 220,
+      rc: 9800
+    };
+
+    const res = calculateSepticTankCostInternal(
+      qty.earthwork,
+      qty.concrete,
+      qty.brickwork,
+      qty.plaster,
+      qty.rc,
+      rates
+    );
+
+    expect(res.earthworkCost).toBe(46.2 * 150); // 6930
+    expect(res.concreteCost).toBe(2 * 4500); // 9000
+    expect(res.brickworkCost).toBe(4.2 * 5200); // 21840
+    expect(res.plasterCost).toBe(24.5 * 220); // 5390
+    expect(res.rcCost).toBe(4.2 * 9800); // 41160
+    expect(res.totalCost).toBe(6930 + 9000 + 21840 + 5390 + 41160); // 84320
+  });
+
+  test('should handle negative quantities or rates by treating them as 0', () => {
+    const res = calculateSepticTankCostInternal(
+      -46.2,
+      2.0,
+      4.2,
+      24.5,
+      4.2,
+      {
+        earthwork: 150,
+        concrete: -4500,
+        brickwork: 5200,
+        plaster: 220,
+        rc: 9800
+      }
+    );
+
+    expect(res.earthworkCost).toBe(0);
+    expect(res.concreteCost).toBe(0);
+    expect(res.totalCost).toBe(21840 + 5390 + 41160);
   });
 });
