@@ -1,91 +1,301 @@
 import React from 'react';
 import { TwoColumnLayout } from '@/shared/layouts/TwoColumnLayout';
+import { FullWidthLayout } from '@/shared/layouts/FullWidthLayout';
 import { 
   SlideContent, 
   ClickHighlight, 
   LatexFormula, 
   InteractiveCard, 
   ParameterSlider, 
-  CalculationOutput
+  CalculationOutput,
+  SlideTable,
+  SlideParagraph
 } from '@/features/presentation/components/elements';
 import { useUrlSyncedState } from '@/features/presentation/hooks/useUrlSyncedState';
 
 /**
- * Slide 10: Stepped Masonry Footings
+ * Slide 10: Stepped Masonry Footings (Anatomy)
  */
-export const Slide10: React.FC = () => {
-  const [activeStep, setActiveStep] = useUrlSyncedState<number>('masonry_active_step', 1);
-  const offsetSteps = [
-    { id: 1, name: 'CC Bed', width: 'w-48 bg-muted border-primary/20', text: 'CC Base Bed: 900mm Width' },
-    { id: 2, name: 'Step 1', width: 'w-36 bg-primary/20 border-primary/40', text: 'Step 1 Brickwork: 375mm Width' },
-    { id: 3, name: 'Step 2', width: 'w-24 bg-primary/30 border-primary/50', text: 'Step 2 Brickwork: 250mm Width' },
+export const Slide10_Anatomy: React.FC = () => {
+  const [activeStep, setActiveStep] = useUrlSyncedState<number>('stepped_anatomy_step', 1);
+
+  const stepsInfo = [
+    { id: 1, name: 'CC Bedding (Base)', dim: '900mm Width × 75mm Depth', desc: 'Distributes wall loads to natural soil. Typically 900mm (36") wide.' },
+    { id: 2, name: '1st Step (Brickwork)', dim: '500mm Width × 150mm Height', desc: 'First load distribution offset. Step width of 500mm (20").' },
+    { id: 3, name: '2nd Step (Brickwork)', dim: '375mm Width × 150mm Height', desc: 'Second masonry step reduction. Step width of 375mm (15").' },
+    { id: 4, name: '3rd Step / Plinth Wall', dim: '250mm Width × Variable Height', desc: 'Topmost plinth wall extending to ground level. Width of 250mm (10").' }
   ];
 
   return (
     <TwoColumnLayout
-      title="Stepped Masonry Foundation"
+      title="Stepped Masonry Foundation Profile"
       bgVariant="default"
       leftWidth="50%"
       leftContent={
-        <SlideContent
-          blocks={[
-            {
-              type: 'paragraph',
-              text: (
-                <span>
-                  Brick or blockwork foundations step down to distribute wall loads to the wider concrete base.
-                </span>
-              ),
-            },
-            {
-              type: 'bullet',
-              text: (
-                <span>
-                  <strong>Offset Offsets:</strong> Standard brick offsets are typically 125mm (5") or 62.5mm (2.5") per step.
-                </span>
-              ),
-              revealAt: 0,
-            },
-            {
-              type: 'bullet',
-              text: (
-                <span>
-                  <strong>Averaging Breadths:</strong> When using centerline methods, each step size changes the centerline deduction. Calculate each step size independently.
-                </span>
-              ),
-              revealAt: 1,
-            },
-          ]}
-        />
+        <div className="space-y-4 flex flex-col justify-between h-full">
+          <SlideContent
+            blocks={[
+              {
+                type: 'paragraph',
+                text: (
+                  <span>
+                    Brickwork foundations step down to distribute wall loads to the wider concrete base.
+                  </span>
+                ),
+              },
+              {
+                type: 'bullet',
+                text: (
+                  <span>
+                    <strong>Standard Offsets:</strong> Standard brick offsets in Bangladesh are typically 125mm (5") or 62.5mm (2.5") per step.
+                  </span>
+                ),
+                revealAt: 0,
+              },
+              {
+                type: 'bullet',
+                text: (
+                  <span>
+                    <strong>The Centerline Shift:</strong> As width ($B$) changes at each step, the centerline deduction correction factor ($0.5 \times B$) must be evaluated independently for each ledger line.
+                  </span>
+                ),
+                revealAt: 1,
+              },
+            ]}
+          />
+          <div className="flex flex-col gap-1.5 p-3 bg-muted/40 border border-border/40 rounded-xl">
+            <span className="text-[10px] font-mono text-muted-foreground uppercase">Selected Step Details</span>
+            {(() => {
+              const selectedStep = stepsInfo[activeStep - 1] || {
+                id: 1,
+                name: 'CC Bedding (Base)',
+                dim: '900mm Width × 75mm Depth',
+                desc: 'Distributes wall loads to natural soil. Typically 900mm (36") wide.'
+              };
+              return (
+                <>
+                  <div className="text-xs font-bold text-primary font-mono">{selectedStep.name}</div>
+                  <div className="text-[11px] text-muted-foreground leading-relaxed mt-1">
+                    <strong>Dim:</strong> {selectedStep.dim}
+                    <br />
+                    {selectedStep.desc}
+                  </div>
+                </>
+              );
+            })()}
+          </div>
+        </div>
       }
       rightContent={
         <div className="flex flex-col justify-between h-full bg-muted/20 p-4 border border-border/40 rounded-xl">
-          <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2">Foundation Cross-Section Steps</h3>
-          <div className="relative h-44 bg-muted/40 rounded-lg border border-border/30 flex flex-col justify-end items-center p-4">
-            {offsetSteps.map((step) => {
-              const isActive = activeStep === step.id;
-              return (
-                <div
-                  key={step.id}
-                  onClick={() => setActiveStep(step.id)}
-                  className={`h-8 border text-[9px] font-mono text-foreground flex items-center justify-center cursor-pointer transition-all duration-350 ${step.width} ${
-                    isActive ? 'border-primary ring-2 ring-primary/30 font-bold scale-105 z-10' : 'opacity-70 hover:opacity-90'
-                  }`}
-                >
-                  {step.name}
-                </div>
-              );
-            })}
+          <div className="flex justify-between items-center mb-2">
+            <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Foundation Cross-Section</span>
+            <span className="text-[10px] text-primary font-bold">Click layers to inspect</span>
           </div>
-          <div className="p-3 bg-muted/40 rounded border border-border/40">
-            <span className="text-[9px] font-mono text-muted-foreground uppercase">Selected Step Dimension</span>
-            <div className="text-xs font-bold text-primary font-mono mt-1">
-              {offsetSteps[activeStep - 1]?.text || ''}
-            </div>
+
+          <div className="h-56 bg-muted/40 rounded-lg border border-border/30 flex items-center justify-center p-2 relative overflow-hidden select-none">
+            <svg width="220" height="200" viewBox="0 0 220 200" className="w-full h-full max-h-[190px]">
+              {/* Natural Ground Level Dashed Line */}
+              <line x1="10" y1="50" x2="210" y2="50" stroke="#10b981" strokeWidth="1.5" strokeDasharray="3,3" />
+              <text x="20" y="44" className="fill-emerald-500 font-bold text-[8px]">GL</text>
+
+              {/* Stacked footings from top to bottom */}
+              <rect x="90" y="50" width="40" height="50"
+                onClick={() => setActiveStep(4)}
+                className={`cursor-pointer transition-colors duration-300 stroke-border/40 ${
+                  activeStep === 4 ? 'fill-primary/20 stroke-primary stroke-[1.5]' : 'fill-muted/40'
+                }`}
+              />
+
+              <rect x="80" y="100" width="60" height="30"
+                onClick={() => setActiveStep(3)}
+                className={`cursor-pointer transition-colors duration-300 stroke-border/40 ${
+                  activeStep === 3 ? 'fill-primary/20 stroke-primary stroke-[1.5]' : 'fill-muted/40'
+                }`}
+              />
+
+              <rect x="70" y="130" width="80" height="30"
+                onClick={() => setActiveStep(2)}
+                className={`cursor-pointer transition-colors duration-300 stroke-border/40 ${
+                  activeStep === 2 ? 'fill-primary/20 stroke-primary stroke-[1.5]' : 'fill-muted/40'
+                }`}
+              />
+
+              <rect x="40" y="160" width="140" height="20"
+                onClick={() => setActiveStep(1)}
+                className={`cursor-pointer transition-colors duration-300 stroke-border/40 ${
+                  activeStep === 1 ? 'fill-primary/20 stroke-primary stroke-[1.5]' : 'fill-muted/40'
+                }`}
+              />
+
+              {/* Text overlays inside SVG */}
+              <text x="110" y="80" className="fill-muted-foreground text-[8px]" textAnchor="middle">Plinth Wall</text>
+              <text x="110" y="118" className="fill-muted-foreground text-[8px]" textAnchor="middle">Step 2</text>
+              <text x="110" y="148" className="fill-muted-foreground text-[8px]" textAnchor="middle">Step 1</text>
+              <text x="110" y="173" className="fill-muted-foreground text-[8px]" textAnchor="middle">CC Bedding</text>
+            </svg>
           </div>
         </div>
       }
     />
+  );
+};
+
+/**
+ * Slide 11: Stepped Masonry Footings (Breakdown)
+ */
+export const Slide10_Breakdown: React.FC = () => {
+  const [length, setLength] = useUrlSyncedState<number>('stepped_length', 20.0);
+  const [b1] = useUrlSyncedState<number>('stepped_b1', 0.500);
+  const [b2] = useUrlSyncedState<number>('stepped_b2', 0.375);
+  const [b3] = useUrlSyncedState<number>('stepped_b3', 0.250);
+
+  const [h1, setH1] = useUrlSyncedState<number>('stepped_h1', 0.150);
+  const [h2, setH2] = useUrlSyncedState<number>('stepped_h2', 0.150);
+  const [h3, setH3] = useUrlSyncedState<number>('stepped_h3', 0.300);
+
+  const vol1 = length * b1 * h1;
+  const vol2 = length * b2 * h2;
+  const vol3 = length * b3 * h3;
+  const totalVol = vol1 + vol2 + vol3;
+
+  return (
+    <TwoColumnLayout
+      title="Measurement Rules for Stepped Footings"
+      leftWidth="50%"
+      leftContent={
+        <div className="space-y-4 flex flex-col justify-between h-full">
+          <InteractiveCard title="Volumetric Ledgers Breakdown">
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              Unlike an isolated RCC footing which is measured as a single block, a continuous stepped foundation must be split into distinct volumetric ledgers based on step height and breadth.
+            </p>
+            <div className="space-y-2 mt-2">
+              <div className="p-2.5 bg-muted/40 border border-border/40 rounded-lg text-xs leading-normal">
+                <span className="font-bold text-primary">Step 1 (Bottom):</span> Widest step. Volume: <LatexFormula math="L \times B_1 \times H_1" />.
+              </div>
+              <div className="p-2.5 bg-muted/40 border border-border/40 rounded-lg text-xs leading-normal">
+                <span className="font-bold text-primary">Step 2 (Middle):</span> Middle offset. Volume: <LatexFormula math="L \times B_2 \times H_2" />.
+              </div>
+              <div className="p-2.5 bg-muted/40 border border-border/40 rounded-lg text-xs leading-normal">
+                <span className="font-bold text-primary">Step 3 (Top/Plinth):</span> Plinth wall up to GL. Volume: <LatexFormula math="L \times B_3 \times H_3" />.
+              </div>
+            </div>
+          </InteractiveCard>
+
+          <InteractiveCard title="Dynamic Volume Totals">
+            <div className="grid grid-cols-2 gap-3">
+              <CalculationOutput title="Step 1 + Step 2 Vol" value={`${(vol1 + vol2).toFixed(3)}`} unit="m³" />
+              <CalculationOutput title="Total Footing Vol" value={`${totalVol.toFixed(3)}`} unit="m³" />
+            </div>
+          </InteractiveCard>
+        </div>
+      }
+      rightContent={
+        <InteractiveCard title="Stepped Foundation Modeler">
+          <div className="space-y-4">
+            <ParameterSlider
+              label="Foundation Continuous Length (L)"
+              min={5}
+              max={50}
+              step={0.5}
+              value={length}
+              onChange={setLength}
+              unit=" m"
+            />
+            
+            <div className="border-t border-border/40 pt-3 space-y-3">
+              <span className="text-[10px] font-mono text-muted-foreground uppercase tracking-wide block">Step Heights (H)</span>
+              <div className="grid grid-cols-3 gap-2">
+                <ParameterSlider
+                  label="H1 (Step 1)"
+                  min={0.100}
+                  max={0.300}
+                  step={0.025}
+                  value={h1}
+                  onChange={setH1}
+                  unit=" m"
+                />
+                <ParameterSlider
+                  label="H2 (Step 2)"
+                  min={0.100}
+                  max={0.300}
+                  step={0.025}
+                  value={h2}
+                  onChange={setH2}
+                  unit=" m"
+                />
+                <ParameterSlider
+                  label="H3 (Step 3)"
+                  min={0.200}
+                  max={0.800}
+                  step={0.050}
+                  value={h3}
+                  onChange={setH3}
+                  unit=" m"
+                />
+              </div>
+            </div>
+          </div>
+        </InteractiveCard>
+      }
+    />
+  );
+};
+
+/**
+ * Slide 12: Stepped Masonry Footings (Ledger Entry)
+ */
+export const Slide10_Ledger: React.FC = () => {
+  const [length] = useUrlSyncedState<number>('stepped_length', 20.0);
+  const [b1] = useUrlSyncedState<number>('stepped_b1', 0.500);
+  const [b2] = useUrlSyncedState<number>('stepped_b2', 0.375);
+  const [b3] = useUrlSyncedState<number>('stepped_b3', 0.250);
+
+  const [h1] = useUrlSyncedState<number>('stepped_h1', 0.150);
+  const [h2] = useUrlSyncedState<number>('stepped_h2', 0.150);
+  const [h3] = useUrlSyncedState<number>('stepped_h3', 0.300);
+
+  const vol1 = length * b1 * h1;
+  const vol2 = length * b2 * h2;
+  const vol3 = length * b3 * h3;
+  const totalVol = vol1 + vol2 + vol3;
+
+  const headers = [
+    { label: 'Item No.', width: '10%' },
+    { label: 'Description of Work', width: '35%' },
+    { label: 'No.', align: 'center' as const, width: '8%' },
+    { label: 'Length (m)', align: 'right' as const, width: '12%' },
+    { label: 'Breadth (m)', align: 'right' as const, width: '12%' },
+    { label: 'Height (m)', align: 'right' as const, width: '12%' },
+    { label: 'Quantity (m³)', align: 'right' as const, width: '15%' }
+  ];
+
+  const rows = [
+    ['2.01', 'Brickwork in Foundation (1st Step)', '1', length.toFixed(2), b1.toFixed(3), h1.toFixed(3), vol1.toFixed(3)],
+    ['2.02', 'Brickwork in Foundation (2nd Step)', '1', length.toFixed(2), b2.toFixed(3), h2.toFixed(3), vol2.toFixed(3)],
+    ['2.03', 'Brickwork in Foundation (3rd Step / Plinth)', '1', length.toFixed(2), b3.toFixed(3), h3.toFixed(3), vol3.toFixed(3)],
+    ['', 'Total Brickwork in Substructure', '', '', '', '', totalVol.toFixed(3)]
+  ];
+
+  return (
+    <FullWidthLayout title="Ledger Entry: Brickwork in Foundation (up to GL)">
+      <div className="space-y-4">
+        <SlideParagraph variant="plain">
+          When recording Stepped Brickwork in the Measurement Book (MB), use separate rows for every step width to maintain arithmetical integrity and auditability.
+        </SlideParagraph>
+        <SlideTable
+          headers={headers}
+          rows={rows}
+          striped={true}
+          bordered={true}
+          dense="relaxed"
+          caption="MEASUREMENT BOOK (MB) SHEET"
+        />
+        <div className="mt-2 p-3 bg-primary/5 border border-primary/20 rounded-xl text-center text-xs text-muted-foreground">
+          <strong>Measurement Note:</strong> Values in the table are linked directly to the configurations from the previous slide. Try modifying the slider values on the previous page to observe real-time ledger updates.
+        </div>
+      </div>
+    </FullWidthLayout>
   );
 };
 
