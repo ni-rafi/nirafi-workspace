@@ -7,6 +7,7 @@ interface RoofTrussLayoutDrawingProps {
   purlinSpacingM: number;
   showAnnotation?: boolean;
   activeHighlight?: 'none' | 'rafters' | 'ties' | 'webs' | 'purlins';
+  className?: string;
 }
 
 export const RoofTrussLayoutDrawing: React.FC<RoofTrussLayoutDrawingProps> = ({
@@ -15,13 +16,14 @@ export const RoofTrussLayoutDrawing: React.FC<RoofTrussLayoutDrawingProps> = ({
   purlinSpacingM,
   showAnnotation = true,
   activeHighlight = 'none',
+  className = '',
 }) => {
   const presentation = useContext(PresentationContext);
   const isBlog = presentation?.viewMode === 'blog';
 
   const containerClasses = isBlog
     ? 'bg-transparent border-none shadow-none p-0 flex flex-col items-center select-none w-full'
-    : 'relative border border-border/80 bg-muted/20 dark:bg-muted/5 rounded-xl p-6 flex flex-col items-center shadow-sm select-none w-full h-full justify-center min-h-[300px]';
+    : `relative border border-border/80 bg-muted/20 dark:bg-muted/5 rounded-xl p-6 flex flex-col items-center shadow-sm select-none w-full justify-center min-h-[220px] ${className}`;
 
   // Scales for drawing (fit inside 450x220 viewBox)
   // Max span is 12m. We scale to about 320px max width.

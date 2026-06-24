@@ -8,6 +8,7 @@ interface ManholeSectionProps {
   wallThicknessMm: number;
   showAnnotation?: boolean;
   activeHighlight?: 'none' | 'masonry' | 'benching' | 'plaster';
+  className?: string;
 }
 
 export const ManholeSectionDrawing: React.FC<ManholeSectionProps> = ({
@@ -17,6 +18,7 @@ export const ManholeSectionDrawing: React.FC<ManholeSectionProps> = ({
   wallThicknessMm,
   showAnnotation = true,
   activeHighlight = 'none',
+  className = '',
 }) => {
   const presentation = useContext(PresentationContext);
   const isBlog = presentation?.viewMode === 'blog';
@@ -28,7 +30,7 @@ export const ManholeSectionDrawing: React.FC<ManholeSectionProps> = ({
 
   const containerClasses = isBlog
     ? 'bg-transparent border-none shadow-none p-0 flex flex-col items-center select-none w-full'
-    : 'relative border border-border/80 bg-muted/20 dark:bg-muted/5 rounded-xl p-6 flex flex-col items-center shadow-sm select-none w-full h-full justify-center min-h-[300px]';
+    : `relative border border-border/80 bg-muted/20 dark:bg-muted/5 rounded-xl p-6 flex flex-col items-center shadow-sm select-none w-full justify-center min-h-[220px] ${className}`;
 
   // Scale: Max expected depth/width ~1500mm. Scale 1500mm to ~130px.
   const scale = 120 / 1500;

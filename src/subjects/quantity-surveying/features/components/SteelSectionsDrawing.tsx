@@ -7,6 +7,7 @@ interface SteelSectionsDrawingProps {
   widthMm: number;
   flangeThicknessMm: number;
   webThicknessMm: number;
+  className?: string;
 }
 
 export const SteelSectionsDrawing: React.FC<SteelSectionsDrawingProps> = ({
@@ -15,13 +16,14 @@ export const SteelSectionsDrawing: React.FC<SteelSectionsDrawingProps> = ({
   widthMm,
   flangeThicknessMm,
   webThicknessMm,
+  className = '',
 }) => {
   const presentation = useContext(PresentationContext);
   const isBlog = presentation?.viewMode === 'blog';
 
   const containerClasses = isBlog
     ? 'bg-transparent border-none shadow-none p-0 flex flex-col items-center select-none w-full'
-    : 'relative border border-border/80 bg-muted/20 dark:bg-muted/5 rounded-xl p-6 flex flex-col items-center shadow-sm select-none w-full h-full justify-center min-h-[300px]';
+    : `relative border border-border/80 bg-muted/20 dark:bg-muted/5 rounded-xl p-4 flex flex-col items-center shadow-sm select-none w-full justify-center min-h-[220px] ${className}`;
 
   // Base coordinates and scaling to fit a 450x220 viewBox
   // Let's cap the maximum dimension to 400 pixels for SVG drawing

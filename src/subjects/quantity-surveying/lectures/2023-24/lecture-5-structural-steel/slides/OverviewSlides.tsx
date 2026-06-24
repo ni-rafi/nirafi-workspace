@@ -78,32 +78,32 @@ export const Slide2: React.FC = () => {
               }
             ]}
           />
-
-          <ClickReveal at={4} preset="fade-in">
-            <SlideCallout variant="info" title="Nomenclature Decoding Example">
-              <p className="mb-2 text-xs">If a blueprint points to a roof truss tie and labels it:</p>
-              <div className="text-2xl font-bold text-center text-primary my-2 bg-muted/20 p-2.5 rounded-lg">
-                2 ISA 75 × 50 × 8
-              </div>
-              <ul className="text-[11px] text-muted-foreground space-y-1 pl-4 border-l-2 border-primary">
-                <li><strong>2</strong> = Two separate angle members placed back-to-back.</li>
-                <li><strong>ISA</strong> = Indian Standard Angle (Unequal legs).</li>
-                <li><strong>75 × 50</strong> = Leg lengths in mm.</li>
-                <li><strong>8</strong> = Thickness of the steel legs in mm.</li>
-              </ul>
-            </SlideCallout>
-          </ClickReveal>
         </div>
       }
       rightContent={
-        <div className="h-full flex flex-col justify-center">
+        <div className="h-full flex flex-col justify-between space-y-2">
           <SteelSectionsDrawing
             sectionType={sectionType}
             depthMm={depth}
             widthMm={width}
             flangeThicknessMm={flangeT}
             webThicknessMm={webT}
+            className="flex-1"
           />
+          <ClickReveal at={4} preset="up">
+            <SlideCallout variant="info" title="Nomenclature Decoding Example" className="py-1">
+              <p className="text-[10px] text-muted-foreground text-center mb-1">If blueprint points to a member labeled: <strong>2 ISA 75 × 50 × 8</strong></p>
+              <div className="text-lg font-black text-center text-primary my-0.5 bg-muted/20 p-1.5 rounded-lg border border-primary/20 font-mono">
+                2 ISA 75 × 50 × 8
+              </div>
+              <ul className="text-[9px] text-muted-foreground space-y-0.5 pl-4 border-l-2 border-primary/50 text-left">
+                <li>• <strong>2</strong>: Two angle members placed back-to-back</li>
+                <li>• <strong>ISA</strong>: Indian Standard Angle (Unequal legs)</li>
+                <li>• <strong>75 × 50</strong>: Leg lengths in mm (75mm & 50mm)</li>
+                <li>• <strong>8</strong>: Thickness of the angle legs in mm</li>
+              </ul>
+            </SlideCallout>
+          </ClickReveal>
         </div>
       }
     />

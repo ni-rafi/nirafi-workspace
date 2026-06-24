@@ -102,42 +102,42 @@ export const Slide4: React.FC = () => {
       bgVariant="default"
       leftWidth="45%"
       leftContent={
-        <div className="space-y-6">
+        <div className="space-y-4">
           <SlideParagraph title="The Linear Rule">
             Plumbing pipe lines are quantified by total continuous net length. You measure along the running <ClickHighlight at={1} variant="bold" className="text-blue-500">Center-line of the pipe path</ClickHighlight>.
           </SlideParagraph>
-          
-          <ClickReveal at={2}>
-            <SlideCallout variant="warning" title="The 3D Trajectory Trap">
-              <p className="text-sm text-left">
-                Do not skip vertical transitions! Plan views mask elevation jumps. You must cross-reference invert levels and add:
+        </div>
+      }
+      rightContent={
+        <div className="h-full flex flex-col justify-between space-y-2">
+          <WaterPipeNetworkDrawing
+            horizontalLengthM={5.0}
+            verticalRiseM={2.8}
+            verticalDropM={1.2}
+            pipeClass="PPR"
+            activeHighlight={
+              currentClick === 1 ? 'horizontal' :
+              currentClick === 2 ? 'vertical' :
+              currentClick >= 3 ? 'all' : 'none'
+            }
+            className="flex-1"
+          />
+          <ClickReveal at={2} preset="up">
+            <SlideCallout variant="warning" title="The 3D Trajectory Trap" className="py-1">
+              <p className="text-[10px] text-muted-foreground text-center mb-1">
+                Plan views mask elevation jumps. Cross-reference invert levels and add:
               </p>
-              <ul className="list-disc pl-5 mt-2 text-xs space-y-1 text-muted-foreground text-left">
-                <li>Vertical structural drops inside wet wall chases</li>
-                <li>Risers inside vertical service column shafts</li>
-                <li>Overhead ceiling slab suspension drop networks</li>
+              <ul className="text-[9px] text-muted-foreground pl-4 border-l-2 border-amber-500/50 space-y-0.5 text-left">
+                <li>• Vertical structural drops inside wet wall chases</li>
+                <li>• Risers inside vertical service column shafts</li>
+                <li>• Overhead ceiling slab suspension drop networks</li>
               </ul>
             </SlideCallout>
           </ClickReveal>
         </div>
-        }
-        rightContent={
-          <div className="w-full h-full flex items-center justify-center">
-            <WaterPipeNetworkDrawing
-              horizontalLengthM={5.0}
-              verticalRiseM={2.8}
-              verticalDropM={1.2}
-              pipeClass="PPR"
-              activeHighlight={
-                currentClick === 1 ? 'horizontal' :
-                currentClick === 2 ? 'vertical' :
-                currentClick >= 3 ? 'all' : 'none'
-              }
-            />
-          </div>
-        }
-      />
-    );
+      }
+    />
+  );
 };
 
 // ============================================================================

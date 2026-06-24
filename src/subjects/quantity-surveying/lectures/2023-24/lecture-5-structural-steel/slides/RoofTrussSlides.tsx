@@ -66,28 +66,29 @@ export const Slide8: React.FC = () => {
             ]}
           />
 
-          <ClickReveal at={4} preset="fade-in">
-            <SlideCallout variant="info" title="Pythagoras Calculation Reminder">
-              <p className="mb-2 text-xs">If Truss Rise = <span className="text-primary font-bold">2.5m</span> and Half-Span = <span className="text-primary font-bold">6.0m</span>:</p>
-              <div className="text-xl font-mono text-center text-secondary-foreground my-1 bg-muted/30 p-2 rounded-md">
-                Rafter Length = √(2.5² + 6.0²) = 6.500m
-              </div>
-              <p className="text-[10px] text-muted-foreground mt-2 border-t pt-1">
-                <strong>Surveyor Action:</strong> Total main rafter linear requirement is <span className="text-primary font-bold">6.500m × 2 sides = 13.000m</span>.
-              </p>
-            </SlideCallout>
-          </ClickReveal>
         </div>
       }
       rightContent={
-        <div className="h-full flex flex-col justify-center">
+        <div className="h-full flex flex-col justify-between space-y-2">
           <RoofTrussLayoutDrawing
             spanM={8.0}
             riseM={2.0}
             purlinSpacingM={1.2}
             showAnnotation={currentClick >= 4}
             activeHighlight={highlight}
+            className="flex-1"
           />
+          <ClickReveal at={4} preset="up">
+            <SlideCallout variant="info" title="Pythagoras Calculation Reminder" className="py-1">
+              <p className="mb-1 text-[10px] text-muted-foreground text-center">If Truss Rise = 2.50m and Half-Span = 6.00m:</p>
+              <div className="text-lg font-mono text-center text-primary bg-muted/30 p-1.5 rounded-md border border-primary/20 my-0.5 font-bold">
+                Rafter Length = √(2.5² + 6.0²) = 6.500m
+              </div>
+              <p className="text-[9px] text-muted-foreground text-center">
+                Surveyor Action: Total main rafter linear requirement is 6.500m × 2 sides = 13.000m.
+              </p>
+            </SlideCallout>
+          </ClickReveal>
         </div>
       }
     />

@@ -54,26 +54,28 @@ export const Slide11: React.FC = () => {
             </SlideCallout>
           </ClickReveal>
 
-          <ClickReveal at={3} preset="fade-in">
-            <SlideCallout variant="warning" title="Wastage Rationale & Equation">
-              <p className="mb-2 text-xs text-muted-foreground text-left">
-                When raw steel sheets are sheared on a fabrication bench to form customized gusset profiles, the corner off-cuts are unrecoverable shop wastage. The project is billed for the gross rectangle.
-              </p>
-              <div className="p-3 bg-background border border-amber-500/20 rounded-xl text-center text-xs font-mono font-semibold text-amber-600 dark:text-amber-400">
-                Weight = (Max W × Max L × Thickness) × 7850 kg/m³
-              </div>
-            </SlideCallout>
-          </ClickReveal>
         </div>
       }
       rightContent={
-        <div className="h-full flex flex-col justify-center">
+        <div className="h-full flex flex-col justify-between space-y-2">
           <GussetPlateBoundingDrawing
             widthMm={300}
             heightMm={300}
             showAnnotation={currentClick >= 3}
             activeHighlight={highlight}
+            className="flex-1"
           />
+          <ClickReveal at={3} preset="up">
+            <SlideCallout variant="warning" title="Wastage Rationale & Equation" className="py-1">
+              <p className="mb-1 text-[10px] text-muted-foreground text-center">Corner off-cuts are unrecoverable fabrication wastage. Billed for the gross envelope rectangle:</p>
+              <div className="p-2 bg-background border border-amber-500/20 rounded-xl text-center text-xs font-mono font-bold text-amber-600 dark:text-amber-400 my-0.5">
+                Weight = (Max W × Max L × Thickness) × 7850
+              </div>
+              <p className="text-[9px] text-muted-foreground text-center">
+                Where dimensions are converted to meters (m) to compute kg.
+              </p>
+            </SlideCallout>
+          </ClickReveal>
         </div>
       }
     />

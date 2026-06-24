@@ -6,6 +6,7 @@ interface GussetPlateBoundingDrawingProps {
   heightMm: number;
   showAnnotation?: boolean;
   activeHighlight?: 'none' | 'gusset' | 'envelope';
+  className?: string;
 }
 
 export const GussetPlateBoundingDrawing: React.FC<GussetPlateBoundingDrawingProps> = ({
@@ -13,13 +14,14 @@ export const GussetPlateBoundingDrawing: React.FC<GussetPlateBoundingDrawingProp
   heightMm,
   showAnnotation = true,
   activeHighlight = 'none',
+  className = '',
 }) => {
   const presentation = useContext(PresentationContext);
   const isBlog = presentation?.viewMode === 'blog';
 
   const containerClasses = isBlog
     ? 'bg-transparent border-none shadow-none p-0 flex flex-col items-center select-none w-full'
-    : 'relative border border-border/80 bg-muted/20 dark:bg-muted/5 rounded-xl p-6 flex flex-col items-center shadow-sm select-none w-full h-full justify-center min-h-[300px]';
+    : `relative border border-border/80 bg-muted/20 dark:bg-muted/5 rounded-xl p-6 flex flex-col items-center shadow-sm select-none w-full justify-center min-h-[220px] ${className}`;
 
   // Scales for drawing (fit inside 450x220 viewBox)
   // Max dimension is ~500mm. We scale to about 150px.

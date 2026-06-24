@@ -61,30 +61,30 @@ export const Slide8: React.FC = () => {
               }
             ]}
           />
-
-          <ClickReveal at={3} preset="fade-in">
-            <SlideCallout variant="warning" title="The Stirrup/Tie Counting Formula">
-              <p className="mb-2 text-xs leading-relaxed">
-                You do not measure stirrup length directly. First, you calculate the **Number of Stirrups** required across a specific span:
-              </p>
-              <div className="text-xl font-black text-center text-amber-500 my-2 bg-muted/30 p-3 rounded-xl border border-amber-500/20 font-mono">
-                No. = ( <span className="text-primary">Clear Span</span> / <span className="text-foreground/80">Spacing</span> ) + 1
-              </div>
-              <p className="text-[10px] text-muted-foreground text-center">
-                <em>Example: (3000 / 150) + 1 = 21 Stirrups.</em>
-              </p>
-            </SlideCallout>
-          </ClickReveal>
         </div>
       }
       rightContent={
-        <div className="h-full flex flex-col justify-center">
+        <div className="h-full flex flex-col justify-between space-y-2">
           <StirrupCountingDrawing
             clearSpanM={3.0}
             spacingM={0.150}
             showAnnotation={currentClick >= 3}
             activeHighlight={highlight}
+            className="flex-1"
           />
+          <ClickReveal at={3} preset="up">
+            <SlideCallout variant="warning" title="The Stirrup/Tie Counting Formula" className="py-1">
+              <p className="mb-1 text-[10px] leading-relaxed text-center text-muted-foreground">
+                Calculate the <strong>Number of Stirrups</strong> required across a specific span:
+              </p>
+              <div className="text-lg font-black text-center text-amber-500 my-0.5 bg-muted/30 p-2 rounded-xl border border-amber-500/20 font-mono">
+                No. = ( <span className="text-primary">Clear Span</span> / <span className="text-foreground/80">Spacing</span> ) + 1
+              </div>
+              <p className="text-[9px] text-muted-foreground text-center">
+                Example: (3000mm / 150mm) + 1 = 21 Stirrups.
+              </p>
+            </SlideCallout>
+          </ClickReveal>
         </div>
       }
     />

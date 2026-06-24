@@ -66,21 +66,12 @@ export const Slide5: React.FC = () => {
               <SlideParagraph variant="plain">
                 Because these plates are cut from custom flat sheets, you <ClickHighlight at={4} variant="strike" className="text-red-500 font-bold">cannot use standard linear Steel Tables</ClickHighlight>. You must calculate their volume and multiply by the <strong>Steel Density Constant</strong>.
               </SlideParagraph>
-              <SlideCallout variant="warning" title="The Plate Weight Formula">
-                <p className="mb-2 text-xs text-muted-foreground text-center">Volume (L × B × T) × Density</p>
-                <div className="text-2xl font-bold text-center text-amber-500 my-1 bg-muted/20 p-2.5 rounded-lg border border-amber-500/20 font-mono">
-                  W = (L × B × T) × 7850
-                </div>
-                <p className="text-[10px] text-muted-foreground text-center">
-                  <em>Note: Always convert L, B, and T (thickness) to <strong>meters (m)</strong> before calculating.</em>
-                </p>
-              </SlideCallout>
             </div>
           </ClickReveal>
         </div>
       }
       rightContent={
-        <div className="h-full flex flex-col justify-center">
+        <div className="h-full flex flex-col justify-between space-y-2">
           <BasePlatePedestalDrawing
             plateLengthMm={400}
             plateWidthMm={400}
@@ -89,7 +80,19 @@ export const Slide5: React.FC = () => {
             boltDiameterMm={24}
             showAnnotation={currentClick >= 3}
             activeHighlight={highlight}
+            className="flex-1"
           />
+          <ClickReveal at={3} preset="up">
+            <SlideCallout variant="warning" title="The Plate Weight Formula" className="py-1">
+              <p className="mb-1 text-[10px] text-muted-foreground text-center">Volume (L × B × T) × Density (7850 kg/m³)</p>
+              <div className="text-xl font-bold text-center text-amber-500 my-0.5 bg-muted/20 p-2 rounded-lg border border-amber-500/20 font-mono">
+                W = (L × B × T) × 7850
+              </div>
+              <p className="text-[9px] text-muted-foreground text-center">
+                Note: Always convert L, B, and T (thickness) to meters (m) before calculating.
+              </p>
+            </SlideCallout>
+          </ClickReveal>
         </div>
       }
     />

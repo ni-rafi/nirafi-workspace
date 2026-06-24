@@ -8,6 +8,7 @@ interface WaterPipeNetworkProps {
   pipeClass: 'PPR' | 'CPVC' | 'GI';
   showAnnotation?: boolean;
   activeHighlight?: 'none' | 'all' | 'horizontal' | 'riser' | 'drop' | 'vertical';
+  className?: string;
 }
 
 export const WaterPipeNetworkDrawing: React.FC<WaterPipeNetworkProps> = ({
@@ -17,6 +18,7 @@ export const WaterPipeNetworkDrawing: React.FC<WaterPipeNetworkProps> = ({
   pipeClass,
   showAnnotation = true,
   activeHighlight = 'none',
+  className = '',
 }) => {
   const presentation = useContext(PresentationContext);
   const isBlog = presentation?.viewMode === 'blog';
@@ -28,7 +30,7 @@ export const WaterPipeNetworkDrawing: React.FC<WaterPipeNetworkProps> = ({
 
   const containerClasses = isBlog
     ? 'bg-transparent border-none shadow-none p-0 flex flex-col items-center select-none w-full'
-    : 'relative border border-border/80 bg-muted/20 dark:bg-muted/5 rounded-xl p-6 flex flex-col items-center shadow-sm select-none w-full h-full justify-center min-h-[300px]';
+    : `relative border border-border/80 bg-muted/20 dark:bg-muted/5 rounded-xl p-6 flex flex-col items-center shadow-sm select-none w-full justify-center min-h-[220px] ${className}`;
 
   // Scale: max expected dimension ~10m. We map 1m to ~20px.
   const scale = 20;
