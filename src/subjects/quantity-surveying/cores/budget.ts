@@ -210,5 +210,110 @@ export function calculateSepticTankCostInternal(
   };
 }
 
+/**
+ * Calculates a single sessional item's rate per unit from scratch using the 5 pillars.
+ */
+export function calculateUnitRateFromScratch(
+  materialCost: number,
+  laborCost: number,
+  equipmentCost: number,
+  overheadRate: number,
+  profitRate: number
+): number {
+  const mat = Math.max(0, materialCost);
+  const lab = Math.max(0, laborCost);
+  const eq = Math.max(0, equipmentCost);
+  const oh = Math.max(0, overheadRate);
+  const pr = Math.max(0, profitRate);
+
+  const subtotal = mat + lab + eq;
+  const overheads = subtotal * oh;
+  const profit = (subtotal + overheads) * pr;
+  return round3(subtotal + overheads + profit);
+}
+
+/**
+ * Calculates the complete lifecycle estimate for the Owner/Client including non-structural components.
+ */
+export function calculateCompleteEstimate(
+  structuralCost: number,
+  landCost: number,
+  legalPercent: number,
+  permitPercent: number,
+  consultingPercent: number
+): {
+  legalCost: number;
+  permitCost: number;
+  consultingCost: number;
+  totalEstimate: number;
+} {
+  const sc = Math.max(0, structuralCost);
+  const lc = Math.max(0, landCost);
+  const lp = Math.max(0, legalPercent);
+  const pp = Math.max(0, permitPercent);
+  const cp = Math.max(0, consultingPercent);
+
+  const legalCost = sc * (lp / 100);
+  const permitCost = sc * (pp / 100);
+  const consultingCost = sc * (cp / 100);
+  const totalEstimate = sc + lc + legalCost + permitCost + consultingCost;
+
+  return {
+    legalCost: round3(legalCost),
+    permitCost: round3(permitCost),
+    consultingCost: round3(consultingCost),
+    totalEstimate: round3(totalEstimate),
+  };
+}
+
+/**
+ * Calculates preliminary project budget additions using structural cost percentages (MEP, landscaping, risk contingency, inflation).
+ */
+export function calculatePreliminaryProjectBudget(
+  structuralCost: number,
+  options: {
+    waterSupplyPercent?: number;
+    electrificationPercent?: number;
+    roadLawnPercent?: number;
+    architecturalPercent?: number;
+    inflationPercent?: number;
+    contingencyPercent?: number;
+  }
+): {
+  waterSupply: number;
+  electrification: number;
+  roadLawn: number;
+  architectural: number;
+  inflation: number;
+  contingency: number;
+  totalBudget: number;
+} {
+  const sc = Math.max(0, structuralCost);
+  const wsp = Math.max(0, options.waterSupplyPercent ?? 0);
+  const ep = Math.max(0, options.electrificationPercent ?? 0);
+  const rlp = Math.max(0, options.roadLawnPercent ?? 0);
+  const ap = Math.max(0, options.architecturalPercent ?? 0);
+  const infp = Math.max(0, options.inflationPercent ?? 0);
+  const cp = Math.max(0, options.contingencyPercent ?? 0);
+
+  const waterSupply = sc * (wsp / 100);
+  const electrification = sc * (ep / 100);
+  const roadLawn = sc * (rlp / 100);
+  const architectural = sc * (ap / 100);
+  const inflation = sc * (infp / 100);
+  const contingency = sc * (cp / 100);
+  const totalBudget = sc + waterSupply + electrification + roadLawn + architectural + inflation + contingency;
+
+  return {
+    waterSupply: round3(waterSupply),
+    electrification: round3(electrification),
+    roadLawn: round3(roadLawn),
+    architectural: round3(architectural),
+    inflation: round3(inflation),
+    contingency: round3(contingency),
+    totalBudget: round3(totalBudget),
+  };
+}
+
 
 

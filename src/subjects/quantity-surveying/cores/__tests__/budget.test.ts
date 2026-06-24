@@ -1,5 +1,13 @@
 import { describe, test, expect } from 'vitest';
-import { calculateIPCBill, calculateSteelCostWithMarkupInternal, calculatePlumbingBudgetInternal, calculateSepticTankCostInternal } from '../budget';
+import {
+  calculateIPCBill,
+  calculateSteelCostWithMarkupInternal,
+  calculatePlumbingBudgetInternal,
+  calculateSepticTankCostInternal,
+  calculateUnitRateFromScratch,
+  calculateCompleteEstimate,
+  calculatePreliminaryProjectBudget
+} from '../budget';
 
 describe('Project Budgeting & IPC Core Calculations', () => {
   test('should calculate correct values with zero progress', () => {
@@ -187,5 +195,52 @@ describe('Septic Tank Cost calculations', () => {
     expect(res.earthworkCost).toBe(0);
     expect(res.concreteCost).toBe(0);
     expect(res.totalCost).toBe(21840 + 5390 + 41160);
+  });
+});
+
+describe('Analysis of Rates & Project Estimate Calculations', () => {
+  test('should calculate unit rate from scratch correctly', () => {
+    // material = 1000 BDT, labor = 400 BDT, equipment = 100 BDT
+    // overhead = 5% (0.05), profit = 10% (0.10)
+    // subtotal = 1500 BDT
+    // overheads = 1500 * 0.05 = 75 BDT
+    // profit = (1500 + 75) * 0.10 = 157.5 BDT
+    // total = 1500 + 75 + 157.5 = 1732.5 BDT
+    expect(calculateUnitRateFromScratch(1000, 400, 100, 0.05, 0.10)).toBe(1732.5);
+  });
+
+  test('should calculate complete estimate including legal, permit, and consulting fees', () => {
+    // structural = 10,000,000, land = 3,000,000
+    // legal = 2% (0.02), permit = 1.5% (0.015), consulting = 4% (0.04)
+    // legalCost = 200,000
+    // permitCost = 150,000
+    // consultingCost = 400,000
+    // total = 10,000,000 + 3,000,000 + 200,000 + 150,000 + 400,000 = 13,750,000
+    const res = calculateCompleteEstimate(10000000, 3000000, 2.0, 1.5, 4.0);
+    expect(res.legalCost).toBe(200000);
+    expect(res.permitCost).toBe(150000);
+    expect(res.consultingCost).toBe(400000);
+    expect(res.totalEstimate).toBe(13750000);
+  });
+
+  test('should calculate preliminary project budget additions correctly', () => {
+    // structural = 5,000,000
+    // water supply = 8%, electrification = 7.5%, roads = 5%, arch = 1%, inflation = 5%, contingency = 4%
+    const res = calculatePreliminaryProjectBudget(5000000, {
+      waterSupplyPercent: 8,
+      electrificationPercent: 7.5,
+      roadLawnPercent: 5,
+      architecturalPercent: 1,
+      inflationPercent: 5,
+      contingencyPercent: 4
+    });
+
+    expect(res.waterSupply).toBe(5000000 * 0.08); // 400,000
+    expect(res.electrification).toBe(5000000 * 0.075); // 375,000
+    expect(res.roadLawn).toBe(5000000 * 0.05); // 250,000
+    expect(res.architectural).toBe(5000000 * 0.01); // 50,000
+    expect(res.inflation).toBe(5000000 * 0.05); // 250,000
+    expect(res.contingency).toBe(5000000 * 0.04); // 200,000
+    expect(res.totalBudget).toBe(5000000 + 400000 + 375000 + 250000 + 50000 + 250000 + 200000); // 6,525,000
   });
 });

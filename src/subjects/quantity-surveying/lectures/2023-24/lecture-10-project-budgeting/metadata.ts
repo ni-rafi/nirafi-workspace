@@ -4,7 +4,7 @@ export const metadata: Lecture = {
   id: 'project-budgeting',
   title: 'Contractor Progress Payments & Project Budgeting',
   description: 'Abstract of costs synthesis, statutory contingencies and contractor profits, NBR tax withholdings, Measurement Book reconciliation protocols, and sessional IPC progress billing invoicing.',
-  slideNo: 1,
+  slideNo: 18,
   durationMins: 45,
   locked: false,
   tags: ['budgeting', 'billing', 'ipc', 'nbr-taxes', 'measurement-book', 'sessional-viva'],

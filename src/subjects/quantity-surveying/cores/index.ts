@@ -58,7 +58,15 @@ export {
   calculateSoakPitNetVolume,
   calculateSoakPitLooseVolume,
 } from './reservoir';
-export { calculateIPCBill, calculateSteelCostWithMarkupInternal, calculatePlumbingBudgetInternal, calculateSepticTankCostInternal } from './budget';
+export {
+  calculateIPCBill,
+  calculateSteelCostWithMarkupInternal,
+  calculatePlumbingBudgetInternal,
+  calculateSepticTankCostInternal,
+  calculateUnitRateFromScratch,
+  calculateCompleteEstimate,
+  calculatePreliminaryProjectBudget
+} from './budget';
 
 
 
