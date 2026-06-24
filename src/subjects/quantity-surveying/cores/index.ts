@@ -32,5 +32,14 @@ export {
   calculateRetainingWallVolume,
   calculateBoxCulvertVolume,
 } from './roadway';
+export {
+  calculateReservoirExcavation,
+  calculateReservoirRaft,
+  calculateReservoirWalls,
+  calculateReservoirPlasterArea,
+  calculatePudloRequirement,
+  calculateSoakPitNetVolume,
+  calculateSoakPitLooseVolume,
+} from './reservoir';
 
 
