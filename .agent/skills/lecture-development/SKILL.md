@@ -144,6 +144,8 @@ For plan-view grid alignments, foundation pile layouts, road pavement cross-sect
   * *Civil Drawings*: `<FoundationDrawingCanvas>`, `<RoadSectionCanvas>`, `<EarthworkProfileCanvas>`
 * **Drawing Wrapper Height Boundaries**: Outer drawing containers must never hardcode fixed height constraints like `h-full` internally. Allow height to be configured dynamically or inherit sizing via parent flex boundaries (e.g. `flex-1` when stacked under vertical columns). This enables other stacked components (like formula cards or descriptions) to occupy remaining vertical space cleanly.
 * **Vertical Space Optimization**: Keep SVG canvas containers bounded (e.g., changing container heights from `h-56` to `h-44` and cropping the viewBox to remove unnecessary margins) so that slides remain spacious on standard 16:9 presentation viewports without scrollbars or text cutoff.
+* **Drawing Text Visibility**: Text labels inside SVG drawings must use a minimum font size of `11px` to `12px` (equivalent to standard browser `text-xs`/`text-sm` scales) to guarantee legibility on classroom projection screens.
+* **Synced Click-Reveal Design**: All reusable drawings/figures must be designed to support dynamic active step overrides (like a `currentClick` or `activeStep` prop). This allows them to highlight layers and components progressively to synchronize with the sessional click-reveals of descriptions.
 
 ---
 
