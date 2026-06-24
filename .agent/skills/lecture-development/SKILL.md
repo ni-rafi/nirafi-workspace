@@ -13,6 +13,7 @@ This skill guides creating a new sessional lecture slide deck, structuring UI fe
 
 To maintain clean slide definitions and support multi-mode publishing (Slide, Scroll, and Blog Modes):
 * **Visual-First Layouts**: Prefer visual representations (interactive charts, flowcharts, diagrams, and shapes) over heavy textual descriptions or flat bullet lists. Keep text minimal and use graphics to show rather than tell.
+* **Integrated Interactive Drawings**: Do not show structural/engineering drawings on a separate page from the concept description. Integrate drawings directly into the slides where they are described (e.g., using `TwoColumnLayout`), adding click-to-reveal steps to synchronize bullet descriptions with highlights in the drawing component. Reuse the same drawing component on sandbox/calculation slides.
 * **Progressive Highlights**: When explaining physical structures, cross-sections, elevations, or dimensional bounds, render the shape dynamically (using canvas or SVGs) and highlight components step-by-step using click reveals/highlights instead of static text tables or bullet lists.
 * **Eye-catching Elements**: Use bold/large numbers for calculation outputs, paint-over highlighter animations (`<ClickHighlight variant="paint">`), and transition-linked graphics.
 * **Data Reference Standards**: Always prioritize official project documentation (e.g., PWD scheduling specifications). Supplement with cross-checked publications from reputable publishers only when directly relevant, providing precise citations in the presentation context.
@@ -164,6 +165,7 @@ When adding a new reusable layout, presentational element, or interactive contro
 ### B. Slide Creation Checklist
 When authoring or modifying slides:
 - [ ] **Visual-First Layouts**: Minimal text is used; layouts prefer visual graphics, dynamic flowcharts, or diagrams over flat bullet lists.
+- [ ] **Integrated Interactive Drawings**: Drawings are integrated directly into the slides where they are described, using click-to-reveal step highlights synchronized with the text bullets. The same drawing component is reused on sandbox/calculation slides.
 - [ ] **Progressive Highlights**: Physical structures, cross-sections, elevations, or dimensional bounds are rendered dynamically and highlighted step-by-step using click reveals/highlights instead of static text blocks.
 - [ ] **Eye-catching Elements**: Use bold/large numbers for calculation outputs, paint-over highlighter animations (`<ClickHighlight variant="paint">`), and transition-linked graphics.
 - [ ] **Data Reference Standards**: Official project documentation (e.g., PWD specifications) is prioritized, with precise sessional citations provided for estimation constants.

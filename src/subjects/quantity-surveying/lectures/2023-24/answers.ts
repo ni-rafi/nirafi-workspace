@@ -13,7 +13,9 @@ export const QUIZ_METADATA = [
   { id: 'qs_2023_lec6_q1', header: 'Lec 6 Pipe Transitions' },
   { id: 'qs_2023_lec6_q2', header: 'Lec 6 Fixture Packs' },
   { id: 'qs_2023_lec6_q3', header: 'Lec 6 Trench Hydraulics' },
-  { id: 'qs_2023_lec6_q4', header: 'Lec 6 Inspection Chambers' }
+  { id: 'qs_2023_lec6_q4', header: 'Lec 6 Inspection Chambers' },
+  { id: 'qs_2023_lec7_q1', header: 'Lec 7 Reservoir Excavation' },
+  { id: 'qs_2023_lec7_q2', header: 'Lec 7 Soak Pit Aggregates' }
 ];
 
 export const QUIZ_ANSWERS: Record<
@@ -109,4 +111,28 @@ export const QUIZ_ANSWERS: Record<
   qs_2023_lec6_q2: '73200',
   qs_2023_lec6_q3: '0.750',
   qs_2023_lec6_q4: '0.509',
+  
+  qs_2023_lec7_q1: {
+    formula: '((6.50 + 2 × 0.50) × (4.50 + 2 × 0.50) × (2.0 + [last digit] × 0.1)) m³',
+    digitsRequired: 1,
+    resolve: (reg) => {
+      const digits = reg.replace(/\D/g, '');
+      if (digits.length < 1) return '((6.50 + 2 × 0.50) × (4.50 + 2 × 0.50) × (2.0 + [last digit] × 0.1)) m³';
+      const h = 2.0 + parameterResolver.getLastDigit(reg) * 0.1;
+      const vol = 7.50 * 5.50 * h;
+      return vol.toFixed(3);
+    },
+  },
+  
+  qs_2023_lec7_q2: {
+    formula: '(3.14159265 × 1.0² × (2.5 + [last digit] × 0.1) × 1.33) m³',
+    digitsRequired: 1,
+    resolve: (reg) => {
+      const digits = reg.replace(/\D/g, '');
+      if (digits.length < 1) return '(3.14159265 × 1.0² × (2.5 + [last digit] × 0.1) × 1.33) m³';
+      const h = 2.5 + parameterResolver.getLastDigit(reg) * 0.1;
+      const vol = Math.PI * 1.0 * 1.0 * h * 1.33;
+      return vol.toFixed(3);
+    },
+  },
 };

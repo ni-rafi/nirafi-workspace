@@ -19,6 +19,9 @@ export { WaterPipeNetworkDrawing } from './components/WaterPipeNetworkDrawing';
 export { FixturePackageDrawing } from './components/FixturePackageDrawing';
 export { DrainageSlopeDrawing } from './components/DrainageSlopeDrawing';
 export { ManholeSectionDrawing } from './components/ManholeSectionDrawing';
+export { WaterReservoirShellDrawing } from './components/WaterReservoirShellDrawing';
+export { SepticTankRevealDrawing } from './components/SepticTankRevealDrawing';
+export { SoakPitFilterSandbox } from './components/SoakPitFilterSandbox';
 export * from './calculators';
 
 
