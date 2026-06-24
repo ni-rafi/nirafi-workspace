@@ -48,7 +48,11 @@ export { PwdSectionWeightDrawing } from './components/PwdSectionWeightDrawing';
 export { SecondaryFramingDrawing } from './components/SecondaryFramingDrawing';
 export { GrooveWeldingDrawing } from './components/GrooveWeldingDrawing';
 export { MepSubNetworksDrawing } from './components/MepSubNetworksDrawing';
+export { SepticSteppedDrawing } from './components/SepticSteppedDrawing';
+export { SoakPitStructuralDrawing } from './components/SoakPitStructuralDrawing';
+export { EcoStpPrefabDrawing } from './components/EcoStpPrefabDrawing';
 export * from './calculators';
+
 
 
 

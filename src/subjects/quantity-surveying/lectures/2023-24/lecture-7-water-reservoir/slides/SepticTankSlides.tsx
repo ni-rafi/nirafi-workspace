@@ -2,7 +2,12 @@ import React from 'react';
 import { TopicDividerLayout } from '@/shared/layouts/TopicDividerLayout';
 import { TwoColumnLayout } from '@/shared/layouts/TwoColumnLayout';
 import { useClickStepsContext } from '@/features/presentation/context/ClickStepsContext';
-import { SepticTankRevealDrawing, SoakPitFilterSandbox } from '@/subjects/quantity-surveying/features';
+import {
+  SepticTankRevealDrawing,
+  SoakPitFilterSandbox,
+  SepticSteppedDrawing,
+  SepticSteppedSandbox
+} from '@/subjects/quantity-surveying/features';
 import {
   SlideParagraph,
   SlideList,
@@ -116,6 +121,57 @@ export const Slide12: React.FC = () => {
       }
       rightContent={null}
     />
+  );
+};
+
+// Slide 13: Stepped Wall Masonry & Plaster Concepts
+export const Slide13: React.FC = () => {
+  const { currentClick } = useClickStepsContext();
+  const activeStep = Math.min(4, Math.max(0, currentClick));
+
+  return (
+    <TwoColumnLayout
+      title="2.3 Septic Tank Stepped Walls &amp; Plastering"
+      bgVariant="default"
+      leftWidth="50%"
+      leftContent={
+        <div className="space-y-3">
+          <SlideParagraph title="Stepped Wall &amp; Plaster Mechanics">
+            Septic tank walls are stepped to withstand lateral soil and internal water pressures, requiring precise stepped brickwork and plastering take-offs.
+          </SlideParagraph>
+          <SlideList
+            revealMode="each-click"
+            items={[
+              { title: "Base Wall Step (Step 1)", text: <span>Thicker base masonry (e.g., 375mm) built up to lateral soil stress boundaries, measured in <ClickHighlight variant="paint" at={1}>Cubic Meter (m³)</ClickHighlight>.</span> },
+              { title: "Upper Wall Step (Step 2)", text: <span>Narrower upper masonry (e.g., 250mm) extending to the top cover level (m³).</span> },
+              { title: "Floor Plaster (Thick)", text: <span>Heavy-duty 18-20mm damp-proof cement plaster at the tank floor, measured in <ClickHighlight variant="paint" at={3}>Square Meter (m²)</ClickHighlight>.</span> },
+              { title: "Wall Plaster (12mm)", text: <span>Standard 12mm thick protective plaster lining on internal partition and vertical enclosure walls (m²).</span> }
+            ]}
+          />
+        </div>
+      }
+      rightContent={
+        <div className="h-full flex flex-col justify-between space-y-2">
+          <SepticSteppedDrawing activeStepIndex={activeStep} className="flex-1" />
+          <ClickReveal at={4} preset="up">
+            <SlideCallout variant="info" title="Plaster Take-Off Distinction" className="py-2">
+              <p className="text-[10px] text-muted-foreground leading-normal">
+                Vertical wall plaster (12mm) and heavy floor plaster (18-20mm) must be compiled as distinct bill-of-quantity line items due to differences in composition and rates.
+              </p>
+            </SlideCallout>
+          </ClickReveal>
+        </div>
+      }
+    />
+  );
+};
+
+// Slide 14: Septic Stepped Sandbox Slide
+export const Slide14: React.FC = () => {
+  return (
+    <div className="w-full h-full select-text">
+      <SepticSteppedSandbox />
+    </div>
   );
 };
 

@@ -89,8 +89,8 @@ export const Slide8: React.FC = () => {
                 text: "W = Length × unit weight. Add 180° anchorage hooks (+9d per hook) at both ends of the main raft bars."
               },
               {
-                title: "Wall Reinforcement (Double Grids)",
-                text: "Track inner and outer vertical rods extending from base foundation raft up to top cover slab, plus horizontal ties."
+                title: "Wall & Shear Key Dowels",
+                text: "Track vertical rods extending from base raft to top cover slab. Includes L-bent dowel bars anchoring through the shear key notches."
               },
               {
                 title: "Cover Slab Top & Bottom Mesh",

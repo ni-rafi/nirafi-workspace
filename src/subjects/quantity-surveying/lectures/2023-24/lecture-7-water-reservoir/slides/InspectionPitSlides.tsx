@@ -6,9 +6,12 @@ import {
   SlideList,
   SlideCallout,
   InteractiveCard,
-  SlideGrid
+  SlideGrid,
+  ClickHighlight,
+  ClickReveal
 } from '@/features/presentation/components/elements';
 import { InspectionPitDrawing } from '@/subjects/quantity-surveying/features/components/InspectionPitDrawing';
+import { SoakPitStructuralDrawing, SoakPitStructuralSandbox } from '@/subjects/quantity-surveying/features';
 import { useClickStepsContext } from '@/features/presentation/context/ClickStepsContext';
 
 // ============================================================================
@@ -117,3 +120,59 @@ export const Slide16: React.FC = () => (
     </div>
   </FullWidthLayout>
 );
+
+// Slide 17: Soak Pit Structural Enclosure Concepts
+export const Slide17: React.FC = () => {
+  const { currentClick } = useClickStepsContext();
+  const highlightMap: Record<number, 'none' | 'honeycomb' | 'solid' | 'curb'> = {
+    0: 'none',
+    1: 'honeycomb',
+    2: 'solid',
+    3: 'curb',
+  };
+  const activeHighlight = highlightMap[currentClick] || 'none';
+
+  return (
+    <TwoColumnLayout
+      title="2.9 Soak Pit Structural Enclosures"
+      bgVariant="default"
+      leftWidth="50%"
+      leftContent={
+        <div className="space-y-3">
+          <SlideParagraph title="Structural Pit Components">
+            Beyond aggregate filling, a professional soak pit is framed by a brick masonry lining with a reinforced concrete ring foundation at the base.
+          </SlideParagraph>
+          <SlideList
+            revealMode="each-click"
+            items={[
+              { title: "Honeycomb Brickwork (25% Voids)", text: <span>Lining with seepage slots to allow effluent filtration, measured in <ClickHighlight variant="paint" at={1}>Cubic Meter (m³)</ClickHighlight> with 25% void ratio.</span> },
+              { title: "Solid Collar Brickwork", text: <span>Solid upper brick wall (neck) near ground surface to prevent soil collapses, measured in <ClickHighlight variant="paint" at={2}>Cubic Meter (m³)</ClickHighlight>.</span> },
+              { title: "R.C.C. Well Curb Foundation", text: <span>Reinforced concrete ring footing cast at base to support walls during excavation and sinking, measured in <ClickHighlight variant="paint" at={3}>Cubic Meter (m³)</ClickHighlight>.</span> }
+            ]}
+          />
+        </div>
+      }
+      rightContent={
+        <div className="h-full flex flex-col justify-between space-y-2">
+          <SoakPitStructuralDrawing activeHighlight={activeHighlight} className="flex-1" />
+          <ClickReveal at={3} preset="up">
+            <SlideCallout variant="warning" title="Well Curb Reinforcement" className="py-2">
+              <p className="text-[10px] text-muted-foreground leading-normal">
+                Under PWD guidelines, reinforcement steel in the well curb is estimated at a nominal **1% of concrete volume** by weight (approx. 78.5 kg/m³) unless specified otherwise.
+              </p>
+            </SlideCallout>
+          </ClickReveal>
+        </div>
+      }
+    />
+  );
+};
+
+// Slide 18: Soak Pit Structural Sandbox Slide
+export const Slide18: React.FC = () => {
+  return (
+    <div className="w-full h-full select-text">
+      <SoakPitStructuralSandbox />
+    </div>
+  );
+};

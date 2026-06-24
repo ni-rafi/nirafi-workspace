@@ -11,7 +11,8 @@ import {
   calculateReservoirRaft,
   calculateReservoirWalls,
   calculateReservoirPlasterArea,
-  calculatePudloRequirement
+  calculatePudloRequirement,
+  calculateReservoirShearKeyVolume,
 } from '@/subjects/quantity-surveying/cores';
 import {
   SlideParagraph,
@@ -136,7 +137,7 @@ export const Slide5: React.FC = () => {
             revealMode="each-click"
             items={[
               { title: "Base Raft Slab", text: <span>Monolithic concrete slab at the bottom. Carries self-weight and fluid mass, known as the <ClickHighlight variant="paint" at={1}>Base Raft Slab</ClickHighlight>.</span> },
-              { title: "Vertical Walls Ring", text: <span>Retaining walls. Calculate long walls out-to-out, then short walls in-to-in to avoid <ClickHighlight variant="paint" at={2}>double-counting overlaps</ClickHighlight>.</span> },
+              { title: "Vertical Walls & Shear Key", text: <span>Long walls out-to-out, short walls in-to-in. Includes the monolithic <ClickHighlight variant="paint" at={2}>trapezoidal shear key joint</ClickHighlight> to prevent seepage (m³).</span> },
               { title: "Roof Cover Slab", text: <span>Top horizontal plate. Net area minus manhole access openings, known as <ClickHighlight variant="paint" at={3}>Roof Cover Slab</ClickHighlight>.</span> }
             ]}
           />
@@ -164,9 +165,12 @@ export const Slide6: React.FC = () => {
   const [width, setWidth] = useUrlSyncedState<number>('res_shell_width', 3.0);
   const [wallThick, setWallThick] = useUrlSyncedState<number>('res_shell_thick', 0.25);
   const [height, setHeight] = useUrlSyncedState<number>('res_shell_height', 2.5);
+  const [includeShearKey, setIncludeShearKey] = useUrlSyncedState<boolean>('res_shell_include_key', true);
 
   const baseSlabVol = calculateReservoirRaft(length, width, wallThick, 0.3);
   const wallVol = calculateReservoirWalls(length, width, wallThick, height);
+  const perimeter = 2 * (length + width + 2 * wallThick);
+  const shearKeyVol = includeShearKey ? calculateReservoirShearKeyVolume(perimeter, 0.3, 0.2, 0.15) : 0;
 
   return (
     <TwoColumnLayout
@@ -180,9 +184,26 @@ export const Slide6: React.FC = () => {
             <ParameterSlider label="Inner Width" min={1.5} max={8} step={0.5} value={width} onChange={setWidth} unit=" m" />
             <ParameterSlider label="Wall Thickness" min={0.2} max={0.4} step={0.05} value={wallThick} onChange={setWallThick} unit=" m" />
             <ParameterSlider label="Wall Height" min={1.5} max={4.0} step={0.1} value={height} onChange={setHeight} unit=" m" />
-            <div className="grid grid-cols-2 gap-2 text-center font-mono">
-              <CalculationOutput title="Raft Vol" value={`${baseSlabVol.toFixed(2)}`} unit="m³" variant="compact" />
-              <CalculationOutput title="Wall Vol" value={`${wallVol.toFixed(2)}`} unit="m³" variant="compact" />
+            
+            <div className="border-t border-border/20 pt-2 flex items-center justify-between">
+              <span className="text-xs font-bold text-muted-foreground">Shear Key Joint:</span>
+              <select
+                value={includeShearKey ? 'yes' : 'no'}
+                onChange={(e) => setIncludeShearKey(e.target.value === 'yes')}
+                className="text-xs font-bold bg-muted border border-border/60 rounded px-2.5 py-1 text-foreground focus:outline-none focus:ring-1 focus:ring-primary cursor-pointer"
+              >
+                <option value="no">Exclude Notch</option>
+                <option value="yes">Include 150x300mm Notch</option>
+              </select>
+            </div>
+
+            <div className="grid grid-cols-2 gap-2 border-t border-border/40 pt-3 text-center font-mono">
+              <CalculationOutput title="Raft Vol" value={`${baseSlabVol.toFixed(3)}`} unit="m³" variant="compact" />
+              <CalculationOutput title="Wall Vol" value={`${wallVol.toFixed(3)}`} unit="m³" variant="compact" />
+              {includeShearKey && (
+                <CalculationOutput title="Shear Key" value={`${shearKeyVol.toFixed(3)}`} unit="m³" variant="compact" />
+              )}
+              <CalculationOutput title="Total RCC" value={`${(baseSlabVol + wallVol + shearKeyVol).toFixed(3)}`} unit="m³" variant="compact" />
             </div>
           </div>
         </InteractiveCard>

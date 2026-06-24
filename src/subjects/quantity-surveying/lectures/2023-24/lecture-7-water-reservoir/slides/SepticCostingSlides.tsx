@@ -9,6 +9,7 @@ import {
 } from '@/features/presentation/components/elements';
 import { useUrlSyncedState } from '@/features/presentation/hooks/useUrlSyncedState';
 import { calculateSepticTankCostInternal } from '@/subjects/quantity-surveying/cores';
+import { EcoStpPrefabDrawing, EcoStpPrefabSandbox } from '@/subjects/quantity-surveying/features';
 
 // ============================================================================
 // Slide 19: Bill of Quantities (BoQ) Assembly
@@ -201,5 +202,45 @@ export const Slide20: React.FC = () => {
         </div>
       }
     />
+  );
+};
+
+// Slide 21: Eco Sewage Treatment Plants & Prefab Tanks Concepts
+export const Slide21: React.FC = () => (
+  <TwoColumnLayout
+    title="3.5 Modern Eco STPs &amp; Prefabricated Storage"
+    bgVariant="default"
+    leftWidth="52%"
+    leftContent={
+      <div className="space-y-4 text-left select-text">
+        <SlideParagraph title="Modern Sanitary Upgrades">
+          Contemporary PWD standards incorporate prefabricated components and biochemical treatment assemblies to reduce construction timelines and subsoil pollution.
+        </SlideParagraph>
+        <div className="text-xs space-y-3 text-muted-foreground leading-relaxed">
+          <p>
+            • <strong>Non-Electric Eco Sewage Treatment Plant (STP)</strong>
+            <br />Modular plastic or RCC bio-reactors that digest waste anaerobically. Estimated as a lump-sum unit (Nos.) matching capacity, plus a startup charge for bacteria seeding and chamber connection pointing.
+          </p>
+          <p>
+            • <strong>Prefabricated Storage Tanks</strong>
+            <br />Schedules distinguish between heavy overhead food-grade plastic tanks (e.g. 1000L-5000L) and lower-cost ferro-cement alternative storage tanks (400-500 gallons), both billed by count.
+          </p>
+        </div>
+      </div>
+    }
+    rightContent={
+      <div className="h-full flex flex-col justify-center">
+        <EcoStpPrefabDrawing className="flex-1" />
+      </div>
+    }
+  />
+);
+
+// Slide 22: Eco STP & Prefab Tanks Sandbox Slide
+export const Slide22: React.FC = () => {
+  return (
+    <div className="w-full h-full select-text">
+      <EcoStpPrefabSandbox />
+    </div>
   );
 };

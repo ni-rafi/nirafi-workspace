@@ -71,6 +71,13 @@ export {
   calculatePudloRequirement,
   calculateSoakPitNetVolume,
   calculateSoakPitLooseVolume,
+  calculateReservoirShearKeyVolume,
+  calculateReservoirKeyDowelWeight,
+  calculateSteppedSepticTankMasonry,
+  calculateSepticPlasterAreas,
+  calculateSoakPitStructural,
+  calculateEcoStpCost,
+  calculatePrefabTanksCost,
 } from './reservoir';
 export {
   calculateIPCBill,

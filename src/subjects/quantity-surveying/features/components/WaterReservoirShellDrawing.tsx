@@ -81,6 +81,32 @@ export const WaterReservoirShellDrawing: React.FC<WaterReservoirShellDrawingProp
               isShell && isStepActive(1) ? 'fill-primary/20 stroke-primary stroke-[1.5px]' : 'fill-muted/40 stroke-border/50'
             }`}
           />
+          {/* Shear Key Notches */}
+          <rect
+            x="73"
+            y="160"
+            width="9"
+            height="5"
+            className={`transition-all duration-300 ${
+              isShell && isStepActive(2) ? 'fill-primary/20 stroke-primary stroke-[1.5px]' : 'fill-muted/40 stroke-border/50'
+            }`}
+          />
+          <rect
+            x="218"
+            y="160"
+            width="9"
+            height="5"
+            className={`transition-all duration-300 ${
+              isShell && isStepActive(2) ? 'fill-primary/20 stroke-primary stroke-[1.5px]' : 'fill-muted/40 stroke-border/50'
+            }`}
+          />
+          {isShell && isStepActive(2) && (
+            <g className="animate-fadeIn">
+              <text x="145" y="148" textAnchor="middle" className="fill-primary text-[11px] font-mono font-bold">Shear Key</text>
+              <line x1="110" y1="145" x2="80" y2="161" stroke="var(--primary)" strokeWidth="0.8" />
+              <line x1="180" y1="145" x2="220" y2="161" stroke="var(--primary)" strokeWidth="0.8" />
+            </g>
+          )}
           {/* Left Vertical Retaining Wall */}
           <rect
             x="70"

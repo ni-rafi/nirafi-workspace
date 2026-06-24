@@ -56,6 +56,21 @@ export const ReservoirBBSDrawing: React.FC<ReservoirBBSDrawingProps> = ({
           strokeWidth="1.5"
           className="text-foreground/30"
         />
+        {/* Shear Key Notches */}
+        <polygon
+          points="53,150 67,150 64,158 56,158"
+          fill="var(--muted-foreground-opacity, rgba(120, 120, 120, 0.05))"
+          stroke={defaultStroke}
+          strokeWidth="1.5"
+          className="text-foreground/30"
+        />
+        <polygon
+          points="253,150 267,150 264,158 256,158"
+          fill="var(--muted-foreground-opacity, rgba(120, 120, 120, 0.05))"
+          stroke={defaultStroke}
+          strokeWidth="1.5"
+          className="text-foreground/30"
+        />
 
         {/* 1. Base Slab Reinforcement (Highlighted when isBaseActive) */}
         <g opacity={activeHighlight === 'none' || isBaseActive ? '1' : '0.2'} className="transition-all duration-300">
@@ -99,6 +114,19 @@ export const ReservoirBBSDrawing: React.FC<ReservoirBBSDrawingProps> = ({
             x2="56"
             y2="45"
             stroke={isWallActive ? activeColor : defaultRebarColor}
+            strokeWidth={isWallActive ? '3.5' : '1.5'}
+          />
+          {/* Shear Key Dowel Bars (L-bent vertical reinforcement) */}
+          <path
+            d="M 60,115 V 163 H 78"
+            fill="none"
+            stroke={isWallActive ? activeColor : '#fbbf24'}
+            strokeWidth={isWallActive ? '3.5' : '1.5'}
+          />
+          <path
+            d="M 260,115 V 163 H 242"
+            fill="none"
+            stroke={isWallActive ? activeColor : '#fbbf24'}
             strokeWidth={isWallActive ? '3.5' : '1.5'}
           />
           {/* Left Wall Vertical Inner Bar */}
