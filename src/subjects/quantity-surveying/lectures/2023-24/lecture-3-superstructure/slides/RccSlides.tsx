@@ -2,9 +2,15 @@ import React from 'react';
 import { FullWidthLayout } from '@/shared/layouts/FullWidthLayout';
 import {
   InteractiveCard,
-  SlideBullet
+  SlideBullet,
+  ParameterSlider,
+  CalculationOutput,
+  SlideContent,
+  LatexFormula
 } from '@/features/presentation/components/elements';
 import { ColumnVolumeSandbox, BeamClearSpanSandbox } from '@/subjects/quantity-surveying/features';
+import { TwoColumnLayout } from '@/shared/layouts/TwoColumnLayout';
+import { useUrlSyncedState } from '@/features/presentation/hooks/useUrlSyncedState';
 
 // Slide 5: 2.1 Superstructure Columns: Net Height
 export const Slide5: React.FC = () => (
@@ -77,3 +83,145 @@ export const Slide7: React.FC = () => {
     </FullWidthLayout>
   );
 };
+
+/**
+ * Slide 7B: Estimating Centering and Shuttering (Formwork)
+ */
+export const Slide7_Formwork: React.FC = () => {
+  const [colConcrete, setColConcrete] = useUrlSyncedState<number>('fw_col_concrete', 15);
+  const [beamConcrete, setBeamConcrete] = useUrlSyncedState<number>('fw_beam_concrete', 25);
+  const [slabConcrete, setSlabConcrete] = useUrlSyncedState<number>('fw_slab_concrete', 40);
+  const [concreteRate, setConcreteRate] = useUrlSyncedState<number>('fw_concrete_rate', 15000);
+
+  // Estimating contact area (shuttering area) in square meters
+  // Columns: ~12.5 m² per m³ of concrete
+  // Beams: ~8.5 m² per m³ of concrete
+  // Slabs: ~6.67 m² per m³ of concrete (assuming 150mm thick slab)
+  const colFwArea = colConcrete * 12.5;
+  const beamFwArea = beamConcrete * 8.5;
+  const slabFwArea = slabConcrete * 6.67;
+  const totalFwArea = colFwArea + beamFwArea + slabFwArea;
+
+  const fwRate = 600; // BDT per square meter
+  const estFwCost = totalFwArea * fwRate;
+
+  const totalConcreteVol = colConcrete + beamConcrete + slabConcrete;
+  const concreteCost = totalConcreteVol * concreteRate;
+
+  const costRatioPercent = concreteCost > 0 ? (estFwCost / concreteCost) * 100 : 0;
+
+  return (
+    <TwoColumnLayout
+      title="Centering, Shuttering &amp; Formwork"
+      bgVariant="default"
+      leftWidth="50%"
+      leftContent={
+        <div className="space-y-4">
+          <SlideContent
+            blocks={[
+              {
+                type: 'paragraph',
+                text: (
+                  <span>
+                    Before pouring wet concrete for superstructure elements (columns, beams, slabs), temporary molds called <strong>formwork</strong> must be erected.
+                  </span>
+                ),
+              },
+              {
+                type: 'bullet',
+                text: (
+                  <span>
+                    <strong>Measurement Standard:</strong> Formwork is quantified separately in square area units (<LatexFormula math="\text{m}^2" /> or sq-ft) of the actual contact surface between wet concrete and the shuttering boards.
+                  </span>
+                ),
+                revealAt: 0,
+              },
+              {
+                type: 'bullet',
+                text: (
+                  <span>
+                    <strong>Cost Impact:</strong> Formwork accounts for approximately <strong>30%</strong> of the total cement concrete work budget. Never omit it from detailed estimates.
+                  </span>
+                ),
+                revealAt: 1,
+              },
+              {
+                type: 'bullet',
+                text: (
+                  <span>
+                    <strong>Ledger Separation:</strong> Log formwork as separate items for floor slabs, rectangular beams, and vertical columns due to varying complexity in support structure (propping/strutting).
+                  </span>
+                ),
+                revealAt: 2,
+              },
+            ]}
+          />
+        </div>
+      }
+      rightContent={
+        <InteractiveCard title="Formwork Contact Area &amp; Cost Estimator">
+          <div className="space-y-3 mb-4 select-none">
+            <div className="grid grid-cols-3 gap-2">
+              <ParameterSlider
+                label="Col Concrete"
+                min={5}
+                max={40}
+                step={1}
+                value={colConcrete}
+                onChange={setColConcrete}
+                unit=" m³"
+              />
+              <ParameterSlider
+                label="Beam Concrete"
+                min={5}
+                max={60}
+                step={1}
+                value={beamConcrete}
+                onChange={setBeamConcrete}
+                unit=" m³"
+              />
+              <ParameterSlider
+                label="Slab Concrete"
+                min={10}
+                max={100}
+                step={2}
+                value={slabConcrete}
+                onChange={setSlabConcrete}
+                unit=" m³"
+              />
+            </div>
+
+            <div className="border-t border-border/40 pt-2">
+              <ParameterSlider
+                label="Concrete Rate (BDT/m³)"
+                min={10000}
+                max={20000}
+                step={500}
+                value={concreteRate}
+                onChange={setConcreteRate}
+                unit=" ৳"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-3 gap-2 border-t border-border/40 pt-3 text-[11px] font-mono">
+            <CalculationOutput title="Col Formwork" value={`${colFwArea.toFixed(1)}`} unit="m²" />
+            <CalculationOutput title="Beam Formwork" value={`${beamFwArea.toFixed(1)}`} unit="m²" />
+            <CalculationOutput title="Slab Formwork" value={`${slabFwArea.toFixed(1)}`} unit="m²" />
+          </div>
+
+          <div className="grid grid-cols-2 gap-3 border-t border-border/40 pt-3 font-mono text-[11px] mt-2">
+            <CalculationOutput title="Total Shuttering Area" value={`${totalFwArea.toFixed(1)}`} unit="m²" />
+            <CalculationOutput title="Est Formwork Cost (৳600/m²)" value={`৳${estFwCost.toLocaleString(undefined, {maximumFractionDigits:0})}`} unit="" />
+          </div>
+
+          <div className="mt-3 bg-primary/10 border border-primary/20 rounded-xl p-2.5 flex justify-between items-center">
+            <span className="text-[10px] font-bold text-muted-foreground uppercase">Formwork % of Concrete Cost</span>
+            <span className="text-sm font-black text-primary font-mono">{costRatioPercent.toFixed(1)}%</span>
+          </div>
+        </InteractiveCard>
+      }
+    />
+  );
+};
+

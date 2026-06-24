@@ -16,7 +16,7 @@ import {
 import { UnitConverter } from '@/cores/shared/utils/unitConverter';
 import { useClickStepsContext } from '@/features/presentation/context/ClickStepsContext';
 import { useUrlSyncedState } from '@/features/presentation/hooks/useUrlSyncedState';
-import { FootingDrawingCanvas } from '@/subjects/quantity-surveying/features';
+import { FootingDrawingCanvas, TwoStoryPlanDrawing } from '@/subjects/quantity-surveying/features';
 
 // Worked Example: Isolated Footing
 export const Slide9: React.FC = () => {
@@ -594,3 +594,145 @@ export const Slide13: React.FC = () => {
     />
   );
 };
+
+/**
+ * Slide 12C: Comprehensive Substructure Estimate: Two-Storied Building
+ */
+export const TwoStoriedBuildingEstimateSlide: React.FC = () => {
+  const [activeStep, setActiveStep] = useUrlSyncedState<number>('comprehensive_estimate_step', 1);
+
+  const steps = [
+    {
+      id: 1,
+      title: '1. Earthwork Excavation',
+      desc: 'Excavation volume for all foundation trenches is calculated using length, width, and depth. It covers the full excavation layout, keeping external walls (thick) and internal partition walls (thin) separate.',
+    },
+    {
+      id: 2,
+      title: '2. Concrete Bedding',
+      desc: 'Cement Concrete (C.C.) bedding layer is laid continuously along the bottom of the excavated trenches to distribute loads. Typical dry mix ratio is 1:4:8 or 1:5:10.',
+    },
+    {
+      id: 3,
+      title: '3. Stepped Masonry',
+      desc: 'Stepped foundation masonry (brickwork or R.R. stone) is laid sequentially. Each step width changes the load distribution. Thus, each stepping layer must be recorded as a separate row in the Measurement Book.',
+    },
+    {
+      id: 4,
+      title: '4. Earth Filling',
+      desc: 'Filling consists of: (a) trench filling (excavation volume minus structure displacement volume), and (b) plinth cavity filling. Plinth filling uses internal dimensions and height after deducting floor slab thickness.',
+    },
+    {
+      id: 5,
+      title: '5. Damp Proof Course',
+      desc: 'DPC is applied horizontally across the top of all plinth walls to block capillary moisture rise. Measured as area (m²), and sill area of door openings must be strictly deducted.',
+    },
+  ];
+
+  const headers = [
+    { label: 'Item', width: '8%' },
+    { label: 'Description', width: '38%' },
+    { label: 'No.', align: 'center' as const, width: '6%' },
+    { label: 'L (m)', align: 'right' as const, width: '10%' },
+    { label: 'B (m)', align: 'right' as const, width: '10%' },
+    { label: 'H/D (m)', align: 'right' as const, width: '10%' },
+    { label: 'Qty', align: 'right' as const, width: '18%' },
+  ];
+
+  const getMbRows = () => {
+    switch (activeStep) {
+      case 1:
+        return [
+          ['1.01(a)', 'Earthwork Excavation (External Walls)', '1', '48.00', '0.75', '1.20', '43.200 m³'],
+          ['1.01(b)', 'Earthwork Excavation (Internal Wall)', '1', '12.00', '0.50', '1.20', '7.200 m³'],
+          ['', 'Total Excavation Trench Volume', '', '', '', '', '50.400 m³'],
+        ];
+      case 2:
+        return [
+          ['1.02(a)', 'Cement Concrete (1:4:8) in Fdn (Ext)', '1', '48.00', '0.75', '0.10', '3.600 m³'],
+          ['1.02(b)', 'Cement Concrete (1:4:8) in Fdn (Int)', '1', '12.00', '0.50', '0.10', '0.600 m³'],
+          ['', 'Total C.C. Bedding Volume', '', '', '', '', '4.200 m³'],
+        ];
+      case 3:
+        return [
+          ['1.03(a)', 'Foundation Masonry (1st Footing)', '1', '48.00', '0.50', '0.15', '3.600 m³'],
+          ['1.03(b)', 'Foundation Masonry (2nd Footing)', '1', '48.00', '0.38', '0.15', '2.736 m³'],
+          ['1.03(c)', 'Basement Plinth Wall (up to GL)', '1', '48.00', '0.25', '0.90', '10.800 m³'],
+          ['', 'Total Stepped Masonry Volume', '', '', '', '', '17.136 m³'],
+        ];
+      case 4:
+        return [
+          ['1.04(a)', 'Trench Backfill (Excavation - displacement)', '1', '—', '—', '—', '29.064 m³'],
+          ['1.04(b)', 'Plinth Earth Filling (Room 1 internal)', '1', '4.50', '3.50', '0.80', '12.600 m³'],
+          ['1.04(c)', 'Plinth Earth Filling (Room 2 internal)', '1', '4.50', '3.50', '0.80', '12.600 m³'],
+          ['', 'Total Filling Quantity', '', '', '', '', '54.264 m³'],
+        ];
+      case 5:
+        return [
+          ['1.05(a)', 'Damp Proof Course (DPC) at plinth', '1', '48.00', '0.25', '—', '12.000 m²'],
+          ['1.05(b)', 'Ddt: Door Sills (Ext Front Doors)', '2', '1.00', '0.25', '—', '-0.500 m²'],
+          ['1.05(c)', 'Ddt: Door Sill (Int Room Door)', '1', '1.00', '0.125', '—', '-0.125 m²'],
+          ['', 'Net Damp Proof Course Area', '', '', '', '', '11.375 m²'],
+        ];
+      default:
+        return [];
+    }
+  };
+
+  return (
+    <TwoColumnLayout
+      title="Comprehensive Substructure Estimate"
+      bgVariant="default"
+      leftWidth="45%"
+      leftContent={
+        <div className="space-y-3 flex flex-col justify-between h-full select-none">
+          <div className="space-y-2">
+            <h4 className="text-[11px] uppercase tracking-wider font-bold text-muted-foreground">
+              Master Ledger Sequence
+            </h4>
+            <div className="flex flex-col gap-1.5">
+              {steps.map((s) => (
+                <button
+                  key={s.id}
+                  type="button"
+                  onClick={() => setActiveStep(s.id)}
+                  className={`w-full p-2.5 rounded-lg border text-left text-xs transition-all leading-normal ${
+                    activeStep === s.id
+                      ? 'bg-primary/10 border-primary text-primary font-bold'
+                      : 'bg-muted/20 border-border/40 hover:bg-muted/40 text-foreground'
+                  }`}
+                >
+                  {s.title}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="bg-primary/5 border border-primary/20 p-3 rounded-xl">
+            <p className="text-[11px] text-muted-foreground leading-relaxed">
+              {steps[activeStep - 1]?.desc || ''}
+            </p>
+          </div>
+        </div>
+      }
+      rightContent={
+        <div className="flex flex-col h-full gap-3 justify-between">
+          <div className="flex-1 min-h-[190px]">
+            <TwoStoryPlanDrawing activeStep={activeStep} className="h-full" />
+          </div>
+          <div className="overflow-x-auto">
+            <SlideTable
+              caption={`MEASUREMENT BOOK (MB) - STEP ${activeStep}`}
+              headers={headers}
+              rows={getMbRows()}
+              striped={true}
+              bordered={true}
+              dense="tight"
+            />
+          </div>
+        </div>
+      }
+    />
+  );
+};
+

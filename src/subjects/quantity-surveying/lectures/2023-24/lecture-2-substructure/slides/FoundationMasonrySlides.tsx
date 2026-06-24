@@ -469,3 +469,146 @@ export const Slide12: React.FC = () => {
     />
   );
 };
+
+/**
+ * Slide 12B: Substructure Masonry: Random Rubble (R.R.) Stone
+ */
+export const RrMasonrySlide: React.FC = () => {
+  const [totalVol, setTotalVol] = useUrlSyncedState<number>('rr_total_vol', 15.0);
+  const [mixRatio, setMixRatio] = useUrlSyncedState<number>('rr_mix_ratio', 6); // default 1:6
+
+  // 1 bag of cement = 1.25 cft = 0.0347 m³
+  // Dry mortar volume for rubble stone masonry is typically ~30%-35% of total volume. We will use a standard 32% factor.
+  const wetMortarVol = totalVol * 0.32;
+  const dryMortarVol = wetMortarVol * 1.25; // 25% shrinkage/waste allowance
+
+  const sumParts = 1 + mixRatio;
+  const cementVolM3 = dryMortarVol / sumParts;
+  const cementBags = cementVolM3 / 0.0347;
+  const sandVolM3 = cementVolM3 * mixRatio;
+  const sandCft = sandVolM3 * 35.315; // convert to cft
+
+  return (
+    <TwoColumnLayout
+      title="Substructure Masonry: Random Rubble (R.R.)"
+      bgVariant="default"
+      leftWidth="50%"
+      leftContent={
+        <div className="space-y-4">
+          <SlideContent
+            blocks={[
+              {
+                type: 'paragraph',
+                text: (
+                  <span>
+                    In areas where natural stone is abundant, <strong>Random Rubble (R.R.) Stone Masonry</strong> is heavily utilized as a durable, load-bearing stepped foundation system.
+                  </span>
+                ),
+              },
+              {
+                type: 'bullet',
+                text: (
+                  <span>
+                    <strong>Application:</strong> Constructed in stepped profiles for 1st Footing, 2nd Footing, and Basement/Plinth walls beneath heavy brick load-bearing structures.
+                  </span>
+                ),
+                revealAt: 0,
+              },
+              {
+                type: 'bullet',
+                text: (
+                  <span>
+                    <strong>Measurement Standard:</strong> Measured volumetrically in cubic meters (<LatexFormula math="\text{m}^3" />) or cubic feet (cft) using length, breadth, and height (\(L \times B \times H\)).
+                  </span>
+                ),
+                revealAt: 1,
+              },
+              {
+                type: 'bullet',
+                text: (
+                  <span>
+                    <strong>Mix Proportions:</strong> Standard mortar mixes are Cement Mortar (C.M.) ratios of <strong>1:5</strong> or <strong>1:6</strong>.
+                  </span>
+                ),
+                revealAt: 2,
+              },
+              {
+                type: 'bullet',
+                text: (
+                  <span>
+                    <strong>Ledger Integrity:</strong> To maintain auditability, each stepping layer of the R.R. stone foundation must be logged as a separate row in the Measurement Book (MB).
+                  </span>
+                ),
+                revealAt: 3,
+              },
+            ]}
+          />
+        </div>
+      }
+      rightContent={
+        <div className="space-y-4 flex flex-col justify-between h-full">
+          <div className="bg-muted/40 rounded-lg border border-border/30 flex items-center justify-center p-3 relative h-40 overflow-hidden select-none">
+            <svg width="220" height="150" viewBox="0 0 220 150" className="w-full h-full max-h-[140px]">
+              {/* Ground level */}
+              <line x1="10" y1="45" x2="210" y2="45" stroke="#10b981" strokeWidth="1" strokeDasharray="3,2" />
+              <text x="15" y="38" className="fill-emerald-500 font-bold text-[7.5px]">GL</text>
+
+              {/* Rubble Masonry layers (hatched stone patterns) */}
+              {/* Basement / Plinth wall */}
+              <rect x="85" y="45" width="50" height="40" fill="currentColor" className="text-muted/20" stroke="currentColor" strokeWidth="1" />
+              {/* 2nd Footing */}
+              <rect x="70" y="85" width="80" height="25" fill="currentColor" className="text-muted/25" stroke="currentColor" strokeWidth="1" />
+              {/* 1st Footing */}
+              <rect x="55" y="110" width="110" height="25" fill="currentColor" className="text-muted/30" stroke="currentColor" strokeWidth="1" />
+              {/* CC Bedding */}
+              <rect x="40" y="135" width="140" height="10" fill="currentColor" className="text-muted/45" stroke="currentColor" strokeWidth="1" />
+
+              {/* Text Labels */}
+              <text x="110" y="68" className="fill-muted-foreground text-[8px] font-bold" textAnchor="middle">Basement Wall (375mm)</text>
+              <text x="110" y="101" className="fill-muted-foreground text-[8px] font-bold" textAnchor="middle">2nd Footing (600mm)</text>
+              <text x="110" y="126" className="fill-muted-foreground text-[8px] font-bold" textAnchor="middle">1st Footing (750mm)</text>
+              <text x="110" y="143" className="fill-muted-foreground/60 text-[7px]" textAnchor="middle">CC Bedding</text>
+            </svg>
+          </div>
+
+          <InteractiveCard title="R.R. Masonry Materials Modeler">
+            <div className="space-y-3 mb-3 select-none">
+              <ParameterSlider
+                label="Total R.R. Masonry Volume"
+                min={5}
+                max={50}
+                step={1}
+                value={totalVol}
+                onChange={setTotalVol}
+                unit=" m³"
+              />
+              
+              <div className="flex justify-between items-center bg-background/50 p-2 rounded-xl border border-border/40">
+                <span className="text-[10px] font-mono text-muted-foreground">Cement Mortar Mix Ratio</span>
+                <select
+                  value={mixRatio}
+                  onChange={(e) => setMixRatio(parseInt(e.target.value))}
+                  className="bg-background text-primary text-xs font-bold border border-border/40 px-2 py-1 rounded-md"
+                >
+                  <option value={5}>1:5 Mix</option>
+                  <option value={6}>1:6 Mix</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-3 gap-2 border-t border-border/40 pt-2 font-mono text-[10px]">
+              <CalculationOutput title="Wet Mortar Vol" value={`${wetMortarVol.toFixed(3)}`} unit="m³" />
+              <CalculationOutput title="Dry Mortar Vol" value={`${dryMortarVol.toFixed(3)}`} unit="m³" />
+              <CalculationOutput title="Cement Required" value={`${cementBags.toFixed(1)}`} unit="Bags" />
+            </div>
+
+            <div className="mt-2 bg-muted/40 p-2 border border-border/40 rounded-xl">
+              <CalculationOutput title="Local Sand Volume (cft)" value={`${sandCft.toFixed(1)}`} unit="cft" />
+            </div>
+          </InteractiveCard>
+        </div>
+      }
+    />
+  );
+};
+

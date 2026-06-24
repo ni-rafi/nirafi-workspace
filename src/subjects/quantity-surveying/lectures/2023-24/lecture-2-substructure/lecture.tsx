@@ -4,21 +4,30 @@ import { SlideProps } from '@/features/presentation/components/slides/SlideRende
 import { Slide1, Slide2, Slide3 } from './slides/PrinciplesSlides';
 import { Slide1 as EstSlide1, Slide2 as EstSlide2, Slide3 as EstSlide3 } from './slides/EstimatesSlides';
 import { Slide1 as WallSlide1, Slide2 as WallSlide2, Slide3 as WallSlide3, Slide4 as WallSlide4 } from './slides/WallMeasurementSlides';
-import { Slide3 as EarthworkDivider, Slide4 as CentreLineDeduction, Slide5 as FieldRealities, Slide6 as SoilBulking, Slide6B as SoilBulkingSandbox } from './slides/EarthworkSlides';
+import {
+  Slide3 as EarthworkDivider,
+  Slide4 as CentreLineDeduction,
+  Slide5 as FieldRealities,
+  Slide6 as SoilBulking,
+  Slide6B as SoilBulkingSandbox,
+  PlinthFoundationFillingSlide
+} from './slides/EarthworkSlides';
 import { Slide7 as BfsBedding, Slide7B as BfsSandbox, Slide8 as LeanCc, Slide8B as LeanCcSandbox, Slide9 as RccFooting } from './slides/ConcreteSlides';
 import {
   Slide9 as FootingWorkedExample,
   Slide10 as SandCushionRealities,
   Slide11 as FootingMath,
   Slide12 as FootingLedger,
-  Slide13 as FootingPrecision
+  Slide13 as FootingPrecision,
+  TwoStoriedBuildingEstimateSlide
 } from './slides/WorkedExampleSlides';
 import {
   Slide10_Anatomy as SteppedMasonryAnatomy,
   Slide10_Breakdown as SteppedMasonryBreakdown,
   Slide10_Ledger as SteppedMasonryLedger,
   Slide11 as DpcDeduction,
-  Slide12 as DpmSlab
+  Slide12 as DpmSlab,
+  RrMasonrySlide
 } from './slides/FoundationMasonrySlides';
 import { Slide13 as DimensionAnatomy, Slide14 as AddDeduct, Slide15 as ClassSummary } from './slides/StudioPracticeSlides';
 
@@ -40,25 +49,28 @@ export const slides: Record<number, React.ComponentType<SlideProps>> = {
   13: FieldRealities,
   14: SoilBulking,
   15: SoilBulkingSandbox,
-  16: BfsBedding,
-  17: BfsSandbox,
-  18: LeanCc,
-  19: LeanCcSandbox,
-  20: RccFooting,
-  21: FootingWorkedExample,
-  22: SandCushionRealities,
-  23: FootingMath,
-  24: FootingLedger,
-  25: FootingPrecision,
-  26: SteppedMasonryAnatomy,
-  27: SteppedMasonryBreakdown,
-  28: SteppedMasonryLedger,
-  29: DpcDeduction,
-  30: DpmSlab,
-  31: DimensionAnatomy,
-  32: AddDeduct,
-  33: ClassSummary,
-  34: (props) => <LectureThankYou {...props} />,
+  16: PlinthFoundationFillingSlide,
+  17: BfsBedding,
+  18: BfsSandbox,
+  19: LeanCc,
+  20: LeanCcSandbox,
+  21: RccFooting,
+  22: FootingWorkedExample,
+  23: SandCushionRealities,
+  24: FootingMath,
+  25: FootingLedger,
+  26: FootingPrecision,
+  27: SteppedMasonryAnatomy,
+  28: SteppedMasonryBreakdown,
+  29: SteppedMasonryLedger,
+  30: RrMasonrySlide,
+  31: DpcDeduction,
+  32: DpmSlab,
+  33: TwoStoriedBuildingEstimateSlide,
+  34: DimensionAnatomy,
+  35: AddDeduct,
+  36: ClassSummary,
+  37: (props) => <LectureThankYou {...props} />,
 };
 
 export const slideMetadata: Record<
@@ -80,23 +92,26 @@ export const slideMetadata: Record<
   13: { title: 'Field Realities & Dewatering', type: 'Concept Details', section: 'Earthwork' },
   14: { title: 'Soil Bulking & Backfill', type: 'Concept Details', section: 'Earthwork' },
   15: { title: 'Soil Bulking Sandbox', type: 'Live Sandbox', section: 'Earthwork' },
-  16: { title: 'Brick Flat Soling (BFS)', type: 'Concept Details', section: 'Concrete Bedding' },
-  17: { title: 'BFS Take-off Sandbox', type: 'Live Sandbox', section: 'Concrete Bedding' },
-  18: { title: 'Lean Concrete Base', type: 'Concept Details', section: 'Concrete Bedding' },
-  19: { title: 'Lean CC Volume Sandbox', type: 'Live Sandbox', section: 'Concrete Bedding' },
-  20: { title: 'Reinforced concrete Footing', type: 'Concept Details', section: 'Concrete Bedding' },
-  21: { title: 'Sessional Footing Example', type: 'Concept Details', section: 'Concrete Bedding' },
-  22: { title: 'Sand Cushion Realities', type: 'Concept Details', section: 'Concrete Bedding' },
-  23: { title: 'Footing Math Computations', type: 'Concept Details', section: 'Concrete Bedding' },
-  24: { title: 'Footing MB Ledger', type: 'Spreadsheet View', section: 'Concrete Bedding' },
-  25: { title: 'MB Precision Rules', type: 'Concept Details', section: 'Concrete Bedding' },
-  26: { title: 'Stepped Masonry Foundation Profile', type: 'Concept Details', section: 'Foundation Masonry' },
-  27: { title: 'Measurement Rules for Stepped Footings', type: 'Concept Details', section: 'Foundation Masonry' },
-  28: { title: 'Ledger Entry: Brickwork in Foundation (up to GL)', type: 'Spreadsheet View', section: 'Foundation Masonry' },
-  29: { title: 'DPC Door Deductions', type: 'Concept Details', section: 'Foundation Masonry' },
-  30: { title: 'Damp-Proof Membrane (DPM)', type: 'Concept Details', section: 'Foundation Masonry' },
-  31: { title: 'Dimension Paper Layout', type: 'Spreadsheet View', section: 'Studio Practice' },
-  32: { title: 'Add & Deduct Notations', type: 'Concept Details', section: 'Studio Practice' },
-  33: { title: 'Class 2 Summary', type: 'Concept Details', section: 'Studio Practice' },
-  34: { title: 'Conclusion', type: 'Thank You Slide', section: 'Conclusion' },
+  16: { title: 'Earthwork in Plinth & Foundation Filling', type: 'Concept Details', section: 'Earthwork' },
+  17: { title: 'Brick Flat Soling (BFS)', type: 'Concept Details', section: 'Concrete Bedding' },
+  18: { title: 'BFS Take-off Sandbox', type: 'Live Sandbox', section: 'Concrete Bedding' },
+  19: { title: 'Lean Concrete Base', type: 'Concept Details', section: 'Concrete Bedding' },
+  20: { title: 'Lean CC Volume Sandbox', type: 'Live Sandbox', section: 'Concrete Bedding' },
+  21: { title: 'Reinforced concrete Footing', type: 'Concept Details', section: 'Concrete Bedding' },
+  22: { title: 'Sessional Footing Example', type: 'Concept Details', section: 'Concrete Bedding' },
+  23: { title: 'Sand Cushion Realities', type: 'Concept Details', section: 'Concrete Bedding' },
+  24: { title: 'Footing Math Computations', type: 'Concept Details', section: 'Concrete Bedding' },
+  25: { title: 'Footing MB Ledger', type: 'Spreadsheet View', section: 'Concrete Bedding' },
+  26: { title: 'MB Precision Rules', type: 'Concept Details', section: 'Concrete Bedding' },
+  27: { title: 'Stepped Masonry Foundation Profile', type: 'Concept Details', section: 'Foundation Masonry' },
+  28: { title: 'Measurement Rules for Stepped Footings', type: 'Concept Details', section: 'Foundation Masonry' },
+  29: { title: 'Ledger Entry: Brickwork in Foundation (up to GL)', type: 'Spreadsheet View', section: 'Foundation Masonry' },
+  30: { title: 'Substructure Masonry: Random Rubble Stone', type: 'Concept Details', section: 'Foundation Masonry' },
+  31: { title: 'DPC Door Deductions', type: 'Concept Details', section: 'Foundation Masonry' },
+  32: { title: 'Damp-Proof Membrane (DPM)', type: 'Concept Details', section: 'Foundation Masonry' },
+  33: { title: 'Comprehensive Two-Storied Building Estimate', type: 'Concept Details', section: 'Foundation Masonry' },
+  34: { title: 'Dimension Paper Layout', type: 'Spreadsheet View', section: 'Studio Practice' },
+  35: { title: 'Add & Deduct Notations', type: 'Concept Details', section: 'Studio Practice' },
+  36: { title: 'Class 2 Summary', type: 'Concept Details', section: 'Studio Practice' },
+  37: { title: 'Conclusion', type: 'Thank You Slide', section: 'Conclusion' },
 };

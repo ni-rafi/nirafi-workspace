@@ -280,3 +280,168 @@ export const Slide6B: React.FC = () => {
   );
 };
 
+/**
+ * Slide 6C: Earthwork Estimation: Plinth & Foundation Filling
+ */
+export const PlinthFoundationFillingSlide: React.FC = () => {
+  const [excavationVol, setExcavationVol] = useUrlSyncedState<number>('fill_exc_vol', 50.0);
+  const [structVol, setStructVol] = useUrlSyncedState<number>('fill_struct_vol', 12.5);
+  const [roomL, setRoomL] = useUrlSyncedState<number>('fill_room_l', 5.0);
+  const [roomW, setRoomW] = useUrlSyncedState<number>('fill_room_w', 4.0);
+  const [plinthH, setPlinthH] = useUrlSyncedState<number>('fill_plinth_h', 0.9);
+  const [slabThickness, setSlabThickness] = useUrlSyncedState<number>('fill_slab_thick', 0.1);
+
+  // Calculations
+  const foundationFilling = Math.max(0, excavationVol - structVol);
+  const plinthFillingH = Math.max(0, plinthH - slabThickness);
+  const plinthFillingVol = roomL * roomW * plinthFillingH;
+  const totalFilling = foundationFilling + plinthFillingVol;
+
+  return (
+    <TwoColumnLayout
+      title="Earthwork Estimation: Plinth & Foundation Filling"
+      bgVariant="default"
+      leftWidth="48%"
+      leftContent={
+        <div className="space-y-4">
+          <SlideContent
+            blocks={[
+              {
+                type: 'paragraph',
+                text: (
+                  <span>
+                    Earthwork in filling consists of two distinct components: filling foundation trenches and filling the plinth cavity. Excavated soil is typically reused for both.
+                  </span>
+                ),
+              },
+              {
+                type: 'bullet',
+                text: (
+                  <span>
+                    <strong>Foundation Trench Filling:</strong> Net filling quantity is calculated by taking total trench excavation volume and deducting the volume of the foundation structure (concrete bedding + masonry footings).
+                  </span>
+                ),
+                revealAt: 0,
+              },
+              {
+                type: 'bullet',
+                text: (
+                  <span>
+                    <strong>Plinth Cavity Filling:</strong> Earthwork in plinth filling must be calculated strictly using the <strong>internal dimensions</strong> between plinth walls.
+                  </span>
+                ),
+                revealAt: 1,
+              },
+              {
+                type: 'bullet',
+                text: (
+                  <span className="text-amber-600 dark:text-amber-400 font-semibold">
+                    ⚠️ <strong>Crucial Deduction Rule:</strong> Height for plinth filling is calculated only <strong>after deducting the thickness</strong> of the floor slab concrete layer from the plinth level height.
+                  </span>
+                ),
+                revealAt: 2,
+              },
+            ]}
+          />
+        </div>
+      }
+      rightContent={
+        <InteractiveCard title="Plinth & Foundation Filling Calculator">
+          <div className="space-y-3 mb-4 select-none">
+            <div className="grid grid-cols-2 gap-2">
+              <ParameterSlider
+                label="Excavation Volume"
+                min={20}
+                max={100}
+                step={5}
+                value={excavationVol}
+                onChange={setExcavationVol}
+                unit=" m³"
+              />
+              <ParameterSlider
+                label="Structure Volume"
+                min={5}
+                max={30}
+                step={0.5}
+                value={structVol}
+                onChange={setStructVol}
+                unit=" m³"
+              />
+            </div>
+            
+            <div className="grid grid-cols-2 gap-2 border-t border-border/40 pt-2">
+              <ParameterSlider
+                label="Internal Room L"
+                min={3}
+                max={8}
+                step={0.1}
+                value={roomL}
+                onChange={setRoomL}
+                unit=" m"
+              />
+              <ParameterSlider
+                label="Internal Room W"
+                min={3}
+                max={8}
+                step={0.1}
+                value={roomW}
+                onChange={setRoomW}
+                unit=" m"
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-2 border-t border-border/40 pt-2">
+              <ParameterSlider
+                label="Plinth Height (above GL)"
+                min={0.3}
+                max={1.5}
+                step={0.05}
+                value={plinthH}
+                onChange={setPlinthH}
+                unit=" m"
+              />
+              <ParameterSlider
+                label="Floor Slab Thickness"
+                min={0.05}
+                max={0.2}
+                step={0.005}
+                value={slabThickness}
+                onChange={setSlabThickness}
+                unit=" m"
+                displayValue={`${(slabThickness * 1000).toFixed(0)} mm`}
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-3 gap-2 border-t border-border/40 pt-3 text-[11px] font-mono">
+            <CalculationOutput 
+              title="Fdn Trench Filling" 
+              value={`${foundationFilling.toFixed(3)}`} 
+              unit="m³"
+            />
+            <CalculationOutput 
+              title="Plinth Fill Height" 
+              value={`${plinthFillingH.toFixed(3)}`} 
+              unit="m"
+            />
+            <CalculationOutput 
+              title="Plinth Fill Volume" 
+              value={`${plinthFillingVol.toFixed(3)}`} 
+              unit="m³"
+            />
+          </div>
+
+          <div className="mt-3 bg-primary/10 border border-primary/20 rounded-xl p-2.5">
+            <CalculationOutput 
+              title="Total Filling Quantity" 
+              value={`${totalFilling.toFixed(3)}`} 
+              unit="m³"
+            />
+          </div>
+        </InteractiveCard>
+      }
+    />
+  );
+};
+
+

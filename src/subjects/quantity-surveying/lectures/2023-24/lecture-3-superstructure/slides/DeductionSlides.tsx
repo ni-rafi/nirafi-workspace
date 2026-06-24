@@ -1,14 +1,14 @@
 import React from 'react';
 import { TwoColumnLayout } from '@/shared/layouts/TwoColumnLayout';
-import { FullWidthLayout } from '@/shared/layouts/FullWidthLayout';
 import {
   InteractiveCard,
   SlideBullet,
   LatexFormula,
-  SlideGrid,
-  SlideBadge
+  ParameterSlider,
+  CalculationOutput
 } from '@/features/presentation/components/elements';
 import { DeductionSandbox } from '@/subjects/quantity-surveying/features';
+import { useUrlSyncedState } from '@/features/presentation/hooks/useUrlSyncedState';
 
 // Slide 11: 4.1 & 4.2 The Deduction (Ddt) Protocol
 export const Slide11: React.FC = () => (
@@ -86,37 +86,130 @@ export const Slide12: React.FC = () => {
 
 // Slide 13: 4.4 Woodwork & Joinery Segregation
 export const Slide13: React.FC = () => {
-  return (
-    <FullWidthLayout title="4.4 Woodwork &amp; Joinery Segregation" bgVariant="default">
-      <SlideGrid cols={2}>
-        <InteractiveCard title="Chowkhats (Frames)" className="h-full">
-          <div className="flex flex-col gap-2">
-            <SlideBadge variant="info" label="Volumetric Take-off (m³ or cft)" />
-            <p className="text-xs text-muted-foreground leading-relaxed mt-2">
-              Measured by tracking the total running length of the timber or metal frame, multiplied by its specific cross-sectional profile (e.g. 3" × 4" or 75mm × 100mm).
-            </p>
-            <div className="mt-3 p-3 bg-muted rounded border border-border/40 text-[11px] font-mono leading-normal">
-              <strong>Calculation:</strong>
-              <br />
-              Vol = Total Frame Length × Section Area. Remember to account for horn embeddings into masonry.
-            </div>
-          </div>
-        </InteractiveCard>
+  const [doorH, setDoorH] = useUrlSyncedState<number>('wood_door_h', 2.1);
+  const [doorW, setDoorW] = useUrlSyncedState<number>('wood_door_w', 1.0);
+  const [frameB, setFrameB] = useUrlSyncedState<number>('wood_frame_b', 0.100); // 100mm (4")
+  const [frameD, setFrameD] = useUrlSyncedState<number>('wood_frame_d', 0.075); // 75mm (3")
+  const [horns, setHorns] = useUrlSyncedState<number>('wood_horns', 0.1); // 100mm (4") corner projections
 
-        <InteractiveCard title="Shutters (Panels)" className="h-full">
-          <div className="flex flex-col gap-2">
-            <SlideBadge variant="success" label="Surface Area Take-off (m² or sft)" />
-            <p className="text-xs text-muted-foreground leading-relaxed mt-2">
-              Measured as a flat surface area based on the clear inner dimensions of the door/window frame openings.
-            </p>
-            <div className="mt-3 p-3 bg-muted rounded border border-border/40 text-[11px] font-mono leading-normal">
-              <strong>Calculation:</strong>
-              <br />
-              Area = Height × Width of the panels. Thickness is absorbed into the item description.
+  // Chowkhat (Frame) Volume
+  // Total running length of frame = 2 * Height + Width + 2 * Horns (at top corners)
+  const frameLength = (2 * doorH) + doorW + (2 * horns);
+  const frameVol = frameLength * frameB * frameD;
+
+  // Shutter Panel Area
+  // Panel area fits inside the frame clear span:
+  // Clear height = doorH - frameD
+  // Clear width = doorW - 2 * frameD
+  const clearH = Math.max(0, doorH - frameD);
+  const clearW = Math.max(0, doorW - (2 * frameD));
+  const shutterArea = clearH * clearW;
+
+  return (
+    <TwoColumnLayout
+      title="4.4 Woodwork &amp; Joinery Segregation"
+      bgVariant="default"
+      leftWidth="45%"
+      leftContent={
+        <div className="space-y-3 flex flex-col justify-between h-full select-none">
+          <InteractiveCard title="Woodwork Measurement Rules">
+            <div className="space-y-3 text-xs leading-normal">
+              <div className="p-2.5 bg-muted/40 border border-border/40 rounded-lg">
+                <span className="text-[10px] text-primary uppercase font-bold block mb-1">Chowkhats (Frames)</span>
+                <p className="text-muted-foreground">
+                  Measured <strong>volumetrically</strong> (\(m^3\) or cft) by tracking the running length of the timber members times its cross-sectional area. Includes horn projections embedded in brickwork.
+                </p>
+              </div>
+              <div className="p-2.5 bg-muted/40 border border-border/40 rounded-lg">
+                <span className="text-[10px] text-emerald-500 uppercase font-bold block mb-1">Shutters (Panels)</span>
+                <p className="text-muted-foreground">
+                  Measured as a flat <strong>surface area</strong> (\(m^2\) or sft) based on clear inner dimensions inside the frame. Panel thickness is described but not multiplied.
+                </p>
+              </div>
+            </div>
+          </InteractiveCard>
+        </div>
+      }
+      rightContent={
+        <InteractiveCard title="Woodwork Take-off Calculator">
+          <div className="space-y-2 mb-3 select-none">
+            <div className="grid grid-cols-2 gap-2">
+              <ParameterSlider
+                label="Door Frame Height"
+                min={1.8}
+                max={2.5}
+                step={0.05}
+                value={doorH}
+                onChange={setDoorH}
+                unit=" m"
+              />
+              <ParameterSlider
+                label="Door Frame Width"
+                min={0.7}
+                max={1.5}
+                step={0.05}
+                value={doorW}
+                onChange={setDoorW}
+                unit=" m"
+              />
+            </div>
+            
+            <div className="grid grid-cols-3 gap-2 border-t border-border/40 pt-2">
+              <ParameterSlider
+                label="Frame Breadth"
+                min={0.075}
+                max={0.150}
+                step={0.005}
+                value={frameB}
+                onChange={setFrameB}
+                unit=" m"
+                displayValue={`${(frameB * 1000).toFixed(0)} mm`}
+              />
+              <ParameterSlider
+                label="Frame Depth"
+                min={0.050}
+                max={0.100}
+                step={0.005}
+                value={frameD}
+                onChange={setFrameD}
+                unit=" m"
+                displayValue={`${(frameD * 1000).toFixed(0)} mm`}
+              />
+              <ParameterSlider
+                label="Corner Horns"
+                min={0.05}
+                max={0.20}
+                step={0.01}
+                value={horns}
+                onChange={setHorns}
+                unit=" m"
+                displayValue={`${(horns * 1000).toFixed(0)} mm`}
+              />
             </div>
           </div>
+
+          <div className="border-t border-border/40 pt-2 space-y-1.5 font-mono text-[11px]">
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Total Frame Length:</span>
+              <span className="font-bold text-foreground">{frameLength.toFixed(2)} m</span>
+            </div>
+            <CalculationOutput 
+              title="Chowkhat (Frame) Volume" 
+              value={`${frameVol.toFixed(4)}`} 
+              unit="m³"
+            />
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Clear Panel Dims:</span>
+              <span className="font-bold text-foreground">{clearW.toFixed(2)}m × {clearH.toFixed(2)}m</span>
+            </div>
+            <CalculationOutput 
+              title="Shutter Panel Area" 
+              value={`${shutterArea.toFixed(3)}`} 
+              unit="m²"
+            />
+          </div>
         </InteractiveCard>
-      </SlideGrid>
-    </FullWidthLayout>
+      }
+    />
   );
 };

@@ -1,6 +1,12 @@
 import React from 'react';
 import { TwoColumnLayout } from '@/shared/layouts/TwoColumnLayout';
-import { InteractiveCard, SlideList, ParameterSlider, CalculationOutput } from '@/features/presentation/components/elements';
+import {
+  InteractiveCard,
+  SlideList,
+  ParameterSlider,
+  CalculationOutput,
+  SlideContent
+} from '@/features/presentation/components/elements';
 import { ShieldAlert, HelpCircle } from 'lucide-react';
 import { useUrlSyncedState } from '@/features/presentation/hooks/useUrlSyncedState';
 
@@ -241,3 +247,248 @@ export const Slide3: React.FC = () => {
     />
   );
 };
+
+/**
+ * Slide 24B: Macro Budgeting: MEP Percentage Provisions
+ */
+export const Slide24B: React.FC = () => {
+  return (
+    <TwoColumnLayout
+      title="Macro Budgeting: MEP Percentage Provisions"
+      bgVariant="default"
+      leftWidth="50%"
+      leftContent={
+        <div className="space-y-4">
+          <SlideContent
+            blocks={[
+              {
+                type: 'paragraph',
+                text: (
+                  <span>
+                    A detailed structural and architectural estimate is commercially incomplete without budgeting for internal building services (Mechanical, Electrical, Plumbing).
+                  </span>
+                ),
+              },
+              {
+                type: 'bullet',
+                text: (
+                  <span>
+                    <strong>Preliminary Allowances:</strong> MEP services are initially budgeted as lump-sum percentage provisions of the core structural building cost before detailed design drawings are finalized.
+                  </span>
+                ),
+                revealAt: 0,
+              },
+              {
+                type: 'bullet',
+                text: (
+                  <span>
+                    <strong>Water Supply &amp; Sanitary:</strong> Allocated at <strong>7.5% to 12.5%</strong> of the total building structural estimate.
+                  </span>
+                ),
+                revealAt: 1,
+              },
+              {
+                type: 'bullet',
+                text: (
+                  <span>
+                    <strong>Electrification Works:</strong> Allocated at <strong>6.0% to 7.5%</strong> of the total building structural estimate.
+                  </span>
+                ),
+                revealAt: 2,
+              },
+              {
+                type: 'bullet',
+                text: (
+                  <span>
+                    <strong>Site Landscaping, Roads &amp; Lawns:</strong> Allocated at approximately <strong>5.0%</strong> of the structural building estimate.
+                  </span>
+                ),
+                revealAt: 3,
+              },
+            ]}
+          />
+        </div>
+      }
+      rightContent={
+        <div className="flex flex-col justify-center h-full bg-muted/20 p-5 border border-border/40 rounded-xl space-y-3 select-none">
+          <span className="text-[10px] uppercase font-mono tracking-wider text-muted-foreground block text-center">
+            Superstructure Budget Allocation Model
+          </span>
+          <div className="space-y-2 text-xs leading-normal">
+            <div className="p-3 bg-blue-500/10 border-l-4 border-blue-500 rounded-r-lg">
+              <strong className="text-blue-700 dark:text-blue-400">Sanitary &amp; Plumbing (7.5% - 12.5%):</strong> Covers piping, sewage lines, toilets, basins, and storage reservoir pumps.
+            </div>
+            <div className="p-3 bg-amber-500/10 border-l-4 border-amber-500 rounded-r-lg">
+              <strong className="text-amber-700 dark:text-amber-400">Electrification (6.0% - 7.5%):</strong> Covers wiring, switches, lights, distribution boards, conduits, and grounding.
+            </div>
+            <div className="p-3 bg-emerald-500/10 border-l-4 border-emerald-500 rounded-r-lg">
+              <strong className="text-emerald-700 dark:text-emerald-400">Landscaping (5.0%):</strong> Covers external brick paving, compound boundary walls, lawns, and drainage.
+            </div>
+          </div>
+        </div>
+      }
+    />
+  );
+};
+
+/**
+ * Slide 24C: Overheads, Supervision, and Contingencies
+ */
+export const Slide24C: React.FC = () => {
+  const [baseCost, setBaseCost] = useUrlSyncedState<number>('abstract_base_cost', 5000000); // 50 Lakh BDT
+  const [sanitaryPercent, setSanitaryPercent] = useUrlSyncedState<number>('abstract_sanitary_pct', 10); // default 10%
+  const [electPercent, setElectPercent] = useUrlSyncedState<number>('abstract_elect_pct', 7); // default 7%
+  const [contingenciesPercent, setContingenciesPercent] = useUrlSyncedState<number>('abstract_contingency_pct', 3.5); // default 3.5%
+  const [workChargedPercent, setWorkChargedPercent] = useUrlSyncedState<number>('abstract_wc_pct', 2); // default 2%
+
+  // Calculations
+  const sanitaryCost = baseCost * (sanitaryPercent / 100);
+  const electCost = baseCost * (electPercent / 100);
+  const subtotal = baseCost + sanitaryCost + electCost;
+
+  const contingencyCost = subtotal * (contingenciesPercent / 100);
+  const workChargedCost = subtotal * (workChargedPercent / 100);
+  const grandTotal = subtotal + contingencyCost + workChargedCost;
+
+  return (
+    <TwoColumnLayout
+      title="Overheads, Supervision &amp; Contingencies"
+      bgVariant="default"
+      leftWidth="48%"
+      leftContent={
+        <div className="space-y-4">
+          <SlideContent
+            blocks={[
+              {
+                type: 'paragraph',
+                text: (
+                  <span>
+                    To finalize the **Abstract of Estimated Cost**, the Quantity Surveyor adds financial buffers over raw materials and labor to compile the complete estimate.
+                  </span>
+                ),
+              },
+              {
+                type: 'bullet',
+                text: (
+                  <span>
+                    <strong>Petty Supervision &amp; Contingencies:</strong> A standard allowance of <strong>3% to 4%</strong> added to cover minor unmeasured site expenses, sudden rate increases, or minor deviations.
+                  </span>
+                ),
+                revealAt: 0,
+              },
+              {
+                type: 'bullet',
+                text: (
+                  <span>
+                    <strong>Work-Charged Establishment:</strong> An allowance of <strong>1.5% to 2%</strong> added to cover salaries of temporary supervisors, watchmen, and site offices required during construction.
+                  </span>
+                ),
+                revealAt: 1,
+              },
+              {
+                type: 'bullet',
+                text: (
+                  <span>
+                    <strong>Unforeseen Buffer:</strong> Additional margin (2% to 5%) often layered to absorb market inflation or excavation deviations.
+                  </span>
+                ),
+                revealAt: 2,
+              },
+            ]}
+          />
+        </div>
+      }
+      rightContent={
+        <InteractiveCard title="Abstract of Estimate Cost Modeler">
+          <div className="space-y-2 mb-3 select-none">
+            <ParameterSlider
+              label="Base Structural Cost (BDT)"
+              min={1000000}
+              max={10000000}
+              step={250000}
+              value={baseCost}
+              onChange={setBaseCost}
+              unit=" ৳"
+              displayValue={`৳${baseCost.toLocaleString()}`}
+            />
+            
+            <div className="grid grid-cols-2 gap-2 border-t border-border/40 pt-1.5">
+              <ParameterSlider
+                label="Sanitary (%)"
+                min={7.5}
+                max={12.5}
+                step={0.5}
+                value={sanitaryPercent}
+                onChange={setSanitaryPercent}
+                unit=" %"
+              />
+              <ParameterSlider
+                label="Electrical (%)"
+                min={6.0}
+                max={7.5}
+                step={0.1}
+                value={electPercent}
+                onChange={setElectPercent}
+                unit=" %"
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-2 border-t border-border/40 pt-1.5">
+              <ParameterSlider
+                label="Contingency (%)"
+                min={3.0}
+                max={4.0}
+                step={0.1}
+                value={contingenciesPercent}
+                onChange={setContingenciesPercent}
+                unit=" %"
+              />
+              <ParameterSlider
+                label="Work-Charged (%)"
+                min={1.5}
+                max={2.0}
+                step={0.1}
+                value={workChargedPercent}
+                onChange={setWorkChargedPercent}
+                unit=" %"
+              />
+            </div>
+          </div>
+
+          <div className="border-t border-border/40 pt-2 space-y-1 font-mono text-[10px]">
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Base Structural Cost:</span>
+              <span className="font-bold">৳{baseCost.toLocaleString()}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Water Supply &amp; Sanitary:</span>
+              <span className="font-bold">৳{sanitaryCost.toLocaleString(undefined, {maximumFractionDigits:0})}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Electrification:</span>
+              <span className="font-bold">৳{electCost.toLocaleString(undefined, {maximumFractionDigits:0})}</span>
+            </div>
+            <div className="flex justify-between border-t border-dashed border-border/40 pt-1 font-bold">
+              <span className="text-foreground">Subtotal Services:</span>
+              <span>৳{subtotal.toLocaleString(undefined, {maximumFractionDigits:0})}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Contingencies:</span>
+              <span className="font-bold text-red-500">+৳{contingencyCost.toLocaleString(undefined, {maximumFractionDigits:0})}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Work-Charged Est.:</span>
+              <span className="font-bold text-red-500">+৳{workChargedCost.toLocaleString(undefined, {maximumFractionDigits:0})}</span>
+            </div>
+          </div>
+
+          <div className="mt-2.5 bg-primary/10 border border-primary/20 rounded-xl p-2 flex justify-between items-center">
+            <span className="text-[10px] font-bold text-muted-foreground uppercase">Grand Estimated Cost</span>
+            <span className="text-sm font-black text-primary font-mono">৳{grandTotal.toLocaleString(undefined, {maximumFractionDigits:0})}</span>
+          </div>
+        </InteractiveCard>
+      }
+    />
+  );
+};
+

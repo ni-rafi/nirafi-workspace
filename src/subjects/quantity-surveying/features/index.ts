@@ -37,6 +37,8 @@ export { RetainingWallBBSDrawing } from './components/RetainingWallBBSDrawing';
 export { SlabCulvertAnatomyDrawing } from './components/SlabCulvertAnatomyDrawing';
 export { CompleteEstimateTreeDrawing } from './components/CompleteEstimateTreeDrawing';
 export { AnalysisOfRatesLedger } from './components/AnalysisOfRatesLedger';
+export { TwoStoryPlanDrawing } from './components/TwoStoryPlanDrawing';
 export * from './calculators';
+
 
 

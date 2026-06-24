@@ -64,12 +64,15 @@ export const Slide2: React.FC = () => {
       title="Long Wall - Short Wall Method"
       leftWidth="45%"
       leftContent={
-        <div className="space-y-4 flex flex-col justify-between h-full">
-          <InteractiveCard title="Calculation Protocol">
-            <p className="text-xs text-muted-foreground leading-relaxed">
-              Walls running along the length of a room are treated as Long Walls; perpendicular walls are treated as Short Walls.
+        <div className="space-y-4 flex flex-col justify-between h-full select-none">
+          <InteractiveCard title="Definition & Take-off Steps">
+            <p className="text-xs text-muted-foreground leading-relaxed mb-3">
+              <strong>Definition:</strong> Walls running along the length of a room are classified as <strong>"Long Walls"</strong>, while the perpendicular walls are considered <strong>"Short Walls"</strong>.
             </p>
-            <div className="space-y-2 mt-2">
+            <div className="p-2.5 bg-muted/30 border border-border/40 rounded-lg text-[11px] mb-3 leading-relaxed">
+              <strong>Step 1:</strong> Calculate the center line lengths of all individual walls first.
+            </div>
+            <div className="space-y-2">
               <button
                 type="button"
                 onClick={() => setActiveMode('long')}
@@ -80,9 +83,11 @@ export const Slide2: React.FC = () => {
                 }`}
               >
                 <div className="font-bold">Long Wall (Out-to-Out)</div>
-                <div className="text-[10.5px] text-muted-foreground font-normal mt-0.5">
-                  Length = Center Line Length + 2 × (0.5 × Breadth)
-                </div>
+                <p className="text-[10.5px] text-muted-foreground font-normal mt-1 leading-normal">
+                  Calculate length by <strong>adding half breadth</strong> at each end to its centerline length:
+                  <br />
+                  <span className="font-mono text-primary text-[10px] font-bold">L = L_cl + 2 × (0.5 × B)</span>
+                </p>
               </button>
               <button
                 type="button"
@@ -94,16 +99,18 @@ export const Slide2: React.FC = () => {
                 }`}
               >
                 <div className="font-bold">Short Wall (In-to-In)</div>
-                <div className="text-[10.5px] text-muted-foreground font-normal mt-0.5">
-                  Length = Center Line Length - 2 × (0.5 × Breadth)
-                </div>
+                <p className="text-[10.5px] text-muted-foreground font-normal mt-1 leading-normal">
+                  Calculate length by <strong>deducting half breadth</strong> at each end from its centerline length:
+                  <br />
+                  <span className="font-mono text-emerald-500 text-[10px] font-bold">L = L_cl - 2 × (0.5 × B)</span>
+                </p>
               </button>
             </div>
           </InteractiveCard>
           <div className="p-3 bg-muted/20 border border-border/40 rounded-xl flex gap-2.5 items-start">
             <HelpCircle className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
             <p className="text-[10.5px] text-muted-foreground leading-relaxed">
-              <strong>Key Rule:</strong> Long walls add wall thickness offsets to stretch Out-to-Out, while short walls subtract offsets to fit In-to-In, preventing double-counting of corners.
+              <strong>Final Calculation:</strong> Multiply these adjusted lengths by the respective wall breadth (B) and depth/height (H) to get the exact volumetric quantities: <span className="font-bold text-foreground">Quantity = L × B × H</span>.
             </p>
           </div>
         </div>
@@ -268,12 +275,12 @@ export const Slide4: React.FC = () => {
       title="Partly Center Line & Cross Wall"
       leftWidth="45%"
       leftContent={
-        <div className="space-y-4 flex flex-col justify-between h-full">
-          <InteractiveCard title="Hybrid Measurement Strategy">
-            <p className="text-xs text-muted-foreground leading-relaxed">
-              Adopted for structures with varying wall thicknesses, such as a thick external brick envelope enclosing thin partition walls.
+        <div className="space-y-4 flex flex-col justify-between h-full select-none">
+          <InteractiveCard title="Application & Strategy">
+            <p className="text-xs text-muted-foreground leading-relaxed mb-3">
+              <strong>Application:</strong> This hybrid method is adopted when a building's external boundary walls are of one thickness, but the internal partition walls have different thicknesses.
             </p>
-            <div className="space-y-2 mt-2">
+            <div className="space-y-2">
               <button
                 type="button"
                 onClick={() => setHighlightPart('outer')}
@@ -283,10 +290,10 @@ export const Slide4: React.FC = () => {
                     : 'bg-muted/20 border-border/40 hover:bg-muted/40 text-foreground'
                 }`}
               >
-                <div className="font-bold">1. External Envelope (Center Line)</div>
-                <div className="text-[10.5px] text-muted-foreground font-normal mt-0.5">
-                  Measure the thick outer wall envelope continuously using its own centerline.
-                </div>
+                <div className="font-bold">Execution Strategy 1: External Walls</div>
+                <p className="text-[10.5px] text-muted-foreground font-normal mt-1 leading-normal">
+                  Apply the continuous <strong>Center Line method</strong> strictly to the external envelope walls.
+                </p>
               </button>
               <button
                 type="button"
@@ -297,10 +304,10 @@ export const Slide4: React.FC = () => {
                     : 'bg-muted/20 border-border/40 hover:bg-muted/40 text-foreground'
                 }`}
               >
-                <div className="font-bold">2. Internal Walls (Long/Short Wall)</div>
-                <div className="text-[10.5px] text-muted-foreground font-normal mt-0.5">
-                  Calculate thinner internal partition walls individually using In-to-In length offsets.
-                </div>
+                <div className="font-bold">Execution Strategy 2: Internal Cross Walls</div>
+                <p className="text-[10.5px] text-muted-foreground font-normal mt-1 leading-normal">
+                  Apply the <strong>Long Wall - Short Wall method</strong> to the internal partition walls to calculate clear in-to-in distances.
+                </p>
               </button>
             </div>
           </InteractiveCard>
@@ -308,7 +315,7 @@ export const Slide4: React.FC = () => {
           <div className="p-3 bg-muted/20 border border-border/40 rounded-xl flex gap-2 items-start">
             <HelpCircle className="w-4 h-4 text-amber-500 mt-0.5 flex-shrink-0" />
             <p className="text-[10.5px] text-muted-foreground leading-relaxed">
-              <strong>Professional Tip:</strong> Because modern architectural plans utilize diverse wall depths, this hybrid approach is widely practiced in public works departments.
+              <strong>Industry Standard:</strong> Because modern blueprints frequently use different wall thicknesses and varying foundation levels, this combined approach is highly accurate and widely practiced by Engineering departments.
             </p>
           </div>
         </div>
