@@ -65,7 +65,7 @@ export const CompleteEstimateTreeDrawing: React.FC<CompleteEstimateTreeDrawingPr
       x: 640,
       width: 130,
       center: 705,
-      items: ['Civil materials', 'Labor contracts', 'Equipment rental', 'Contractor profit (10%)'],
+      items: ['Civil materials', 'Labor contracts', 'Contractor profit (10%)', 'Work-Charged Est (1.5-2%)'],
     },
   ];
 

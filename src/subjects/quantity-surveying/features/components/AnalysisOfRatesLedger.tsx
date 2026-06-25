@@ -1,6 +1,5 @@
 import React from 'react';
 import { useUrlSyncedState } from '@/features/presentation/hooks/useUrlSyncedState';
-import { calculateUnitRateFromScratch } from '../../cores';
 
 interface AnalysisOfRatesLedgerProps {
   className?: string;
@@ -12,15 +11,17 @@ export const AnalysisOfRatesLedger: React.FC<AnalysisOfRatesLedgerProps> = ({ cl
   const [equipmentCost, setEquipmentCost] = useUrlSyncedState<number>('rate_equipment_cost', 400);
   const [overheadPct, setOverheadPct] = useUrlSyncedState<number>('rate_overhead_pct', 15);
   const [profitPct, setProfitPct] = useUrlSyncedState<number>('rate_profit_pct', 10);
+  const [isWetTrade, setIsWetTrade] = useUrlSyncedState<boolean>('rate_is_wet_trade', false);
 
   const ohRate = overheadPct / 100;
   const prRate = profitPct / 100;
 
   const directSubtotal = materialCost + laborCost + equipmentCost;
-  const overheadCost = Math.round(directSubtotal * ohRate * 1000) / 1000;
-  const subtotalWithOh = directSubtotal + overheadCost;
+  const waterCharge = isWetTrade ? Math.round((materialCost + laborCost) * 0.01 * 1000) / 1000 : 0;
+  const overheadCost = Math.round((directSubtotal + waterCharge) * ohRate * 1000) / 1000;
+  const subtotalWithOh = directSubtotal + waterCharge + overheadCost;
   const profitCost = Math.round(subtotalWithOh * prRate * 1000) / 1000;
-  const grandTotal = calculateUnitRateFromScratch(materialCost, laborCost, equipmentCost, ohRate, prRate);
+  const grandTotal = Math.round((subtotalWithOh + profitCost) * 1000) / 1000;
 
   const formatBDT = (amount: number) => {
     return new Intl.NumberFormat('en-BD', {
@@ -120,6 +121,18 @@ export const AnalysisOfRatesLedger: React.FC<AnalysisOfRatesLedgerProps> = ({ cl
               className="w-full h-1.5 bg-muted rounded-lg appearance-none cursor-pointer accent-emerald-600"
             />
           </div>
+
+          <div className="border-t border-border/40 my-3 pt-3">
+            <label className="flex items-center space-x-2 text-xs cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={isWetTrade}
+                onChange={(e) => setIsWetTrade(e.target.checked)}
+                className="rounded border-border text-primary focus:ring-primary accent-primary"
+              />
+              <span className="font-medium text-foreground">Wet Trade (1.0% Water Charge applies)</span>
+            </label>
+          </div>
         </div>
       </div>
 
@@ -146,6 +159,12 @@ export const AnalysisOfRatesLedger: React.FC<AnalysisOfRatesLedgerProps> = ({ cl
             <span className="font-sans">Subtotal (Direct Cost)</span>
             <span>{formatBDT(directSubtotal)}</span>
           </div>
+          {isWetTrade && (
+            <div className="flex justify-between py-1.5 border-b border-border/25 text-amber-600 dark:text-amber-500 bg-amber-500/5 px-2 rounded">
+              <span className="font-sans font-medium">💧 Water Charge (1.0% of Mat+Lab)</span>
+              <span>{formatBDT(waterCharge)}</span>
+            </div>
+          )}
           <div className="flex justify-between py-1.5 border-b border-border/25">
             <span className="font-sans text-muted-foreground">4. Overhead Allowance ({overheadPct}%)</span>
             <span className="text-indigo-600">{formatBDT(overheadCost)}</span>

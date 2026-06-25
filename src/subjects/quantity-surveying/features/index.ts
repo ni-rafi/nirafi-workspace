@@ -52,6 +52,7 @@ export { MepSubNetworksDrawing } from './components/MepSubNetworksDrawing';
 export { SepticSteppedDrawing } from './components/SepticSteppedDrawing';
 export { SoakPitStructuralDrawing } from './components/SoakPitStructuralDrawing';
 export { EcoStpPrefabDrawing } from './components/EcoStpPrefabDrawing';
+export { SiteSafetyDrawing } from './components/SiteSafetyDrawing';
 export * from './calculators';
 
 

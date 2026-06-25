@@ -1,5 +1,7 @@
 import React from 'react';
 import { TopicDividerLayout } from '@/shared/layouts/TopicDividerLayout';
+import { LectureCover } from '@/shared/layouts/LectureCover';
+import { SlideProps } from '@/features/presentation/components/slides/SlideRenderer';
 import { TwoColumnLayout } from '@/shared/layouts/TwoColumnLayout';
 import { FullWidthLayout } from '@/shared/layouts/FullWidthLayout';
 import { 
@@ -11,14 +13,10 @@ import {
 } from '@/features/presentation/components/elements';
 
 // ============================================================================
-// Slide 1: Capstone Cover Layout (Fresh reset for Lecture 10)
+// Slide 1: Main Lecture Cover (LectureCover standard pattern)
 // ============================================================================
-export const Slide1: React.FC = () => (
-  <TopicDividerLayout
-    topicNumber="10"
-    title="Contractor Progress Payments & Project Budgeting"
-    subtitle="The Pinnacle of Sessional Cost Reconciliation, Abstract Ledgers, and Interim Payment Certificates (IPC)"
-  />
+export const Slide1: React.FC<SlideProps> = (props) => (
+  <LectureCover {...props} />
 );
 
 // ============================================================================
@@ -72,7 +70,7 @@ export const Slide2: React.FC = () => (
 // ============================================================================
 export const Slide3: React.FC = () => (
   <TwoColumnLayout
-    title="1.2 Contractual Additions & Profit Allocations"
+    title="1.5 Contractual Additions & Profit Allocations"
     bgVariant="default"
     leftWidth="45%"
     leftContent={
@@ -120,7 +118,7 @@ export const Slide3: React.FC = () => (
 // ============================================================================
 export const Slide4: React.FC = () => (
   <FullWidthLayout
-    title="1.3 Statutory Deductions: NBR Split Matrix"
+    title="1.6 Statutory Deductions: NBR Split Matrix"
     bgVariant="default"
   >
     <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center h-full">
@@ -176,5 +174,27 @@ export const Slide5: React.FC = () => (
     topicNumber="02"
     title="Interim Progress Payments"
     subtitle="Measurement Book Reconciliation, Progress Abstracts, and Retainage Valuation Rules"
+  />
+);
+
+// ============================================================================
+// SlideBudgetCompDiv: Budget Compilation Section Opener
+// ============================================================================
+export const SlideBudgetCompDiv: React.FC = () => (
+  <TopicDividerLayout
+    topicNumber="01"
+    title="Budget Compilation"
+    description="Abstract of Costs, Analysis of Rates, Site Facilities, Health & Safety, and the Complete Estimate"
+  />
+);
+
+// ============================================================================
+// SlideQuizzesDiv: Quizzes & Assessment Section Opener
+// ============================================================================
+export const SlideQuizzesDiv: React.FC = () => (
+  <TopicDividerLayout
+    topicNumber="04"
+    title="Quizzes & Assessment"
+    description="Apply your knowledge of IPC progress billing and statutory NBR tax deductions"
   />
 );

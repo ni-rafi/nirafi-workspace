@@ -1,5 +1,5 @@
 import React from 'react';
-import { TitleV2Layout } from '@/shared/layouts/TitleV2Layout';
+import { LectureCover } from '@/shared/layouts/LectureCover';
 import { TopicDividerLayout } from '@/shared/layouts/TopicDividerLayout';
 import { TwoColumnLayout } from '@/shared/layouts/TwoColumnLayout';
 import { SlideProps } from '@/features/presentation/components/slides/SlideRenderer';
@@ -27,17 +27,8 @@ import {
 } from '@/features/presentation/components/elements';
 
 // Slide 1: Cover Slide
-export const Slide1: React.FC<SlideProps> = () => (
-  <TitleV2Layout
-    courseCode="CE 204"
-    courseTitle="Quantity Surveying & Valuation"
-    subtitle="Estimation of Water Reservoir and Septic Tank"
-    yearSemester="2nd Year/1st Semester"
-    creditHours="3.0"
-    usnCode="CO-QS-204"
-    session="2023-2024"
-    lectureNumber={7}
-  />
+export const Slide1: React.FC<SlideProps> = (props) => (
+  <LectureCover {...props} />
 );
 
 // Slide 2: Section Divider

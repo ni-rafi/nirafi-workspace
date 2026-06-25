@@ -70,7 +70,7 @@ export const Slide10: React.FC = () => (
 // ============================================================================
 export const Slide11: React.FC = () => (
   <FullWidthLayout
-    title="3.2 The Final Technical Viva Voce"
+    title="3.3 The Final Technical Viva Voce"
     bgVariant="default"
   >
     <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center h-full">
@@ -106,7 +106,7 @@ export const Slide11: React.FC = () => (
 );
 
 // ============================================================================
-// Slide 12: Quiz Slide
+// Slide 12: Quiz Slide 1
 // ============================================================================
 export const Slide12: React.FC = () => {
   const questionText = React.useMemo(() => {
@@ -125,6 +125,34 @@ export const Slide12: React.FC = () => {
       <div className="w-full max-w-[720px] mx-auto mt-6">
         <QuizCardOrchestrator
           quizId="qs_2023_lec10_q1"
+          questionText={questionText}
+          quizType="numeric-input"
+        />
+      </div>
+    </FullWidthLayout>
+  );
+};
+
+// ============================================================================
+// Slide 14: Quiz Slide 2 (NEW)
+// ============================================================================
+export const Slide14: React.FC = () => {
+  const questionText = React.useMemo(() => {
+    const qFn = (reg: string) => parameterResolver.resolveTemplate(
+      'Calculate the source VAT deduction (in BDT) for a sessional project IPC, given: Gross Certified Progress Claim = {G} BDT; and the statutory Source VAT rate is 7.5%. Round your final answer to exactly 3 decimal places.',
+      { G: parameterResolver.lastDigit(1000000, 10000, 'BDT') },
+      reg
+    );
+    return Object.assign(qFn, {
+      formula: 'VAT = Gross × 0.075'
+    });
+  }, []);
+
+  return (
+    <FullWidthLayout title="Source VAT Deduction Quiz">
+      <div className="w-full max-w-[720px] mx-auto mt-6">
+        <QuizCardOrchestrator
+          quizId="qs_2023_lec10_q2"
           questionText={questionText}
           quizType="numeric-input"
         />
