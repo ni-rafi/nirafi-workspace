@@ -17,7 +17,7 @@ export const RoadPavementDrawing: React.FC<RoadPavementDrawingProps> = ({
 
   const containerClasses = isBlog
     ? 'bg-transparent border-none shadow-none p-0 flex flex-col items-center select-none w-full'
-    : `relative border border-border/80 bg-muted/20 dark:bg-muted/5 rounded-xl p-4 flex flex-col items-center shadow-sm select-none w-full justify-center min-h-[220px] ${className}`;
+    : `relative border border-border/80 bg-muted/20 dark:bg-muted/5 rounded-xl p-1 flex flex-col items-center shadow-sm select-none w-full justify-center ${className}`;
 
   const isSubgradeActive = activeHighlight === 'none' || activeHighlight === 'subgrade';
   const isSubBaseActive = activeHighlight === 'none' || activeHighlight === 'sub-base';
@@ -27,14 +27,11 @@ export const RoadPavementDrawing: React.FC<RoadPavementDrawingProps> = ({
 
   return (
     <div className={containerClasses}>
-      <span className="text-xs uppercase tracking-wider font-extrabold text-primary mb-3">
-        Road Pavement Section Stratification
-      </span>
       <svg
         width="100%"
-        height="180"
-        viewBox="0 0 450 180"
-        className="overflow-visible select-none"
+        height="100%"
+        viewBox="0 0 540 180"
+        className="overflow-visible select-none max-h-[140px]"
       >
         {/* Layer 1: Subgrade (Bottom-most, widest) */}
         <polygon
@@ -107,7 +104,7 @@ export const RoadPavementDrawing: React.FC<RoadPavementDrawingProps> = ({
 
         {/* Annotations */}
         {showAnnotation && (
-          <g className="font-mono text-[9px] fill-muted-foreground font-bold">
+          <g className="font-mono fill-muted-foreground font-bold" style={{ fontSize: '11px' }}>
             {/* Top Width (Surface) */}
             <g opacity={isSurfaceActive ? 1 : 0.15} className="transition-opacity duration-300">
               <line x1="100" y1="35" x2="350" y2="35" stroke="currentColor" strokeWidth="0.5" />
@@ -123,10 +120,10 @@ export const RoadPavementDrawing: React.FC<RoadPavementDrawingProps> = ({
             </g>
 
             {/* Layer labels on the left/right side */}
-            <text x="430" y="58" textAnchor="start" className={`fill-chart-1 ${isSurfaceActive ? 'opacity-100' : 'opacity-15'} transition-all`}>Seal/Tack Coat</text>
-            <text x="430" y="83" textAnchor="start" className={`fill-chart-4 ${isBaseActive ? 'opacity-100' : 'opacity-15'} transition-all`}>Base (150mm)</text>
-            <text x="430" y="113" textAnchor="start" className={`fill-chart-2 ${isSubBaseActive ? 'opacity-100' : 'opacity-15'} transition-all`}>Sub-base (150mm)</text>
-            <text x="430" y="148" textAnchor="start" className={`fill-muted-foreground ${isSubgradeActive ? 'opacity-100' : 'opacity-15'} transition-all`}>Subgrade Bed</text>
+            <text x="440" y="58" textAnchor="start" className={`fill-chart-1 ${isSurfaceActive ? 'opacity-100' : 'opacity-15'} transition-all`}>Seal/Tack Coat</text>
+            <text x="440" y="83" textAnchor="start" className={`fill-chart-4 ${isBaseActive ? 'opacity-100' : 'opacity-15'} transition-all`}>Base (150mm)</text>
+            <text x="440" y="113" textAnchor="start" className={`fill-chart-2 ${isSubBaseActive ? 'opacity-100' : 'opacity-15'} transition-all`}>Sub-base (150mm)</text>
+            <text x="440" y="148" textAnchor="start" className={`fill-muted-foreground ${isSubgradeActive ? 'opacity-100' : 'opacity-15'} transition-all`}>Subgrade Bed</text>
           </g>
         )}
       </svg>

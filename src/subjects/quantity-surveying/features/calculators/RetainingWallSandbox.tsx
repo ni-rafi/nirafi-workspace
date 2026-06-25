@@ -29,10 +29,10 @@ export const RetainingWallSandbox: React.FC = () => {
     <TwoColumnLayout
       title="Retaining Wall Sandbox"
       bgVariant="default"
-      leftWidth="45%"
+      leftWidth="50%"
       leftContent={
         <InteractiveCard title="Wall Parameters">
-          <div className="space-y-4 mb-4">
+          <div className="grid grid-cols-2 gap-2">
             <ParameterSlider
               label="Wall Length"
               min={10}
@@ -88,17 +88,18 @@ export const RetainingWallSandbox: React.FC = () => {
               unit=" m"
             />
           </div>
-
-          <div className="grid grid-cols-2 gap-2 border-t border-border/40 pt-3 font-mono">
+        </InteractiveCard>
+      }
+      rightContent={
+        <div className="h-full flex flex-col justify-between space-y-2">
+          <RetainingWallDrawing className="flex-1" />
+          <div className="grid grid-cols-2 gap-2 border-t border-border/40 pt-2 font-mono">
             <CalculationOutput title="Stem RCC" value={volStem.toFixed(3)} unit="m³" variant="compact" />
             <CalculationOutput title="Base Raft RCC" value={volBase.toFixed(3)} unit="m³" variant="compact" />
             <CalculationOutput title="Total RCC" value={totalConcrete.toFixed(3)} unit="m³" variant="compact" />
             <CalculationOutput title="Weep Holes (Est.)" value={weepHolesCount.toString()} unit=" Nos" variant="compact" />
           </div>
-        </InteractiveCard>
-      }
-      rightContent={
-        <RetainingWallDrawing />
+        </div>
       }
     />
   );

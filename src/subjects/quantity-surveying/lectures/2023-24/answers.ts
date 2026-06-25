@@ -27,6 +27,8 @@ export const QUIZ_METADATA = [
   { id: 'qs_2023_lec8_q4', header: 'Lec 8 Grid Volume' },
   { id: 'qs_2023_lec9_q1', header: 'Lec 9 Pavement Volume' },
   { id: 'qs_2023_lec9_q2', header: 'Lec 9 Box Culvert RCC' },
+  { id: 'qs_2023_lec9_q3', header: 'Lec 9 Wall Stem Concrete' },
+  { id: 'qs_2023_lec9_q4', header: 'Lec 9 Soling Area' },
   { id: 'qs_2023_lec10_q1', header: 'Lec 10 IPC Billing Check' },
   { id: 'qs_2023_lec10_q2', header: 'Lec 10 Source VAT Check' }
 ];
@@ -219,6 +221,28 @@ export const QUIZ_ANSWERS: Record<
        const h = 1.20 + parameterResolver.getLastDigit(reg) * 0.05;
        const vol = (2.50 * 2.20 - 1.50 * h) * 10.0;
        return vol.toFixed(3);
+     },
+   },
+
+   qs_2023_lec9_q3: {
+     formula: '((0.45 + 0.90) / 2) × (3.00 + [last digit] × 0.10) × 12.0 m³',
+     digitsRequired: 1,
+     resolve: (reg) => {
+       const digits = reg.replace(/\D/g, '');
+       if (digits.length < 1) return '((0.45 + 0.90) / 2) × (3.00 + [last digit] × 0.10) × 12.0 m³';
+       const vol = 8.10 * (3.00 + parameterResolver.getLastDigit(reg) * 0.10);
+       return vol.toFixed(3);
+     },
+   },
+
+   qs_2023_lec9_q4: {
+     formula: '2 × (6.00 + [last digit] × 0.10) × 1.20 m²',
+     digitsRequired: 1,
+     resolve: (reg) => {
+       const digits = reg.replace(/\D/g, '');
+       if (digits.length < 1) return '2 × (6.00 + [last digit] × 0.10) × 1.20 m²';
+       const area = 2.40 * (6.00 + parameterResolver.getLastDigit(reg) * 0.10);
+       return area.toFixed(3);
      },
    },
 

@@ -19,7 +19,7 @@ export const CulvertDrawing: React.FC<CulvertDrawingProps> = ({
 
   const containerClasses = isBlog
     ? 'bg-transparent border-none shadow-none p-0 flex flex-col items-center select-none w-full'
-    : `relative border border-border/80 bg-muted/20 dark:bg-muted/5 rounded-xl p-4 flex flex-col items-center shadow-sm select-none w-full justify-center min-h-[220px] ${className}`;
+    : `relative border border-border/80 bg-muted/20 dark:bg-muted/5 rounded-xl p-1.5 flex flex-col items-center shadow-sm select-none w-full justify-center ${className}`;
 
   const isBoxMode = mode === 'box';
 
@@ -38,14 +38,11 @@ export const CulvertDrawing: React.FC<CulvertDrawingProps> = ({
 
   return (
     <div className={containerClasses}>
-      <span className="text-xs uppercase tracking-wider font-extrabold text-primary mb-3">
-        {isBoxMode ? 'Reinforced Concrete Box Culvert' : 'Precast RCC Hume Pipe Culvert'}
-      </span>
       <svg
         width="100%"
-        height="180"
+        height="100%"
         viewBox="0 0 450 180"
-        className="overflow-visible select-none"
+        className="overflow-visible select-none max-h-[140px]"
       >
         {isBoxMode ? (
           /* ==================== BOX CULVERT DRAWING ==================== */
@@ -124,7 +121,7 @@ export const CulvertDrawing: React.FC<CulvertDrawingProps> = ({
 
             {/* Annotations */}
             {showAnnotation && (
-              <g className="font-mono text-[9px] fill-muted-foreground font-bold">
+              <g className="font-mono fill-muted-foreground font-bold" style={{ fontSize: '11px' }}>
                 {/* Span */}
                 <g opacity={isVoidActive ? 1 : 0.15} className="transition-opacity duration-300">
                   <line x1={cx - 60} y1={cy + 25} x2={cx + 60} y2={cy + 25} stroke="currentColor" strokeWidth="0.5" />
@@ -196,7 +193,7 @@ export const CulvertDrawing: React.FC<CulvertDrawingProps> = ({
 
             {/* Annotations */}
             {showAnnotation && (
-              <g className="font-mono text-[9px] fill-muted-foreground font-bold">
+              <g className="font-mono fill-muted-foreground font-bold" style={{ fontSize: '11px' }}>
                 {/* Pipe Orifice Dia */}
                 <g opacity={isPipeActive ? 1 : 0.15} className="transition-opacity duration-300">
                   <line x1={cx - 40} y1={cy - 10} x2={cx + 40} y2={cy - 10} stroke="currentColor" strokeWidth="0.5" />

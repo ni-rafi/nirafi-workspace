@@ -30,10 +30,10 @@ export const RoadPavementSandbox: React.FC = () => {
     <TwoColumnLayout
       title="Roadway Pavement Sandbox"
       bgVariant="default"
-      leftWidth="45%"
+      leftWidth="50%"
       leftContent={
         <InteractiveCard title="Pavement Parameters">
-          <div className="space-y-4 mb-4">
+          <div className="grid grid-cols-2 gap-2">
             <ParameterSlider
               label="Road Length"
               min={100}
@@ -42,6 +42,7 @@ export const RoadPavementSandbox: React.FC = () => {
               value={length}
               onChange={setLength}
               unit=" m"
+              className="col-span-2"
             />
             <ParameterSlider
               label="Wearing Course Width"
@@ -80,17 +81,18 @@ export const RoadPavementSandbox: React.FC = () => {
               unit=" m"
             />
           </div>
-
-          <div className="grid grid-cols-2 gap-2 border-t border-border/40 pt-3 font-mono">
+        </InteractiveCard>
+      }
+      rightContent={
+        <div className="h-full flex flex-col justify-between space-y-2">
+          <RoadPavementDrawing className="flex-1" />
+          <div className="grid grid-cols-2 gap-2 border-t border-border/40 pt-2 font-mono">
             <CalculationOutput title="Subgrade Bed" value={volSubgrade.toFixed(1)} unit="m³" variant="compact" />
             <CalculationOutput title="Sub-Base WBM" value={volSubbase.toFixed(1)} unit="m³" variant="compact" />
             <CalculationOutput title="Base Chips" value={volBase.toFixed(1)} unit="m³" variant="compact" />
             <CalculationOutput title="Bitumen Req." value={(weightBitumen / 1000).toFixed(2)} unit="Tons" variant="compact" />
           </div>
-        </InteractiveCard>
-      }
-      rightContent={
-        <RoadPavementDrawing />
+        </div>
       }
     />
   );

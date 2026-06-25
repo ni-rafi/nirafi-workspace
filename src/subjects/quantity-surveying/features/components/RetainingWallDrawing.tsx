@@ -17,7 +17,7 @@ export const RetainingWallDrawing: React.FC<RetainingWallDrawingProps> = ({
 
   const containerClasses = isBlog
     ? 'bg-transparent border-none shadow-none p-0 flex flex-col items-center select-none w-full'
-    : `relative border border-border/80 bg-muted/20 dark:bg-muted/5 rounded-xl p-4 flex flex-col items-center shadow-sm select-none w-full justify-center min-h-[220px] ${className}`;
+    : `relative border border-border/80 bg-muted/20 dark:bg-muted/5 rounded-xl p-1 flex flex-col items-center shadow-sm select-none w-full justify-center ${className}`;
 
   const isBaseActive = activeHighlight === 'none' || activeHighlight === 'base';
   const isStemActive = activeHighlight === 'none' || activeHighlight === 'stem';
@@ -26,14 +26,11 @@ export const RetainingWallDrawing: React.FC<RetainingWallDrawingProps> = ({
 
   return (
     <div className={containerClasses}>
-      <span className="text-xs uppercase tracking-wider font-extrabold text-primary mb-3">
-        Retaining Wall Structural Profile
-      </span>
       <svg
         width="100%"
-        height="180"
+        height="100%"
         viewBox="0 0 450 180"
-        className="overflow-visible select-none"
+        className="overflow-visible select-none max-h-[140px]"
       >
         {/* Ground level behind the wall (retained side) */}
         <line x1="220" y1="40" x2="380" y2="40" stroke="currentColor" strokeWidth="0.8" className="text-muted-foreground/30" strokeDasharray="3,3" />
@@ -113,7 +110,7 @@ export const RetainingWallDrawing: React.FC<RetainingWallDrawingProps> = ({
 
         {/* Annotations */}
         {showAnnotation && (
-          <g className="font-mono text-[9px] fill-muted-foreground font-bold">
+          <g className="font-mono fill-muted-foreground font-bold" style={{ fontSize: '11px' }}>
             {/* Top Stem Width */}
             <g opacity={isStemActive ? 1 : 0.15} className="transition-opacity duration-300">
               <line x1="180" y1="23" x2="220" y2="23" stroke="currentColor" strokeWidth="0.5" />
@@ -141,8 +138,8 @@ export const RetainingWallDrawing: React.FC<RetainingWallDrawingProps> = ({
             </g>
 
             {/* Labels */}
-            <text x="260" y="99" textAnchor="start" className={`fill-chart-2 ${isWeepActive ? 'opacity-100' : 'opacity-15'} transition-all text-[8px]`}>75mm PVC Weep Hole</text>
-            <text x="260" y="60" textAnchor="start" className={`fill-chart-2 ${isDrainActive ? 'opacity-100' : 'opacity-15'} transition-all text-[8.5px]`}>Gravel Filter Packing</text>
+            <text x="260" y="99" textAnchor="start" className={`fill-chart-2 ${isWeepActive ? 'opacity-100' : 'opacity-15'} transition-all`}>75mm PVC Weep Hole</text>
+            <text x="260" y="60" textAnchor="start" className={`fill-chart-2 ${isDrainActive ? 'opacity-100' : 'opacity-15'} transition-all`}>Gravel Filter Packing</text>
           </g>
         )}
       </svg>

@@ -40,7 +40,7 @@ export const CulvertSandbox: React.FC = () => {
     <TwoColumnLayout
       title="Culvert Quantity Sandbox"
       bgVariant="default"
-      leftWidth="45%"
+      leftWidth="50%"
       leftContent={
         <InteractiveCard title="Culvert Design Parameters">
           {/* Mode Switcher */}
@@ -69,7 +69,7 @@ export const CulvertSandbox: React.FC = () => {
             </button>
           </div>
 
-          <div className="space-y-4 mb-4">
+          <div className="grid grid-cols-2 gap-2">
             <ParameterSlider
               label="Culvert Length"
               min={5}
@@ -78,6 +78,7 @@ export const CulvertSandbox: React.FC = () => {
               value={length}
               onChange={setLength}
               unit=" m"
+              className="col-span-2"
             />
 
             {mode === 'box' ? (
@@ -151,8 +152,12 @@ export const CulvertSandbox: React.FC = () => {
               </>
             )}
           </div>
-
-          <div className="grid grid-cols-2 gap-2 border-t border-border/40 pt-3 font-mono">
+        </InteractiveCard>
+      }
+      rightContent={
+        <div className="h-full flex flex-col justify-between space-y-2">
+          <CulvertDrawing mode={mode} className="flex-1" />
+          <div className="grid grid-cols-2 gap-2 border-t border-border/40 pt-2 font-mono">
             {mode === 'box' ? (
               <>
                 <CalculationOutput title="RCC Concrete" value={boxConcrete.toFixed(3)} unit="m³" variant="compact" />
@@ -169,10 +174,7 @@ export const CulvertSandbox: React.FC = () => {
               </>
             )}
           </div>
-        </InteractiveCard>
-      }
-      rightContent={
-        <CulvertDrawing mode={mode} />
+        </div>
       }
     />
   );
