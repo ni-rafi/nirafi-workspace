@@ -2,7 +2,7 @@ import React from 'react';
 import { useUrlSyncedState } from '@/features/presentation/hooks/useUrlSyncedState';
 import {
   InteractiveCard,
-  ParameterSlider
+  ParameterInputCard
 } from '@/features/presentation/components/elements';
 import { EarthworkProfileCanvas } from '@/features/civil-drawing/components/EarthworkProfileCanvas';
 import { EarthworkSpec } from '@/features/civil-drawing/types/earthworkSchema';
@@ -57,42 +57,42 @@ export const EarthworkProfileSandbox: React.FC<EarthworkProfileSandboxProps> = (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 w-full items-stretch select-text">
       <div className="lg:col-span-5 flex flex-col justify-between space-y-4">
         <InteractiveCard title="Longitudinal Profile Controls">
-          <div className="space-y-4">
-            <ParameterSlider
+          <div className="space-y-3">
+            <ParameterInputCard
               label="Formation Level (FL)"
               min={80}
               max={180}
-              step={5}
               value={FL}
               onChange={setFL}
-              unit=""
+              unit="px"
+              variant="compact"
             />
-            <ParameterSlider
+            <ParameterInputCard
               label="Formation Bed Width (B)"
               min={10}
               max={80}
-              step={5}
               value={width}
               onChange={setWidth}
-              unit=" px"
+              unit="px"
+              variant="compact"
             />
-            <ParameterSlider
+            <ParameterInputCard
               label="Side Slope Cut Ratio (s_cut)"
               min={1.0}
               max={3.0}
-              step={0.5}
               value={cutRatio}
               onChange={setCutRatio}
-              unit=" :1"
+              unit=":1"
+              variant="compact"
             />
-            <ParameterSlider
+            <ParameterInputCard
               label="Side Slope Fill Ratio (s_fill)"
               min={1.0}
               max={3.0}
-              step={0.5}
               value={fillRatio}
               onChange={setFillRatio}
-              unit=" :1"
+              unit=":1"
+              variant="compact"
             />
           </div>
           <div className="mt-4 pt-3 border-t border-border/40 text-[10px] text-muted-foreground font-mono leading-relaxed">

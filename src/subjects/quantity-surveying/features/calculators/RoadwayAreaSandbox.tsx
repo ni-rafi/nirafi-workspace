@@ -2,7 +2,7 @@ import React from 'react';
 import { useUrlSyncedState } from '@/features/presentation/hooks/useUrlSyncedState';
 import {
   InteractiveCard,
-  ParameterSlider,
+  ParameterInputCard,
   CalculationOutput
 } from '@/features/presentation/components/elements';
 import { calculateRoadwayArea } from '../../cores';
@@ -46,33 +46,33 @@ export const RoadwayAreaSandbox: React.FC<RoadwayAreaSandboxProps> = ({
     <div className="grid grid-cols-1 md:grid-cols-12 gap-5 w-full items-stretch select-text">
       <div className="md:col-span-6 flex flex-col justify-between space-y-4">
         <InteractiveCard title="Cross-Section Geometry Sliders">
-          <div className="space-y-4 mb-4">
-            <ParameterSlider
+          <div className="space-y-3 mb-4">
+            <ParameterInputCard
               label="Formation Width (B)"
               min={6.0}
               max={15.0}
-              step={0.5}
               value={B}
               onChange={setB}
-              unit=" m"
+              unit="m"
+              variant="compact"
             />
-            <ParameterSlider
+            <ParameterInputCard
               label="Side Slope Ratio (s:1)"
               min={1.0}
               max={4.0}
-              step={0.5}
               value={s}
               onChange={setS}
-              unit=" :1"
+              unit=":1"
+              variant="compact"
             />
-            <ParameterSlider
+            <ParameterInputCard
               label="Height/Depth (d)"
               min={-3.0}
               max={3.0}
-              step={0.1}
               value={d}
               onChange={setD}
-              unit=" m"
+              unit="m"
+              variant="compact"
             />
             <div className="flex justify-between items-center bg-muted/40 p-2.5 rounded-xl border border-border/40 text-xs">
               <span className="font-mono text-muted-foreground">Type:</span>

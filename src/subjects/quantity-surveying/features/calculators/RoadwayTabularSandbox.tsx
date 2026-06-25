@@ -2,7 +2,7 @@ import React from 'react';
 import { useUrlSyncedState } from '@/features/presentation/hooks/useUrlSyncedState';
 import {
   InteractiveCard,
-  ParameterSlider,
+  ParameterInputCard,
   CalculationOutput
 } from '@/features/presentation/components/elements';
 import { calculateRoadwayVolumeMidSectional } from '../../cores';
@@ -55,42 +55,42 @@ export const RoadwayTabularSandbox: React.FC = () => {
     <div className="grid grid-cols-1 xl:grid-cols-12 gap-5 w-full items-stretch select-text">
       <div className="xl:col-span-3 flex flex-col justify-between space-y-4">
         <InteractiveCard title="Sheet Configurations">
-          <div className="space-y-4 mb-4">
-            <ParameterSlider
+          <div className="space-y-3 mb-4">
+            <ParameterInputCard
               label="Carriageway Width (B)"
               min={6.0}
               max={12.0}
-              step={0.5}
               value={B}
               onChange={setB}
-              unit=" m"
+              unit="m"
+              variant="compact"
             />
-            <ParameterSlider
+            <ParameterInputCard
               label="Embankment Slope (s_fill)"
               min={1.5}
               max={3.0}
-              step={0.5}
               value={sFill}
               onChange={setSFill}
-              unit=" :1"
+              unit=":1"
+              variant="compact"
             />
-            <ParameterSlider
+            <ParameterInputCard
               label="Trench Cut Slope (s_cut)"
               min={1.0}
               max={2.5}
-              step={0.5}
               value={sCut}
               onChange={setSCut}
-              unit=" :1"
+              unit=":1"
+              variant="compact"
             />
-            <ParameterSlider
+            <ParameterInputCard
               label="Station Interval (L)"
               min={15.0}
               max={50.0}
-              step={5.0}
               value={L}
               onChange={setL}
-              unit=" m"
+              unit="m"
+              variant="compact"
             />
           </div>
 

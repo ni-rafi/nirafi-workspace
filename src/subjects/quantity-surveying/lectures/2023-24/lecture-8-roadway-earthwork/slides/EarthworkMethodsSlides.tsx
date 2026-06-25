@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { TwoColumnLayout } from '@/shared/layouts/TwoColumnLayout';
 import { FullWidthLayout } from '@/shared/layouts/FullWidthLayout';
 import {
@@ -7,10 +7,10 @@ import {
   SlideCallout,
   InteractiveCard,
   SlideGrid,
-  LatexFormula
+  ClickHighlight,
+  SlideEquation
 } from '@/features/presentation/components/elements';
 import { EarthworkMethodDrawing } from '@/subjects/quantity-surveying/features/components/EarthworkMethodDrawing';
-import { GridMethodDrawing } from '@/subjects/quantity-surveying/features/components/GridMethodDrawing';
 
 // ============================================================================
 // Slide 6: Core Methods for Earthwork Computation
@@ -22,29 +22,25 @@ export const Slide6: React.FC = () => {
       bgVariant="default"
       leftWidth="52%"
       leftContent={
-        <div className="space-y-4 text-left select-text">
-          <SlideParagraph title="Segmental Volumetrics">
-            To estimate the volume of earthwork along a longitudinal road profile, we divide the total length into discrete sections (stations) at regular intervals (e.g., 30m or 100m).
-          </SlideParagraph>
-
-          <SlideList
-            revealMode="each-click"
-            items={[
-              {
-                title: "Mid-Section Method",
-                text: "Calculates the area of the section at the mean depth, then projects it."
-              },
-              {
-                title: "Trapezoidal Method",
-                text: "Averages the cross-sectional areas of the two end sections."
-              },
-              {
-                title: "Prismoidal Formula",
-                text: " Simpson's one-third rule, using end areas and the mid-section area."
-              }
-            ]}
-          />
-        </div>
+        <SlideList
+          title="Segmental Volumetrics"
+          description="To estimate the volume of earthwork along a longitudinal road profile, we divide the total length into discrete sections (stations) at regular intervals (e.g., 30m or 100m)."
+          revealMode="each-click"
+          items={[
+            {
+              title: "Mid-Section Method",
+              text: "Calculates the area of the section at the mean depth, then projects it."
+            },
+            {
+              title: "Trapezoidal Method",
+              text: "Averages the cross-sectional areas of the two end sections."
+            },
+            {
+              title: "Prismoidal Formula",
+              text: " Simpson's one-third rule, using end areas and the mid-section area."
+            }
+          ]}
+        />
       }
       rightContent={
         <div className="h-full flex flex-col justify-center">
@@ -65,24 +61,27 @@ export const Slide7: React.FC = () => {
       bgVariant="default"
       leftWidth="50%"
       leftContent={
-        <div className="space-y-3 text-left select-text">
-          <SlideParagraph title="Logic & Assumptions">
-            This method assumes the average depth represents the uniform cross-section over the entire length (L) of the segment.
-          </SlideParagraph>
-
+        <div className="select-text">
           <SlideList
+            title="Logic &amp; Assumptions"
+            description="This method assumes the average depth represents the uniform cross-section over the entire length (L) of the segment."
+            revealMode="each-click"
+            variant="plain"
             items={[
               {
                 title: "1. Mean Depth (dm)",
-                text: "Average of depths at the two consecutive sections."
+                text: <span>Average of depths at the two consecutive sections, denoted as <ClickHighlight variant="paint" at={1}>d_m</ClickHighlight>.</span>,
+                revealAt: 1
               },
               {
                 title: "2. Mid-Area (Am)",
-                text: "Area evaluated at mean depth dm."
+                text: <span>Area evaluated at mean depth d_m: <ClickHighlight variant="paint" at={2}>A_m = B·d_m + s·d_m²</ClickHighlight>.</span>,
+                revealAt: 2
               },
               {
                 title: "3. Volume (V)",
-                text: "Mid-area multiplied by length L."
+                text: <span>Mid-area multiplied by length L: <ClickHighlight variant="paint" at={3}>V = A_m·L</ClickHighlight>.</span>,
+                revealAt: 3
               }
             ]}
           />
@@ -91,12 +90,9 @@ export const Slide7: React.FC = () => {
       rightContent={
         <div className="h-full flex flex-col justify-between space-y-2">
           <EarthworkMethodDrawing method="mid" className="flex-1" />
-          <div className="bg-muted/40 p-2.5 rounded-xl border border-border/40 space-y-1.5">
-            <span className="text-[10px] font-mono font-bold text-indigo-500 uppercase block">Mathematical Model</span>
-            <LatexFormula math="d_m = \frac{d_1 + d_2}{2}" block />
-            <LatexFormula math="A_m = B \cdot d_m + s \cdot d_m^2" block />
-            <LatexFormula math="V = A_m \cdot L" block />
-          </div>
+          <SlideEquation math="d_m = \frac{d_1 + d_2}{2}" revealAt={1} />
+          <SlideEquation math="A_m = B \cdot d_m + s \cdot d_m^2" revealAt={2} />
+          <SlideEquation math="V = A_m \cdot L" revealAt={3} />
         </div>
       }
     />
@@ -113,24 +109,27 @@ export const Slide8: React.FC = () => {
       bgVariant="default"
       leftWidth="50%"
       leftContent={
-        <div className="space-y-3 text-left select-text">
-          <SlideParagraph title="Logic & Assumptions">
-            Assumes the average area of the two ends is representative of the whole segment volume. First compute areas at both stations, then average.
-          </SlideParagraph>
-
+        <div className="select-text">
           <SlideList
+            title="Logic &amp; Assumptions"
+            description="Assumes the average area of the two ends is representative of the whole segment volume. First compute areas at both stations, then average."
+            revealMode="each-click"
+            variant="plain"
             items={[
               {
                 title: "1. Station Areas (A1, A2)",
-                text: "Calculate area at both ends using individual station depths."
+                text: <span>Calculate area at both ends using individual station depths: <ClickHighlight variant="paint" at={1}>A1, A2</ClickHighlight>.</span>,
+                revealAt: 1
               },
               {
-                title: "2. Mean Area (A_avg)",
-                text: "Take the arithmetic mean of A1 and A2."
+                title: "2. Mean Area (A_mean)",
+                text: <span>Take the arithmetic mean of A1 and A2: <ClickHighlight variant="paint" at={2}>A_mean = (A1 + A2) / 2</ClickHighlight>.</span>,
+                revealAt: 2
               },
               {
                 title: "3. Volume (V)",
-                text: "Mean Area multiplied by length L."
+                text: <span>Mean Area multiplied by length L: <ClickHighlight variant="paint" at={3}>V = A_mean·L</ClickHighlight>.</span>,
+                revealAt: 3
               }
             ]}
           />
@@ -139,12 +138,9 @@ export const Slide8: React.FC = () => {
       rightContent={
         <div className="h-full flex flex-col justify-between space-y-2">
           <EarthworkMethodDrawing method="trapezoidal" className="flex-1" />
-          <div className="bg-muted/40 p-2.5 rounded-xl border border-border/40 space-y-1.5">
-            <span className="text-[10px] font-mono font-bold text-amber-500 uppercase block">Mathematical Model</span>
-            <LatexFormula math="A_1 = B \cdot d_1 + s \cdot d_1^2 \quad A_2 = B \cdot d_2 + s \cdot d_2^2" block />
-            <LatexFormula math="A_{mean} = \frac{A_1 + A_2}{2}" block />
-            <LatexFormula math="V = A_{mean} \cdot L" block />
-          </div>
+          <SlideEquation math="A_1 = B \cdot d_1 + s \cdot d_1^2 \quad A_2 = B \cdot d_2 + s \cdot d_2^2" revealAt={1} />
+          <SlideEquation math="A_{mean} = \frac{A_1 + A_2}{2}" revealAt={2} />
+          <SlideEquation math="V = A_{mean} \cdot L" revealAt={3} />
         </div>
       }
     />
@@ -161,20 +157,22 @@ export const Slide9: React.FC = () => {
       bgVariant="default"
       leftWidth="50%"
       leftContent={
-        <div className="space-y-3 text-left select-text">
-          <SlideParagraph title="logic & Accuracy">
-            The most mathematically precise method, capturing parabolic curvature along sloping ground. It combines end areas and the mid-section area.
-          </SlideParagraph>
-
+        <div className="select-text">
           <SlideList
+            title="Logic &amp; Accuracy"
+            description="The most mathematically precise method, capturing parabolic curvature along sloping ground. It combines end areas and the mid-section area."
+            revealMode="each-click"
+            variant="plain"
             items={[
               {
                 title: "Prismoidal Simpson's Rule",
-                text: "Uses weighted averages: 1 part end areas, 4 parts mid-sectional area."
+                text: <span>Uses weighted averages: 1 part end areas, <ClickHighlight variant="paint" at={1}>4 parts mid-sectional area</ClickHighlight>.</span>,
+                revealAt: 1
               },
               {
                 title: "Mid-Section Area (Am)",
-                text: "Must be calculated at average depth (dm), not by averaging areas."
+                text: <span>Must be calculated at average depth (dm): <ClickHighlight variant="paint" at={2}>V = L/6 · [A1 + 4Am + A2]</ClickHighlight>.</span>,
+                revealAt: 2
               }
             ]}
           />
@@ -183,11 +181,7 @@ export const Slide9: React.FC = () => {
       rightContent={
         <div className="h-full flex flex-col justify-between space-y-2">
           <EarthworkMethodDrawing method="prismoidal" className="flex-1" />
-          <div className="bg-muted/40 p-2.5 rounded-xl border border-border/40 space-y-1.5">
-            <span className="text-[10px] font-mono font-bold text-emerald-500 uppercase block">Mathematical Model</span>
-            <LatexFormula math="V = \frac{L}{6} \left[ A_1 + 4A_m + A_2 \right]" block />
-            <span className="text-[9px] text-muted-foreground block text-center font-mono">Where A_m is mid-section area at d_m</span>
-          </div>
+          <SlideEquation math="V = \frac{L}{6} \left[ A_1 + 4A_m + A_2 \right]" revealAt={2} />
         </div>
       }
     />
@@ -292,53 +286,5 @@ export const Slide17: React.FC = () => {
         </SlideGrid>
       </div>
     </FullWidthLayout>
-  );
-};
-
-// ============================================================================
-// Slide 19: Spot Levels & The Grid Method
-// ============================================================================
-export const Slide19: React.FC = () => {
-  const [activeCell, setActiveCell] = useState<number | null>(1);
-
-  return (
-    <TwoColumnLayout
-      title="2.6 Spot Levels & The Grid Method (Large Excavations)"
-      bgVariant="default"
-      leftWidth="48%"
-      leftContent={
-        <div className="space-y-3 text-left select-text">
-          <SlideParagraph title="Areal Excavations">
-            For wide pits, borrow fields, or flat foundations (e.g. underground tanks), linear cross-sections do not apply. Instead, we use the **Grid Method / Spot Levels**.
-          </SlideParagraph>
-
-          <SlideList
-            items={[
-              {
-                title: "Grid Division",
-                text: "The total plan layout is split into standard square/rectangular cells (e.g., 5m × 5m)."
-              },
-              {
-                title: "Corner depth Averaging",
-                text: "For any cell, the volume is computed by multiplying cell Area by the average of its 4 corner depths."
-              },
-              {
-                title: "Total Volume",
-                text: "Sum of all individual grid cell volumes."
-              }
-            ]}
-          />
-        </div>
-      }
-      rightContent={
-        <div className="h-full flex flex-col justify-between space-y-2">
-          <GridMethodDrawing
-            activeCell={activeCell}
-            onCellClick={(id) => setActiveCell(id)}
-            className="flex-1"
-          />
-        </div>
-      }
-    />
   );
 };

@@ -6,7 +6,6 @@ import { FullWidthLayout } from '@/shared/layouts/FullWidthLayout';
 import { SlideProps } from '@/features/presentation/components/slides/SlideRenderer';
 import { useClickStepsContext } from '@/features/presentation/context/ClickStepsContext';
 import {
-  SlideParagraph,
   SlideList,
   SlideCallout,
   ClickReveal,
@@ -51,28 +50,25 @@ export const Slide3: React.FC = () => {
       bgVariant="default"
       leftWidth="52%"
       leftContent={
-        <div className="space-y-3">
-          <SlideParagraph title="Standard Trapezoidal Formations">
-            Roadways are constructed as elevated embankments (filling) or excavated trenches (cutting). The cross-section forms a trapezoid.
-          </SlideParagraph>
-          <SlideList
-            revealMode="each-click"
-            items={[
-              {
-                title: "Formation Width (B)",
-                text: <span>The horizontal flat road carriage platform, built at sub-grade level. Billed in <ClickHighlight variant="paint" at={1}>meters (m)</ClickHighlight>.</span>
-              },
-              {
-                title: "Side Slopes (s:1)",
-                text: <span>Stabilizing angled borders ($s$ horizontal to 1 vertical) that prevent earth collapse or erosion. Typically <ClickHighlight variant="paint" at={2}>2:1 for embankments</ClickHighlight> and 1.5:1 for cuts.</span>
-              },
-              {
-                title: "Excavation/Fill Height (d)",
-                text: <span>Depth of cut or height of fill measured from Natural Ground Level (NGL) to target road bed level, denoted as <ClickHighlight variant="paint" at={3}>d (m)</ClickHighlight>.</span>
-              }
-            ]}
-          />
-        </div>
+        <SlideList
+          title="Standard Trapezoidal Formations"
+          description="Roadways are constructed as elevated embankments (filling) or excavated trenches (cutting). The cross-section forms a trapezoid."
+          revealMode="each-click"
+          items={[
+            {
+              title: "Formation Width (B)",
+              text: <span>The horizontal flat road carriage platform, built at sub-grade level. Billed in <ClickHighlight variant="paint" at={1}>meters (m)</ClickHighlight>.</span>
+            },
+            {
+              title: "Side Slopes (s:1)",
+              text: <span>Stabilizing angled borders ($s$ horizontal to 1 vertical) that prevent earth collapse or erosion. Typically <ClickHighlight variant="paint" at={2}>2:1 for embankments</ClickHighlight> and 1.5:1 for cuts.</span>
+            },
+            {
+              title: "Excavation/Fill Height (d)",
+              text: <span>Depth of cut or height of fill measured from Natural Ground Level (NGL) to target road bed level, denoted as <ClickHighlight variant="paint" at={3}>d (m)</ClickHighlight>.</span>
+            }
+          ]}
+        />
       }
       rightContent={
         <div className="h-full flex flex-col justify-between space-y-2">
@@ -106,28 +102,25 @@ export const Slide5: React.FC = () => {
       bgVariant="default"
       leftWidth="50%"
       leftContent={
-        <div className="space-y-3">
-          <SlideParagraph title="Standard Estimation Methods">
-            Depending on longitudinal variation, three standard formulas from B.N. Dutta Chapter 9 are used to estimate volume between chainages.
-          </SlideParagraph>
-          <SlideList
-            revealMode="each-click"
-            items={[
-              {
-                title: "Mid-Sectional Area Method",
-                text: <span>Calculates cross-sectional area at mid-depth ($d_m$) between stations. Best for uniform profiles: <ClickHighlight variant="paint" at={1}>A = B·d_m + s·d_m²</ClickHighlight>.</span>
-              },
-              {
-                title: "Mean-Sectional Area Method",
-                text: <span>Calculates areas $A_1, A_2$ at each end first, then takes their arithmetic mean: <ClickHighlight variant="paint" at={2}>A_mean = (A_1 + A_2) / 2</ClickHighlight>.</span>
-              },
-              {
-                title: "Prismoidal Formula",
-                text: <span>Simpson's rule for earthwork. Delivers exact mathematical volumes when slopes curve: <ClickHighlight variant="paint" at={3}>V = (L / 6)(A_1 + 4A_mid + A_2)</ClickHighlight>.</span>
-              }
-            ]}
-          />
-        </div>
+        <SlideList
+          title="Standard Estimation Methods"
+          description="Depending on longitudinal variation, three standard formulas from B.N. Dutta Chapter 9 are used to estimate volume between chainages."
+          revealMode="each-click"
+          items={[
+            {
+              title: "Mid-Sectional Area Method",
+              text: <span>Calculates cross-sectional area at mid-depth ($d_m$) between stations. Best for uniform profiles: <ClickHighlight variant="paint" at={1}>A = B·d_m + s·d_m²</ClickHighlight>.</span>
+            },
+            {
+              title: "Mean-Sectional Area Method",
+              text: <span>Calculates areas $A_1, A_2$ at each end first, then takes their arithmetic mean: <ClickHighlight variant="paint" at={2}>A_mean = (A_1 + A_2) / 2</ClickHighlight>.</span>
+            },
+            {
+              title: "Prismoidal Formula",
+              text: <span>Simpson's rule for earthwork. Delivers exact mathematical volumes when slopes curve: <ClickHighlight variant="paint" at={3}>V = (L / 6)(A_1 + 4A_mid + A_2)</ClickHighlight>.</span>
+            }
+          ]}
+        />
       }
       rightContent={
         <div className="h-full flex flex-col justify-center space-y-4">

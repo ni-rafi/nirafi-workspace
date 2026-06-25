@@ -6,6 +6,7 @@ interface RoadwaySectionDrawingProps {
   s: number; // Side Slope (s:1)
   d: number; // Depth/Height of cut or fill (m)
   currentClick?: number;
+  activeHighlight?: 'none' | 'turfing' | 'box-cutting';
   className?: string;
 }
 
@@ -14,6 +15,7 @@ export const RoadwaySectionDrawing: React.FC<RoadwaySectionDrawingProps> = ({
   s,
   d,
   currentClick,
+  activeHighlight = 'none',
   className = '',
 }) => {
   const isFilling = d >= 0;
@@ -40,26 +42,29 @@ export const RoadwaySectionDrawing: React.FC<RoadwaySectionDrawingProps> = ({
   // Polygon coordinates
   let polyPath = '';
   let yFL = yGround;
-  if (isFilling) {
+
+  const xTopL = isFilling ? 150 - bp / 2 : 150 - bp / 2 - sp;
+  const xTopR = isFilling ? 150 + bp / 2 : 150 + bp / 2 + sp;
+  const xBotL = isFilling ? 150 - bp / 2 - sp : 150 - bp / 2;
+  const xBotR = isFilling ? 150 + bp / 2 + sp : 150 + bp / 2;
+
+  if (activeHighlight === 'box-cutting') {
+    yFL = yGround + Math.max(15, dp); // shallow cut
+    const xBoxL = 150 - bp / 2;
+    const xBoxR = 150 + bp / 2;
+    polyPath = `M ${xBoxL},${yGround} L ${xBoxL},${yFL} L ${xBoxR},${yFL} L ${xBoxR},${yGround} Z`;
+  } else if (isFilling) {
     yFL = yGround - dp;
-    const xTopL = 150 - bp / 2;
-    const xTopR = 150 + bp / 2;
-    const xBotL = 150 - bp / 2 - sp;
-    const xBotR = 150 + bp / 2 + sp;
     polyPath = `M ${xBotL},${yGround} L ${xTopL},${yFL} L ${xTopR},${yFL} L ${xBotR},${yGround} Z`;
   } else {
     yFL = yGround + dp;
-    const xTopL = 150 - bp / 2 - sp;
-    const xTopR = 150 + bp / 2 + sp;
-    const xBotL = 150 - bp / 2;
-    const xBotR = 150 + bp / 2;
     polyPath = `M ${xTopL},${yGround} L ${xBotL},${yFL} L ${xBotR},${yFL} L ${xTopR},${yGround} Z`;
   }
 
   return (
-    <div className={`w-full flex flex-col justify-between bg-muted/20 p-4 border border-border/40 rounded-xl ${className}`}>
-      <span className="text-[10px] uppercase font-mono tracking-wider text-muted-foreground mb-2 block text-center">
-        Road Cross-Section Visualizer ({isFilling ? 'Embankment/Fill' : 'Trench/Cut'})
+    <div className={`w-full flex flex-col justify-between bg-muted/20 p-1.5 border border-border/40 rounded-xl ${className}`}>
+      <span className="text-[10px] uppercase font-mono tracking-wider text-muted-foreground mb-0.5 block text-center">
+        Road Cross-Section Visualizer ({activeHighlight === 'box-cutting' ? 'Box Cutting' : isFilling ? 'Embankment/Fill' : 'Trench/Cut'})
       </span>
 
       <div className="h-44 bg-background rounded-lg border border-border/20 relative flex items-center justify-center overflow-hidden">
@@ -77,23 +82,68 @@ export const RoadwaySectionDrawing: React.FC<RoadwaySectionDrawingProps> = ({
           />
           <text x="265" y={yGround - 6} className="fill-muted-foreground text-[11px] font-mono">NGL</text>
 
-          {/* Trapezoidal Earthwork Block */}
-          {absD > 0.05 && (
+          {/* Trapezoidal or Box-Cutting Earthwork Block */}
+          {(absD > 0.05 || activeHighlight === 'box-cutting') && (
             <path
               d={polyPath}
               className={`transition-all duration-300 ${
-                isStepActive(3)
-                  ? isFilling
-                    ? 'fill-emerald-500/20 stroke-emerald-600 stroke-[2px]'
-                    : 'fill-red-500/20 stroke-red-500/80 stroke-[2px]'
-                  : 'fill-muted/30 stroke-border/60'
+                activeHighlight === 'box-cutting'
+                  ? 'fill-amber-500/25 stroke-amber-500 stroke-[2px]'
+                  : isStepActive(3)
+                    ? isFilling
+                      ? 'fill-emerald-500/20 stroke-emerald-600 stroke-[2px]'
+                      : 'fill-red-500/20 stroke-red-500/80 stroke-[2px]'
+                    : 'fill-muted/30 stroke-border/60'
               }`}
             />
           )}
 
+          {/* Turfing Highlights */}
+          {activeHighlight === 'turfing' && isFilling && (
+            <g className="animate-fadeIn">
+              {/* Left Slope Turfing Line */}
+              <line
+                x1={xBotL}
+                y1={yGround}
+                x2={xTopL}
+                y2={yFL}
+                stroke="currentColor"
+                strokeWidth="4.5"
+                className="text-emerald-500"
+              />
+              <text
+                x={(xBotL + xTopL) / 2 - 25}
+                y={(yGround + yFL) / 2 - 2}
+                textAnchor="middle"
+                className="fill-emerald-600 dark:fill-emerald-400 text-[9px] font-mono font-bold"
+              >
+                Turfing (m²)
+              </text>
+
+              {/* Right Slope Turfing Line */}
+              <line
+                x1={xTopR}
+                y1={yFL}
+                x2={xBotR}
+                y2={yGround}
+                stroke="currentColor"
+                strokeWidth="4.5"
+                className="text-emerald-500"
+              />
+              <text
+                x={(xBotR + xTopR) / 2 + 25}
+                y={(yGround + yFL) / 2 - 2}
+                textAnchor="middle"
+                className="fill-emerald-600 dark:fill-emerald-400 text-[9px] font-mono font-bold"
+              >
+                Turfing (m²)
+              </text>
+            </g>
+          )}
+
           {/* Formation Width Dimension (B) */}
           <g className={`transition-opacity duration-300 ${isStepActive(1) ? 'text-primary' : 'text-muted-foreground/30'}`}>
-            {isFilling ? (
+            {isFilling && activeHighlight !== 'box-cutting' ? (
               // B on top
               <>
                 <line x1={150 - bp / 2} y1={yFL - 15} x2={150 + bp / 2} y2={yFL - 15} stroke="currentColor" strokeWidth="1" />
@@ -113,7 +163,7 @@ export const RoadwaySectionDrawing: React.FC<RoadwaySectionDrawingProps> = ({
           </g>
 
           {/* Side Slopes (s:1) Indicators */}
-          {absD > 0.3 && isStepActive(2) && (
+          {absD > 0.3 && isStepActive(2) && activeHighlight !== 'box-cutting' && (
             <g className="text-amber-500 font-mono text-[11px] font-bold animate-fadeIn">
               {isFilling ? (
                 <>
@@ -134,7 +184,7 @@ export const RoadwaySectionDrawing: React.FC<RoadwaySectionDrawingProps> = ({
           )}
 
           {/* Depth/Height Dimension (d) */}
-          {absD > 0.1 && (
+          {absD > 0.1 && activeHighlight !== 'box-cutting' && (
             <g className={`transition-opacity duration-300 ${isStepActive(3) ? 'text-primary' : 'text-muted-foreground/30'}`}>
               <line x1="150" y1={yGround} x2="150" y2={yFL} stroke="currentColor" strokeWidth="1.5" strokeDasharray="3 1" />
               <text x="156" y={(yGround + yFL) / 2 + 4} className="fill-current text-[11px] font-mono font-bold">d = {absD.toFixed(2)}m</text>
@@ -142,7 +192,12 @@ export const RoadwaySectionDrawing: React.FC<RoadwaySectionDrawingProps> = ({
           )}
         </svg>
 
-        {isStepActive(3) && absD > 0.05 && (
+        {activeHighlight === 'box-cutting' && (
+          <div className="absolute bottom-2 left-2 right-2 border text-[10px] p-2 rounded-md font-mono flex items-center justify-between animate-fadeIn z-10 bg-amber-500/10 border-amber-500/30 text-amber-600 dark:text-amber-400">
+            <span>Box Cutting: Area = B × L (Billed in m² for depth ≤ 300 / 450mm)</span>
+          </div>
+        )}
+        {activeHighlight !== 'box-cutting' && isStepActive(3) && absD > 0.05 && (
           <div className={`absolute bottom-2 left-2 right-2 border text-[10px] p-2 rounded-md font-mono flex items-center justify-between animate-fadeIn z-10 ${
             isFilling
               ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-600 dark:text-emerald-400'
@@ -154,17 +209,21 @@ export const RoadwaySectionDrawing: React.FC<RoadwaySectionDrawingProps> = ({
       </div>
 
       <span className="text-[9px] text-muted-foreground text-center mt-2 leading-normal h-8">
-        {isFilling
-          ? isStepActive(3)
-            ? 'Embankment Fill: Soil is deposited on ground. Slopes represent horizontal/vertical ratios.'
-            : isStepActive(2)
-              ? 'Side slopes B·d + s·d² keep the embankment stable against gravity.'
-              : 'Formation width platform B is built above natural ground level.'
-          : isStepActive(3)
-            ? 'Trench Cutting: Excavating a canal/road trench below ground level. B is at bottom.'
-            : isStepActive(2)
-              ? 'Side slopes are cut back to prevent soil collapsing inward.'
-              : 'Roadway formation platform B lies at target sub-grade depth.'}
+        {activeHighlight === 'box-cutting'
+          ? 'Box Cutting: Shallow subgrade excavation up to 300mm/450mm. Billed in square meters (m²) instead of standard cubic meters.'
+          : activeHighlight === 'turfing'
+            ? 'Turfing: Grass sods laid on embankment side slopes to protect against rain erosion. Billed as surface treatment in square meters (m²).'
+            : isFilling
+              ? isStepActive(3)
+                ? 'Embankment Fill: Soil is deposited on ground. Slopes represent horizontal/vertical ratios.'
+                : isStepActive(2)
+                  ? 'Side slopes B·d + s·d² keep the embankment stable against gravity.'
+                  : 'Formation width platform B is built above natural ground level.'
+              : isStepActive(3)
+                ? 'Trench Cutting: Excavating a canal/road trench below ground level. B is at bottom.'
+                : isStepActive(2)
+                  ? 'Side slopes are cut back to prevent soil collapsing inward.'
+                  : 'Roadway formation platform B lies at target sub-grade depth.'}
       </span>
     </div>
   );

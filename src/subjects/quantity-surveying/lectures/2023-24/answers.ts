@@ -23,6 +23,8 @@ export const QUIZ_METADATA = [
   { id: 'qs_2023_lec7_q2', header: 'Lec 7 Soak Pit Aggregates' },
   { id: 'qs_2023_lec8_q1', header: 'Lec 8 Roadway Area' },
   { id: 'qs_2023_lec8_q2', header: 'Lec 8 Embankment Compaction' },
+  { id: 'qs_2023_lec8_q3', header: 'Lec 8 Gradient FL' },
+  { id: 'qs_2023_lec8_q4', header: 'Lec 8 Grid Volume' },
   { id: 'qs_2023_lec9_q1', header: 'Lec 9 Pavement Volume' },
   { id: 'qs_2023_lec9_q2', header: 'Lec 9 Box Culvert RCC' },
   { id: 'qs_2023_lec10_q1', header: 'Lec 10 IPC Billing Check' },
@@ -160,17 +162,41 @@ export const QUIZ_ANSWERS: Record<
      },
    },
 
-   qs_2023_lec8_q2: {
-     formula: '((500 + [last digit] × 10) / 0.90) m³',
-     digitsRequired: 1,
-     resolve: (reg) => {
-       const digits = reg.replace(/\D/g, '');
-       if (digits.length < 1) return '((500 + [last digit] × 10) / 0.90) m³';
-       const vNet = 500 + parameterResolver.getLastDigit(reg) * 10;
-       const rawExc = vNet / 0.90;
-       return rawExc.toFixed(3);
-     },
-   },
+    qs_2023_lec8_q2: {
+      formula: '((500 + [last digit] × 10) / 0.90) m³',
+      digitsRequired: 1,
+      resolve: (reg) => {
+        const digits = reg.replace(/\D/g, '');
+        if (digits.length < 1) return '((500 + [last digit] × 10) / 0.90) m³';
+        const vNet = 500 + parameterResolver.getLastDigit(reg) * 10;
+        const rawExc = vNet / 0.90;
+        return rawExc.toFixed(3);
+      },
+    },
+
+    qs_2023_lec8_q3: {
+      formula: '50.000 - 200 / (500 + [last digit] × 50) m',
+      digitsRequired: 1,
+      resolve: (reg) => {
+        const digits = reg.replace(/\D/g, '');
+        if (digits.length < 1) return '50.000 - 200 / (500 + [last digit] × 50) m';
+        const G = 500 + parameterResolver.getLastDigit(reg) * 50;
+        const fl = 50.000 - 200.0 / G;
+        return fl.toFixed(3);
+      },
+    },
+
+    qs_2023_lec8_q4: {
+      formula: '25.00 × (1.20 + 1.50 + (1.00 + [last digit] × 0.10) + 1.60) / 4 m³',
+      digitsRequired: 1,
+      resolve: (reg) => {
+        const digits = reg.replace(/\D/g, '');
+        if (digits.length < 1) return '25.00 × (1.20 + 1.50 + (1.00 + [last digit] × 0.10) + 1.60) / 4 m³';
+        const d3 = 1.00 + parameterResolver.getLastDigit(reg) * 0.10;
+        const vol = 25.00 * (1.20 + 1.50 + d3 + 1.60) / 4.0;
+        return vol.toFixed(3);
+      },
+    },
 
    qs_2023_lec9_q1: {
      formula: '(150 × 6.60 × (0.15 + [last digit] × 0.01) × 1.25) m³',

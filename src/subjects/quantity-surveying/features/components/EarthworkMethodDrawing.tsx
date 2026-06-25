@@ -47,13 +47,13 @@ export const EarthworkMethodDrawing: React.FC<EarthworkMethodDrawingProps> = ({
   const isEndsActive = method === 'trapezoidal' || method === 'prismoidal';
 
   return (
-    <div className={`w-full flex flex-col justify-between bg-muted/20 p-4 border border-border/40 rounded-xl ${className}`}>
-      <span className="text-[10px] uppercase font-mono tracking-wider text-muted-foreground mb-2 block text-center">
+    <div className={`w-full flex flex-col justify-between bg-muted/20 p-1.5 border border-border/40 rounded-xl ${className}`}>
+      <span className="text-[10px] uppercase font-mono tracking-wider text-muted-foreground mb-0.5 block text-center">
         Longitudinal Prismoid Wireframe (Station Spacing L)
       </span>
 
       <div className="h-44 bg-background rounded-lg border border-border/20 relative flex items-center justify-center overflow-hidden">
-        <svg viewBox="0 20 300 130" className="w-full h-full select-none overflow-visible">
+        <svg viewBox="0 50 300 115" className="w-full h-full select-none overflow-visible">
           {/* Natural Ground Line connecting station beds */}
           <line
             x1={sLeft.xBL}

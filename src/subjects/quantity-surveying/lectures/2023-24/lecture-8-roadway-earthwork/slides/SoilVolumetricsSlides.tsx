@@ -5,11 +5,10 @@ import { FullWidthLayout } from '@/shared/layouts/FullWidthLayout';
 import { useClickStepsContext } from '@/features/presentation/context/ClickStepsContext';
 import { useUrlSyncedState } from '@/features/presentation/hooks/useUrlSyncedState';
 import {
-  SlideParagraph,
   SlideList,
   SlideCallout,
   InteractiveCard,
-  ParameterSlider,
+  ParameterInputCard,
   CalculationOutput,
   ClickReveal,
   ClickHighlight,
@@ -37,28 +36,25 @@ export const Slide8: React.FC = () => {
       bgVariant="default"
       leftWidth="52%"
       leftContent={
-        <div className="space-y-3">
-          <SlideParagraph title="Dynamic Soil Coefficients">
-            Soil changes in volume when excavated, transported, and compacted.
-          </SlideParagraph>
-          <SlideList
-            revealMode="each-click"
-            items={[
-              {
-                title: "Bank Measure (In-Situ)",
-                text: <span>Soil in its natural, undisturbed state. Billed in-situ: <ClickHighlight variant="paint" at={0}>Design Net Volume</ClickHighlight>.</span>
-              },
-              {
-                title: "Loose Measure (Bulked)",
-                text: <span>Excavating introduces air voids. Soil expands by <ClickHighlight variant="paint" at={1}>20% to 30%</ClickHighlight> of its bank volume (Transit Volume).</span>
-              },
-              {
-                title: "Compacted Measure (Shrunk)",
-                text: <span>Filling and rolling forces air out. Embankments compact, requiring <ClickHighlight variant="paint" at={2}>10% to 15% extra bank soil</ClickHighlight> to achieve target design volume.</span>
-              }
-            ]}
-          />
-        </div>
+        <SlideList
+          title="Dynamic Soil Coefficients"
+          description="Soil changes in volume when excavated, transported, and compacted."
+          revealMode="each-click"
+          items={[
+            {
+              title: "Bank Measure (In-Situ)",
+              text: <span>Soil in its natural, undisturbed state. Billed in-situ: <ClickHighlight variant="paint" at={0}>Design Net Volume</ClickHighlight>.</span>
+            },
+            {
+              title: "Loose Measure (Bulked)",
+              text: <span>Excavating introduces air voids. Soil expands by <ClickHighlight variant="paint" at={1}>20% to 30%</ClickHighlight> of its bank volume (Transit Volume).</span>
+            },
+            {
+              title: "Compacted Measure (Shrunk)",
+              text: <span>Filling and rolling forces air out. Embankments compact, requiring <ClickHighlight variant="paint" at={2}>10% to 15% extra bank soil</ClickHighlight> to achieve target design volume.</span>
+            }
+          ]}
+        />
       }
       rightContent={
         <div className="h-full flex flex-col justify-between space-y-2">
@@ -97,32 +93,32 @@ export const Slide9: React.FC = () => {
       leftContent={
         <InteractiveCard title="Soil Volumetrics Modeler">
           <div className="space-y-4">
-            <ParameterSlider
+            <ParameterInputCard
               label="Design Net Volume (V_net)"
               min={100}
               max={1000}
-              step={50}
               value={netVolume}
               onChange={setNetVolume}
-              unit=" m³"
+              unit="m³"
+              variant="compact"
             />
-            <ParameterSlider
+            <ParameterInputCard
               label="Soil Bulking Factor (Loose)"
               min={1.10}
               max={1.40}
-              step={0.05}
               value={bulkingFactor}
               onChange={setBulkingFactor}
               unit=""
+              variant="compact"
             />
-            <ParameterSlider
+            <ParameterInputCard
               label="Compaction Shrinkage Coefficient"
               min={0.80}
               max={0.95}
-              step={0.05}
               value={compactionFactor}
               onChange={setCompactionFactor}
               unit=""
+              variant="compact"
             />
             <div className="grid grid-cols-2 gap-2 pt-3 border-t border-border/40">
               <CalculationOutput
@@ -169,28 +165,25 @@ export const Slide11: React.FC = () => {
       bgVariant="default"
       leftWidth="52%"
       leftContent={
-        <div className="space-y-3">
-          <SlideParagraph title="Standard Horizontal & Vertical Hauling">
-            Under Bangladesh PWD Schedule of Rates rules, earthwork cost is graded by horizontal hauling distance (Lead) and vertical lift height (Lift).
-          </SlideParagraph>
-          <SlideList
-            revealMode="each-click"
-            items={[
-              {
-                title: "Baseline Horizontal Lead",
-                text: <span>Baseline distance is <ClickHighlight variant="paint" at={1}>30 meters</ClickHighlight>. Any transport within this range is included in base rate. Additional increments of 30m carry extra rate penalties.</span>
-              },
-              {
-                title: "Baseline Vertical Lift",
-                text: <span>Baseline lift height is <ClickHighlight variant="paint" at={2}>1.5 meters</ClickHighlight>. Excavating or filling deeper/higher than 1.5m incurs progressive extra charges per 1.5m stage.</span>
-              },
-              {
-                title: "Graded Earthwork Rates",
-                text: <span>Rates are partitioned: <ClickHighlight variant="paint" at={3}>Total Rate = Base Rate + Extra Lead + Extra Lift</ClickHighlight> to keep contractor compensation fair for deep cuts or long hauls.</span>
-              }
-            ]}
-          />
-        </div>
+        <SlideList
+          title="Standard Horizontal & Vertical Hauling"
+          description="Under Bangladesh PWD Schedule of Rates rules, earthwork cost is graded by horizontal hauling distance (Lead) and vertical lift height (Lift)."
+          revealMode="each-click"
+          items={[
+            {
+              title: "Baseline Horizontal Lead",
+              text: <span>Baseline distance is <ClickHighlight variant="paint" at={1}>30 meters</ClickHighlight>. Any transport within this range is included in base rate. Additional increments of 30m carry extra rate penalties.</span>
+            },
+            {
+              title: "Baseline Vertical Lift",
+              text: <span>Baseline lift height is <ClickHighlight variant="paint" at={2}>1.5 meters</ClickHighlight>. Excavating or filling deeper/higher than 1.5m incurs progressive extra charges per 1.5m stage.</span>
+            },
+            {
+              title: "Graded Earthwork Rates",
+              text: <span>Rates are partitioned: <ClickHighlight variant="paint" at={3}>Total Rate = Base Rate + Extra Lead + Extra Lift</ClickHighlight> to keep contractor compensation fair for deep cuts or long hauls.</span>
+            }
+          ]}
+        />
       }
       rightContent={
         <div className="h-full flex flex-col justify-center space-y-4">

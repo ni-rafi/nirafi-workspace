@@ -23,6 +23,7 @@ export { WaterReservoirShellDrawing } from './components/WaterReservoirShellDraw
 export { SepticTankRevealDrawing } from './components/SepticTankRevealDrawing';
 export { SoakPitFilterSandbox } from './components/SoakPitFilterSandbox';
 export { RoadwaySectionDrawing } from './components/RoadwaySectionDrawing';
+export { RoadwayGradientDrawing } from './components/RoadwayGradientDrawing';
 export { RoadPavementDrawing } from './components/RoadPavementDrawing';
 export { RetainingWallDrawing } from './components/RetainingWallDrawing';
 export { CulvertDrawing } from './components/CulvertDrawing';
