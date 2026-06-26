@@ -56,6 +56,11 @@ export function calculateGraphicalMethod(
           }
         });
 
+        let interval = intervals.find(inv => Math.abs(inv.startX - prevX) < 1e-6 && Math.abs(inv.endX - x) < 1e-6);
+        if (!interval) {
+          interval = intervals.find(inv => inv.startX - 1e-6 <= prevX && inv.endX + 1e-6 >= x);
+        }
+
         if (loadArea !== 0) {
           const nextV = currentV - loadArea;
           graphicalSteps.push({
@@ -65,6 +70,7 @@ export function calculateGraphicalMethod(
             loadArea,
             vStart: currentV,
             vEnd: nextV,
+            vCoeffs: interval ? interval.vCoeffs : undefined,
           });
           currentV = nextV;
         } else {
@@ -75,6 +81,7 @@ export function calculateGraphicalMethod(
             loadArea: 0,
             vStart: currentV,
             vEnd: currentV,
+            vCoeffs: interval ? interval.vCoeffs : undefined,
           });
         }
       }
@@ -130,26 +137,26 @@ export function calculateGraphicalMethod(
     if (idx > 0) {
       const prevX = sortedPoints[idx - 1];
       if (prevX !== undefined) {
-        const interval = intervals.find(inv => Math.abs(inv.startX - prevX) < 1e-9 && Math.abs(inv.endX - x) < 1e-9);
-
-        if (interval) {
-          // Integrate V(x) = a*x^2 + b*x + c over [prevX, x]
-          const [a, b, c] = interval.vCoeffs;
-          
-          const F = (val: number) => (a / 3) * Math.pow(val, 3) + (b / 2) * Math.pow(val, 2) + c * val;
-          const shearArea = F(x) - F(prevX);
-          const nextM = currentM + shearArea;
-
-          graphicalSteps.push({
-            type: 'bmd-segment',
-            startX: prevX,
-            endX: x,
-            shearArea,
-            mStart: currentM,
-            mEnd: nextM,
-          });
-          currentM = nextM;
+        let interval = intervals.find(inv => Math.abs(inv.startX - prevX) < 1e-6 && Math.abs(inv.endX - x) < 1e-6);
+        if (!interval) {
+          interval = intervals.find(inv => inv.startX - 1e-6 <= prevX && inv.endX + 1e-6 >= x);
         }
+
+        const [a, b, c] = interval ? interval.vCoeffs : [0, 0, 0];
+        const F = (val: number) => (a / 3) * Math.pow(val, 3) + (b / 2) * Math.pow(val, 2) + c * val;
+        const shearArea = F(x) - F(prevX);
+        const nextM = currentM + shearArea;
+
+        graphicalSteps.push({
+          type: 'bmd-segment',
+          startX: prevX,
+          endX: x,
+          shearArea,
+          mStart: currentM,
+          mEnd: nextM,
+          vCoeffs: interval ? interval.vCoeffs : undefined,
+        });
+        currentM = nextM;
       }
     }
 

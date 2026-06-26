@@ -1,6 +1,7 @@
 import React from 'react';
 import { useBeamWorkspace } from '@/subjects/mechanics-of-solids/features/sfd-bmd/context/BeamWorkspaceContext';
 import { useBeamEngine } from '../../../hooks/useBeamEngine';
+import { splitIntoSignSegments } from '../../../utils/chartUtils';
 
 import { ICalculationStep } from '../../../types/stepTypes';
 
@@ -29,6 +30,16 @@ export const GraphicalStepVisual: React.FC<GraphicalStepVisualProps> = ({ step }
     if (!interval) return 0;
     const [a, b, c] = interval.vCoeffs;
     return a * x * x + b * x + c;
+  };
+
+  // Evaluate shear force using step metadata vCoeffs if available, falling back to getVAt
+  const evalVAt = (x: number): number => {
+    const coeffs = step.metadata?.vCoeffs as [number, number, number] | undefined;
+    if (coeffs) {
+      const [a, b, c] = coeffs;
+      return a * x * x + b * x + c;
+    }
+    return getVAt(x);
   };
 
   // Find max shear to scale
@@ -60,17 +71,50 @@ export const GraphicalStepVisual: React.FC<GraphicalStepVisualProps> = ({ step }
   });
   pathD += ` L ${toPixelX(length)} ${scaleY(0)} Z`;
 
-  // Build the shaded area path
-  const shadePoints = hasShading ? points.filter(pt => pt.x >= shadeStart - 1e-4 && pt.x <= shadeEnd + 1e-4) : [];
-  let shadeD = '';
-  if (shadePoints.length > 0) {
-    const startPx = toPixelX(shadeStart);
-    shadeD = `M ${startPx} ${scaleY(0)}`;
-    shadePoints.forEach(pt => {
-      shadeD += ` L ${toPixelX(pt.x)} ${scaleY(pt.v)}`;
-    });
-    shadeD += ` L ${toPixelX(shadeEnd)} ${scaleY(0)} Z`;
+  // Build the shaded area path using exact boundary sampling
+  const shadePoints: { x: number; v: number }[] = [];
+  if (hasShading) {
+    const numShadeSteps = 40;
+    for (let i = 0; i <= numShadeSteps; i++) {
+      const x = shadeStart + (i / numShadeSteps) * (shadeEnd - shadeStart);
+      shadePoints.push({ x, v: evalVAt(x) });
+    }
   }
+
+  const signSegments = splitIntoSignSegments(
+    shadePoints.map(pt => ({ x: pt.x, y: pt.v }))
+  );
+
+  const renderedSegments = signSegments.map((seg, sIdx) => {
+    if (seg.points.length === 0) return null;
+    const segStartX = seg.points[0]!.x;
+    const segEndX = seg.points[seg.points.length - 1]!.x;
+    
+    let d = `M ${toPixelX(segStartX)} ${scaleY(0)}`;
+    seg.points.forEach(pt => {
+      d += ` L ${toPixelX(pt.x)} ${scaleY(pt.y)}`;
+    });
+    d += ` L ${toPixelX(segEndX)} ${scaleY(0)} Z`;
+
+    const fillColor = seg.isPos ? 'rgba(16, 185, 129, 0.25)' : 'rgba(239, 68, 68, 0.2)';
+    const strokeColor = seg.isPos ? 'var(--success, #10b981)' : 'var(--destructive, #ef4444)';
+
+    return (
+      <path
+        key={sIdx}
+        d={d}
+        fill={fillColor}
+        stroke={strokeColor}
+        strokeWidth={1.5}
+      />
+    );
+  });
+
+  // Determine role and label formatting
+  const role = (step.metadata?.diagramRole as string | undefined) ?? (step.id.includes('sfd') ? 'sfd-segment' : 'bmd-segment');
+  const isSfd = role.startsWith('sfd');
+  const labelText = isSfd ? 'Load Area = ΔV' : 'Shear Area = ΔM';
+  const labelColor = isSfd ? 'var(--success, #10b981)' : '#0ea5e9';
 
   return (
     <div className="mt-2.5 mb-1.5 overflow-hidden rounded-lg border border-border/30 bg-muted/5 p-2 max-w-sm">
@@ -95,15 +139,8 @@ export const GraphicalStepVisual: React.FC<GraphicalStepVisualProps> = ({ step }
           opacity={0.4}
         />
 
-        {/* Shaded Area integration zone */}
-        {shadeD && (
-          <path
-            d={shadeD}
-            fill="rgba(16, 185, 129, 0.25)"
-            stroke="var(--success, #10b981)"
-            strokeWidth={1.5}
-          />
-        )}
+        {/* Shaded Area integration zones */}
+        {renderedSegments}
 
         {/* Point Jump Indicator */}
         {isPointJump && (
@@ -141,16 +178,17 @@ export const GraphicalStepVisual: React.FC<GraphicalStepVisualProps> = ({ step }
               x={toPixelX((shadeStart + shadeEnd) / 2)}
               y={ySFD + 25}
               textAnchor="middle"
-              className="fill-success text-[8.5px] font-bold select-none"
+              className="text-[8.5px] font-bold select-none"
+              style={{ fill: labelColor }}
             >
-              Area = ΔM
+              {labelText}
             </text>
             <line
               x1={toPixelX((shadeStart + shadeEnd) / 2)}
               y1={ySFD + 4}
               x2={toPixelX((shadeStart + shadeEnd) / 2)}
               y2={ySFD + 16}
-              stroke="var(--success, #10b981)"
+              stroke={labelColor}
               strokeWidth={1}
               strokeDasharray="2,1"
             />

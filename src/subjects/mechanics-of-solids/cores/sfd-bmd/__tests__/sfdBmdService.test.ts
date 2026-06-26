@@ -138,4 +138,35 @@ describe('SFDBmdService Solver Tests', () => {
     expect(result.success).toBe(false);
     expect(result.doiResult.isUnstable).toBe(true);
   });
+
+  test('Graphical steps generated correctly with vCoeffs and diagramRole', () => {
+    const beam: IBeam = {
+      length: 6,
+      supports: [
+        { id: 's1', type: 'hinge', position: 0 },
+        { id: 's2', type: 'roller', position: 6 },
+      ],
+      releases: [],
+      loads: [
+        { id: 'l1', type: 'udl', startPosition: 0, endPosition: 6, magnitude: 4 },
+      ],
+    };
+
+    const result = solver.solve(beam);
+    expect(result.success).toBe(true);
+    expect(result.graphicalStepsData).toBeDefined();
+    expect(result.graphicalStepsData!.length).toBeGreaterThan(0);
+
+    const sfdSegs = result.graphicalStepsData!.filter(s => s.type === 'sfd-segment');
+    const bmdSegs = result.graphicalStepsData!.filter(s => s.type === 'bmd-segment');
+
+    expect(sfdSegs.length).toBeGreaterThan(0);
+    expect(bmdSegs.length).toBeGreaterThan(0);
+
+    expect(sfdSegs[0]!.vCoeffs).toBeDefined();
+    expect(bmdSegs[0]!.vCoeffs).toBeDefined();
+
+    expect(bmdSegs[0]!.startX).toBe(0);
+    expect(bmdSegs[0]!.endX).toBe(6);
+  });
 });

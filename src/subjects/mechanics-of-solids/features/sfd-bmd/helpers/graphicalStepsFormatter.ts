@@ -41,7 +41,7 @@ export function generateGraphicalStepsUI(graphicalStepsData: IGraphicalStepData[
           text: `- **Segment $x \\in [${startX.toFixed(2)}, ${endX.toFixed(2)}]$:** UDL/UVL Load Area = $${loadArea.toFixed(2)}\\text{ kN}$.`,
           latex: `V(${endX.toFixed(2)}^-) = V(${startX.toFixed(2)}^+) - \\text{Load Area} = ${vStart.toFixed(2)} - ${loadArea.toFixed(2)} = ${vEnd.toFixed(2)}\\text{ kN}`,
           highlightX: (startX + endX) / 2,
-          metadata: { startX, endX },
+          metadata: { startX, endX, diagramRole: 'sfd-segment', vCoeffs: step.vCoeffs },
         });
       } else {
         steps.push({
@@ -49,7 +49,7 @@ export function generateGraphicalStepsUI(graphicalStepsData: IGraphicalStepData[
           type: 'graphical-sfd-step',
           text: `- **Segment $x \\in [${startX.toFixed(2)}, ${endX.toFixed(2)}]$:** No distributed load. $V(${endX.toFixed(2)}^-) = V(${startX.toFixed(2)}^+) = ${vStart.toFixed(2)}\\text{ kN}$.`,
           highlightX: (startX + endX) / 2,
-          metadata: { startX, endX },
+          metadata: { startX, endX, diagramRole: 'sfd-segment', vCoeffs: step.vCoeffs },
         });
       }
     } else if (step.type === 'sfd-jump') {
@@ -63,6 +63,7 @@ export function generateGraphicalStepsUI(graphicalStepsData: IGraphicalStepData[
         text: `- **At $x = ${posX.toFixed(2)}\\text{ m}$:** Concentrated force jump: ${step.description || ''}.`,
         latex: `V(${posX.toFixed(2)}^+) = V(${posX.toFixed(2)}^-) + \\Delta V = ${vStart.toFixed(2)} + (${jump.toFixed(2)}) = ${vEnd.toFixed(2)}\\text{ kN}`,
         highlightX: posX,
+        metadata: { diagramRole: 'sfd-jump' },
       });
     }
   });
@@ -80,6 +81,7 @@ export function generateGraphicalStepsUI(graphicalStepsData: IGraphicalStepData[
         type: 'graphical-bmd-step',
         text: `- **Start ($x = 0$):** $M(0^-) = 0$`,
         highlightX: 0,
+        metadata: { diagramRole: 'bmd-start' },
       });
     } else if (step.type === 'bmd-segment') {
       const startX = step.startX ?? 0;
@@ -93,7 +95,7 @@ export function generateGraphicalStepsUI(graphicalStepsData: IGraphicalStepData[
         text: `- **Segment $x \\in [${startX.toFixed(2)}, ${endX.toFixed(2)}]$:** Shear diagram area = $${shearArea.toFixed(2)}\\text{ kNm}$.`,
         latex: `M(${endX.toFixed(2)}^-) = M(${startX.toFixed(2)}^+) + \\text{Shear Area} = ${mStart.toFixed(2)} + (${shearArea.toFixed(2)}) = ${mEnd.toFixed(2)}\\text{ kNm}`,
         highlightX: (startX + endX) / 2,
-        metadata: { startX, endX },
+        metadata: { startX, endX, diagramRole: 'bmd-segment', vCoeffs: step.vCoeffs },
       });
     } else if (step.type === 'bmd-jump') {
       const posX = step.x ?? 0;
@@ -106,6 +108,7 @@ export function generateGraphicalStepsUI(graphicalStepsData: IGraphicalStepData[
         text: `- **At $x = ${posX.toFixed(2)}\\text{ m}$:** Concentrated moment jump: ${step.description || ''}.`,
         latex: `M(${posX.toFixed(2)}^+) = M(${posX.toFixed(2)}^-) + \\Delta M = ${mStart.toFixed(2)} + (${jump.toFixed(2)}) = ${mEnd.toFixed(2)}\\text{ kNm}`,
         highlightX: posX,
+        metadata: { diagramRole: 'bmd-jump' },
       });
     }
   });

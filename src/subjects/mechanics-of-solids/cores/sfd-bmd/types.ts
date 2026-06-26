@@ -109,6 +109,7 @@ export interface IGraphicalStepData {
   jump?: number;
   source?: 'support' | 'point-load' | 'moment-load';
   description?: string;
+  vCoeffs?: [number, number, number];
 }
 
 export interface ISolverOutput {
