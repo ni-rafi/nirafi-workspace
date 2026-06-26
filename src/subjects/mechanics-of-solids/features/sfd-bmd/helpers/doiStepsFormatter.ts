@@ -70,6 +70,24 @@ export function generateDoiStepsUI(doiResult: IDOIResult, beam: IBeam): ICalcula
   }
 
   steps.push({
+    id: 'doi-int-ext-header',
+    type: 'doi-info-header',
+    text: `#### Internal vs. External Determinacy`,
+  });
+
+  steps.push({
+    id: 'doi-internal-det',
+    type: 'doi-info-bullet',
+    text: `- **Internal Indeterminacy ($D_i = 0$):** Since a beam is an open-chain structure with no closed loops, it has no internal redundant forces. Once support reactions are solved, all internal member forces (V, M) can be resolved directly using the method of sections.`,
+  });
+
+  steps.push({
+    id: 'doi-external-det',
+    type: 'doi-info-bullet',
+    text: `- **External Indeterminacy ($D_e = r - 3 - c$):** The indeterminacy of the structure lies entirely in the support reactions relative to the $3$ global equations of equilibrium and the $c$ equations of condition from internal releases.`,
+  });
+
+  steps.push({
     id: 'doi-summary',
     type: 'doi-summary',
     text: `Total unknown support reactions, $r = ${r}$.\nTotal equations of condition from internal releases, $c = ${c}$.\nDegree of Static Indeterminacy (DOI):\n\n${classificationText}`,
