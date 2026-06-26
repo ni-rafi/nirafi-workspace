@@ -79,6 +79,11 @@ const SUBJECT_DECORATIONS: Record<string, { description: string; iconEmoji: stri
     iconEmoji: '⚙️',
     color: '#ea580c',
   },
+  'mechanics-of-solids': {
+    description: 'Analysis of stress, strain, deformation, shear force, bending moments, bending and shear stresses in structural elements.',
+    iconEmoji: '🧱',
+    color: '#6366f1',
+  },
 };
 
 const COURSE_SHELLS: Record<string, Course> = {};
