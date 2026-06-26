@@ -1,5 +1,5 @@
 import React from 'react';
-import type { BoardMode } from '../../../../../hooks/useWhiteboard';
+import type { BoardMode } from '../../../hooks/useWhiteboard';
 
 interface WhiteboardColorPickerProps {
   activeColor: string;

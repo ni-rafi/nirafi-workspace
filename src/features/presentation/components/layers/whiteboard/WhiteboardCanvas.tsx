@@ -1,10 +1,10 @@
 import React, { useRef, useState, useEffect, useCallback } from 'react';
-import { useDrawingBoard } from '../../../../../hooks/useDrawingBoard';
+import { useDrawingBoard } from '../../../hooks/useDrawingBoard';
 import { SvgElementsRenderer } from '../SvgElementsRenderer';
 import { WhiteboardTextTool } from './WhiteboardTextTool';
-import { useWhiteboardHistory } from '../../../../../hooks/useWhiteboardHistory';
-import type { VectorElement, Point } from '../../../../../types';
-import type { BoardMode } from '../../../../../hooks/useWhiteboard';
+import { useWhiteboardHistory } from '../../../hooks/useWhiteboardHistory';
+import type { VectorElement, Point } from '../../../types';
+import type { BoardMode } from '../../../hooks/useWhiteboard';
 
 export type WhiteboardToolType = 'select' | 'pencil' | 'eraser' | 'line' | 'arrow' | 'rect' | 'circle' | 'text';
 

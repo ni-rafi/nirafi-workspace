@@ -5,7 +5,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import type { WhiteboardToolType } from './WhiteboardCanvas';
-import type { BoardMode } from '../../../../../hooks/useWhiteboard';
+import type { BoardMode } from '../../../hooks/useWhiteboard';
 
 interface WhiteboardToolbarProps {
   activeTool: WhiteboardToolType;

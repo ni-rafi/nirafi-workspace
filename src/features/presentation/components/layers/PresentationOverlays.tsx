@@ -10,7 +10,7 @@ import { MagnifierLens } from './magnifier';
 import { WhiteboardOverlay } from './whiteboard';
 import { SlideSettings } from './SettingsPopover';
 import type { Subject, Lecture, Session } from '@/config/lectures';
-import type { BoardMode } from '../../../hooks/useWhiteboard';
+import type { BoardMode } from '../../hooks/useWhiteboard';
 
 interface PresentationOverlaysProps {
   isProjectionView: boolean;

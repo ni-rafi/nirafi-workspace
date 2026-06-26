@@ -3,10 +3,10 @@ import { WhiteboardCanvas, type WhiteboardToolType } from './WhiteboardCanvas';
 import { WhiteboardToolbar } from './WhiteboardToolbar';
 import { WhiteboardColorPicker } from './WhiteboardColorPicker';
 import { WhiteboardSizeSelector } from './WhiteboardSizeSelector';
-import { useWhiteboardHistory } from '../../../../../hooks/useWhiteboardHistory';
-import { getStorageItem } from '../../../../../utils/presentationStorage';
-import type { BoardMode } from '../../../../../hooks/useWhiteboard';
-import type { VectorElement } from '../../../../../types';
+import { useWhiteboardHistory } from '../../../hooks/useWhiteboardHistory';
+import { getStorageItem } from '../../../utils/presentationStorage';
+import type { BoardMode } from '../../../hooks/useWhiteboard';
+import type { VectorElement } from '../../../types';
 
 interface WhiteboardOverlayProps {
   isOpen: boolean;

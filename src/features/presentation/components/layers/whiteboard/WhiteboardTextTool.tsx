@@ -1,5 +1,5 @@
 import React, { useRef, useEffect } from 'react';
-import type { Point } from '../../../../../types';
+import type { Point } from '../../../types';
 
 interface WhiteboardTextToolProps {
   /** Position in SVG coordinate space (980×551.25) */
