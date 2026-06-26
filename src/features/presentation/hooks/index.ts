@@ -7,3 +7,6 @@ export { useGoogleFontLoader } from './useGoogleFontLoader';
 export { useUrlSyncedState } from './useUrlSyncedState';
 export { useSlideViewerOrchestrator } from './useSlideViewerOrchestrator';
 export { useDrawingBoard } from './useDrawingBoard';
+export { useMagnifier } from './useMagnifier';
+export { useWhiteboard } from './useWhiteboard';
+export { useWhiteboardHistory } from './useWhiteboardHistory';

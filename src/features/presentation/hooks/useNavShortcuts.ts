@@ -9,10 +9,18 @@ interface ShortcutProps {
   onToggleOverview: () => void;
   onToggleDark: () => void;
   onTogglePresenter?: () => void;
+  onToggleMagnifier?: () => void;
+  onToggleWhiteboard?: () => void;
 }
 
 /**
- * useNavShortcuts binds presentation keyboard binds.
+ * useNavShortcuts binds presentation keyboard binds including USB clicker keycodes.
+ *
+ * USB pointer devices commonly emit:
+ *  - PageDown / PageUp   (Logitech Spotlight, Kensington)
+ *  - ArrowRight / ArrowLeft (generic)
+ *  - Period (.) for next on Logitech R400
+ *  - F5 for "start slideshow" — we prevent default to avoid browser reload
  */
 export const useNavShortcuts = ({
   onNext,
@@ -23,6 +31,8 @@ export const useNavShortcuts = ({
   onToggleOverview,
   onToggleDark,
   onTogglePresenter,
+  onToggleMagnifier,
+  onToggleWhiteboard,
 }: ShortcutProps) => {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -39,44 +49,57 @@ export const useNavShortcuts = ({
         return;
       }
 
-      if (e.key === 'ArrowRight' || e.key === 'Space') {
+      // Navigation: ArrowRight / Space / PageDown / Period (Logitech R400 next)
+      if (e.key === 'ArrowRight' || e.key === 'Space' || e.key === 'PageDown' || e.key === '.') {
         e.preventDefault();
         onNext();
-      } else if (e.key === 'ArrowLeft' || e.key === 'Backspace') {
+      // Navigation: ArrowLeft / Backspace / PageUp
+      } else if (e.key === 'ArrowLeft' || e.key === 'Backspace' || e.key === 'PageUp') {
         e.preventDefault();
         onPrev();
+      // Section jump
       } else if (e.key === 'ArrowDown') {
         e.preventDefault();
         onNextSection?.();
       } else if (e.key === 'ArrowUp') {
         e.preventDefault();
         onPrevSection?.();
+      // Fullscreen
       } else if (e.key === 'f' && e.ctrlKey) {
         e.preventDefault();
         onToggleFullscreen();
+      // Overview
       } else if (e.key === 'o' || e.key === 'O') {
         e.preventDefault();
         onToggleOverview();
+      // Dark mode
       } else if (e.key === 'd' || e.key === 'D') {
         e.preventDefault();
         onToggleDark();
+      // Presenter view
       } else if (e.key === 'p' || e.key === 'P') {
         e.preventDefault();
         onTogglePresenter?.();
+      // Magnifier (M key)
+      } else if (e.key === 'm' || e.key === 'M') {
+        e.preventDefault();
+        onToggleMagnifier?.();
+      // Whiteboard (W key)
+      } else if (e.key === 'w' || e.key === 'W') {
+        e.preventDefault();
+        onToggleWhiteboard?.();
+      // Prevent F5 browser refresh (some clickers send F5 for "start slideshow")
+      } else if (e.key === 'F5') {
+        e.preventDefault();
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [
-    onNext,
-    onPrev,
-    onNextSection,
-    onPrevSection,
-    onToggleFullscreen,
-    onToggleOverview,
-    onToggleDark,
-    onTogglePresenter,
+    onNext, onPrev, onNextSection, onPrevSection,
+    onToggleFullscreen, onToggleOverview, onToggleDark,
+    onTogglePresenter, onToggleMagnifier, onToggleWhiteboard,
   ]);
 };
 

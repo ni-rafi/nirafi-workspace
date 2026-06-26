@@ -118,7 +118,7 @@ export const useSlideViewerOrchestrator = () => {
 
   const viewerState = useSlideViewerState({ subjectId, sessionId, lectureId, currentSlideInt: activeSlide });
 
-  const presenterFeatures = usePresenterFeatures();
+  const presenterFeatures = usePresenterFeatures(activeSlide);
 
   // Sync settings state to ref for transition callbacks
   useEffect(() => {

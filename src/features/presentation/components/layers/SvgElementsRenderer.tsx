@@ -134,6 +134,22 @@ export const SvgElementsRenderer: React.FC<SvgElementsRendererProps> = ({
               {...commonProps}
             />
           );
+        } else if (el.type === 'text' && el.text) {
+          return (
+            <text
+              key={el.id}
+              x={p1.x}
+              y={p1.y}
+              fill={el.color}
+              fontSize={el.strokeWidth * 4 + 12}
+              fontFamily="inherit"
+              transform={transform}
+              style={{ userSelect: 'none' }}
+              {...commonProps}
+            >
+              {el.text}
+            </text>
+          );
         }
         return null;
       })}

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import CameraOverlay from '../tools/CameraOverlay';
 import PresentationTimer from '../tools/PresentationTimer';
 import PresentationRecorder from '../tools/PresentationRecorder';
@@ -6,8 +6,11 @@ import ContextMenu from '../tools/ContextMenu';
 import SettingsPopover from './SettingsPopover';
 import OverviewModal from './OverviewModal';
 import LaserPointer from './LaserPointer';
+import { MagnifierLens } from './magnifier';
+import { WhiteboardOverlay } from './whiteboard';
 import { SlideSettings } from './SettingsPopover';
 import type { Subject, Lecture, Session } from '@/config/lectures';
+import type { BoardMode } from '../../../hooks/useWhiteboard';
 
 interface PresentationOverlaysProps {
   isProjectionView: boolean;
@@ -50,6 +53,15 @@ interface PresentationOverlaysProps {
 
   isThemePlaygroundOpen: boolean;
   onToggleThemePlayground: () => void;
+  // Magnifier
+  isMagnifierActive?: boolean;
+  magnifierPosition?: { x: number; y: number };
+  magnifierZoom?: number;
+  // Whiteboard
+  isWhiteboardOpen?: boolean;
+  lectureSlideNo?: number;
+  boardMode?: BoardMode;
+  onToggleBoardMode?: () => void;
 }
 
 export const PresentationOverlays: React.FC<PresentationOverlaysProps> = ({
@@ -89,9 +101,40 @@ export const PresentationOverlays: React.FC<PresentationOverlaysProps> = ({
   activeLec,
   activeSession,
   onToggleThemePlayground,
+  isMagnifierActive,
+  magnifierPosition,
+  magnifierZoom,
+  isWhiteboardOpen,
+  lectureSlideNo,
+  boardMode,
+  onToggleBoardMode,
 }) => {
+  const slideContainerRef = useRef<HTMLDivElement | null>(null);
+
   if (isProjectionView) {
-    return <LaserPointer active={isLaserActive} isProjectionView={true} />;
+    return (
+      <>
+        <LaserPointer active={isLaserActive} isProjectionView={true} />
+        {isMagnifierActive && magnifierPosition && magnifierZoom && (
+          <MagnifierLens
+            lensPosition={magnifierPosition}
+            zoomLevel={magnifierZoom}
+            containerRef={slideContainerRef}
+          />
+        )}
+        {isWhiteboardOpen && (
+          <WhiteboardOverlay
+            isOpen={isWhiteboardOpen}
+            onClose={() => {}}
+            boardMode={boardMode ?? 'light'}
+            onToggleBoardMode={onToggleBoardMode ?? (() => {})}
+            isProjectionView={true}
+            lectureId={lectureId}
+            slideNo={lectureSlideNo ?? 0}
+          />
+        )}
+      </>
+    );
   }
 
   return (

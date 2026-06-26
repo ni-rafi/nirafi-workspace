@@ -12,6 +12,8 @@ import {
   SlidersHorizontal,
   PenTool,
   Palette,
+  ZoomIn,
+  SquarePen,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import DrawingDrawer from './DrawingDrawer';
@@ -57,6 +59,10 @@ interface NavControlsProps {
 
   isThemePlaygroundOpen?: boolean;
   onToggleThemePlayground?: () => void;
+  isMagnifierActive?: boolean;
+  onToggleMagnifier?: () => void;
+  isWhiteboardOpen?: boolean;
+  onToggleWhiteboard?: () => void;
   className?: string;
 }
 
@@ -100,6 +106,10 @@ export const NavControls: React.FC<NavControlsProps> = ({
   onToggleDrawingsHidden,
   isThemePlaygroundOpen = false,
   onToggleThemePlayground,
+  isMagnifierActive = false,
+  onToggleMagnifier,
+  isWhiteboardOpen = false,
+  onToggleWhiteboard,
   className,
 }) => {
   const [isHovered, setIsHovered] = useState(false);
@@ -179,6 +189,32 @@ export const NavControls: React.FC<NavControlsProps> = ({
           >
             <PenTool className="h-4 w-4" />
           </Button>
+
+          {/* Magnifier loupe (M) */}
+          {onToggleMagnifier && (
+            <Button
+              variant={isMagnifierActive ? 'secondary' : 'ghost'}
+              size="icon"
+              onClick={onToggleMagnifier}
+              className="h-7 w-7 md:h-8 md:w-8 rounded-full text-muted-foreground hover:text-foreground"
+              title="Magnifier Lens (M)"
+            >
+              <ZoomIn className="h-4 w-4" />
+            </Button>
+          )}
+
+          {/* Whiteboard (W) */}
+          {onToggleWhiteboard && (
+            <Button
+              variant={isWhiteboardOpen ? 'secondary' : 'ghost'}
+              size="icon"
+              onClick={onToggleWhiteboard}
+              className="h-7 w-7 md:h-8 md:w-8 rounded-full text-muted-foreground hover:text-foreground"
+              title="Whiteboard (W)"
+            >
+              <SquarePen className="h-4 w-4" />
+            </Button>
+          )}
 
           {/* Toggle Dark Mode */}
           <Button
