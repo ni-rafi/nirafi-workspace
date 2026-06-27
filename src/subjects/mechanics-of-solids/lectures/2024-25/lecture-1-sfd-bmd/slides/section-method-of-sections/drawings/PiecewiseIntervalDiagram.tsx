@@ -13,6 +13,7 @@ export const PiecewiseIntervalDiagram: React.FC<PiecewiseIntervalDiagramProps> =
       { id: 'A', type: 'hinge', position: 0 },
       { id: 'B', type: 'roller', position: 16 }
     ],
+    releases: [],
     loads: [
       { id: 'P', type: 'point', position: 5, magnitude: 20 },
       { id: 'w', type: 'udl', startPosition: 10, endPosition: 16, magnitude: 5 }

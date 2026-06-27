@@ -1,25 +1,5 @@
 import React from 'react';
-
-interface ISupport {
-  id: string;
-  type: 'hinge' | 'roller';
-  position: number;
-}
-
-interface ILoad {
-  id: string;
-  type: 'point' | 'udl';
-  position?: number;
-  startPosition?: number;
-  endPosition?: number;
-  magnitude: number;
-}
-
-interface IBeam {
-  length: number;
-  supports: ISupport[];
-  loads: ILoad[];
-}
+import { IBeam } from '@/subjects/mechanics-of-solids/cores/sfd-bmd/types';
 
 interface Beam2DDrawingProps {
   beam: IBeam;
@@ -81,7 +61,7 @@ export const Beam2DDrawing: React.FC<Beam2DDrawingProps> = ({
         {showZones && activeStep >= 2 && (
           <g className="animate-in fade-in duration-300">
             {keyCoords.slice(0, -1).map((x, idx) => {
-              const nextX = keyCoords[idx + 1];
+              const nextX = keyCoords[idx + 1]!;
               const midSegmentX = getSvgX((x + nextX) / 2);
               const labelWidth = (nextX - x) * scale - 6;
               const color = idx === 0 ? '#4f46e5' : idx === 1 ? '#3b82f6' : '#10b981';
@@ -104,7 +84,7 @@ export const Beam2DDrawing: React.FC<Beam2DDrawingProps> = ({
         {beam.supports.map((s, idx) => {
           const xVal = getSvgX(s.position);
           const labelLetter = idx === 0 ? 'A' : 'B';
-          const defaultReaction = beam.loads[0] ? (beam.loads[0].magnitude / 2).toFixed(1) : 'R';
+          const defaultReaction = beam.loads[0] && beam.loads[0].magnitude !== undefined ? (beam.loads[0].magnitude / 2).toFixed(1) : 'R';
           const valA = reactionAVal ?? (resolvedReactions ? `${defaultReaction} kN` : `R_A`);
           const valB = reactionBVal ?? (resolvedReactions ? `${defaultReaction} kN` : `R_B`);
           const val = labelLetter === 'A' ? valA : valB;
@@ -154,7 +134,7 @@ export const Beam2DDrawing: React.FC<Beam2DDrawingProps> = ({
               <g key={l.id}>
                 {/* Arrow */}
                 <path d={`M ${xVal},16 L ${xVal},46 M ${xVal - 4},40 L ${xVal},46 L ${xVal + 4},40`} fill="none" stroke="#ef4444" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-                <text x={xVal + 6} y="26" className="text-[9px] font-black fill-rose-500 font-mono">{l.id} = {l.magnitude} kN</text>
+                <text x={xVal - 6} y="26" textAnchor="end" className="text-[9px] font-black fill-rose-500 font-mono">{l.id} = {l.magnitude ?? 0} kN</text>
               </g>
             );
           } else if (l.type === 'udl') {
@@ -189,7 +169,7 @@ export const Beam2DDrawing: React.FC<Beam2DDrawingProps> = ({
                   );
                 })}
                 <text x={(xStart + xEnd) / 2} y="26" textAnchor="middle" className="text-[9.5px] font-black fill-emerald-600 dark:fill-emerald-400 font-mono">
-                  {l.id} = {l.magnitude} kN/m
+                  {l.id} = {l.magnitude ?? 0} kN/m
                 </text>
               </g>
             );
@@ -201,7 +181,7 @@ export const Beam2DDrawing: React.FC<Beam2DDrawingProps> = ({
         {showSections && activeStep >= 3 && (
           <g className="animate-in fade-in duration-300">
             {keyCoords.slice(0, -1).map((x, idx) => {
-              const nextX = keyCoords[idx + 1];
+              const nextX = keyCoords[idx + 1]!;
               const sectionX = getSvgX((x + nextX) / 2);
               return (
                 <g key={`sec-${idx}`}>
@@ -222,7 +202,7 @@ export const Beam2DDrawing: React.FC<Beam2DDrawingProps> = ({
           ))}
           {/* Dimension arrows inside each segment */}
           {keyCoords.slice(0, -1).map((x, idx) => {
-            const nextX = keyCoords[idx + 1];
+            const nextX = keyCoords[idx + 1]!;
             const start = getSvgX(x);
             const end = getSvgX(nextX);
             return (
@@ -234,7 +214,7 @@ export const Beam2DDrawing: React.FC<Beam2DDrawingProps> = ({
           })}
         </g>
         {keyCoords.slice(0, -1).map((x, idx) => {
-          const nextX = keyCoords[idx + 1];
+          const nextX = keyCoords[idx + 1]!;
           const midSegmentX = getSvgX((x + nextX) / 2);
           return (
             <text key={`dim-text-${idx}`} x={midSegmentX} y="137" textAnchor="middle" className="text-[9px] font-mono fill-slate-500">

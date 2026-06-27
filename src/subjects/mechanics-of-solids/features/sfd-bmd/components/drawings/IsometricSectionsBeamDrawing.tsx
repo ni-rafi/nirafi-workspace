@@ -45,7 +45,7 @@ export const IsometricSectionsBeamDrawing: React.FC<IsometricSectionsBeamDrawing
   const isCut = cutX !== null;
   const length = beam.length;
   const svgW = 850;
-  const svgH = 140;
+  const svgH = 165;
   const paddingX = 80;
   const beamW = svgW - paddingX * 2;
 
@@ -200,21 +200,115 @@ export const IsometricSectionsBeamDrawing: React.FC<IsometricSectionsBeamDrawing
           </g>
         )}
 
-        {/* 3. DRAW APPLIED POINT LOADS IN 3D */}
+        {/* 3. DRAW APPLIED POINT LOADS & UDLS IN 3D */}
         {beam.loads.map(load => {
-          if (load.type !== 'point' || load.position === undefined) return null;
-          const lx = toPixel(load.position);
-          const opacity = getOpacity(load.position);
-          const isHighlighted = highlightedLoadId === load.id;
+          if (load.type === 'point' && load.position !== undefined) {
+            const lx = toPixel(load.position);
+            const opacity = getOpacity(load.position);
+            const isHighlighted = highlightedLoadId === load.id;
 
-          return (
-            <g key={load.id} opacity={opacity} className="transition-all duration-300">
-              <path d={`M ${lx},10 V ${yBeam - scaleH - 5} M ${lx - 4},${yBeam - scaleH - 12} L ${lx},${yBeam - scaleH - 5} L ${lx + 4},${yBeam - scaleH - 12}`} fill="none" stroke={isHighlighted ? "#ef4444" : "#f43f5e"} strokeWidth={isHighlighted ? 3.5 : 2.5} strokeLinecap="round" strokeLinejoin="round" />
-              <text x={lx + 10} y={24} className={`text-[11px] font-black ${isHighlighted ? 'fill-red-500' : 'fill-rose-500'}`}>
-                {load.magnitude} kN
-              </text>
-            </g>
-          );
+            return (
+              <g key={load.id} opacity={opacity} className="transition-all duration-300">
+                <path d={`M ${lx},10 V ${yBeam - scaleH - 5} M ${lx - 4},${yBeam - scaleH - 12} L ${lx},${yBeam - scaleH - 5} L ${lx + 4},${yBeam - scaleH - 12}`} fill="none" stroke={isHighlighted ? "#ef4444" : "#f43f5e"} strokeWidth={isHighlighted ? 3.5 : 2.5} strokeLinecap="round" strokeLinejoin="round" />
+                <text x={lx + 10} y={24} className={`text-[11px] font-black ${isHighlighted ? 'fill-red-500' : 'fill-rose-500'}`}>
+                  {load.magnitude} kN
+                </text>
+              </g>
+            );
+          } else if (load.type === 'udl' && load.startPosition !== undefined && load.endPosition !== undefined) {
+            const isHighlighted = highlightedLoadId === load.id;
+            
+            // Helper to render one 3D UDL block segment
+            const renderBlock = (xStart: number, xEnd: number, opacity: number, isLeftCut: boolean, isRightCut: boolean) => {
+              const width = xEnd - xStart;
+              if (width <= 0) return null;
+
+              const arcCount = Math.max(2, Math.round(width / 15));
+              const arcWidth = width / arcCount;
+
+              return (
+                <g opacity={opacity} className="transition-all duration-300">
+                  {/* UDL Front Face */}
+                  <path
+                    d={`M ${xStart},${yBeam - scaleH} L ${xEnd},${yBeam - scaleH} V ${yBeam - scaleH - 16} L ${xStart},${yBeam - scaleH - 16} Z`}
+                    className="fill-emerald-500/10 stroke-emerald-500/40"
+                    strokeWidth="1"
+                  />
+                  {/* UDL Top Face */}
+                  <path
+                    d={`M ${xStart},${yBeam - scaleH - 16} L ${xEnd},${yBeam - scaleH - 16} L ${xEnd + 15},${yBeam - scaleH - 31} L ${xStart + 15},${yBeam - scaleH - 31} Z`}
+                    className="fill-emerald-500/15 stroke-emerald-500/40"
+                    strokeWidth="1"
+                  />
+                  {/* Left Cut Face or End Face */}
+                  {isLeftCut ? (
+                    <polygon
+                      points={`${xStart},${yBeam - scaleH} ${xStart + 15},${yBeam - scaleH - 15} ${xStart + 15},${yBeam - scaleH - 31} ${xStart},${yBeam - scaleH - 16}`}
+                      className="fill-emerald-500/40 stroke-emerald-500 stroke-[1.5]"
+                    />
+                  ) : (
+                    <path
+                      d={`M ${xStart},${yBeam - scaleH} L ${xStart + 15},${yBeam - scaleH - 15} V ${yBeam - scaleH - 31} L ${xStart},${yBeam - scaleH - 16} Z`}
+                      className="fill-emerald-650/10 stroke-emerald-500/35"
+                      strokeWidth="1"
+                    />
+                  )}
+                  {/* Right Cut Face or End Face */}
+                  {isRightCut ? (
+                    <polygon
+                      points={`${xEnd},${yBeam - scaleH} ${xEnd + 15},${yBeam - scaleH - 15} ${xEnd + 15},${yBeam - scaleH - 31} ${xEnd},${yBeam - scaleH - 16}`}
+                      className="fill-emerald-500/40 stroke-emerald-500 stroke-[1.5]"
+                    />
+                  ) : (
+                    <path
+                      d={`M ${xEnd},${yBeam - scaleH} L ${xEnd + 15},${yBeam - scaleH - 15} V ${yBeam - scaleH - 31} L ${xEnd},${yBeam - scaleH - 16} Z`}
+                      className="fill-emerald-650/10 stroke-emerald-500/35"
+                      strokeWidth="1"
+                    />
+                  )}
+                  {/* UDL Down Arrows on Front Face */}
+                  {Array.from({ length: arcCount * 2 + 1 }).map((_, i) => {
+                    const xArrow = xStart + (i * arcWidth) / 2;
+                    return (
+                      <g key={i} stroke={isHighlighted ? "#10b981" : "#059669"} strokeWidth="1" strokeOpacity="0.5">
+                        <line x1={xArrow} y1={yBeam - scaleH - 5} x2={xArrow} y2={yBeam - scaleH} />
+                        <path d={`M ${xArrow - 2.5},${yBeam - scaleH - 3} L ${xArrow},${yBeam - scaleH} L ${xArrow + 2.5},${yBeam - scaleH - 3}`} fill="none" strokeLinejoin="round" />
+                      </g>
+                    );
+                  })}
+                  {/* UDL Magnitude text */}
+                  <text x={(xStart + xEnd) / 2} y={yBeam - scaleH - 20} textAnchor="middle" className={`text-[10px] font-black ${isHighlighted ? 'fill-emerald-500' : 'fill-emerald-600 dark:fill-emerald-400'} font-mono`}>
+                    {load.magnitude} kN/m
+                  </text>
+                </g>
+              );
+            };
+
+            const xStartGlobal = toPixel(load.startPosition);
+            const xEndGlobal = toPixel(load.endPosition);
+
+            if (!drawCut) {
+              return (
+                <g key={load.id}>
+                  {renderBlock(xStartGlobal, xEndGlobal, 1.0, false, false)}
+                </g>
+              );
+            }
+
+            // Slice UDL at cut face and render split blocks
+            const leftBlockEnd = Math.min(xEndGlobal, xCutPixel - 10);
+            const rightBlockStart = Math.max(xStartGlobal, xCutPixel + 10);
+
+            return (
+              <g key={load.id}>
+                {/* Left sliced block */}
+                {renderBlock(xStartGlobal, leftBlockEnd, getOpacity(load.startPosition), false, leftBlockEnd < xEndGlobal)}
+                {/* Right sliced block */}
+                {renderBlock(rightBlockStart, xEndGlobal, getOpacity(load.endPosition), rightBlockStart > xStartGlobal, false)}
+              </g>
+            );
+          }
+          return null;
         })}
 
         {/* 4. SUPPORT REACTIONS IN 3D */}
@@ -319,12 +413,42 @@ export const IsometricSectionsBeamDrawing: React.FC<IsometricSectionsBeamDrawing
           />
         )}
 
-        {/* Stacked dimension lines for load moment arms relative to pivot/cut */}
+        {/* Uncut Beam Dimension Chain */}
+        {!isCut && (
+          <g key="uncut-dimension-chain" className="stroke-slate-400 dark:stroke-slate-650" strokeWidth="0.8">
+            <line x1={toPixel(0)} y1={120} x2={toPixel(length)} y2={120} />
+            {[0, 5, 12, 17, 20].map((x) => (
+              <line key={`uncut-tick-${x}`} x1={toPixel(x)} y1={116} x2={toPixel(x)} y2={124} />
+            ))}
+            {[0, 5, 12, 17].map((x, idx) => {
+              const nextX = [0, 5, 12, 17, 20][idx + 1]!;
+              const start = toPixel(x);
+              const end = toPixel(nextX);
+              return (
+                <g key={`uncut-arrow-${idx}`} className="stroke-slate-400 dark:stroke-slate-650" strokeWidth="0.8">
+                  <path d={`M ${start + 5},116 L ${start},120 L ${start + 5},124`} fill="none" />
+                  <path d={`M ${end - 5},116 L ${end},120 L ${end - 5},124`} fill="none" />
+                  <text
+                    x={(start + end) / 2}
+                    y={134}
+                    textAnchor="middle"
+                    stroke="none"
+                    className="text-[9px] font-sans font-bold fill-slate-500"
+                  >
+                    {nextX - x} m
+                  </text>
+                </g>
+              );
+            })}
+          </g>
+        )}
+
+        {/* Stacked dimension lines for load moment arms relative to pivot/cut (positioned below baseline) */}
         {((!isCut && dimTargets.length > 0) || (drawCut && showMoment && dimTargets.length > 0)) && (
           <g key="moment-arm-dimensions">
             {dimTargets.map((dt, idx) => {
               const targetPx = isCut ? xCutPixel - 10 : (pivotX !== null ? toPixel(pivotX) : toPixel(0));
-              const yDim = yBeam - 45 - idx * 12;
+              const yDim = 135 + idx * 11;
 
               // Avoid centering dimension labels directly on top of point loads
               const startXVal = isCut ? cutX! : (pivotX !== null ? pivotX : 0);

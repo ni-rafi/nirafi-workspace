@@ -24,6 +24,7 @@ export interface AnalyticalProblemSolverVisualizerProps {
   syncKeyPrefix?: string;
   title?: string;
   description?: string;
+  useRightSegment?: boolean;
 }
 
 export const AnalyticalProblemSolverVisualizer: React.FC<AnalyticalProblemSolverVisualizerProps> = ({
@@ -33,6 +34,7 @@ export const AnalyticalProblemSolverVisualizer: React.FC<AnalyticalProblemSolver
   syncKeyPrefix = 'analytical',
   title,
   description,
+  useRightSegment = false,
 }) => {
   const solver = React.useMemo(() => new SFDBmdService(), []);
   const solvedResult = React.useMemo(() => solver.solve(beam), [solver, beam]);
@@ -190,16 +192,51 @@ export const AnalyticalProblemSolverVisualizer: React.FC<AnalyticalProblemSolver
       const endX = inv.endX ?? 0;
       const cutX = startX + (endX - startX) * 0.625; // Render cut slightly offset from center for aesthetics
 
-      // Draw dimension arm for any load to the left of the cut
+      // Draw dimension arm for any load relative to the cut
       const dimTargets: { x: number; label: string }[] = [];
-      beam.loads.forEach(l => {
-        if (l.type === 'point' && typeof l.position === 'number' && l.position < cutX && l.position > 0.05) {
-          dimTargets.push({
-            x: l.position,
-            label: l.position === length / 2 ? 'x - L/2' : `x - ${l.position.toFixed(0)}`
-          });
-        }
-      });
+      if (useRightSegment) {
+        // Loads to the right of the cut
+        beam.loads.forEach(l => {
+          if (l.type === 'point' && typeof l.position === 'number' && l.position > cutX && l.position < beam.length - 0.05) {
+            dimTargets.push({
+              x: l.position,
+              label: `${l.position.toFixed(0)} - x`
+            });
+          }
+        });
+        // Right support B moment arm
+        dimTargets.push({
+          x: beam.length,
+          label: `${beam.length.toFixed(0)} - x`
+        });
+      } else {
+        // Loads to the left of the cut
+        beam.loads.forEach(l => {
+          if (l.type === 'point' && typeof l.position === 'number' && l.position < cutX && l.position > 0.05) {
+            dimTargets.push({
+              x: l.position,
+              label: `x - ${l.position.toFixed(0)}`
+            });
+          } else if (l.type === 'udl' && typeof l.startPosition === 'number' && typeof l.endPosition === 'number') {
+            if (l.startPosition < cutX) {
+              if (cutX < l.endPosition) {
+                // Cut is inside UDL segment
+                dimTargets.push({
+                  x: (l.startPosition + cutX) / 2,
+                  label: `(x - ${l.startPosition.toFixed(0)})/2`
+                });
+              } else {
+                // UDL is fully to the left of cut
+                const centroid = (l.startPosition + l.endPosition) / 2;
+                dimTargets.push({
+                  x: centroid,
+                  label: `x - ${centroid.toFixed(1)}`
+                });
+              }
+            }
+          }
+        });
+      }
 
       const cutVisible = clickIdx >= 1;
       const showShear = clickIdx >= 2;
@@ -216,6 +253,7 @@ export const AnalyticalProblemSolverVisualizer: React.FC<AnalyticalProblemSolver
           cutVisible={cutVisible}
           showShear={showShear}
           showMoment={showMoment}
+          opacitySide={useRightSegment ? "left" : "right"}
         />
       );
     }
@@ -393,17 +431,31 @@ export const AnalyticalProblemSolverVisualizer: React.FC<AnalyticalProblemSolver
       const inv = solvedResult.intervals[intervalIndex];
       if (!inv) return null;
 
-      const rawV = inv.latexV ? inv.latexV.replace('V(x) = ', '') : '0';
+      let rawV = inv.latexV ? inv.latexV.replace('V(x) = ', '') : '0';
       const cleanVCoeffs = inv.vCoeffs.findIndex(c => Math.abs(c) > 1e-5) !== -1
         ? inv.vCoeffs.slice(inv.vCoeffs.findIndex(c => Math.abs(c) > 1e-5))
         : [0];
-      const simplifiedV = formatSimplifiedPolynomial(cleanVCoeffs, 'x');
+      let simplifiedV = formatSimplifiedPolynomial(cleanVCoeffs, 'x');
 
-      const rawM = inv.latexM ? inv.latexM.replace('M(x) = ', '') : '0';
+      let rawM = inv.latexM ? inv.latexM.replace('M(x) = ', '') : '0';
       const cleanMCoeffs = inv.mCoeffs.findIndex(c => Math.abs(c) > 1e-5) !== -1
         ? inv.mCoeffs.slice(inv.mCoeffs.findIndex(c => Math.abs(c) > 1e-5))
         : [0];
-      const simplifiedM = formatSimplifiedPolynomial(cleanMCoeffs, 'x');
+      let simplifiedM = formatSimplifiedPolynomial(cleanMCoeffs, 'x');
+
+      if (useRightSegment) {
+        if (intervalIndex === 2) {
+          rawV = "15 - R_{By} = 15 - 21.675";
+          simplifiedV = "-6.675";
+          rawM = "R_{By}(20 - x) - P(17 - x) = 21.675(20 - x) - 15(17 - x)";
+          simplifiedM = "178.50 - 6.675x";
+        } else if (intervalIndex === 3) {
+          rawV = "-R_{By} = -21.675";
+          simplifiedV = "-21.675";
+          rawM = "R_{By}(20 - x) = 21.675(20 - x)";
+          simplifiedM = "433.50 - 21.675x";
+        }
+      }
 
       return (
         <div className="space-y-3 text-left">
@@ -438,7 +490,7 @@ export const AnalyticalProblemSolverVisualizer: React.FC<AnalyticalProblemSolver
                 <span className="text-[8px] font-bold text-indigo-500 uppercase tracking-widest block mb-0.5">Rotational Equilibrium (Moment)</span>
                 <div className="mt-1 flex flex-col gap-1 overflow-x-auto">
                   <div className={`${clickIdx >= 5 ? 'text-[10px] text-muted-foreground opacity-80' : 'text-xs text-indigo-600 dark:text-indigo-400 font-bold'} leading-normal`}>
-                    <LatexFormula math={`\\Sigma M_{\\text{cut}} = 0 \\implies M(x) = ${rawM}`} />
+                    <LatexFormula math={`\\begin{aligned} \\Sigma M_{\\text{cut}} &= 0 \\\\ \\implies M(x) &= ${rawM} \\end{aligned}`} />
                   </div>
                   {clickIdx >= 5 && (
                     <div className="text-xs text-indigo-600 dark:text-indigo-400 font-bold leading-normal">
