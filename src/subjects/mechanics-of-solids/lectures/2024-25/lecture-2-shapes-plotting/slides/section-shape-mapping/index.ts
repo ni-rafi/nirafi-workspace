@@ -4,15 +4,15 @@ import { IntegralsAndRelations } from './IntegralsAndRelations';
 import { ShapesQuizL2 } from './ShapesQuizL2';
 
 export const slides = {
-  13: EquationShapeConnections,
-  14: CentroidsAndAreas,
-  15: IntegralsAndRelations,
-  16: ShapesQuizL2,
+  1: EquationShapeConnections,
+  2: CentroidsAndAreas,
+  3: IntegralsAndRelations,
+  4: ShapesQuizL2,
 };
 
 export const sectionMetadata = {
-  13: { title: 'Connecting Equations to Graph Shapes', type: 'Concept Details', section: 'Theoretical Reference' },
-  14: { title: 'Centroids & Areas reference', type: 'Concept Details', section: 'Theoretical Reference' },
-  15: { title: 'Differential Relationships', type: 'Concept Details', section: 'Theoretical Reference' },
-  16: { title: 'Checkpoint 3: Area-Moment relations Quiz', type: 'Concept Details', section: 'Theoretical Reference' },
+  1: { title: 'Connecting Equations to Graph Shapes', type: 'Concept Details', section: 'Theoretical Reference' },
+  2: { title: 'Centroids & Areas reference', type: 'Concept Details', section: 'Theoretical Reference' },
+  3: { title: 'Differential Relationships', type: 'Concept Details', section: 'Theoretical Reference' },
+  4: { title: 'Checkpoint 3: Area-Moment relations Quiz', type: 'Concept Details', section: 'Theoretical Reference' },
 };

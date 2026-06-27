@@ -52,10 +52,29 @@ src/subjects/{subjectName}/
 3. **`lectures/`**: Slide decks (organized by session year). For a given lecture, slide files must be structured into per-section subdirectories rather than a single flat file or large shared files:
    - **Section Folders**: Organize slides into subdirectories named after the lecture topic: `slides/section-{section-name}/` (e.g. `slides/section-sign-conventions/`).
    - **Filename Standard**: Individual slide components must be named after their topic (e.g. `ShearSignConvention.tsx`). Do NOT prefix filenames with slide numbers (like `Slide12_Shear.tsx`) to avoid renaming churn when slide orders shift.
-   - **Section Barrel (`index.ts`)**: Each section subdirectory must contain an `index.ts` file that imports the topic-named components and exports them mapped to slide number aliases (e.g., `export { ShearSignConvention as Slide12 }`).
-   - **Section Metadata**: Co-locate metadata in each section barrel under a `sectionMetadata` export, which matches the slide indices defined in that barrel.
+   - **Section Barrel (`index.ts`)**: Each section subdirectory must contain an `index.ts` file that imports the topic-named components and exports them mapped locally via 1-based sequential integers:
+     ```typescript
+     export const slides = {
+       1: IntroSlide,
+       2: ConceptSlide,
+     };
+     export const sectionMetadata = {
+       1: { title: 'Intro', type: 'Concept Details', section: 'My Section' },
+       2: { title: 'Concept', type: 'Concept Details', section: 'My Section' },
+     };
+     ```
+   - **Section Metadata**: Co-locate metadata in each section barrel under a `sectionMetadata` export, which matches the local slide indices (starting at 1) defined in that barrel.
    - **Section Drawings**: Section-specific, non-reusable SVGs or figures must reside in a `drawings/` subfolder directly inside that section's directory (e.g., `section-method-of-sections/drawings/PiecewiseIntervalDiagram.tsx`) rather than the subject-wide drawings directory.
-   - **Orchestration**: The root `lecture.tsx` file imports the aliased slides and `sectionMetadata` from all section barrels and spreads/merges them into the main exports.
+   - **Orchestration**: The root `lecture.tsx` file imports the section modules and uses the `serializeSections()` utility from `@/features/presentation/utils/serializeSections` to combine and automatically map them to globally sequential slides and slideMetadata.
+     ```typescript
+     import { serializeSections } from '@/features/presentation/utils/serializeSections';
+     import * as intro from './slides/section-intro';
+     import * as details from './slides/section-details';
+
+     const serialized = serializeSections([intro, details]);
+     export const slides = serialized.slides;
+     export const slideMetadata = serialized.slideMetadata;
+     ```
 
 ---
 
@@ -84,9 +103,16 @@ To add a new lecture slide deck and compile it dynamically into the portal regis
    ```
 
 3. **Implement Slide Deck**:
-   Create a `lecture.tsx` file in the new directory. It must export:
-   * `slides`: A `Record<number, React.ComponentType<SlideProps>>` mapping slide numbers to React components.
-   * `slideMetadata`: A `Record<number, SlideMetadata>` mapping slide numbers to slide information.
+   Create a `lecture.tsx` file in the new directory. It must assemble the slide deck from section folders using the `serializeSections` helper:
+   ```typescript
+   import { serializeSections } from '@/features/presentation/utils/serializeSections';
+   import * as intro from './slides/section-intro';
+   import * as details from './slides/section-details';
+
+   const serialized = serializeSections([intro, details]);
+   export const slides = serialized.slides;
+   export const slideMetadata = serialized.slideMetadata;
+   ```
 
 4. **Verify Dynamic Discovery**:
    - Save files. Vite automatically compiles the new metadata into `SUBJECTS` at build time.
@@ -105,8 +131,9 @@ Slide layouts determine the structural containers and grid flow of each page. Al
 * **layouts.md**: Refer to the detailed [Slide Layouts Reference Guide](file:///d:/Websites/nirafi-workspace/.agent/skills/lecture-development/references/layouts.md) for full configuration, props, and best practices.
   * *Cover Slide*: `<TitleV2Layout>`
   * *Section Divider*: `<TopicDividerLayout>`
-  * *General Content*: `<FullWidthLayout>` or `<TwoColumnLayout>`
   * *Grids & Matrix*: `<GridLayout>`
+  * *References Slide*: `<ReferencesLayout>` (placed as Slide 2, directly following the title/cover slide, to specify syllabus readings and book sections).
+  * *Lecture Summary*: `<LectureSummaryLayout>` (placed directly before the final conclusion/thank you slide to map Course Outcomes (CO) and review key takeaways).
 
 ---
 
