@@ -2,10 +2,11 @@ import React from 'react';
 import { SFDBmdService } from '@/subjects/mechanics-of-solids/cores/sfd-bmd/sfdBmdService';
 import { IBeam } from '@/subjects/mechanics-of-solids/cores/sfd-bmd/types';
 import { ClickSyncedTabs, type ClickSyncedTabItem } from '@/features/presentation/components/elements';
-import { BeamLoadingSandboxDrawing } from '@/subjects/mechanics-of-solids/features/sfd-bmd/components/drawings';
+import { Beam2DDrawing } from '@/subjects/mechanics-of-solids/features/sfd-bmd/components/drawings';
 
 export const BeamLoadingSandbox: React.FC = () => {
   const solver = new SFDBmdService();
+
   const getSolvedReactions = (showPoint: boolean, showUdl: boolean) => {
     const supports = [
       { id: 'A', type: 'hinge' as const, position: 0 },
@@ -22,7 +23,9 @@ export const BeamLoadingSandbox: React.FC = () => {
     const solved = solver.solve(beam);
     const rxnA = solved.reactions.find(r => r.supportId === 'A' && r.type === 'R_y')?.value;
     const rxnB = solved.reactions.find(r => r.supportId === 'B' && r.type === 'R_y')?.value;
+    
     return {
+      beam,
       rxnA: rxnA !== undefined && rxnA !== 0 ? `${rxnA.toFixed(1)} kN` : undefined,
       rxnB: rxnB !== undefined && rxnB !== 0 ? `${rxnB.toFixed(1)} kN` : undefined,
     };
@@ -46,11 +49,10 @@ export const BeamLoadingSandbox: React.FC = () => {
         <div className="flex flex-col justify-between w-full h-full min-h-[220px] text-left select-text">
           <span className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest block mb-2">Preview Loaded State</span>
           <div className="flex-1 flex items-center justify-center">
-            <BeamLoadingSandboxDrawing
-              showPointLoad={false}
-              showUdl={false}
-              reactionA={sc0.rxnA}
-              reactionB={sc0.rxnB}
+            <Beam2DDrawing
+              beam={sc0.beam}
+              showReactions={false}
+              resolvedReactions={false}
             />
           </div>
           <div className="bg-muted dark:bg-muted/40 p-2 rounded text-[10px] text-muted-foreground text-center font-mono mt-2">
@@ -72,11 +74,12 @@ export const BeamLoadingSandbox: React.FC = () => {
         <div className="flex flex-col justify-between w-full h-full min-h-[220px] text-left select-text">
           <span className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest block mb-2">Preview Loaded State</span>
           <div className="flex-1 flex items-center justify-center">
-            <BeamLoadingSandboxDrawing
-              showPointLoad={true}
-              showUdl={false}
-              reactionA={sc1.rxnA}
-              reactionB={sc1.rxnB}
+            <Beam2DDrawing
+              beam={sc1.beam}
+              showReactions={true}
+              resolvedReactions={true}
+              reactionAVal={sc1.rxnA}
+              reactionBVal={sc1.rxnB}
             />
           </div>
           <div className="bg-muted dark:bg-muted/40 p-2 rounded text-[10px] text-muted-foreground text-center font-mono mt-2">
@@ -98,11 +101,12 @@ export const BeamLoadingSandbox: React.FC = () => {
         <div className="flex flex-col justify-between w-full h-full min-h-[220px] text-left select-text">
           <span className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest block mb-2">Preview Loaded State</span>
           <div className="flex-1 flex items-center justify-center">
-            <BeamLoadingSandboxDrawing
-              showPointLoad={true}
-              showUdl={true}
-              reactionA={sc2.rxnA}
-              reactionB={sc2.rxnB}
+            <Beam2DDrawing
+              beam={sc2.beam}
+              showReactions={true}
+              resolvedReactions={true}
+              reactionAVal={sc2.rxnA}
+              reactionBVal={sc2.rxnB}
             />
           </div>
           <div className="bg-muted dark:bg-muted/40 p-2 rounded text-[10px] text-muted-foreground text-center font-mono mt-2">

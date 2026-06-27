@@ -1,7 +1,5 @@
-export * from './StaticEquilibriumDrawing';
 export * from './ShearConventionDrawing';
 export * from './BendingMomentConventionDrawing';
-export * from './BeamLoadingSandboxDrawing';
 export * from './DiagramCoincidenceDrawing';
 export * from './VirtualCutDrawing';
 export * from './SectionIsolationDrawing';
@@ -11,3 +9,4 @@ export * from './BeamShearDrawing';
 export * from './CantileverShearDrawing';
 export * from './IsometricSectionsBeamDrawing';
 export * from './ActionVectors';
+export * from './Beam2DDrawing';

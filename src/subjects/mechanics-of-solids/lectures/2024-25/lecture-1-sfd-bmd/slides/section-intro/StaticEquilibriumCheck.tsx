@@ -8,7 +8,7 @@ import {
 } from '@/features/presentation/components/elements';
 import { SFDBmdService } from '@/subjects/mechanics-of-solids/cores/sfd-bmd/sfdBmdService';
 import { IBeam } from '@/subjects/mechanics-of-solids/cores/sfd-bmd/types';
-import { StaticEquilibriumDrawing } from '@/subjects/mechanics-of-solids/features/sfd-bmd/components/drawings';
+import { Beam2DDrawing } from '@/subjects/mechanics-of-solids/features/sfd-bmd/components/drawings';
 
 export const StaticEquilibriumCheck: React.FC = () => {
   const { currentClick } = useClickStepsContext();
@@ -48,9 +48,8 @@ export const StaticEquilibriumCheck: React.FC = () => {
         <div className="flex flex-col justify-between w-full h-full min-h-[220px] text-left select-text">
           <span className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest block mb-2">Beam Reaction Workspace</span>
           <div className="flex-1 flex items-center justify-center">
-            <StaticEquilibriumDrawing
-              length={beam.length}
-              loadMagnitude={beam.loads[0]?.magnitude ?? 20}
+            <Beam2DDrawing
+              beam={beam}
               showReactions={(currentClick ?? 0) >= 1}
               resolvedReactions={false}
             />
@@ -81,9 +80,8 @@ export const StaticEquilibriumCheck: React.FC = () => {
         <div className="flex flex-col justify-between w-full h-full min-h-[220px] text-left select-text">
           <span className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest block mb-2">Beam Reaction Workspace</span>
           <div className="flex-1 flex items-center justify-center">
-            <StaticEquilibriumDrawing
-              length={beam.length}
-              loadMagnitude={beam.loads[0]?.magnitude ?? 20}
+            <Beam2DDrawing
+              beam={beam}
               showReactions={true}
               resolvedReactions={false}
             />
@@ -114,13 +112,12 @@ export const StaticEquilibriumCheck: React.FC = () => {
         <div className="flex flex-col justify-between w-full h-full min-h-[220px] text-left select-text">
           <span className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest block mb-2">Beam Reaction Workspace</span>
           <div className="flex-1 flex items-center justify-center">
-            <StaticEquilibriumDrawing
-              length={beam.length}
-              loadMagnitude={beam.loads[0]?.magnitude ?? 20}
+            <Beam2DDrawing
+              beam={beam}
               showReactions={true}
               resolvedReactions={true}
-              reactionAValue={reactionA}
-              reactionBValue={reactionB}
+              reactionAVal={`${reactionA} kN`}
+              reactionBVal={`${reactionB} kN`}
             />
           </div>
           <div className="bg-emerald-500/10 dark:bg-emerald-950/15 border border-emerald-500/30 text-emerald-800 dark:text-emerald-300 font-bold shadow-xs p-2.5 rounded-lg text-[10px] text-center font-mono flex justify-between mt-2 animate-in fade-in zoom-in-95 duration-250">

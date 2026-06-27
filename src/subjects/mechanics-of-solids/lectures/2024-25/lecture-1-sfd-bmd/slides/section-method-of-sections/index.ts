@@ -14,6 +14,8 @@ import { ReactionsSolved } from './ReactionsSolved';
 import { Interval1Analysis } from './Interval1Analysis';
 import { Interval2Analysis } from './Interval2Analysis';
 import { Consolidation } from './Consolidation';
+import { ManualSFDPlotting } from './ManualSFDPlotting';
+import { ManualBMDPlotting } from './ManualBMDPlotting';
 import { DiagramOutput } from './DiagramOutput';
 import { Conclusion } from './Conclusion';
 
@@ -34,8 +36,10 @@ export const slides = {
   30: Interval1Analysis,
   31: Interval2Analysis,
   32: Consolidation,
-  33: DiagramOutput,
-  34: Conclusion,
+  33: ManualSFDPlotting,
+  34: ManualBMDPlotting,
+  35: DiagramOutput,
+  36: Conclusion,
 };
 
 export const sectionMetadata = {
@@ -55,6 +59,8 @@ export const sectionMetadata = {
   30: { title: 'Section Method - Interval 1 (0 <= x <= 8 m)', type: 'Concept Details', section: 'Section Method' },
   31: { title: 'Section Method - Interval 2 (8 <= x <= 16 m)', type: 'Concept Details', section: 'Section Method' },
   32: { title: 'Differential Relationships - Consolidation', type: 'Concept Details', section: 'Section Method' },
-  33: { title: 'Shear Force & Bending Moment Diagrams', type: 'Concept Details', section: 'Section Method' },
-  34: { title: 'Conclusion', type: 'Thank You Slide', section: 'Conclusion' },
+  33: { title: 'Manual Plotting - Shear Force Diagram', type: 'Concept Details', section: 'Section Method' },
+  34: { title: 'Manual Plotting - Bending Moment Diagram', type: 'Concept Details', section: 'Section Method' },
+  35: { title: 'Shear Force & Bending Moment Diagrams', type: 'Concept Details', section: 'Section Method' },
+  36: { title: 'Conclusion', type: 'Thank You Slide', section: 'Conclusion' },
 };
