@@ -33,6 +33,13 @@ import {
   Slide17,
   Slide18,
   Slide19,
+  Slide20,
+  Slide21,
+  Slide22,
+  Slide23,
+  Slide24,
+  Slide25,
+  Slide26,
 } from './slides/MethodOfSectionsSlides';
 
 export const slides: Record<number, React.ComponentType<SlideProps>> = {
@@ -55,6 +62,13 @@ export const slides: Record<number, React.ComponentType<SlideProps>> = {
   17: Slide17,
   18: Slide18,
   19: Slide19,
+  20: Slide20,
+  21: Slide21,
+  22: Slide22,
+  23: Slide23,
+  24: Slide24,
+  25: Slide25,
+  26: Slide26,
 };
 
 export const slideMetadata: Record<
@@ -78,6 +92,13 @@ export const slideMetadata: Record<
   15: { title: 'Load-Shear-Moment Relationships', type: 'Concept Details', section: 'Sign Conventions' },
   16: { title: 'Curve Slopes & Key Points Visualization', type: 'Concept Details', section: 'Sign Conventions' },
   17: { title: 'Internal Equations Method', type: 'Cover Slide', section: 'Section Method' },
-  18: { title: 'Executing the Virtual Cut (Sectioning at x)', type: 'Concept Details', section: 'Section Method' },
-  19: { title: 'Conclusion', type: 'Thank You Slide', section: 'Conclusion' },
+  18: { title: 'Problem 1 Setup', type: 'Concept Details', section: 'Section Method' },
+  19: { title: 'Support Reactions - Moment about Support A', type: 'Concept Details', section: 'Section Method' },
+  20: { title: 'Support Reactions - Vertical Force Summation', type: 'Concept Details', section: 'Section Method' },
+  21: { title: 'Support Reactions Solved', type: 'Concept Details', section: 'Section Method' },
+  22: { title: 'Section Method - Interval 1 (0 <= x <= 8 m)', type: 'Concept Details', section: 'Section Method' },
+  23: { title: 'Section Method - Interval 2 (8 <= x <= 16 m)', type: 'Concept Details', section: 'Section Method' },
+  24: { title: 'Differential Relationships - Consolidation', type: 'Concept Details', section: 'Section Method' },
+  25: { title: 'Shear Force & Bending Moment Diagrams', type: 'Concept Details', section: 'Section Method' },
+  26: { title: 'Conclusion', type: 'Thank You Slide', section: 'Conclusion' },
 };

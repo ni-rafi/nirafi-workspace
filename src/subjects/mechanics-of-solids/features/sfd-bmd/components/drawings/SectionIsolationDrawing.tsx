@@ -1,4 +1,5 @@
 import React from 'react';
+import { ShearVectorArrow, MomentVectorArc } from './ActionVectors';
 
 interface SectionIsolationDrawingProps {
   activeStep?: number; // 0: continuous, 1: cut line, 2: separation, 3: Axial P, 4: Shear V, 5: Moment M, 6: Torque T, 7: Focus SFD/BMD
@@ -46,7 +47,7 @@ export const SectionIsolationDrawing: React.FC<SectionIsolationDrawingProps> = (
             <path d="M 20 0 L 0 0 0 20" fill="none" className="stroke-slate-200/40 dark:stroke-slate-800/40" strokeWidth="0.5" />
           </pattern>
         </defs>
-        
+
         {/* Background Grid */}
         <rect width="800" height="305" fill="url(#grid-pattern)" className="opacity-60" />
 
@@ -80,7 +81,7 @@ export const SectionIsolationDrawing: React.FC<SectionIsolationDrawingProps> = (
           <line x1="100" y1="85" x2="300" y2="85" className="stroke-slate-400 dark:stroke-slate-500" strokeWidth="1" strokeDasharray="3 3" />
           {[100, 140, 180, 220, 260, 300].map((x) => (
             <g key={x} className="stroke-slate-400 dark:stroke-slate-500" strokeWidth="1">
-              <path d={`M ${x},85 L ${x},107 M ${x-3},102 L ${x},107 L ${x+3},102`} fill="none" strokeLinecap="round" strokeLinejoin="round" />
+              <path d={`M ${x},85 L ${x},107 M ${x - 3},102 L ${x},107 L ${x + 3},102`} fill="none" strokeLinecap="round" strokeLinejoin="round" />
             </g>
           ))}
           <text x="195" y="78" className="text-[10px] font-bold font-mono fill-slate-400 dark:fill-slate-500">w</text>
@@ -111,7 +112,7 @@ export const SectionIsolationDrawing: React.FC<SectionIsolationDrawingProps> = (
           <line x1="100" y1="150" x2="300" y2="150" className="stroke-slate-400 dark:stroke-slate-600" strokeWidth="2" />
           {/* Back top edge line */}
           <line x1="120" y1="90" x2="320" y2="90" className="stroke-slate-400 dark:stroke-slate-600" strokeWidth="2" />
-          
+
           {/* Contact junction strokes (Visible from Step 1 onwards) */}
           <line x1="300" y1="110" x2="300" y2="150" className={`stroke-slate-400 dark:stroke-slate-600 transition-opacity duration-300 ${showSeamOutline ? 'opacity-100' : 'opacity-0'}`} strokeWidth="2" />
           <line x1="300" y1="110" x2="320" y2="90" className={`stroke-slate-400 dark:stroke-slate-600 transition-opacity duration-300 ${showSeamOutline ? 'opacity-100' : 'opacity-0'}`} strokeWidth="2" />
@@ -128,23 +129,38 @@ export const SectionIsolationDrawing: React.FC<SectionIsolationDrawingProps> = (
           </g>
 
           {/* Shear Force V (Downward) */}
+          <ShearVectorArrow
+            x={310}
+            y={120}
+            direction="down"
+            height={40}
+            strokeWidth={3}
+            className={`transition-opacity duration-300 ${showV ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+          />
           <g className={`transition-opacity duration-300 ${showV ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
-            <path d="M 310,120 L 310,160 M 305,153 L 310,160 L 315,153" fill="none" stroke="#f43f5e" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
             <text x="318" y="155" className="text-[11px] font-black font-mono fill-rose-500 dark:fill-rose-400">V</text>
           </g>
 
           {/* Bending Moment M (CCW) */}
+          <MomentVectorArc
+            x={350}
+            y={120}
+            radius={25}
+            direction="ccw"
+            side="left"
+            strokeWidth={3}
+            className={`transition-opacity duration-300 ${showM ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+          />
           <g className={`transition-opacity duration-300 ${showM ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
-            <path d="M 325,138 A 25,25 0 0,1 325,102 M 318,101 L 325,102 L 325,109" fill="none" stroke="#6366f1" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
             <text x="282" y="123" className="text-[11px] font-black font-mono fill-indigo-500 dark:fill-indigo-400">M</text>
           </g>
 
           {/* Torque T */}
           <g className={`transition-opacity duration-300 ${showTArrow ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
-            <path d="M 280,98 C 265,98 265,130 280,142" fill="none" stroke="#f59e0b" strokeWidth="2.5" strokeDasharray="3 3" />
-            <path d="M 280,142 C 295,150 305,135 295,105" fill="none" stroke="#f59e0b" strokeWidth="3" strokeLinecap="round" />
-            <path d="M 291,109 L 295,105 L 299,110" fill="none" stroke="#f59e0b" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
-            <text x="290" y="90" className="text-[11px] font-black font-mono fill-amber-500 dark:fill-amber-400">T</text>
+            <path d="M 350,98 C 335,98 335,130 350,142" fill="none" stroke="#f59e0b" strokeWidth="2.5" strokeDasharray="3 3" />
+            <path d="M 350,142 C 365,150 375,135 365,105" fill="none" stroke="#f59e0b" strokeWidth="3" strokeLinecap="round" />
+            <path d="M 361,109 L 365,105 L 369,110" fill="none" stroke="#f59e0b" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+            <text x="360" y="90" className="text-[11px] font-black font-mono fill-amber-500 dark:fill-amber-400">T</text>
           </g>
         </g>
 
@@ -157,7 +173,7 @@ export const SectionIsolationDrawing: React.FC<SectionIsolationDrawingProps> = (
           <line x1="480" y1="85" x2="680" y2="85" className="stroke-slate-400 dark:stroke-slate-500" strokeWidth="1" strokeDasharray="3 3" />
           {[480, 520, 560, 600, 640, 680].map((x) => (
             <g key={x} className="stroke-slate-400 dark:stroke-slate-500" strokeWidth="1">
-              <path d={`M ${x},85 L ${x},107 M ${x-3},102 L ${x},107 L ${x+3},102`} fill="none" strokeLinecap="round" strokeLinejoin="round" />
+              <path d={`M ${x},85 L ${x},107 M ${x - 3},102 L ${x},107 L ${x + 3},102`} fill="none" strokeLinecap="round" strokeLinejoin="round" />
             </g>
           ))}
           <text x="575" y="78" className="text-[10px] font-bold font-mono fill-slate-400 dark:fill-slate-500">w</text>
@@ -210,23 +226,38 @@ export const SectionIsolationDrawing: React.FC<SectionIsolationDrawingProps> = (
           </g>
 
           {/* Shear Force V (Upward) */}
+          <ShearVectorArrow
+            x={490}
+            y={120}
+            direction="up"
+            height={40}
+            strokeWidth={3}
+            className={`transition-opacity duration-300 ${showV ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+          />
           <g className={`transition-opacity duration-300 ${showV ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
-            <path d="M 490,120 L 490,80 M 485,87 L 490,80 L 495,87" fill="none" stroke="#f43f5e" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
             <text x="498" y="90" className="text-[11px] font-black font-mono fill-rose-500 dark:fill-rose-400">V</text>
           </g>
 
           {/* Bending Moment M (CW) */}
+          <MomentVectorArc
+            x={450}
+            y={120}
+            radius={25}
+            direction="cw"
+            side="right"
+            strokeWidth={3}
+            className={`transition-opacity duration-300 ${showM ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+          />
           <g className={`transition-opacity duration-300 ${showM ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
-            <path d="M 475,102 A 25,25 0 0,1 475,138 M 481,139 L 475,138 L 475,131" fill="none" stroke="#6366f1" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
             <text x="502" y="123" className="text-[11px] font-black font-mono fill-indigo-500 dark:fill-indigo-400">M</text>
           </g>
 
           {/* Torque T */}
           <g className={`transition-opacity duration-300 ${showTArrow ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
-            <path d="M 500,98 C 515,98 515,130 500,142" fill="none" stroke="#f59e0b" strokeWidth="2.5" strokeDasharray="3 3" />
-            <path d="M 500,142 C 485,150 475,135 485,105" fill="none" stroke="#f59e0b" strokeWidth="3" strokeLinecap="round" />
-            <path d="M 489,109 L 485,105 L 481,110" fill="none" stroke="#f59e0b" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
-            <text x="500" y="90" className="text-[11px] font-black font-mono fill-amber-500 dark:fill-amber-400">T</text>
+            <path d="M 450,98 C 465,98 465,130 450,142" fill="none" stroke="#f59e0b" strokeWidth="2.5" strokeDasharray="3 3" />
+            <path d="M 450,142 C 435,150 425,135 435,105" fill="none" stroke="#f59e0b" strokeWidth="3" strokeLinecap="round" />
+            <path d="M 439,109 L 435,105 L 431,110" fill="none" stroke="#f59e0b" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+            <text x="450" y="90" className="text-[11px] font-black font-mono fill-amber-500 dark:fill-amber-400">T</text>
           </g>
         </g>
 

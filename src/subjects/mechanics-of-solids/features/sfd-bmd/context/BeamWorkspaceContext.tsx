@@ -6,7 +6,7 @@ import { useReleasesState } from '../hooks/workspace/useReleasesState';
 import { useLoadsState } from '../hooks/workspace/useLoadsState';
 import { useEISegmentsState } from '../hooks/workspace/useEISegmentsState';
 
-interface BeamWorkspaceContextProps {
+export interface BeamWorkspaceContextProps {
   length: number;
   supports: ISupport[];
   releases: IInternalRelease[];

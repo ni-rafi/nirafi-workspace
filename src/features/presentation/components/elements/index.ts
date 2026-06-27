@@ -51,6 +51,7 @@ export type { ShapeMorphProps } from './ShapeMorph';
 export { SlideDimensionLines } from './SlideDimensionLines';
 export { BeamLoads } from './BeamLoads';
 export { BeamSupports } from './BeamSupports';
+export { DimensionLine } from './DimensionLine';
 
 // Pure utility helpers
 export { samplePolygon, getShapePoints, getShapePath, resamplePath, type Point2D } from './shapeUtils';

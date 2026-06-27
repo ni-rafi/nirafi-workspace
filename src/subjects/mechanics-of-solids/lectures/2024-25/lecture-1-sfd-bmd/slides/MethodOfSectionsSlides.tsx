@@ -2,11 +2,24 @@ import React from 'react';
 import { SlideProps } from '@/features/presentation/components/slides/SlideRenderer';
 import { TopicDividerLayout } from '@/shared/layouts/TopicDividerLayout';
 import { LectureThankYou } from '@/shared/layouts/LectureThankYou';
-import { ClickSyncedTabs, ClickHighlight, LatexFormula } from '@/features/presentation/components/elements';
-import { SFDBmdService } from '@/subjects/mechanics-of-solids/cores/sfd-bmd/sfdBmdService';
-import { IBeam } from '@/subjects/mechanics-of-solids/cores/sfd-bmd/types';
-import { VirtualCutDrawing } from '@/subjects/mechanics-of-solids/features/sfd-bmd/components/drawings';
-import { type ClickSyncedTabItem } from '@/features/presentation/components/elements';
+import { FullWidthLayout } from '@/shared/layouts/FullWidthLayout';
+import { AnalyticalProblemSolverVisualizer } from '@/subjects/mechanics-of-solids/features/sfd-bmd/components/breakdowns/AnalyticalProblemSolverVisualizer';
+
+/**
+ * Common Beam Configuration JSON definition
+ */
+const beamConfig = {
+  length: 16,
+  supports: [
+    { id: 'A', type: 'hinge' as const, position: 0 },
+    { id: 'B', type: 'roller' as const, position: 16 }
+  ],
+  releases: [],
+  loads: [
+    { id: 'P', type: 'point' as const, position: 8, magnitude: 20 }
+  ],
+  eiSegments: [{ id: 'ei-1', startPosition: 0, endPosition: 16, E: 200, I: 100 }]
+};
 
 /**
  * Slide 17: Section Divider - Internal Equations Method
@@ -21,145 +34,128 @@ export const Slide17: React.FC<SlideProps> = (props) => (
 );
 
 /**
- * Slide 18: Executing The Virtual Cut (Sectioning at distance x)
+ * Slide 18: Problem 1 Setup
  */
 export const Slide18: React.FC = () => {
-  const beam: IBeam = {
-    length: 8,
-    supports: [
-      { id: 'A', type: 'hinge' as const, position: 0 },
-      { id: 'B', type: 'roller' as const, position: 8 }
-    ],
-    releases: [],
-    loads: [
-      { id: 'load-1', type: 'point' as const, position: 4, magnitude: 20 }
-    ]
-  };
-
-  const solver = new SFDBmdService();
-  const solvedBeam = solver.solve(beam);
-  const reactionA = solvedBeam.reactions.find(r => r.supportId === 'A' && r.type === 'R_y')?.value ?? 10;
-
-  const items: ClickSyncedTabItem[] = [
-    {
-      title: '1. Cut the Span',
-      description: (
-        <span>
-          Slice the beam virtually at a{' '}
-          <ClickHighlight variant="paint" at={0}>
-            coordinate distance <LatexFormula math="x" />
-          </ClickHighlight>{' '}
-          from the support origin.
-        </span>
-      ),
-      rightContent: (
-        <div className="flex flex-col justify-between w-full h-full min-h-[220px] text-left">
-          <span className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest block mb-2">Sectioning Free Body Diagram (FBD)</span>
-          <div className="flex-1 flex items-center justify-center">
-            <VirtualCutDrawing
-              activeStep={1}
-              reactionForceValue={`R_A = ${reactionA} kN`}
-              shearForceLabel="V(x)"
-              bendingMomentLabel="M(x)"
-              distanceLabel="Distance x"
-            />
-          </div>
-          <div className="bg-muted dark:bg-muted/40 p-2.5 rounded-lg border border-border/50 text-[10px] text-center font-mono flex items-center justify-center gap-2 mt-2">
-            <span>Equations:</span>
-            <LatexFormula math={`V(x) = R_A = ${reactionA}\text{ kN}`} />
-            <span>,</span>
-            <LatexFormula math={`M(x) = R_A \cdot x = ${reactionA}x\text{ kNm}`} />
-          </div>
-        </div>
-      )
-    },
-    {
-      title: '2. Expose Actions',
-      description: (
-        <span>
-          Expose the internal{' '}
-          <ClickHighlight variant="paint" at={1}>
-            shear force <LatexFormula math="V(x)" />
-          </ClickHighlight>{' '}
-          and internal{' '}
-          <ClickHighlight variant="paint" at={1}>
-            bending moment <LatexFormula math="M(x)" />
-          </ClickHighlight>{' '}
-          vectors on the cut face.
-        </span>
-      ),
-      rightContent: (
-        <div className="flex flex-col justify-between w-full h-full min-h-[220px] text-left">
-          <span className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest block mb-2">Sectioning Free Body Diagram (FBD)</span>
-          <div className="flex-1 flex items-center justify-center">
-            <VirtualCutDrawing
-              activeStep={2}
-              reactionForceValue={`R_A = ${reactionA} kN`}
-              shearForceLabel="V(x)"
-              bendingMomentLabel="M(x)"
-              distanceLabel="Distance x"
-            />
-          </div>
-          <div className="bg-muted dark:bg-muted/40 p-2.5 rounded-lg border border-border/50 text-[10px] text-center font-mono flex items-center justify-center gap-2 mt-2">
-            <span>Equations:</span>
-            <LatexFormula math={`V(x) = R_A = ${reactionA}\text{ kN}`} />
-            <span>,</span>
-            <LatexFormula math={`M(x) = R_A \cdot x = ${reactionA}x\text{ kNm}`} />
-          </div>
-        </div>
-      )
-    },
-    {
-      title: '3. Apply Equilibrium',
-      description: (
-        <span>
-          <ClickHighlight variant="paint" at={2}>
-            Sum vertical forces
-          </ClickHighlight>{' '}
-          and{' '}
-          <ClickHighlight variant="paint" at={2}>
-            take moments
-          </ClickHighlight>{' '}
-          at the cut section to solve for <LatexFormula math="V(x)" /> and <LatexFormula math="M(x)" />.
-        </span>
-      ),
-      rightContent: (
-        <div className="flex flex-col justify-between w-full h-full min-h-[220px] text-left">
-          <span className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest block mb-2">Sectioning Free Body Diagram (FBD)</span>
-          <div className="flex-1 flex items-center justify-center">
-            <VirtualCutDrawing
-              activeStep={3}
-              reactionForceValue={`R_A = ${reactionA} kN`}
-              shearForceLabel="V(x)"
-              bendingMomentLabel="M(x)"
-              distanceLabel="Distance x"
-            />
-          </div>
-          <div className="bg-emerald-500/10 dark:bg-emerald-950/15 border border-emerald-500/30 text-emerald-800 dark:text-emerald-300 font-bold shadow-xs p-2.5 rounded-lg border text-[10px] text-center font-mono flex items-center justify-center gap-2 mt-2 animate-in fade-in zoom-in-95 duration-250">
-            <span>Equations:</span>
-            <LatexFormula math={`V(x) = R_A = ${reactionA}\text{ kN}`} />
-            <span>,</span>
-            <LatexFormula math={`M(x) = R_A \cdot x = ${reactionA}x\text{ kNm}`} />
-          </div>
-        </div>
-      )
-    }
-  ];
-
   return (
-    <ClickSyncedTabs
-      title="Executing the Virtual Cut"
-      leftTitle="Sectioning Sequence"
-      items={items}
-      leftWidth="45%"
-    />
+    <FullWidthLayout
+      title={<span>Method of Sections - Problem Setup</span>}
+    >
+      <AnalyticalProblemSolverVisualizer beam={beamConfig} phase="setup" />
+    </FullWidthLayout>
   );
 };
 
 /**
- * Slide 19: Concluding Slide
+ * Slide 19: Support Reaction Moment Equilibrium (Step 1)
  */
-export const Slide19: React.FC<SlideProps> = (props) => (
+export const Slide19: React.FC<SlideProps> = () => {
+  return (
+    <FullWidthLayout
+      title={<span>Support Reactions - Moment about Support A</span>}
+    >
+      <AnalyticalProblemSolverVisualizer beam={beamConfig} phase="reactions" stepIndex={0} />
+      
+      {/* 5-step reveals (Pivot/Reactions -> Load Arm -> Load Moment -> Reaction Arm/Eq -> Solved Value) */}
+      <ClickReveal at={1} preset="none"><div className="hidden" /></ClickReveal>
+      <ClickReveal at={2} preset="none"><div className="hidden" /></ClickReveal>
+      <ClickReveal at={3} preset="none"><div className="hidden" /></ClickReveal>
+      <ClickReveal at={4} preset="none"><div className="hidden" /></ClickReveal>
+      <ClickReveal at={5} preset="none"><div className="hidden" /></ClickReveal>
+    </FullWidthLayout>
+  );
+};
+
+/**
+ * Slide 20: Support Reaction Vertical equilibrium (Step 2)
+ */
+export const Slide20: React.FC<SlideProps> = () => {
+  return (
+    <FullWidthLayout
+      title={<span>Support Reactions - Vertical Force Summation</span>}
+    >
+      <AnalyticalProblemSolverVisualizer beam={beamConfig} phase="reactions" stepIndex={1} />
+      
+      {/* 3-step reveals (Reactions/Load -> Equation LHS=RHS -> Solved values summary) */}
+      <ClickReveal at={1} preset="none"><div className="hidden" /></ClickReveal>
+      <ClickReveal at={2} preset="none"><div className="hidden" /></ClickReveal>
+      <ClickReveal at={3} preset="none"><div className="hidden" /></ClickReveal>
+    </FullWidthLayout>
+  );
+};
+
+/**
+ * Slide 21: Support Reactions Solved (Step 3)
+ */
+export const Slide21: React.FC = () => {
+  return (
+    <FullWidthLayout
+      title={<span>Support Reactions Solved</span>}
+    >
+      <AnalyticalProblemSolverVisualizer beam={beamConfig} phase="reactions" stepIndex={2} />
+    </FullWidthLayout>
+  );
+};
+
+/**
+ * Slide 22: Zone 1 Analysis (0 <= x < 8m) (Step 2 of Sections)
+ */
+import { ClickReveal } from '@/features/presentation/components/elements';
+
+const SectionsSlidesManager: React.FC<SlideProps> = ({ slideNo }) => {
+  const isInterval2 = slideNo === 23;
+  const stepIndex = isInterval2 ? 2 : 1;
+  const title = isInterval2 
+    ? <span>Section Method - Interval 2 (8 &le; x &le; 16 m)</span>
+    : <span>Section Method - Interval 1 (0 &le; x &le; 8 m)</span>;
+
+  return (
+    <FullWidthLayout title={title}>
+      <AnalyticalProblemSolverVisualizer beam={beamConfig} phase="sections" stepIndex={stepIndex} />
+      
+      {/* 5-step click reveals (Cut -> Shear Arm/Label -> Shear Card -> Moment Arc/Label -> Moment Card) */}
+      <ClickReveal at={1} preset="none"><div className="hidden" /></ClickReveal>
+      <ClickReveal at={2} preset="none"><div className="hidden" /></ClickReveal>
+      <ClickReveal at={3} preset="none"><div className="hidden" /></ClickReveal>
+      <ClickReveal at={4} preset="none"><div className="hidden" /></ClickReveal>
+      <ClickReveal at={5} preset="none"><div className="hidden" /></ClickReveal>
+    </FullWidthLayout>
+  );
+};
+
+export const Slide22 = SectionsSlidesManager;
+export const Slide23 = SectionsSlidesManager;
+
+/**
+ * Slide 24: Piecewise Consolidation & Diagram Preview
+ */
+export const Slide24: React.FC = () => {
+  return (
+    <FullWidthLayout
+      title={<span>Differential Relationships - Consolidation</span>}
+    >
+      <AnalyticalProblemSolverVisualizer beam={beamConfig} phase="consolidation" />
+    </FullWidthLayout>
+  );
+};
+
+/**
+ * Slide 25: Shear Force & Bending Moment Diagrams
+ */
+export const Slide25: React.FC = () => {
+  return (
+    <FullWidthLayout
+      title={<span>Shear Force & Bending Moment Diagrams</span>}
+    >
+      <AnalyticalProblemSolverVisualizer beam={beamConfig} phase="diagrams" />
+    </FullWidthLayout>
+  );
+};
+
+/**
+ * Slide 26: Concluding Slide
+ */
+export const Slide26: React.FC<SlideProps> = (props) => (
   <LectureThankYou
     {...props}
     subtitle="Questions on Course Syllabus & Loading Matrix?"

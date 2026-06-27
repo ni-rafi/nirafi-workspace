@@ -51,7 +51,7 @@ export const ReactionsVisual: React.FC<ReactionsVisualProps> = ({
                 transform={`translate(${px - 12}, ${yBeam + 20})`}
               />
                <text
-                x={px + 8}
+                x={px + 16}
                 y={yBeam + 36}
                 className="fill-success text-[12px] font-bold"
               >

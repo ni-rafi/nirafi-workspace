@@ -86,7 +86,7 @@ export const SlideParagraph: React.FC<SlideParagraphProps> = ({
   const isCard = !isBlog && variant !== 'plain' && variant !== 'info' && variant !== 'warning' && variant !== 'error' && variant !== 'success';
 
   // Resolve paragraphs array from props or children
-  const paragraphsArray = paragraphs || (text ? [text] : React.Children.toArray(children));
+  const paragraphsArray = paragraphs || (text ? [text] : (children ? [children] : []));
 
   const resolvedParagraphs = paragraphsArray.map((p, idx) => {
     let pRevealAt: number | string | undefined = undefined;

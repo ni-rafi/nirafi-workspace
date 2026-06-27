@@ -55,18 +55,36 @@ export const BendingMomentConventionDrawing: React.FC<BendingMomentConventionDra
         {isSagging ? (
           <g className={`transition-opacity duration-700 ${isBent ? 'opacity-100' : 'opacity-0'}`}>
             <path
-              d="M 12 15 Q 3 24 12 33"
+              d="M 2 15 Q -7 24 2 33"
               fill="none"
               stroke="currentColor"
               strokeWidth="2"
               strokeLinecap="round"
             />
+            {/* Left arrowhead pointing right/clockwise */}
             <path
-              d="M 88 15 Q 97 24 88 33"
+              d="M -3 15 L 2 15 L 2 20"
               fill="none"
               stroke="currentColor"
               strokeWidth="2"
               strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+            <path
+              d="M 98 15 Q 107 24 98 33"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+            />
+            {/* Right arrowhead pointing left/counter-clockwise */}
+            <path
+              d="M 103 15 L 98 15 L 98 20"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
             />
             <text x="50" y="58" textAnchor="middle" className="text-[11px] font-bold font-mono fill-emerald-600 dark:fill-emerald-400">
               Compression (Top)
@@ -75,18 +93,36 @@ export const BendingMomentConventionDrawing: React.FC<BendingMomentConventionDra
         ) : (
           <g className={`transition-opacity duration-700 ${isBent ? 'opacity-100' : 'opacity-0'}`}>
             <path
-              d="M 12 43 Q 3 34 12 25"
+              d="M 2 43 Q -7 34 2 25"
               fill="none"
               stroke="currentColor"
               strokeWidth="2"
               strokeLinecap="round"
             />
+            {/* Left arrowhead pointing right/counter-clockwise */}
             <path
-              d="M 88 43 Q 97 34 88 25"
+              d="M -3 43 L 2 43 L 2 38"
               fill="none"
               stroke="currentColor"
               strokeWidth="2"
               strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+            <path
+              d="M 98 43 Q 107 34 98 25"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+            />
+            {/* Right arrowhead pointing left/clockwise */}
+            <path
+              d="M 103 43 L 98 43 L 98 38"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
             />
             <text x="50" y="58" textAnchor="middle" className="text-[11px] font-bold font-mono fill-rose-600 dark:fill-rose-400">
               Tension (Top)

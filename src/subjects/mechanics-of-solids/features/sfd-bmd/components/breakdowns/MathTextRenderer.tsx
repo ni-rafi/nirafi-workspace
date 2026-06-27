@@ -1,33 +1,42 @@
 import React from 'react';
 import { LatexFormula } from '@/features/presentation/components/elements/LatexFormula';
 
-// Helper to render bold text and inline math within a segment
-const MathTextInner: React.FC<{ text: string }> = ({ text }) => {
-  const inlines = text.split('$');
+// Inner component to render inline math
+const MathTextInnerNoBold: React.FC<{ text: string }> = ({ text }) => {
+  const mathParts = text.split(/(\$.*?\$)/g);
   return (
     <>
-      {inlines.map((segment, sIdx) => {
-        if (sIdx % 2 === 1) {
-          return <LatexFormula key={sIdx} math={segment} />;
+      {mathParts.map((part, idx) => {
+        if (part.startsWith('$') && part.endsWith('$')) {
+          return <LatexFormula key={idx} math={part.slice(1, -1)} />;
         }
-
-        const bolds = segment.split('**');
-        return (
-          <span key={sIdx}>
-            {bolds.map((boldText, bIdx) => {
-              if (bIdx % 2 === 1) {
-                return <strong key={bIdx} className="font-bold text-foreground">{boldText}</strong>;
-              }
-              return boldText;
-            })}
-          </span>
-        );
+        return part;
       })}
     </>
   );
 };
 
-// Lightweight markdown and latex text parser
+// Helper to render bold text and inline math hierarchically
+const MathTextInner: React.FC<{ text: string }> = ({ text }) => {
+  const boldParts = text.split(/(\*\*.*?\*\*)/g);
+  return (
+    <>
+      {boldParts.map((part, idx) => {
+        if (part.startsWith('**') && part.endsWith('**')) {
+          const innerText = part.slice(2, -2);
+          return (
+            <strong key={idx} className="font-bold text-foreground">
+              <MathTextInnerNoBold text={innerText} />
+            </strong>
+          );
+        }
+        return <MathTextInnerNoBold key={idx} text={part} />;
+      })}
+    </>
+  );
+};
+
+// Lightweight markdown and latex text parser with multi-line support
 export const MathTextRenderer: React.FC<{ text: string }> = ({ text }) => {
   const preprocess = (str: string) => {
     let res = str.replace(/\\\[/g, '$$$$').replace(/\\\]/g, '$$$$');
@@ -35,50 +44,60 @@ export const MathTextRenderer: React.FC<{ text: string }> = ({ text }) => {
     return res;
   };
 
-  const trimmed = preprocess(text).trim();
+  const preprocessed = preprocess(text);
+  const lines = preprocessed.split('\n');
 
-  if (trimmed.startsWith('$$') && trimmed.endsWith('$$')) {
-    const math = trimmed.slice(2, -2);
-    return <LatexFormula math={math} block />;
-  }
-
-  if (trimmed.startsWith('### ')) {
-    const content = trimmed.slice(4);
-    return (
-      <h3 className="text-sm font-semibold text-primary mt-4 mb-2 border-b border-border/30 pb-1">
-        <MathTextInner text={content} />
-      </h3>
-    );
-  }
-  if (trimmed.startsWith('#### ')) {
-    const content = trimmed.slice(5);
-    return (
-      <h4 className="text-xs font-bold text-foreground mt-3 mb-1">
-        <MathTextInner text={content} />
-      </h4>
-    );
-  }
-
-  if (trimmed.startsWith('- ')) {
-    const content = trimmed.slice(2);
-    return (
-      <div className="flex items-start gap-2 pl-3 py-1 bg-muted/5 rounded-r-md">
-        <span className="text-primary mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-primary/70" />
-        <span className="leading-relaxed text-xs text-foreground/80">
-          <MathTextInner text={content} />
-        </span>
-      </div>
-    );
-  }
-
-  const blocks = trimmed.split('$$');
   return (
-    <div className="math-text-block leading-relaxed py-1">
-      {blocks.map((block, idx) => {
-        if (idx % 2 === 1) {
-          return <LatexFormula key={idx} math={block} block />;
+    <div className="space-y-1 text-left w-full">
+      {lines.map((line, lineIdx) => {
+        const trimmed = line.trim();
+        if (!trimmed) return <div key={lineIdx} className="h-1.5" />;
+
+        if (trimmed.startsWith('$$') && trimmed.endsWith('$$')) {
+          const math = trimmed.slice(2, -2);
+          return <LatexFormula key={lineIdx} math={math} block />;
         }
-        return <MathTextInner key={idx} text={block} />;
+
+        if (trimmed.startsWith('### ')) {
+          const content = trimmed.slice(4);
+          return (
+            <h3 key={lineIdx} className="text-sm font-semibold text-primary mt-2 mb-1 border-b border-border/30 pb-1">
+              <MathTextInner text={content} />
+            </h3>
+          );
+        }
+        if (trimmed.startsWith('#### ')) {
+          const content = trimmed.slice(5);
+          return (
+            <h4 key={lineIdx} className="text-xs font-bold text-foreground mt-2 mb-1">
+              <MathTextInner text={content} />
+            </h4>
+          );
+        }
+
+        if (trimmed.startsWith('- ')) {
+          const content = trimmed.slice(2);
+          return (
+            <div key={lineIdx} className="flex items-start gap-2 pl-3 py-0.5 bg-muted/5 rounded-r-md">
+              <span className="text-primary mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-primary/70" />
+              <span className="leading-relaxed text-xs text-foreground/80">
+                <MathTextInner text={content} />
+              </span>
+            </div>
+          );
+        }
+
+        const blocks = trimmed.split('$$');
+        return (
+          <div key={lineIdx} className="math-text-block leading-relaxed py-0.5 text-xs text-foreground/80">
+            {blocks.map((block, idx) => {
+              if (idx % 2 === 1) {
+                return <LatexFormula key={idx} math={block} block />;
+              }
+              return <MathTextInner key={idx} text={block} />;
+            })}
+          </div>
+        );
       })}
     </div>
   );

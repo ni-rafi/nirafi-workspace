@@ -10,12 +10,14 @@ export function generateReactionStepsUI(reactionEquations: IReactionEquationDeta
     const rhsVal = eq.rhsValue;
 
     if (eq.loadsDetailSteps && eq.loadsDetailSteps !== eq.loadsDetailTerms && eq.loadsDetailTerms !== '0') {
+      const isRedundant = eq.loadsDetailSteps.trim() === formatNumber(rhsVal);
+      const middleTerm = isRedundant ? '' : ` = ${eq.loadsDetailSteps}`;
       eqText = eq.type.includes('moment') || eq.type === 'hinge-moment'
-        ? ` = -[${eq.loadsDetailTerms}] = -[${eq.loadsDetailSteps}] = ${formatNumber(rhsVal)}\\text{ kNm}`
-        : ` = ${eq.loadsDetailTerms} = ${eq.loadsDetailSteps} = ${formatNumber(rhsVal)}\\text{ kN}`;
+        ? ` = ${eq.loadsDetailTerms}${middleTerm} = ${formatNumber(rhsVal)}\\text{ kNm}`
+        : ` = ${eq.loadsDetailTerms}${middleTerm} = ${formatNumber(rhsVal)}\\text{ kN}`;
     } else if (eq.loadsDetailTerms !== '0') {
       eqText = eq.type.includes('moment') || eq.type === 'hinge-moment'
-        ? ` = -[${eq.loadsDetailTerms}] = ${formatNumber(rhsVal)}\\text{ kNm}`
+        ? ` = ${eq.loadsDetailTerms} = ${formatNumber(rhsVal)}\\text{ kNm}`
         : ` = ${eq.loadsDetailTerms} = ${formatNumber(rhsVal)}\\text{ kN}`;
     } else {
       eqText = eq.type.includes('moment') || eq.type === 'hinge-moment'
@@ -33,7 +35,7 @@ export function generateReactionStepsUI(reactionEquations: IReactionEquationDeta
   });
 
   // Solved values step
-  let solvedText = `**Solved Support Reactions**\n\nBased on the system of equilibrium equations, the solved support reactions are:`;
+  let solvedText = `Based on the system of equilibrium equations, the solved support reactions are:`;
   reactionEquations.solvedValues.forEach((val) => {
     const isMoment = val.name.startsWith('M');
     solvedText += `\n- $${val.name} = ${formatNumber(val.value)}\\text{ ${isMoment ? 'kNm' : 'kN'}}$`;

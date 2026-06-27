@@ -9,3 +9,5 @@ export * from './BeamBendingDrawing';
 export * from './CantileverBendingDrawing';
 export * from './BeamShearDrawing';
 export * from './CantileverShearDrawing';
+export * from './IsometricSectionsBeamDrawing';
+export * from './ActionVectors';
