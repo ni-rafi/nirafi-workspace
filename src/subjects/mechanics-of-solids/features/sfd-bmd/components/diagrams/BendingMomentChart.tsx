@@ -108,7 +108,7 @@ export const BendingMomentChart: React.FC<BendingMomentChartProps> = ({
   // Evaluate value at hoverX
   let hoverData = null;
   if (hoverX !== null) {
-    const inv = solverResult.intervals.find(i => hoverX >= i.startX - 1e-9 && hoverX <= i.endX + 1e-9);
+    const inv = solverResult.intervals.find(i => hoverX >= i.startX - 1e-4 && hoverX <= i.endX + 1e-4) || solverResult.intervals[0];
     if (inv) {
       const mVal = evalPoly(inv.mCoeffs, hoverX);
       const projX = toPixelX(hoverX);
@@ -248,27 +248,27 @@ export const BendingMomentChart: React.FC<BendingMomentChartProps> = ({
             );
           })}
 
-          {/* Vertical indicator line and hover dot inside SVG */}
+          {/* Vertical indicator line inside SVG */}
+          {hoverX !== null && (
+            <line
+              x1={toPixelX(hoverX)}
+              y1={10}
+              x2={toPixelX(hoverX)}
+              y2={height - 10}
+              stroke={hoverData ? (hoverData.m >= 0 ? '#10b981' : '#ef4444') : 'var(--muted-foreground)'}
+              strokeWidth={1}
+              strokeDasharray="3,3"
+              opacity={0.65}
+            />
+          )}
           {hoverData && (
-            <g>
-              <motion.line
-                x1={toPixelX(hoverData.x)}
-                y1={10}
-                x2={toPixelX(hoverData.x)}
-                y2={height - 10}
-                stroke={hoverData.m >= 0 ? '#10b981' : '#ef4444'}
-                strokeWidth={1}
-                strokeDasharray="3,3"
-                transition={{ type: 'spring', stiffness: 260, damping: 30 }}
-              />
-              <motion.circle
-                cx={toPixelX(hoverData.x)}
-                cy={midY - hoverData.m * scaleY}
-                r={4}
-                fill={hoverData.m >= 0 ? '#10b981' : '#ef4444'}
-                transition={{ type: 'spring', stiffness: 260, damping: 30 }}
-              />
-            </g>
+            <motion.circle
+              cx={toPixelX(hoverData.x)}
+              cy={midY - hoverData.m * scaleY}
+              r={4}
+              fill={hoverData.m >= 0 ? '#10b981' : '#ef4444'}
+              transition={{ type: 'spring', stiffness: 260, damping: 30 }}
+            />
           )}
         </svg>
 

@@ -39,27 +39,29 @@ export const StressElementBlock: React.FC<StressElementBlockProps> = ({ state, t
     if (Math.abs(value) < 1e4) return null; // Hide if less than 0.01 MPa (10 kPa)
 
     const isTension = value > 0;
-    const arrowDir = isTension ? 1 : -1;
 
-    // Line endpoints
+    // Line endpoints (always outside the block)
     const x1 = startX;
     const y1 = startY;
-    const x2 = startX + dx * arrowLength * arrowDir;
-    const y2 = startY + dy * arrowLength * arrowDir;
+    const x2 = startX + dx * arrowLength;
+    const y2 = startY + dy * arrowLength;
 
-    // Arrow tip points
+    // Arrow tip position
     const tipX = isTension ? x2 : x1;
     const tipY = isTension ? y2 : y1;
-    const headSize = 3;
 
-    // Determine tip polygon points
+    // Arrowhead base offset direction:
+    // For tension, the base is opposite to the arrow direction: -dx, -dy
+    // For compression, the base is in the arrow direction: dx, dy
+    const baseDirX = isTension ? -dx : dx;
+    const baseDirY = isTension ? -dy : dy;
+
+    const headSize = 3;
     let points = '';
     if (dx !== 0) {
-      const dirX = dx * arrowDir;
-      points = `${tipX},${tipY} ${tipX - headSize * dirX},${tipY - headSize} ${tipX - headSize * dirX},${tipY + headSize}`;
+      points = `${tipX},${tipY} ${tipX + headSize * baseDirX},${tipY - headSize} ${tipX + headSize * baseDirX},${tipY + headSize}`;
     } else {
-      const dirY = dy * arrowDir;
-      points = `${tipX},${tipY} ${tipX - headSize},${tipY - headSize * dirY} ${tipX + headSize},${tipY - headSize * dirY}`;
+      points = `${tipX},${tipY} ${tipX - headSize},${tipY + headSize * baseDirY} ${tipX + headSize},${tipY + headSize * baseDirY}`;
     }
 
     const strokeColor = isTension ? '#10b981' : '#3b82f6';

@@ -82,7 +82,7 @@ export const StressGradientProfile: React.FC = () => {
   const handleMouseMove = (e: React.MouseEvent) => {
     if (!svgRef.current) return;
     const rect = svgRef.current.getBoundingClientRect();
-    const clientY = e.clientY - rect.top;
+    const clientY = (e.clientY - rect.top) * (height / rect.height);
     // Map clientY to y relative to neutral axis
     const yMeter = Math.max(-ybar, Math.min(H - ybar, toMeterY(clientY)));
     setInspectY(parseFloat((yMeter * 1000).toFixed(1))); // Store in mm

@@ -46,7 +46,7 @@ export function useInfluenceDragging({
         setSelectedId(id);
         if (!svgRef.current) return;
         const rect = svgRef.current.getBoundingClientRect();
-        const clickX = e.clientX - rect.left;
+        const clickX = (e.clientX - rect.left) * (800 / rect.width);
         setDragState({
             id,
             type,
@@ -58,7 +58,7 @@ export function useInfluenceDragging({
     const handleMouseMove = (e: React.MouseEvent) => {
         if (!svgRef.current) return;
         const rect = svgRef.current.getBoundingClientRect();
-        const currentX = e.clientX - rect.left;
+        const currentX = (e.clientX - rect.left) * (800 / rect.width);
         const xMeter = Math.max(0, Math.min(length, toMeter(currentX)));
 
         if (!dragState) {

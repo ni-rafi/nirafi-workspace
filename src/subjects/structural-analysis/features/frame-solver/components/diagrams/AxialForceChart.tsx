@@ -92,7 +92,7 @@ export const AxialForceChart: React.FC<AxialForceChartProps> = ({
   // Evaluate value at hoverX
   let hoverData = null;
   if (hoverX !== null) {
-    const inv = axialResult.intervals.find(i => hoverX >= i.startX - 1e-9 && hoverX <= i.endX + 1e-9);
+    const inv = axialResult.intervals.find(i => hoverX >= i.startX - 1e-4 && hoverX <= i.endX + 1e-4) || axialResult.intervals[0];
     if (inv) {
       const aVal = inv.value;
       const projX = toPixelX(hoverX);
@@ -220,26 +220,26 @@ export const AxialForceChart: React.FC<AxialForceChartProps> = ({
           })}
 
           {/* Hover indicator */}
+          {hoverX !== null && (
+            <line
+              x1={toPixelX(hoverX)}
+              y1={10}
+              x2={toPixelX(hoverX)}
+              y2={height - 10}
+              stroke={hoverData ? (hoverData.a >= 0 ? '#06b6d4' : '#f43f5e') : 'var(--muted-foreground)'}
+              strokeWidth={1}
+              strokeDasharray="3,3"
+              opacity={0.65}
+            />
+          )}
           {hoverData && (
-            <g>
-              <motion.line
-                x1={toPixelX(hoverData.x)}
-                y1={10}
-                x2={toPixelX(hoverData.x)}
-                y2={height - 10}
-                stroke={hoverData.a >= 0 ? '#06b6d4' : '#f43f5e'}
-                strokeWidth={1}
-                strokeDasharray="3,3"
-                transition={{ type: 'spring', stiffness: 260, damping: 30 }}
-              />
-              <motion.circle
-                cx={toPixelX(hoverData.x)}
-                cy={midY - hoverData.a * scaleY}
-                r={4}
-                fill={hoverData.a >= 0 ? '#06b6d4' : '#f43f5e'}
-                transition={{ type: 'spring', stiffness: 260, damping: 30 }}
-              />
-            </g>
+            <motion.circle
+              cx={toPixelX(hoverData.x)}
+              cy={midY - hoverData.a * scaleY}
+              r={4}
+              fill={hoverData.a >= 0 ? '#06b6d4' : '#f43f5e'}
+              transition={{ type: 'spring', stiffness: 260, damping: 30 }}
+            />
           )}
         </svg>
 

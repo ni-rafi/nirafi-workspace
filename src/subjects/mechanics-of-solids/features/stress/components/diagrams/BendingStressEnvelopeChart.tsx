@@ -317,18 +317,20 @@ export const BendingStressEnvelopeChart: React.FC = () => {
           })}
 
           {/* Hover indicator lines and dots */}
+          {hoverX !== null && (
+            <line
+              x1={toPixelX(hoverX)}
+              y1={10}
+              x2={toPixelX(hoverX)}
+              y2={height - 10}
+              stroke="var(--muted-foreground)"
+              strokeWidth={1}
+              strokeDasharray="3,3"
+              opacity={0.6}
+            />
+          )}
           {hoverData && (
             <g>
-              <line
-                x1={hoverData.pxNum}
-                y1={10}
-                x2={hoverData.pxNum}
-                y2={height - 10}
-                stroke="var(--muted-foreground)"
-                strokeWidth={1}
-                strokeDasharray="3,3"
-                opacity={0.6}
-              />
               <circle cx={hoverData.pxNum} cy={hoverData.pyTNum} r={4} fill="#10b981" />
               <circle cx={hoverData.pxNum} cy={hoverData.pyCNum} r={4} fill="#3b82f6" />
             </g>

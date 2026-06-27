@@ -85,7 +85,7 @@ export const TransformationSliders: React.FC<TransformationSlidersProps> = ({
       {/* Inspect X Card */}
       <div className="flex flex-col gap-2.5 p-3.5 bg-muted/10 border border-border/30 rounded-xl shadow-sm justify-between">
         <div className="flex items-center justify-between gap-2">
-          <span className="text-[10px] font-extrabold uppercase tracking-wider text-muted-foreground">Inspect Position (x)</span>
+          <span className="text-[11px] font-extrabold uppercase tracking-wider text-muted-foreground">Inspect Position (x)</span>
           <div className="flex items-center gap-1 shrink-0">
             <input
               type="number"
@@ -95,7 +95,7 @@ export const TransformationSliders: React.FC<TransformationSlidersProps> = ({
               value={xInput}
               onChange={handleXNumber}
               onBlur={() => setXInput(inspectX.toFixed(2))}
-              className="w-12 rounded border border-border bg-background px-1 py-0.5 text-center text-xs font-mono font-bold text-primary focus:border-primary focus:outline-none"
+              className="w-16 rounded border border-border bg-background px-1 py-0.5 text-center text-xs font-mono font-bold text-primary focus:border-primary focus:outline-none"
             />
             <span className="text-xs font-bold text-muted-foreground">m</span>
           </div>
@@ -110,9 +110,9 @@ export const TransformationSliders: React.FC<TransformationSlidersProps> = ({
             onChange={handleXSlider}
             className="w-full accent-primary cursor-ew-resize h-1.5 bg-muted-foreground/20 rounded-lg appearance-none"
           />
-          <div className="flex justify-between text-[9px] font-mono font-bold text-muted-foreground/60 mt-0.5">
+          <div className="flex justify-between text-[11px] font-mono font-bold text-muted-foreground/60 mt-0.5">
             <span>0.00m</span>
-            <span className="text-[8px] opacity-70">{(length / 2).toFixed(1)}m</span>
+            <span className="text-[10px] opacity-70">{(length / 2).toFixed(1)}m</span>
             <span>{length.toFixed(1)}m</span>
           </div>
         </div>
@@ -121,7 +121,7 @@ export const TransformationSliders: React.FC<TransformationSlidersProps> = ({
       {/* Inspect Y Card */}
       <div className="flex flex-col gap-2.5 p-3.5 bg-muted/10 border border-border/30 rounded-xl shadow-sm justify-between">
         <div className="flex items-center justify-between gap-2">
-          <span className="text-[10px] font-extrabold uppercase tracking-wider text-muted-foreground">Inspect Height (y)</span>
+          <span className="text-[11px] font-extrabold uppercase tracking-wider text-muted-foreground">Inspect Height (y)</span>
           <div className="flex items-center gap-1 shrink-0">
             <input
               type="number"
@@ -131,7 +131,7 @@ export const TransformationSliders: React.FC<TransformationSlidersProps> = ({
               value={yInput}
               onChange={handleYNumber}
               onBlur={() => setYInput(clampedYMm.toFixed(1))}
-              className="w-12 rounded border border-border bg-background px-1 py-0.5 text-center text-xs font-mono font-bold text-primary focus:border-primary focus:outline-none"
+              className="w-16 rounded border border-border bg-background px-1 py-0.5 text-center text-xs font-mono font-bold text-primary focus:border-primary focus:outline-none"
             />
             <span className="text-xs font-bold text-muted-foreground">mm</span>
           </div>
@@ -146,7 +146,7 @@ export const TransformationSliders: React.FC<TransformationSlidersProps> = ({
             onChange={handleYSlider}
             className="w-full accent-primary cursor-ew-resize h-1.5 bg-muted-foreground/20 rounded-lg appearance-none"
           />
-          <div className="flex justify-between text-[9px] font-mono font-bold text-muted-foreground/60 mt-0.5">
+          <div className="flex justify-between text-[11px] font-mono font-bold text-muted-foreground/60 mt-0.5">
             <span>{yMinMm.toFixed(0)}mm</span>
             <span
               onClick={() => setInspectY(0)}
@@ -165,7 +165,7 @@ export const TransformationSliders: React.FC<TransformationSlidersProps> = ({
       {/* Inspect Angle Card */}
       <div className="flex flex-col gap-2.5 p-3.5 bg-muted/10 border border-border/30 rounded-xl shadow-sm justify-between">
         <div className="flex items-center justify-between gap-2">
-          <span className="text-[10px] font-extrabold uppercase tracking-wider text-muted-foreground">Rotation Angle (θ)</span>
+          <span className="text-[11px] font-extrabold uppercase tracking-wider text-muted-foreground">Rotation Angle (θ)</span>
           <div className="flex items-center gap-1 shrink-0">
             <input
               type="number"
@@ -174,7 +174,7 @@ export const TransformationSliders: React.FC<TransformationSlidersProps> = ({
               value={angleInput}
               onChange={handleAngleNumber}
               onBlur={() => setAngleInput(angleDeg.toString())}
-              className="w-12 rounded border border-border bg-background px-1 py-0.5 text-center text-xs font-mono font-bold text-primary focus:border-primary focus:outline-none"
+              className="w-16 rounded border border-border bg-background px-1 py-0.5 text-center text-xs font-mono font-bold text-primary focus:border-primary focus:outline-none"
             />
             <span className="text-xs font-bold text-muted-foreground">°</span>
           </div>
@@ -189,7 +189,7 @@ export const TransformationSliders: React.FC<TransformationSlidersProps> = ({
             onChange={handleAngleSlider}
             className="w-full accent-primary cursor-ew-resize h-1.5 bg-muted-foreground/20 rounded-lg appearance-none"
           />
-          <div className="flex justify-between text-[9px] font-mono font-bold text-muted-foreground/60 mt-0.5">
+          <div className="flex justify-between text-[11px] font-mono font-bold text-muted-foreground/60 mt-0.5">
             <span>-90°</span>
             <span
               onClick={() => setInspectAngle(0)}
