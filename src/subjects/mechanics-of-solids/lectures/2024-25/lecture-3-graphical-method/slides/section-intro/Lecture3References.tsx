@@ -7,13 +7,13 @@ export const Lecture3References: React.FC = () => {
       title: 'Strength of Materials',
       edition: '4th edition',
       authors: 'Andrew Pytel and Ferdinand Leon Singer',
-      sections: ['4-4', '4-5']
+      sections: ['4-1', '4-2', '4-3', '4-4']
     },
     {
       title: 'Strength of Materials',
       edition: 'Multicolour Edition (2008)',
       authors: 'R.S. Khurmi',
-      sections: ['13.10-13.18']
+      sections: ['13.1-13.14']
     }
   ];
 

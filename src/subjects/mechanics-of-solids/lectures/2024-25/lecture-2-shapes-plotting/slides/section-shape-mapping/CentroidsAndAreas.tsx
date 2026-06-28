@@ -1,8 +1,42 @@
 import React from 'react';
 import { FullWidthLayout } from '@/shared/layouts/FullWidthLayout';
-import { LatexFormula, SlideParagraph } from '@/features/presentation/components/elements';
+import { LatexFormula, SlideParagraph, SlideTable } from '@/features/presentation/components/elements';
 
 export const CentroidsAndAreas: React.FC = () => {
+  const headers = [
+    { label: 'Shape', width: '112px' },
+    { label: 'Visual Profile', align: 'center' as const, width: '112px' },
+    { label: 'Area Formula (\\(A\\))' },
+    { label: 'Centroid Position (\\(\\bar{x}\\))' },
+  ];
+
+  const rows = [
+    [
+      <span className="font-bold text-foreground" key="shape-1">Rectangle</span>,
+      <svg className="w-16 h-8 mx-auto overflow-visible" viewBox="0 0 60 30" key="vis-1">
+        <rect x="5" y="5" width="50" height="20" className="fill-emerald-500/10 stroke-emerald-500" strokeWidth="1.5" />
+      </svg>,
+      <LatexFormula math="A = b \cdot h" key="formula-1" />,
+      <span key="centroid-1"><LatexFormula math="\bar{x} = \frac{b}{2}" /> (centered)</span>,
+    ],
+    [
+      <span className="font-bold text-foreground" key="shape-2">Triangle</span>,
+      <svg className="w-16 h-8 mx-auto overflow-visible" viewBox="0 0 60 30" key="vis-2">
+        <polygon points="5,25 55,5 55,25" className="fill-blue-500/10 stroke-blue-500" strokeWidth="1.5" />
+      </svg>,
+      <LatexFormula math="A = \frac{1}{2} b \cdot h" key="formula-2" />,
+      <span key="centroid-2"><LatexFormula math="\bar{x} = \frac{b}{3}" /> (from vertical base)</span>,
+    ],
+    [
+      <span className="font-bold text-foreground" key="shape-3">Parabolic Spandrel</span>,
+      <svg className="w-16 h-8 mx-auto overflow-visible" viewBox="0 0 60 30" key="vis-3">
+        <path d="M 5,25 Q 40,25 55,5 L 55,25 Z" className="fill-indigo-500/10 stroke-indigo-500" strokeWidth="1.5" />
+      </svg>,
+      <LatexFormula math="A = \frac{1}{3} b \cdot h" key="formula-3" />,
+      <span key="centroid-3"><LatexFormula math="\bar{x} = \frac{b}{4}" /> (from vertical base)</span>,
+    ],
+  ];
+
   return (
     <FullWidthLayout
       title={<span>Geometric Reference Library: Centroids & Areas</span>}
@@ -16,49 +50,15 @@ export const CentroidsAndAreas: React.FC = () => {
           </SlideParagraph>
         </div>
 
-        <div className="flex-1 border border-border/50 rounded-xl overflow-hidden bg-background/50 flex flex-col justify-stretch">
-          <table className="w-full text-left border-collapse text-[12.5px] flex-1">
-            <thead>
-              <tr className="bg-muted/40 border-b border-border/40 text-muted-foreground font-bold uppercase tracking-wider">
-                <th className="px-4 py-2 w-28">Shape</th>
-                <th className="px-4 py-2 text-center w-28">Visual Profile</th>
-                <th className="px-4 py-2">{"Area Formula (\\(A\\))"}</th>
-                <th className="px-4 py-2">{"Centroid Position (\\(\\bar{x}\\))"}</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr className="border-b border-border/10 hover:bg-muted/5">
-                <td className="px-4 py-2 font-bold text-foreground">Rectangle</td>
-                <td className="px-4 py-2 text-center">
-                  <svg className="w-16 h-8 mx-auto overflow-visible" viewBox="0 0 60 30">
-                    <rect x="5" y="5" width="50" height="20" className="fill-emerald-500/10 stroke-emerald-500" strokeWidth="1.5" />
-                  </svg>
-                </td>
-                <td className="px-4 py-2 font-mono"><LatexFormula math="A = b \cdot h" /></td>
-                <td className="px-4 py-2"><LatexFormula math="\bar{x} = \frac{b}{2}" /> (centered)</td>
-              </tr>
-              <tr className="border-b border-border/10 hover:bg-muted/5">
-                <td className="px-4 py-2 font-bold text-foreground">Triangle</td>
-                <td className="px-4 py-2 text-center">
-                  <svg className="w-16 h-8 mx-auto overflow-visible" viewBox="0 0 60 30">
-                    <polygon points="5,25 55,5 55,25" className="fill-blue-500/10 stroke-blue-500" strokeWidth="1.5" />
-                  </svg>
-                </td>
-                <td className="px-4 py-2 font-mono"><LatexFormula math="A = \frac{1}{2} b \cdot h" /></td>
-                <td className="px-4 py-2"><LatexFormula math="\bar{x} = \frac{b}{3}" /> (from vertical base)</td>
-              </tr>
-              <tr className="hover:bg-muted/5">
-                <td className="px-4 py-2 font-bold text-foreground">Parabolic Spandrel</td>
-                <td className="px-4 py-2 text-center">
-                  <svg className="w-16 h-8 mx-auto overflow-visible" viewBox="0 0 60 30">
-                    <path d="M 5,25 Q 40,25 55,5 L 55,25 Z" className="fill-indigo-500/10 stroke-indigo-500" strokeWidth="1.5" />
-                  </svg>
-                </td>
-                <td className="px-4 py-2 font-mono"><LatexFormula math="A = \frac{1}{3} b \cdot h" /></td>
-                <td className="px-4 py-2"><LatexFormula math="\bar{x} = \frac{b}{4}" /> (from vertical base)</td>
-              </tr>
-            </tbody>
-          </table>
+        <div className="flex-1 overflow-hidden flex flex-col justify-stretch">
+          <SlideTable
+            headers={headers}
+            rows={rows}
+            dense="relaxed"
+            bordered={true}
+            hoverable={true}
+            className="flex-1"
+          />
         </div>
       </div>
     </FullWidthLayout>
