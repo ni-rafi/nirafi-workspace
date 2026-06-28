@@ -115,104 +115,74 @@ export const Problem3Step11: React.FC = () => (
 // Zero-Shear explanation
 export const Problem3Step12: React.FC = () => <GraphicalProblemSolverVisualizer beam={beamConfig} stepIndex={12} />;
 
-// Similar Triangles proof
+// Solving Zero-Crossing: Method 1 (Section Method)
 export const Problem3Step13: React.FC = () => (
   <>
     <ClickReveal at={1} className="hidden">{' '}</ClickReveal>
     <ClickReveal at={2} className="hidden">{' '}</ClickReveal>
-    <ClickReveal at={3} className="hidden">{' '}</ClickReveal>
-    <ClickReveal at={4} className="hidden">{' '}</ClickReveal>
     <GraphicalProblemSolverVisualizer beam={beamConfig} stepIndex={13} />
   </>
 );
 
-// BMD Node A Check
+// Solving Zero-Crossing: Method 2 (Similar Triangles)
 export const Problem3Step14: React.FC = () => (
   <>
     <ClickReveal at={1} className="hidden">{' '}</ClickReveal>
     <ClickReveal at={2} className="hidden">{' '}</ClickReveal>
+    <ClickReveal at={3} className="hidden">{' '}</ClickReveal>
     <GraphicalProblemSolverVisualizer beam={beamConfig} stepIndex={14} />
   </>
 );
 
-// BMD Segment A-C Integration
+// Solving Zero-Crossing: Method 3 (UDL Division)
 export const Problem3Step15: React.FC = () => (
   <>
     <ClickReveal at={1} className="hidden">{' '}</ClickReveal>
     <ClickReveal at={2} className="hidden">{' '}</ClickReveal>
-    <ClickReveal at={3} className="hidden">{' '}</ClickReveal>
     <GraphicalProblemSolverVisualizer beam={beamConfig} stepIndex={15} />
   </>
 );
 
-// BMD Node C Check
+// BMD Node A Check
 export const Problem3Step16: React.FC = () => (
   <>
     <ClickReveal at={1} className="hidden">{' '}</ClickReveal>
     <ClickReveal at={2} className="hidden">{' '}</ClickReveal>
-    <GraphicalProblemSolverVisualizer beam={beamConfig} stepIndex={16} />
+    <GraphicalProblemSolverVisualizer beam={beamConfig} stepIndex={19} />
   </>
 );
 
-// BMD Segment C-to-Peak Integration
+// BMD Segment A-C Integration
 export const Problem3Step17: React.FC = () => (
   <>
     <ClickReveal at={1} className="hidden">{' '}</ClickReveal>
     <ClickReveal at={2} className="hidden">{' '}</ClickReveal>
     <ClickReveal at={3} className="hidden">{' '}</ClickReveal>
-    <GraphicalProblemSolverVisualizer beam={beamConfig} stepIndex={17} />
+    <GraphicalProblemSolverVisualizer beam={beamConfig} stepIndex={20} />
   </>
 );
 
-// BMD Peak Moment Check
+// BMD Node C Check
 export const Problem3Step18: React.FC = () => (
   <>
     <ClickReveal at={1} className="hidden">{' '}</ClickReveal>
     <ClickReveal at={2} className="hidden">{' '}</ClickReveal>
-    <GraphicalProblemSolverVisualizer beam={beamConfig} stepIndex={18} />
+    <GraphicalProblemSolverVisualizer beam={beamConfig} stepIndex={21} />
   </>
 );
 
-// BMD Segment Peak-to-D Integration
+// BMD Segment C-to-Peak Integration (Prediction)
 export const Problem3Step19: React.FC = () => (
   <>
     <ClickReveal at={1} className="hidden">{' '}</ClickReveal>
     <ClickReveal at={2} className="hidden">{' '}</ClickReveal>
     <ClickReveal at={3} className="hidden">{' '}</ClickReveal>
-    <GraphicalProblemSolverVisualizer beam={beamConfig} stepIndex={19} />
-  </>
-);
-
-// BMD Node D Check
-export const Problem3Step20: React.FC = () => (
-  <>
-    <ClickReveal at={1} className="hidden">{' '}</ClickReveal>
-    <ClickReveal at={2} className="hidden">{' '}</ClickReveal>
-    <GraphicalProblemSolverVisualizer beam={beamConfig} stepIndex={20} />
-  </>
-);
-
-// BMD Segment D-E Integration
-export const Problem3Step21: React.FC = () => (
-  <>
-    <ClickReveal at={1} className="hidden">{' '}</ClickReveal>
-    <ClickReveal at={2} className="hidden">{' '}</ClickReveal>
-    <ClickReveal at={3} className="hidden">{' '}</ClickReveal>
-    <GraphicalProblemSolverVisualizer beam={beamConfig} stepIndex={21} />
-  </>
-);
-
-// BMD Node E Check
-export const Problem3Step22: React.FC = () => (
-  <>
-    <ClickReveal at={1} className="hidden">{' '}</ClickReveal>
-    <ClickReveal at={2} className="hidden">{' '}</ClickReveal>
     <GraphicalProblemSolverVisualizer beam={beamConfig} stepIndex={22} />
   </>
 );
 
-// BMD Segment E-B Integration
-export const Problem3Step23: React.FC = () => (
+// Pedagogical Slide 2: Segment C-to-Peak Curvature Application
+export const Problem3Pedagogical2: React.FC = () => (
   <>
     <ClickReveal at={1} className="hidden">{' '}</ClickReveal>
     <ClickReveal at={2} className="hidden">{' '}</ClickReveal>
@@ -221,14 +191,80 @@ export const Problem3Step23: React.FC = () => (
   </>
 );
 
-// BMD Node B Check
-export const Problem3Step24: React.FC = () => (
+// Pedagogical Slide 1: Slope-Moment Circle
+export const Problem3Pedagogical1: React.FC = () => (
   <>
     <ClickReveal at={1} className="hidden">{' '}</ClickReveal>
-    <ClickReveal at={2} className="hidden">{' '}</ClickReveal>
     <GraphicalProblemSolverVisualizer beam={beamConfig} stepIndex={24} />
   </>
 );
 
+
+// BMD Peak Moment Check
+export const Problem3Step20: React.FC = () => (
+  <>
+    <ClickReveal at={1} className="hidden">{' '}</ClickReveal>
+    <ClickReveal at={2} className="hidden">{' '}</ClickReveal>
+    <GraphicalProblemSolverVisualizer beam={beamConfig} stepIndex={25} />
+  </>
+);
+
+// BMD Segment Peak-to-D Integration
+export const Problem3Step21: React.FC = () => (
+  <>
+    <ClickReveal at={1} className="hidden">{' '}</ClickReveal>
+    <ClickReveal at={2} className="hidden">{' '}</ClickReveal>
+    <ClickReveal at={3} className="hidden">{' '}</ClickReveal>
+    <GraphicalProblemSolverVisualizer beam={beamConfig} stepIndex={26} />
+  </>
+);
+
+// BMD Node D Check
+export const Problem3Step22: React.FC = () => (
+  <>
+    <ClickReveal at={1} className="hidden">{' '}</ClickReveal>
+    <ClickReveal at={2} className="hidden">{' '}</ClickReveal>
+    <GraphicalProblemSolverVisualizer beam={beamConfig} stepIndex={27} />
+  </>
+);
+
+// BMD Segment D-E Integration
+export const Problem3Step23: React.FC = () => (
+  <>
+    <ClickReveal at={1} className="hidden">{' '}</ClickReveal>
+    <ClickReveal at={2} className="hidden">{' '}</ClickReveal>
+    <ClickReveal at={3} className="hidden">{' '}</ClickReveal>
+    <GraphicalProblemSolverVisualizer beam={beamConfig} stepIndex={28} />
+  </>
+);
+
+// BMD Node E Check
+export const Problem3Step24: React.FC = () => (
+  <>
+    <ClickReveal at={1} className="hidden">{' '}</ClickReveal>
+    <ClickReveal at={2} className="hidden">{' '}</ClickReveal>
+    <GraphicalProblemSolverVisualizer beam={beamConfig} stepIndex={29} />
+  </>
+);
+
+// BMD Segment E-B Integration
+export const Problem3Step25: React.FC = () => (
+  <>
+    <ClickReveal at={1} className="hidden">{' '}</ClickReveal>
+    <ClickReveal at={2} className="hidden">{' '}</ClickReveal>
+    <ClickReveal at={3} className="hidden">{' '}</ClickReveal>
+    <GraphicalProblemSolverVisualizer beam={beamConfig} stepIndex={30} />
+  </>
+);
+
+// BMD Node B Check
+export const Problem3Step26: React.FC = () => (
+  <>
+    <ClickReveal at={1} className="hidden">{' '}</ClickReveal>
+    <ClickReveal at={2} className="hidden">{' '}</ClickReveal>
+    <GraphicalProblemSolverVisualizer beam={beamConfig} stepIndex={31} />
+  </>
+);
+
 // Solved Diagrams Recap
-export const Problem3Step25: React.FC = () => <GraphicalProblemSolverVisualizer beam={beamConfig} stepIndex={25} />;
+export const Problem3Step27: React.FC = () => <GraphicalProblemSolverVisualizer beam={beamConfig} stepIndex={32} />;

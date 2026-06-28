@@ -13,12 +13,16 @@ import {
 } from './renderSfdSlides';
 import {
   renderZeroShearBoundary,
+  renderSectionMethodSolver,
   renderSimilarTrianglesRatio,
+  renderUDLDivisionSolver,
 } from './renderZeroShearSlides';
 import {
   renderBmdJump,
   renderBmdSegment,
   renderBmdNodeCheck,
+  renderPedagogicalCircle,
+  renderPedagogicalApplication,
 } from './renderBmdSlides';
 
 interface StepParams {
@@ -194,7 +198,15 @@ export const renderDynamicStep = (stepIndex: number, params: StepParams): React.
   };
 
   const activeSfdSlide = stepIndex >= 3 && stepIndex <= 11 ? sfdSlides[stepIndex - 3] : null;
-  const activeBmdSlide = stepIndex >= 14 && stepIndex <= 24 ? bmdSlides[stepIndex - 14] : null;
+  
+  let activeBmdSlide = null;
+  if (stepIndex >= 19 && stepIndex <= 22) {
+    activeBmdSlide = bmdSlides[stepIndex - 19];
+  } else if (stepIndex === 23) {
+    activeBmdSlide = bmdSlides[3];
+  } else if (stepIndex >= 25 && stepIndex <= 31) {
+    activeBmdSlide = bmdSlides[stepIndex - 21];
+  }
 
   // Debug Logging for visualizer states
   console.log(`[renderDynamicStep] stepIndex=${stepIndex}, clickIdx=${clickIdx}`);
@@ -253,7 +265,7 @@ export const renderDynamicStep = (stepIndex: number, params: StepParams): React.
   }
 
   // 5. Zero-Shear Crossing Slides
-  if (stepIndex === 12 || stepIndex === 13) {
+  if (stepIndex >= 12 && stepIndex <= 15) {
     if (!crossingSegment) return null;
 
     const v1 = Math.abs(crossingSegment.vStart || 0);
@@ -261,16 +273,43 @@ export const renderDynamicStep = (stepIndex: number, params: StepParams): React.
     const L_seg = (crossingSegment.endX || 0) - (crossingSegment.startX || 0);
     const x0 = (v1 * L_seg) / (v1 + v2);
     const totalX = (crossingSegment.startX || 0) + x0;
+
+    const crossingInterval = solverResult.intervals.find(
+      inv => (crossingSegment.startX || 0) >= inv.startX - 1e-3 && (crossingSegment.endX || 0) <= inv.endX + 1e-3
+    );
+    const w = crossingInterval ? Math.abs(crossingInterval.vCoeffs[1]) : 3.0;
+    const startX = crossingSegment.startX || 0;
+
     if (stepIndex === 12) {
       return renderZeroShearBoundary(diagram);
     }
     if (stepIndex === 13) {
-      return renderSimilarTrianglesRatio(v1, v2, L_seg, x0, totalX, clickIdx);
+      return renderSectionMethodSolver(v1, w, startX, totalX);
+    }
+    if (stepIndex === 14) {
+      return renderSimilarTrianglesRatio(v1, v2, L_seg, x0, totalX);
+    }
+    if (stepIndex === 15) {
+      return renderUDLDivisionSolver(v1, w, startX, x0, totalX);
     }
   }
 
-  // 6. BMD Slides
-  if (stepIndex >= 14 && stepIndex <= 24) {
+  // 6. Pedagogical Slides
+  if (stepIndex === 23) {
+    if (!crossingSegment) return null;
+    const v1 = Math.abs(crossingSegment.vStart || 0);
+    const v2 = Math.abs(crossingSegment.vEnd || 0);
+    const L_seg = (crossingSegment.endX || 0) - (crossingSegment.startX || 0);
+    const x0 = (v1 * L_seg) / (v1 + v2);
+    const totalX = (crossingSegment.startX || 0) + x0;
+    return renderPedagogicalApplication(v1, totalX, diagram);
+  }
+  if (stepIndex === 24) {
+    return renderPedagogicalCircle();
+  }
+
+  // 7. BMD Slides
+  if ((stepIndex >= 19 && stepIndex <= 22) || (stepIndex >= 25 && stepIndex <= 31)) {
     if (!activeBmdSlide) return null;
     const toastPos = getToastPosition(
       activeBmdSlide.x !== undefined ? activeBmdSlide.x : activeBmdSlide.startX,
@@ -287,8 +326,8 @@ export const renderDynamicStep = (stepIndex: number, params: StepParams): React.
     }
   }
 
-  // 7. Recap Slide
-  if (stepIndex === 25) {
+  // 8. Recap Slide
+  if (stepIndex === 32) {
     return renderRecapSlide(diagram);
   }
 

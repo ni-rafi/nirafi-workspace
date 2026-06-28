@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'motion/react';
-import { getSvgX } from './diagramConstants';
+import { getSvgX, getBaselines } from './diagramConstants';
 import { IBeam, ISolverOutput } from '@/subjects/mechanics-of-solids/cores/sfd-bmd/types';
 
 const getCircleClass = (step: number, currentStep: number, baseClass: string) => {
@@ -140,6 +140,7 @@ export const SfdDiagram: React.FC<SfdDiagramProps> = ({
 
   // Integration highlight area on SFD dynamically
   let shadeSource: React.ReactNode = null;
+  let activeBmdSlide: { type: string; startX?: number; endX?: number; x?: number; vStart?: number; vEnd?: number; isPeakSplit?: 'first' | 'second' } | null | undefined = null;
   if (pairing === 'sfd-bmd' && solverResult.graphicalStepsData) {
     // Locate the active BMD step segment
     const bmdSteps = solverResult.graphicalStepsData.filter(s => s.type.startsWith('bmd-'));
@@ -228,7 +229,15 @@ export const SfdDiagram: React.FC<SfdDiagramProps> = ({
       vEnd: 0,
     });
 
-    const activeBmdSlide = bmdSlides[stepIndex - 14];
+    activeBmdSlide = null;
+    if (stepIndex >= 19 && stepIndex <= 22) {
+      activeBmdSlide = bmdSlides[stepIndex - 19];
+    } else if (stepIndex === 23) {
+      activeBmdSlide = bmdSlides[3];
+    } else if (stepIndex >= 25 && stepIndex <= 31) {
+      activeBmdSlide = bmdSlides[stepIndex - 21];
+    }
+
     if (activeBmdSlide && activeBmdSlide.type === 'bmd-segment' && clickIdx >= 0) {
       const sX = getSvgX(activeBmdSlide.startX || 0, beam.length);
       const eX = getSvgX(activeBmdSlide.endX || 0, beam.length);
@@ -257,6 +266,34 @@ export const SfdDiagram: React.FC<SfdDiagramProps> = ({
               V = {Math.abs(vStart || vEnd).toFixed(3)}, L = {dx.toFixed(3)}m
             </text>
           )}
+        </g>
+      );
+    }
+  }
+
+  // Zero-shear crossing step highlight on SFD
+  if (stepIndex >= 12 && stepIndex <= 15) {
+    const crossingSegment = sfdSlides.find(
+      s => s.type === 'sfd-segment' && (s.vStart || 0) * (s.vEnd || 0) < 0
+    );
+    if (crossingSegment) {
+      const sX = getSvgX(crossingSegment.startX || 0, beam.length);
+      const eX = getSvgX(crossingSegment.endX || 0, beam.length);
+      const vStart = crossingSegment.vStart || 0;
+      const vEnd = crossingSegment.vEnd || 0;
+      const dx = (crossingSegment.endX || 0) - (crossingSegment.startX || 0);
+      const x0 = (Math.abs(vStart) * dx) / (Math.abs(vStart) + Math.abs(vEnd));
+      const midX = getSvgX((crossingSegment.startX || 0) + x0, beam.length);
+
+      const ptsPos = `${sX},${sfdY} ${sX},${sfdY - vStart * sfdScale} ${midX},${sfdY}`;
+      const ptsNeg = `${midX},${sfdY} ${eX},${sfdY - vEnd * sfdScale} ${eX},${sfdY}`;
+
+      shadeSource = (
+        <g>
+          {/* Positive green triangle */}
+          <polygon points={ptsPos} className="fill-emerald-500/20 stroke-emerald-500/10 animate-in fade-in duration-300" />
+          {/* Negative red triangle */}
+          <polygon points={ptsNeg} className="fill-rose-500/20 stroke-rose-500/10 animate-in fade-in duration-300" />
         </g>
       );
     }
@@ -314,6 +351,52 @@ export const SfdDiagram: React.FC<SfdDiagramProps> = ({
       uniqueSfdLabels.push(item);
     }
   });
+  // If stepIndex is 23 (Curvature Application slide), render scanning dot and vertical projection line
+  let sfdScanVisuals: React.ReactNode = null;
+  if (stepIndex === 23) {
+    const { bmdY } = getBaselines(pairing);
+    const startX = activeBmdSlide?.startX ?? 5.0;
+    const endX = activeBmdSlide?.endX ?? 9.775;
+    
+    // Position of x_scan based on clickIdx (0 = start, 1 = mid, >=2 = end)
+    const xScanVal = startX + (clickIdx === 0 ? 0 : clickIdx === 1 ? (endX - startX) / 2 : endX - startX);
+    const xScanSvg = getSvgX(xScanVal, beam.length);
+    
+    // Shear value at x_scan
+    const vStart = activeBmdSlide?.vStart ?? 14.325;
+    const vEnd = activeBmdSlide?.vEnd ?? 0;
+    const vScanVal = vStart + (vEnd - vStart) * ((xScanVal - startX) / (endX - startX));
+    const yScanSvg = sfdY - vScanVal * sfdScale;
+    
+    sfdScanVisuals = (
+      <g>
+        {/* Projection dashed line down to BMD baseline */}
+        <motion.line
+          animate={{ x1: xScanSvg, y1: yScanSvg, x2: xScanSvg, y2: bmdY }}
+          transition={{ type: 'spring', stiffness: 90, damping: 15 }}
+          className="stroke-indigo-500/60 stroke-[1.2]"
+          strokeDasharray="3 3"
+        />
+        
+        {/* Dot marker on SFD curve */}
+        <motion.circle
+          animate={{ cx: xScanSvg, cy: yScanSvg }}
+          transition={{ type: 'spring', stiffness: 90, damping: 15 }}
+          r="4.5"
+          className="fill-indigo-500 stroke-white dark:stroke-slate-900 stroke-[1]"
+        />
+        
+        {/* Value tag next to dot */}
+        <motion.text
+          animate={{ x: xScanSvg + 8, y: yScanSvg - 6 }}
+          transition={{ type: 'spring', stiffness: 90, damping: 15 }}
+          className="text-[8px] font-black fill-indigo-600 dark:fill-indigo-400 font-mono"
+        >
+          V = {vScanVal.toFixed(3)} kN
+        </motion.text>
+      </g>
+    );
+  }
 
   return (
     <g>
@@ -322,7 +405,7 @@ export const SfdDiagram: React.FC<SfdDiagramProps> = ({
       <text x="473" y={sfdY + 3} className="text-[8px] font-bold fill-muted-foreground font-mono">x</text>
       <text x="45" y={sfdY - 26} textAnchor="end" className="text-[8px] font-black fill-rose-500 font-mono">V (kN)</text>
 
-      {pairing === 'sfd-bmd' && shadeSource}
+      {(pairing === 'sfd-bmd' || (stepIndex >= 12 && stepIndex <= 15)) && shadeSource}
 
       {/* Dynamic Step-by-Step SFD drawing */}
       {sfdSlides.map((slide, idx) => {
@@ -429,8 +512,8 @@ export const SfdDiagram: React.FC<SfdDiagramProps> = ({
                 return (
                   <g className="animate-in fade-in" key="crossing">
                     <circle cx={getSvgX(crossX, beam.length)} cy={sfdY} r="2" className="fill-rose-500 animate-pulse" />
-                    <text x={getSvgX(crossX, beam.length)} y={sfdY + 12} textAnchor="middle" className="text-[7.5px] font-black fill-rose-500 font-mono">
-                      x_0 = {crossX.toFixed(3)}m
+                    <text x={getSvgX(crossX, beam.length)} y={sfdY + 12} textAnchor="middle" className="text-[7.5px] font-black fill-rose-500 font-sans">
+                      x<tspan dy="2" fontSize="5.5px">0</tspan><tspan dy="-2"> = {crossX.toFixed(3)}m</tspan>
                     </text>
                   </g>
                 );
@@ -482,6 +565,8 @@ export const SfdDiagram: React.FC<SfdDiagramProps> = ({
           </text>
         );
       })}
+
+      {sfdScanVisuals}
     </g>
   );
 };

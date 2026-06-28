@@ -8,6 +8,33 @@ const getCircleClass = (step: number, currentStep: number, baseClass: string) =>
   return `${baseClass} ${step === currentStep ? 'animate-in zoom-in-50 duration-200' : ''}`;
 };
 
+function getBmdStepNum(idx: number): number {
+  if (idx <= 3) return idx + 19;
+  return idx + 21;
+}
+
+function getConcaveUpCurvePoints(
+  startX: number,
+  endX: number,
+  bmdY: number,
+  bmdScale: number,
+  beamLength: number,
+  mStart: number,
+  mEnd: number
+): string {
+  const steps = 30;
+  const dx = (endX - startX) / steps;
+  const points: string[] = [];
+  for (let i = 0; i <= steps; i++) {
+    const x = startX + i * dx;
+    const m = mStart + (mEnd - mStart) * Math.pow((x - startX) / (endX - startX), 2);
+    const px = getSvgX(x, beamLength);
+    const py = bmdY - m * bmdScale;
+    points.push(`${px},${py}`);
+  }
+  return points.join(' ');
+}
+
 interface BmdDiagramProps {
   bmdY: number;
   bmdScale: number;
@@ -209,7 +236,7 @@ export const BmdDiagram: React.FC<BmdDiagramProps> = ({
   // Centralized deduplicated node labels to prevent overlaps/shadows
   const plottedBmdLabels: { x: number; val: number }[] = [];
   bmdSlides.forEach((slide, idx) => {
-    const stepNum = idx + 14;
+    const stepNum = getBmdStepNum(idx);
     if (displayedStep < stepNum) return;
     const isCurrent = displayedStep === stepNum;
 
@@ -253,7 +280,7 @@ export const BmdDiagram: React.FC<BmdDiagramProps> = ({
 
       {/* Dynamic Step-by-Step BMD drawing */}
       {bmdSlides.map((slide, idx) => {
-        const stepNum = idx + 14; // BMD steps start at stepIndex 14
+        const stepNum = getBmdStepNum(idx);
         if (displayedStep < stepNum) return null;
 
         const isCurrent = displayedStep === stepNum;
@@ -322,6 +349,142 @@ export const BmdDiagram: React.FC<BmdDiagramProps> = ({
           const ptsStr = isCurved
             ? getBmdCurvePoints(slide.startX || 0, slide.endX || 0, bmdY, bmdScale, beam.length, solverResult.intervals)
             : `${sX},${yStart} ${eX},${yEnd}`;
+
+          if (slide.isPeakSplit === 'first' && (displayedStep === 22 || displayedStep === 23)) {
+            const ptsConcaveUp = getConcaveUpCurvePoints(
+              slide.startX || 0,
+              slide.endX || 0,
+              bmdY,
+              bmdScale,
+              beam.length,
+              slide.mStart || 0,
+              slide.mEnd || 0
+            );
+
+            // Curve A is solid starting from Click 3 on Slide 23
+            const isCurveAActive = displayedStep === 23 && clickIdx >= 3;
+            
+            // Curves are shown on Slide 22 only at Click 3, and always on Slide 23
+            const showCurves = (displayedStep === 22 && clickIdx >= 3) || displayedStep === 23;
+
+            // Scanning visual highlights on BMD if stepIndex is 23
+            let bmdScanVisuals = null;
+            if (displayedStep === 23) {
+              const startX = slide.startX || 5.0;
+              const endX = slide.endX || 9.775;
+              
+              const vStart = interval ? evalPoly(interval.vCoeffs, startX) : 14.325;
+              const vEnd = interval ? evalPoly(interval.vCoeffs, endX) : 0;
+              
+              // Position of x_scan based on clickIdx (0 = start, 1 = mid, >=2 = end)
+              const xScanVal = startX + (clickIdx === 0 ? 0 : clickIdx === 1 ? (endX - startX) / 2 : endX - startX);
+              const pxScan = getSvgX(xScanVal, beam.length);
+
+              // Calculate correct Curve A height & slope
+              const w = Math.abs(vStart - vEnd) / (endX - startX);
+              const mCorrect = (slide.mStart || 0) + vStart * (xScanVal - startX) - 0.5 * w * Math.pow(xScanVal - startX, 2);
+              const pyCorrect = bmdY - mCorrect * bmdScale;
+              const slopeCorrect = vStart - w * (xScanVal - startX);
+
+              // Calculate incorrect Curve B height & slope
+              const mIncorrect = (slide.mStart || 0) + 0.5 * w * Math.pow(xScanVal - startX, 2);
+              const pyIncorrect = bmdY - mIncorrect * bmdScale;
+              const slopeIncorrect = w * (xScanVal - startX);
+
+              // SVG tangent lines dx, dy math
+              const L_tan = 28;
+              const scaleX = 440 / beam.length;
+              
+              const slopeSvgA = -slopeCorrect * (bmdScale / scaleX);
+              const angleA = Math.atan(slopeSvgA);
+              const dxA = (L_tan / 2) * Math.cos(angleA);
+              const dyA = (L_tan / 2) * Math.sin(angleA);
+
+              const slopeSvgB = -slopeIncorrect * (bmdScale / scaleX);
+              const angleB = Math.atan(slopeSvgB);
+              const dxB = (L_tan / 2) * Math.cos(angleB);
+              const dyB = (L_tan / 2) * Math.sin(angleB);
+
+              bmdScanVisuals = (
+                <g>
+                  {/* Projection dashed line */}
+                  <motion.line
+                    animate={{ x1: pxScan, y1: bmdY - 60, x2: pxScan, y2: bmdY + 60 }}
+                    transition={{ type: 'spring', stiffness: 90, damping: 15 }}
+                    className="stroke-indigo-500/60 stroke-[1.2]"
+                    strokeDasharray="3 3"
+                  />
+                  
+                  {/* Tangent line for Curve A (Correct) */}
+                  <motion.line
+                    animate={{ x1: pxScan - dxA, y1: pyCorrect - dyA, x2: pxScan + dxA, y2: pyCorrect + dyA }}
+                    transition={{ type: 'spring', stiffness: 90, damping: 15 }}
+                    className="stroke-emerald-600 dark:stroke-emerald-400 stroke-[2]"
+                  />
+                  <motion.circle
+                    animate={{ cx: pxScan, cy: pyCorrect }}
+                    transition={{ type: 'spring', stiffness: 90, damping: 15 }}
+                    r="3.5"
+                    className="fill-emerald-500 stroke-white dark:stroke-slate-900 stroke-[1]"
+                  />
+                  
+                  {/* Tangent line for Curve B (Incorrect) */}
+                  <motion.line
+                    animate={{ x1: pxScan - dxB, y1: pyIncorrect - dyB, x2: pxScan + dxB, y2: pyIncorrect + dyB }}
+                    transition={{ type: 'spring', stiffness: 90, damping: 15 }}
+                    className="stroke-red-500 stroke-[1.5]"
+                  />
+                  <motion.circle
+                    animate={{ cx: pxScan, cy: pyIncorrect }}
+                    transition={{ type: 'spring', stiffness: 90, damping: 15 }}
+                    r="3.5"
+                    className="fill-red-500 stroke-white dark:stroke-slate-900 stroke-[1]"
+                  />
+                </g>
+              );
+            }
+
+            return (
+              <g key={idx}>
+                {/* Circle marker at end point when plotted */}
+                {((isCurrent && clickIdx >= 2) || !isCurrent) && (
+                  <circle cx={eX} cy={yEnd} r="3" className={getCircleClass(stepNum, displayedStep, "fill-indigo-500 stroke-white dark:stroke-slate-900")} strokeWidth="1" />
+                )}
+
+                {/* Helper visuals (reference line & arrow) at Click 2 */}
+                {renderHelperVisuals(
+                  stepIndex === stepNum && clickIdx === 2,
+                  1,
+                  yStart,
+                  yStart,
+                  slide.startX || 0,
+                  slide.endX || 0,
+                  slide.endX || 0,
+                  yStart,
+                  yEnd,
+                  areaLabel
+                )}
+
+                {showCurves && (
+                  <>
+                    {/* Curve A: Concave Down (Correct) */}
+                    {isCurveAActive ? (
+                      <polyline points={ptsStr} fill="none" className="stroke-indigo-500" strokeWidth={2.2} />
+                    ) : (
+                      <polyline points={ptsStr} fill="none" className="stroke-indigo-500/80" strokeWidth={1.8} strokeDasharray="3 3" />
+                    )}
+                    <text x={(sX + eX) / 2} y={yEnd - 12} textAnchor="middle" className="text-[7.5px] font-extrabold fill-indigo-600">Curve A</text>
+
+                    {/* Curve B: Concave Up (Incorrect) */}
+                    <polyline points={ptsConcaveUp} fill="none" className="stroke-slate-400 dark:stroke-slate-500" strokeWidth={1.8} strokeDasharray="3 3" />
+                    <text x={(sX + eX) / 2} y={yStart + 12} textAnchor="middle" className="text-[7.5px] font-extrabold fill-slate-500">Curve B</text>
+                  </>
+                )}
+
+                {bmdScanVisuals}
+              </g>
+            );
+          }
 
           return (
             <g key={idx}>
@@ -392,7 +555,7 @@ export const BmdDiagram: React.FC<BmdDiagramProps> = ({
       })}
 
       {/* Completed BMD overlay (Recap view) */}
-      {(displayedStep === 25 || displayedStep === 12) && (
+      {(displayedStep === 32 || displayedStep === 12) && (
         <g>
           {solverResult.intervals.map((inv, idx) => {
             const isCurved = Math.abs(inv.vCoeffs[0]) > 1e-6 || Math.abs(inv.vCoeffs[1]) > 1e-6;

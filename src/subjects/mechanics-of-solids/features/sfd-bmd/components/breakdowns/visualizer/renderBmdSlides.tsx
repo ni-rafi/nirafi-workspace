@@ -218,3 +218,6 @@ export const renderBmdNodeCheck = (
     />
   );
 };
+
+export { renderPedagogicalCircle } from './renderPedagogicalCircle';
+export { renderPedagogicalApplication } from './renderPedagogicalApplication';
