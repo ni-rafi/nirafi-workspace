@@ -1,11 +1,12 @@
 import React from 'react';
 import { motion } from 'motion/react';
-import { getSvgX, getParabolaPoints } from './diagramConstants';
+import { getSvgX, getBmdCurvePoints } from './diagramConstants';
+import { IBeam, ISolverOutput } from '@/subjects/mechanics-of-solids/cores/sfd-bmd/types';
+import { DimensionLine } from '@/features/presentation/components/elements';
 
 const getCircleClass = (step: number, currentStep: number, baseClass: string) => {
   return `${baseClass} ${step === currentStep ? 'animate-in zoom-in-50 duration-200' : ''}`;
 };
-
 
 interface BmdDiagramProps {
   bmdY: number;
@@ -14,6 +15,8 @@ interface BmdDiagramProps {
   stepIndex: number;
   displayedStep: number;
   clickIdx: number;
+  beam: IBeam;
+  solverResult: ISolverOutput;
 }
 
 export const BmdDiagram: React.FC<BmdDiagramProps> = ({
@@ -23,9 +26,21 @@ export const BmdDiagram: React.FC<BmdDiagramProps> = ({
   stepIndex,
   displayedStep,
   clickIdx,
+  beam,
+  solverResult,
 }) => {
   const showBmd = pairing === 'sfd-bmd' || pairing === 'all';
   if (!showBmd) return null;
+
+  const bmdSteps = (solverResult.graphicalStepsData || []).filter(s => s.type.startsWith('bmd-'));
+  if (bmdSteps.length <= 1) return null; // No steps resolved
+
+  // Find the peak bending moment value from critical points to position labels correctly
+  const maxMomentPoint = solverResult.criticalPoints.reduce(
+    (max, cp) => Math.abs(cp.m) > Math.abs(max.m) ? cp : max,
+    { m: 0 }
+  );
+  const maxMomentVal = maxMomentPoint.m;
 
   // Helper function to draw reference lines + orange difference arrows
   const renderHelperVisuals = (
@@ -42,15 +57,15 @@ export const BmdDiagram: React.FC<BmdDiagramProps> = ({
   ) => {
     if (!stepCond) return null;
     const midY = (arrowYStart + arrowYEnd) / 2;
-    const textX = getSvgX(arrowX) + (arrowX > 15 ? -6 : 6);
-    const textAnchor = arrowX > 15 ? 'end' : 'start';
+    const textX = getSvgX(arrowX, beam.length) + (arrowX > beam.length * 0.75 ? -6 : 6);
+    const textAnchor = arrowX > beam.length * 0.75 ? 'end' : 'start';
 
     return (
       <g style={{ opacity }}>
         <line
-          x1={getSvgX(xRefStart)}
+          x1={getSvgX(xRefStart, beam.length)}
           y1={refY1}
-          x2={getSvgX(xRefEnd)}
+          x2={getSvgX(xRefEnd, beam.length)}
           y2={refY2}
           className="stroke-amber-500/70"
           strokeWidth="1.2"
@@ -59,9 +74,9 @@ export const BmdDiagram: React.FC<BmdDiagramProps> = ({
         {arrowYStart !== arrowYEnd && (
           <g>
             <line
-              x1={getSvgX(arrowX)}
+              x1={getSvgX(arrowX, beam.length)}
               y1={arrowYStart}
-              x2={getSvgX(arrowX)}
+              x2={getSvgX(arrowX, beam.length)}
               y2={arrowYEnd}
               className="stroke-amber-500 animate-in fade-in duration-200"
               strokeWidth="1.8"
@@ -83,245 +98,371 @@ export const BmdDiagram: React.FC<BmdDiagramProps> = ({
     );
   };
 
+  // Build the array of BMD slides dynamically
+  const bmdSlides: {
+    type: 'bmd-segment' | 'bmd-jump' | 'bmd-node-check';
+    startX?: number;
+    endX?: number;
+    x?: number;
+    mStart?: number;
+    mEnd?: number;
+    shearArea?: number;
+    jump?: number;
+    isPeakSplit?: 'first' | 'second';
+    peakX?: number;
+    peakM?: number;
+  }[] = [];
+
+  // Push initial boundary check at x=0
+  bmdSlides.push({
+    type: 'bmd-node-check',
+    x: 0,
+    mEnd: 0,
+  });
+
+  // Auto-discover zero shear crossing from SFD steps
+  const sfdSteps = (solverResult.graphicalStepsData || []).filter(s => s.type.startsWith('sfd-'));
+  const crossingSegment = sfdSteps.find(s => s.type === 'sfd-segment' && (s.vStart || 0) * (s.vEnd || 0) < 0);
+  let peakX = 0;
+  let peakM = 0;
+  if (crossingSegment) {
+    const v1 = Math.abs(crossingSegment.vStart || 0);
+    const v2 = Math.abs(crossingSegment.vEnd || 0);
+    const L_seg = (crossingSegment.endX || 0) - (crossingSegment.startX || 0);
+    const x0 = (v1 * L_seg) / (v1 + v2);
+    peakX = (crossingSegment.startX || 0) + x0;
+    peakM = solverResult.criticalPoints.find(cp => Math.abs(cp.x - peakX) < 1e-2)?.m || 0;
+  }
+
+  bmdSteps.forEach((step, idx) => {
+    if (step.type === 'bmd-start') return;
+    if (step.type === 'bmd-jump') {
+      bmdSlides.push({
+        type: 'bmd-jump',
+        x: step.x,
+        mStart: step.mStart,
+        mEnd: step.mEnd,
+        jump: step.jump,
+      });
+    } else if (step.type === 'bmd-segment') {
+      const sX = step.startX || 0;
+      const eX = step.endX || 0;
+      if (crossingSegment && peakX > sX + 1e-2 && peakX < eX - 1e-2) {
+        bmdSlides.push({
+          type: 'bmd-segment',
+          startX: sX,
+          endX: peakX,
+          mStart: step.mStart,
+          mEnd: peakM,
+          shearArea: peakM - (step.mStart || 0),
+          isPeakSplit: 'first',
+          peakX,
+          peakM,
+        });
+        bmdSlides.push({
+          type: 'bmd-node-check',
+          x: peakX,
+          mEnd: peakM,
+        });
+        bmdSlides.push({
+          type: 'bmd-segment',
+          startX: peakX,
+          endX: eX,
+          mStart: peakM,
+          mEnd: step.mEnd,
+          shearArea: (step.mEnd || 0) - peakM,
+          isPeakSplit: 'second',
+          peakX,
+          peakM,
+        });
+      } else {
+        bmdSlides.push({
+          type: 'bmd-segment',
+          startX: sX,
+          endX: eX,
+          mStart: step.mStart,
+          mEnd: step.mEnd,
+          shearArea: step.shearArea,
+        });
+      }
+
+      // Check if there is a jump at endX
+      const nextStep = bmdSteps[idx + 1];
+      const hasJumpAtEnd = nextStep && nextStep.type === 'bmd-jump' && Math.abs((nextStep.x || 0) - eX) < 1e-3;
+      if (!hasJumpAtEnd && eX < beam.length - 1e-3) {
+        bmdSlides.push({
+          type: 'bmd-node-check',
+          x: eX,
+          mEnd: step.mEnd,
+        });
+      }
+    }
+  });
+
+  // Finally, push the last boundary node check at the end of the beam (e.g. Node B Check)
+  bmdSlides.push({
+    type: 'bmd-node-check',
+    x: beam.length,
+    mEnd: bmdSlides[bmdSlides.length - 1]?.mEnd || 0,
+  });
+
+  // Centralized deduplicated node labels to prevent overlaps/shadows
+  const plottedBmdLabels: { x: number; val: number }[] = [];
+  bmdSlides.forEach((slide, idx) => {
+    const stepNum = idx + 14;
+    if (displayedStep < stepNum) return;
+    const isCurrent = displayedStep === stepNum;
+
+    if (slide.type === 'bmd-jump') {
+      if (isCurrent && clickIdx < 3) return;
+      if (slide.mStart !== undefined && Math.abs(slide.mStart) >= 1e-2) {
+        plottedBmdLabels.push({ x: slide.x ?? 0, val: slide.mStart });
+      }
+      if (slide.mEnd !== undefined && Math.abs(slide.mEnd) >= 1e-2) {
+        plottedBmdLabels.push({ x: slide.x ?? 0, val: slide.mEnd });
+      }
+    } else if (slide.type === 'bmd-segment') {
+      if (isCurrent && clickIdx < 3) return;
+      if (slide.mEnd !== undefined && Math.abs(slide.mEnd) >= 1e-2) {
+        plottedBmdLabels.push({ x: slide.endX ?? 0, val: slide.mEnd });
+      }
+    } else if (slide.type === 'bmd-node-check') {
+      if (isCurrent && clickIdx < 2) return;
+      if (slide.mEnd !== undefined && Math.abs(slide.mEnd) >= 1e-2) {
+        plottedBmdLabels.push({ x: slide.x ?? 0, val: slide.mEnd });
+      }
+    }
+  });
+
+  const uniqueBmdLabels: typeof plottedBmdLabels = [];
+  plottedBmdLabels.forEach(item => {
+    const exists = uniqueBmdLabels.some(
+      u => Math.abs(u.x - item.x) < 1e-3 && Math.abs(u.val - item.val) < 1e-3
+    );
+    if (!exists) {
+      uniqueBmdLabels.push(item);
+    }
+  });
+
   return (
     <g>
       {/* Baseline */}
       <line x1="30" y1={bmdY} x2="470" y2={bmdY} className="stroke-slate-400/60 dark:stroke-slate-650" strokeWidth="1.2" />
       <text x="473" y={bmdY + 3} className="text-[8px] font-bold fill-muted-foreground font-mono">x</text>
-      <text x="40" y={bmdY - 26} className="text-[8px] font-black fill-indigo-500 font-mono">M (kNm)</text>
+      <text x="45" y={bmdY - 26} textAnchor="end" className="text-[8px] font-black fill-indigo-500 font-mono">M (kNm)</text>
 
-      {/* NODE A START (step 14) */}
-      {displayedStep >= 14 && (
-        <g>
-          {((displayedStep === 14 && clickIdx >= 1) || displayedStep > 14) && (
-            <circle cx={getSvgX(0)} cy={bmdY} r="3" className={getCircleClass(14, displayedStep, "fill-indigo-500 stroke-white dark:stroke-slate-900")} strokeWidth="1" />
-          )}
-        </g>
-      )}
+      {/* Dynamic Step-by-Step BMD drawing */}
+      {bmdSlides.map((slide, idx) => {
+        const stepNum = idx + 14; // BMD steps start at stepIndex 14
+        if (displayedStep < stepNum) return null;
 
-      {/* BMD SEGMENT A-C INTEGRATION (step 15) */}
-      {displayedStep >= 15 && (
-        <g>
-          {((displayedStep === 15 && clickIdx >= 1) || displayedStep > 15) && (
-            <circle cx={getSvgX(5)} cy={bmdY - 71.625 * bmdScale} r="3" className={getCircleClass(15, displayedStep, "fill-indigo-500 stroke-white dark:stroke-slate-900")} strokeWidth="1" />
-          )}
-          {renderHelperVisuals(
-            stepIndex >= 15,
-            stepIndex === 15 ? (clickIdx >= 2 ? 1 : 0) : 0.15,
-            bmdY, bmdY,
-            0, 5, 5,
-            bmdY,
-            bmdY - 71.625 * bmdScale,
-            "+71.625 kNm"
-          )}
-          {displayedStep > 15 ? (
-            <line x1={getSvgX(0)} y1={bmdY} x2={getSvgX(5)} y2={bmdY - 71.625 * bmdScale} className="stroke-indigo-500" strokeWidth="2" />
-          ) : displayedStep === 15 && clickIdx >= 3 ? (
-            <motion.line
-              x1={getSvgX(0)} y1={bmdY}
-              x2={getSvgX(5)} y2={bmdY - 71.625 * bmdScale}
-              className="stroke-indigo-500"
-              strokeWidth="2.5"
-              strokeLinecap="round"
-              initial={{ pathLength: 0 }}
-              animate={{ pathLength: 1 }}
-              transition={{ duration: 0.6, ease: "easeOut" }}
-            />
-          ) : null}
-        </g>
-      )}
+        const isCurrent = displayedStep === stepNum;
 
-      {/* BMD NODE C CHECK (step 16) */}
-      {displayedStep >= 16 && (
-        <g>
-          {((displayedStep === 16 && clickIdx >= 1) || displayedStep > 16) && (
-            <circle cx={getSvgX(5)} cy={bmdY - 71.625 * bmdScale} r="3" className={getCircleClass(16, displayedStep, "fill-indigo-500 stroke-white dark:stroke-slate-900")} strokeWidth="1" />
-          )}
-        </g>
-      )}
+        if (slide.type === 'bmd-jump') {
+          const xPos = getSvgX(slide.x || 0, beam.length);
+          const yStart = bmdY - (slide.mStart || 0) * bmdScale;
+          const yEnd = bmdY - (slide.mEnd || 0) * bmdScale;
+          const isClockwise = (slide.jump || 0) > 0;
+          const sign = isClockwise ? '+' : '-';
 
-      {/* BMD SEGMENT C-TO-PEAK INTEGRATION (step 17) */}
-      {displayedStep >= 17 && (
-        <g>
-          {((displayedStep === 17 && clickIdx >= 1) || displayedStep > 17) && (
-            <circle cx={getSvgX(9.775)} cy={bmdY - 105.825 * bmdScale} r="3" className={getCircleClass(17, displayedStep, "fill-indigo-500 stroke-white dark:stroke-slate-900")} strokeWidth="1" />
-          )}
-          {renderHelperVisuals(
-            stepIndex >= 17,
-            stepIndex === 17 ? (clickIdx >= 2 ? 1 : 0) : 0.15,
-            bmdY - 71.625 * bmdScale,
-            bmdY - 71.625 * bmdScale,
-            5, 9.775, 9.775,
-            bmdY - 71.625 * bmdScale,
-            bmdY - 105.825 * bmdScale,
-            "+34.200 kNm"
-          )}
-          {displayedStep > 17 ? (
-            <path d={`M ${getParabolaPoints(5, 9.775, bmdY, bmdScale).trim().split(' ').join(' L ')}`} fill="none" className="stroke-indigo-500" strokeWidth="2" />
-          ) : displayedStep === 17 && clickIdx >= 3 ? (
-            <motion.path
-              d={`M ${getParabolaPoints(5, 9.775, bmdY, bmdScale).trim().split(' ').join(' L ')}`}
-              fill="none"
-              className="stroke-indigo-500"
-              strokeWidth="2.5"
-              initial={{ pathLength: 0 }}
-              animate={{ pathLength: 1 }}
-              transition={{ duration: 0.6, ease: "easeOut" }}
-            />
-          ) : null}
-        </g>
-      )}
+          return (
+            <g key={idx}>
+              {((isCurrent && clickIdx >= 3) || !isCurrent) && (
+                <>
+                  <circle cx={xPos} cy={yStart} r="3" className={getCircleClass(stepNum, displayedStep, "fill-indigo-500 stroke-white dark:stroke-slate-900")} strokeWidth="1" />
+                  <circle cx={xPos} cy={yEnd} r="3" className={getCircleClass(stepNum, displayedStep, "fill-indigo-500 stroke-white dark:stroke-slate-900")} strokeWidth="1" />
+                </>
+              )}
+              {renderHelperVisuals(
+                stepIndex >= stepNum,
+                stepIndex === stepNum ? (clickIdx >= 2 ? 1 : 0) : 0.15,
+                yStart,
+                yStart,
+                (slide.x || 0) - 0.5,
+                (slide.x || 0) + 0.5,
+                slide.x || 0,
+                yStart,
+                yEnd,
+                `${sign}${Math.abs(slide.jump || 0).toFixed(3)} kNm`
+              )}
+              {!isCurrent ? (
+                <line x1={xPos} y1={yStart} x2={xPos} y2={yEnd} className="stroke-indigo-500" strokeWidth="2.2" />
+              ) : clickIdx >= 3 ? (
+                <motion.line
+                  x1={xPos}
+                  y1={yStart}
+                  x2={xPos}
+                  y2={yEnd}
+                  className="stroke-indigo-500"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  initial={{ pathLength: 0 }}
+                  animate={{ pathLength: 1 }}
+                  transition={{ duration: 0.6, ease: "easeOut" }}
+                />
+              ) : null}
+            </g>
+          );
+        }
 
-      {/* BMD PEAK MOMENT CHECK (step 18) */}
-      {displayedStep >= 18 && (
-        <g>
-          {((displayedStep === 18 && clickIdx >= 1) || displayedStep > 18) && (
-            <circle cx={getSvgX(9.775)} cy={bmdY - 105.825 * bmdScale} r="3" className={getCircleClass(18, displayedStep, "fill-indigo-500 stroke-white dark:stroke-slate-900")} strokeWidth="1" />
-          )}
-        </g>
-      )}
+        if (slide.type === 'bmd-segment') {
+          const sX = getSvgX(slide.startX || 0, beam.length);
+          const eX = getSvgX(slide.endX || 0, beam.length);
+          const yStart = bmdY - (slide.mStart || 0) * bmdScale;
+          const yEnd = bmdY - (slide.mEnd || 0) * bmdScale;
 
-      {/* BMD SEGMENT PEAK-TO-D INTEGRATION (step 19) */}
-      {displayedStep >= 19 && (
-        <g>
-          {((displayedStep === 19 && clickIdx >= 1) || displayedStep > 19) && (
-            <circle cx={getSvgX(12)} cy={bmdY - 98.4 * bmdScale} r="3" className={getCircleClass(19, displayedStep, "fill-indigo-500 stroke-white dark:stroke-slate-900")} strokeWidth="1" />
-          )}
-          {renderHelperVisuals(
-            stepIndex >= 19,
-            stepIndex === 19 ? (clickIdx >= 2 ? 1 : 0) : 0.15,
-            bmdY - 105.825 * bmdScale,
-            bmdY - 105.825 * bmdScale,
-            9.775, 12, 12,
-            bmdY - 105.825 * bmdScale,
-            bmdY - 98.4 * bmdScale,
-            "-7.425 kNm"
-          )}
-          {displayedStep > 19 ? (
-            <path d={`M ${getParabolaPoints(9.775, 12, bmdY, bmdScale).trim().split(' ').join(' L ')}`} fill="none" className="stroke-indigo-500" strokeWidth="2" />
-          ) : displayedStep === 19 && clickIdx >= 3 ? (
-            <motion.path
-              d={`M ${getParabolaPoints(9.775, 12, bmdY, bmdScale).trim().split(' ').join(' L ')}`}
-              fill="none"
-              className="stroke-indigo-500"
-              strokeWidth="2.5"
-              initial={{ pathLength: 0 }}
-              animate={{ pathLength: 1 }}
-              transition={{ duration: 0.6, ease: "easeOut" }}
-            />
-          ) : null}
-        </g>
-      )}
+          const interval = solverResult.intervals.find(
+            inv => (slide.startX || 0) >= inv.startX - 1e-3 && (slide.endX || 0) <= inv.endX + 1e-3
+          );
+          const isCurved = interval && (Math.abs(interval.vCoeffs[0]) > 1e-6 || Math.abs(interval.vCoeffs[1]) > 1e-6);
 
-      {/* BMD NODE D CHECK (step 20) */}
-      {displayedStep >= 20 && (
-        <g>
-          {((displayedStep === 20 && clickIdx >= 1) || displayedStep > 20) && (
-            <circle cx={getSvgX(12)} cy={bmdY - 98.4 * bmdScale} r="3" className={getCircleClass(20, displayedStep, "fill-indigo-500 stroke-white dark:stroke-slate-900")} strokeWidth="1" />
-          )}
-        </g>
-      )}
+          const sign = (slide.shearArea || 0) >= 0 ? '+' : '-';
+          const areaLabel = `${sign}${Math.abs(slide.shearArea || 0).toFixed(3)} kNm`;
 
-      {/* BMD SEGMENT D-E INTEGRATION (step 21) */}
-      {displayedStep >= 21 && (
-        <g>
-          {((displayedStep === 21 && clickIdx >= 1) || displayedStep > 21) && (
-            <circle cx={getSvgX(17)} cy={bmdY - 65.025 * bmdScale} r="3" className={getCircleClass(21, displayedStep, "fill-indigo-500 stroke-white dark:stroke-slate-900")} strokeWidth="1" />
-          )}
-          {renderHelperVisuals(
-            stepIndex >= 21,
-            stepIndex === 21 ? (clickIdx >= 2 ? 1 : 0) : 0.15,
-            bmdY - 98.4 * bmdScale,
-            bmdY - 98.4 * bmdScale,
-            12, 17, 17,
-            bmdY - 98.4 * bmdScale,
-            bmdY - 65.025 * bmdScale,
-            "-33.375 kNm"
-          )}
-          {displayedStep > 21 ? (
-            <line x1={getSvgX(12)} y1={bmdY - 98.4 * bmdScale} x2={getSvgX(17)} y2={bmdY - 65.025 * bmdScale} className="stroke-indigo-500" strokeWidth="2" />
-          ) : displayedStep === 21 && clickIdx >= 3 ? (
-            <motion.line
-              x1={getSvgX(12)} y1={bmdY - 98.4 * bmdScale}
-              x2={getSvgX(17)} y2={bmdY - 65.025 * bmdScale}
-              className="stroke-indigo-500"
-              strokeWidth="2.5"
-              strokeLinecap="round"
-              initial={{ pathLength: 0 }}
-              animate={{ pathLength: 1 }}
-              transition={{ duration: 0.6, ease: "easeOut" }}
-            />
-          ) : null}
-        </g>
-      )}
+          const ptsStr = isCurved
+            ? getBmdCurvePoints(slide.startX || 0, slide.endX || 0, bmdY, bmdScale, beam.length, solverResult.intervals)
+            : `${sX},${yStart} ${eX},${yEnd}`;
 
-      {/* BMD NODE E CHECK (step 22) */}
-      {displayedStep >= 22 && (
-        <g>
-          {((displayedStep === 22 && clickIdx >= 1) || displayedStep > 22) && (
-            <circle cx={getSvgX(17)} cy={bmdY - 65.025 * bmdScale} r="3" className={getCircleClass(22, displayedStep, "fill-indigo-500 stroke-white dark:stroke-slate-900")} strokeWidth="1" />
-          )}
-        </g>
-      )}
+          return (
+            <g key={idx}>
+              {((isCurrent && clickIdx >= 3) || !isCurrent) && (
+                <circle cx={eX} cy={yEnd} r="3" className={getCircleClass(stepNum, displayedStep, "fill-indigo-500 stroke-white dark:stroke-slate-900")} strokeWidth="1" />
+              )}
+              {renderHelperVisuals(
+                stepIndex === stepNum && clickIdx === 2,
+                1,
+                yStart,
+                yStart,
+                slide.startX || 0,
+                slide.endX || 0,
+                slide.endX || 0,
+                yStart,
+                yEnd,
+                areaLabel
+              )}
+              {!isCurved ? (
+                !isCurrent ? (
+                  <line x1={sX} y1={yStart} x2={eX} y2={yEnd} className="stroke-indigo-500" strokeWidth="2.2" />
+                ) : clickIdx >= 3 ? (
+                  <motion.line
+                    x1={sX}
+                    y1={yStart}
+                    x2={eX}
+                    y2={yEnd}
+                    className="stroke-indigo-500"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    initial={{ pathLength: 0 }}
+                    animate={{ pathLength: 1 }}
+                    transition={{ duration: 0.6, ease: "easeOut" }}
+                  />
+                ) : null
+              ) : (
+                !isCurrent ? (
+                  <polyline points={ptsStr} fill="none" className="stroke-indigo-500" strokeWidth="2.2" />
+                ) : clickIdx >= 3 ? (
+                  <motion.path
+                    d={`M ${ptsStr.trim().split(' ').join(' L ')}`}
+                    fill="none"
+                    className="stroke-indigo-500"
+                    strokeWidth="2.5"
+                    initial={{ pathLength: 0 }}
+                    animate={{ pathLength: 1 }}
+                    transition={{ duration: 0.6, ease: "easeOut" }}
+                  />
+                ) : null
+              )}
+            </g>
+          );
+        }
 
-      {/* BMD SEGMENT E-B INTEGRATION (step 23) */}
-      {displayedStep >= 23 && (
-        <g>
-          {((displayedStep === 23 && clickIdx >= 1) || displayedStep > 23) && (
-            <circle cx={getSvgX(20)} cy={bmdY} r="3" className={getCircleClass(23, displayedStep, "fill-indigo-500 stroke-white dark:stroke-slate-900")} strokeWidth="1" />
-          )}
-          {renderHelperVisuals(
-            stepIndex >= 23,
-            stepIndex === 23 ? (clickIdx >= 2 ? 1 : 0) : 0.15,
-            bmdY - 65.025 * bmdScale,
-            bmdY - 65.025 * bmdScale,
-            17, 20, 20,
-            bmdY - 65.025 * bmdScale,
-            bmdY,
-            "-65.025 kNm"
-          )}
-          {displayedStep > 23 ? (
-            <line x1={getSvgX(17)} y1={bmdY - 65.025 * bmdScale} x2={getSvgX(20)} y2={bmdY} className="stroke-indigo-500" strokeWidth="2" />
-          ) : displayedStep === 23 && clickIdx >= 3 ? (
-            <motion.line
-              x1={getSvgX(17)} y1={bmdY - 65.025 * bmdScale}
-              x2={getSvgX(20)} y2={bmdY}
-              className="stroke-indigo-500"
-              strokeWidth="2.5"
-              strokeLinecap="round"
-              initial={{ pathLength: 0 }}
-              animate={{ pathLength: 1 }}
-              transition={{ duration: 0.6, ease: "easeOut" }}
-            />
-          ) : null}
-        </g>
-      )}
+        if (slide.type === 'bmd-node-check') {
+          const xPos = getSvgX(slide.x || 0, beam.length);
+          const yEnd = bmdY - (slide.mEnd || 0) * bmdScale;
+          return (
+            <g key={idx}>
+              {((isCurrent && clickIdx >= 2) || !isCurrent) && (
+                <circle cx={xPos} cy={yEnd} r="3" className={getCircleClass(stepNum, displayedStep, "fill-indigo-500 stroke-white dark:stroke-slate-900")} strokeWidth="1" />
+              )}
+            </g>
+          );
+        }
 
-      {/* BMD NODE B CHECK (step 24) */}
-      {displayedStep >= 24 && (
-        <g>
-          {((displayedStep === 24 && clickIdx >= 1) || displayedStep > 24) && (
-            <circle cx={getSvgX(20)} cy={bmdY} r="3" className={getCircleClass(24, displayedStep, "fill-indigo-500 stroke-white dark:stroke-slate-900")} strokeWidth="1" />
-          )}
-        </g>
-      )}
+        return null;
+      })}
 
-
-
-      {/* Completed BMD overlay */}
+      {/* Completed BMD overlay (Recap view) */}
       {(displayedStep === 25 || displayedStep === 12) && (
         <g>
-          <line x1={getSvgX(0)} y1={bmdY} x2={getSvgX(5)} y2={bmdY - 71.625 * bmdScale} className="stroke-indigo-500" strokeWidth="2.2" />
-          <polyline points={getParabolaPoints(5, 12, bmdY, bmdScale)} fill="none" className="stroke-indigo-500" strokeWidth="2.2" />
-          <line x1={getSvgX(12)} y1={bmdY - 98.4 * bmdScale} x2={getSvgX(17)} y2={bmdY - 65.025 * bmdScale} className="stroke-indigo-500" strokeWidth="2.2" />
-          <line x1={getSvgX(17)} y1={bmdY - 65.025 * bmdScale} x2={getSvgX(20)} y2={bmdY} className="stroke-indigo-500" strokeWidth="2.2" />
-          
-          <text x={getSvgX(5) + 6} y={bmdY - 71.625 * bmdScale + 3} className="text-[7.5px] font-bold fill-indigo-500 font-mono">71.625</text>
-          <text x={getSvgX(9.775)} y={bmdY - 105.825 * bmdScale - 5} textAnchor="middle" className="text-[7.5px] font-black fill-indigo-500 font-mono">105.825</text>
-          <text x={getSvgX(12) + 6} y={bmdY - 98.4 * bmdScale + 3} className="text-[7.5px] font-bold fill-indigo-500 font-mono">98.4</text>
-          <text x={getSvgX(17) + 6} y={bmdY - 65.025 * bmdScale + 3} className="text-[7.5px] font-bold fill-indigo-500 font-mono">65.025</text>
+          {solverResult.intervals.map((inv, idx) => {
+            const isCurved = Math.abs(inv.vCoeffs[0]) > 1e-6 || Math.abs(inv.vCoeffs[1]) > 1e-6;
+            const sX = getSvgX(inv.startX, beam.length);
+            const eX = getSvgX(inv.endX, beam.length);
+            const yStart = bmdY - evalPoly(inv.mCoeffs, inv.startX) * bmdScale;
+            const yEnd = bmdY - evalPoly(inv.mCoeffs, inv.endX) * bmdScale;
+
+            if (isCurved) {
+              const ptsStr = getBmdCurvePoints(inv.startX, inv.endX, bmdY, bmdScale, beam.length, solverResult.intervals);
+              return <polyline key={idx} points={ptsStr} fill="none" className="stroke-indigo-500" strokeWidth="2.2" />;
+            }
+            return <line key={idx} x1={sX} y1={yStart} x2={eX} y2={yEnd} className="stroke-indigo-500" strokeWidth="2.2" />;
+          })}
+        </g>
+      )}
+
+      {/* Unified deduplicated boundary labels */}
+      {uniqueBmdLabels.map((lbl, idx) => {
+        const xPos = getSvgX(lbl.x, beam.length);
+        const yPos = bmdY - lbl.val * bmdScale + (lbl.val === maxMomentVal ? -6 : 10);
+        const anchor = lbl.x === beam.length ? 'end' : lbl.x === 0 ? 'start' : 'middle';
+
+        return (
+          <text
+            key={idx}
+            x={xPos}
+            y={yPos}
+            textAnchor={anchor}
+            className={`text-[7.5px] font-mono fill-indigo-500 ${lbl.val === maxMomentVal ? 'font-black' : 'font-bold'} animate-in fade-in duration-200`}
+          >
+            {lbl.val.toFixed(3)}
+          </text>
+        );
+      })}
+
+      {/* Segment dimension lines under BMD diagram when the beam is hidden */}
+      {pairing === 'sfd-bmd' && (
+        <g>
+          {solverResult.intervals.map((inv, idx) => {
+            const sX = getSvgX(inv.startX, beam.length);
+            const eX = getSvgX(inv.endX, beam.length);
+            const L = inv.endX - inv.startX;
+            return (
+              <DimensionLine
+                key={idx}
+                x1={sX}
+                y1={174}
+                x2={eX}
+                y2={174}
+                label={`${L.toFixed(1)}m`}
+                color="#94a3b8"
+                className="opacity-90 dark:opacity-85 text-[7px]"
+                textClassName="fill-slate-500 dark:fill-slate-400 text-[6.5px] font-sans font-extrabold"
+              />
+            );
+          })}
         </g>
       )}
     </g>
   );
 };
+
+function evalPoly(coeffs: number[], x: number): number {
+  let val = 0;
+  for (let i = 0; i < coeffs.length; i++) {
+    const c = coeffs[i];
+    if (c !== undefined) {
+      val = val * x + c;
+    }
+  }
+  return val;
+}

@@ -1,27 +1,22 @@
 import React from 'react';
-import { renderSfdStep } from './sfdStepContents';
-import { renderBmdStep } from './bmdStepContents';
-import { renderGeneralStep } from './generalStepContents';
+import { renderDynamicStep } from './visualStepsBuilder';
+import { IBeam, ISolverOutput } from '@/subjects/mechanics-of-solids/cores/sfd-bmd/types';
 
 interface StepContentPanelProps {
   stepIndex: number;
   clickIdx: number;
   diagram: React.ReactNode;
+  beam: IBeam;
+  solverResult: ISolverOutput;
 }
 
 export const StepContentPanel: React.FC<StepContentPanelProps> = ({
   stepIndex,
   clickIdx,
   diagram,
+  beam,
+  solverResult,
 }) => {
-  if (stepIndex >= 3 && stepIndex <= 11) {
-    return <>{renderSfdStep({ stepIndex, clickIdx, diagram })}</>;
-  }
-
-  if (stepIndex >= 14 && stepIndex <= 24) {
-    return <>{renderBmdStep({ stepIndex, clickIdx, diagram })}</>;
-  }
-
-  return <>{renderGeneralStep({ stepIndex, clickIdx, diagram })}</>;
+  return <>{renderDynamicStep(stepIndex, { clickIdx, diagram, beam, solverResult })}</>;
 };
 export default StepContentPanel;

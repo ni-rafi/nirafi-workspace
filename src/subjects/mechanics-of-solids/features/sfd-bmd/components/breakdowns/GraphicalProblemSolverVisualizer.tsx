@@ -88,6 +88,8 @@ export const GraphicalProblemSolverVisualizer: React.FC<GraphicalProblemSolverVi
       stepIndex={stepIndex}
       displayedStep={displayedStep}
       clickIdx={clickIdx}
+      beam={beam}
+      solverResult={solverResult}
     />
   );
 
@@ -97,6 +99,8 @@ export const GraphicalProblemSolverVisualizer: React.FC<GraphicalProblemSolverVi
         stepIndex={stepIndex}
         clickIdx={clickIdx}
         diagram={diagram}
+        beam={beam}
+        solverResult={solverResult}
       />
     </div>
   );

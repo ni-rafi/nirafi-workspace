@@ -34,6 +34,11 @@ export const TwoColumnToastLayout: React.FC<TwoColumnToastLayoutProps> = (props)
     positionClasses = 'bottom-6 left-1/2 -translate-x-1/2';
   }
 
+  const revealedSelectors = Array.from(
+    { length: currentClick + 1 },
+    (_, i) => `.presentation-toast-container [data-click-reveal][data-step="${i}"]`
+  ).join(',\n');
+
   return (
     <div className="relative flex flex-col justify-between h-full w-full px-2.5 py-1.5 bg-transparent text-foreground overflow-hidden select-text">
       <div className="relative z-10 flex flex-col h-full w-full min-h-0 flex-1">
@@ -57,35 +62,35 @@ export const TwoColumnToastLayout: React.FC<TwoColumnToastLayoutProps> = (props)
       <LayoutFooter footer={footer} />
 
       <style>{`
-        .presentation-toast-container [data-click-reveal] {
-          display: none !important;
-        }
-        .presentation-toast-container [data-click-reveal][data-step="${currentClick}"] {
-          display: block !important;
-          animation: toastSlideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        /* Hide static column sub-headers in the toast to optimize corner space */
-        .presentation-toast-container h4,
-        .presentation-toast-container span[class*="text-[9px]"] {
-          display: none !important;
-        }
-        /* Strip card-nested borders/backgrounds to keep the floating toast layout sleek and single-layer */
-        .presentation-toast-container .border,
-        .presentation-toast-container [class*="border-"],
-        .presentation-toast-container [class*="bg-muted"],
-        .presentation-toast-container [class*="shadow-"] {
-          border-color: transparent !important;
-          background-color: transparent !important;
-          background: transparent !important;
-          box-shadow: none !important;
-          padding: 0 !important;
-          margin: 0 !important;
-        }
-        @keyframes toastSlideUp {
-          from { transform: translateY(12px); opacity: 0; }
-          to { transform: translateY(0); opacity: 1; }
-        }
-      `}</style>
+            .presentation-toast-container [data-click-reveal] {
+              display: none !important;
+            }
+            ${revealedSelectors} {
+              display: block !important;
+              animation: toastSlideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            }
+            /* Hide static column sub-headers in the toast to optimize corner space */
+            .presentation-toast-container h4,
+            .presentation-toast-container span[class*="text-[9px]"] {
+              display: none !important;
+            }
+            /* Strip card-nested borders/backgrounds to keep the floating toast layout sleek and single-layer */
+            .presentation-toast-container .border,
+            .presentation-toast-container [class*="border-"],
+            .presentation-toast-container [class*="bg-muted"],
+            .presentation-toast-container [class*="shadow-"] {
+              border-color: transparent !important;
+              background-color: transparent !important;
+              background: transparent !important;
+              box-shadow: none !important;
+              padding: 0 !important;
+              margin: 0 !important;
+            }
+            @keyframes toastSlideUp {
+              from { transform: translateY(12px); opacity: 0; }
+              to { transform: translateY(0); opacity: 1; }
+            }
+          `}</style>
     </div>
   );
 };
