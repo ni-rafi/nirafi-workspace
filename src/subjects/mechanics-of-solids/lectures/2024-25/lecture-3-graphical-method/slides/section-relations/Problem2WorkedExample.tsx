@@ -5,8 +5,6 @@ import { TwoColumnLayout } from '@/shared/layouts/TwoColumnLayout';
 import { LatexFormula, SlideParagraph, ClickReveal, ClickHighlight } from '@/features/presentation/components/elements';
 import { SFDBmdService } from '@/subjects/mechanics-of-solids/cores/sfd-bmd/sfdBmdService';
 import { Beam2DDrawing } from '@/subjects/mechanics-of-solids/features/sfd-bmd/components/drawings';
-import { ShearForceChart } from '@/subjects/mechanics-of-solids/features/sfd-bmd/components/diagrams/ShearForceChart';
-import { BendingMomentChart } from '@/subjects/mechanics-of-solids/features/sfd-bmd/components/diagrams/BendingMomentChart';
 import { beamConfig } from '../../beamConfig';
 
 export const Problem2WorkedExample: React.FC = () => {
@@ -30,7 +28,7 @@ export const Problem2WorkedExample: React.FC = () => {
   return (
     <TwoColumnLayout
       title="Problem 2 Worked Example: Section-Cut Calculations"
-      leftWidth="48%"
+      leftWidth="54%"
       leftContent={
         <div className="flex flex-col gap-3">
           {/* Registry clicks to control presentation sequence */}
@@ -42,7 +40,7 @@ export const Problem2WorkedExample: React.FC = () => {
               <ClickReveal at={4} className="hidden">{' '}</ClickReveal>
             </>
           )}
-          <div className="flex flex-col justify-center border border-border/40 bg-muted/10 rounded-xl p-2 min-h-[120px]">
+          <div className="flex flex-col justify-center border border-border/40 bg-muted/10 rounded-xl p-0.5 min-h-[120px]">
             <Beam2DDrawing
               beam={beamConfig}
               showReactions={true}
@@ -56,84 +54,57 @@ export const Problem2WorkedExample: React.FC = () => {
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4 h-[120px] border border-border/40 bg-muted/10 rounded-xl p-3">
-            <div className="h-full flex flex-col">
-              <span className="text-[8px] font-black text-rose-500 uppercase tracking-widest text-center block mb-1">Shear Force Diagram (SFD)</span>
-              <div className="flex-1 min-h-0">
-                <ShearForceChart
-                  length={beamConfig.length}
-                  supports={beamConfig.supports}
-                  releases={beamConfig.releases}
-                  solverResult={solverResult}
-                  activeStep={activeStep}
-                />
+          {/* Setup / Boundary Reactions card (always visible at step 0+) */}
+          {(activeStep >= 0 || isScrollOrBlog) && (
+            <div className="p-3 border border-border/30 rounded-xl bg-background/40 text-[11px] animate-in fade-in duration-200">
+              <span className="font-bold text-indigo-500 block mb-0.5">Boundary Reactions & Load Layout:</span>
+              <p className="text-muted-foreground leading-relaxed">
+                The beam spans 20m with a UDL (<LatexFormula math="w = 3\text{ kN/m}" />) from 5m to 12m, and a concentrated load (<LatexFormula math="P = 15\text{ kN}" />) at 17m.
+                <br />
+                Reactions solved at hinges: <LatexFormula math="R_A = 14.325\text{ kN}" /> and <LatexFormula math="R_B = 21.675\text{ kN}" />.
+              </p>
+            </div>
+          )}
+
+          {/* Interval 1 card (visible at step 1+) */}
+          {(activeStep >= 1 || isScrollOrBlog) && (
+            <div className="p-3 border border-border/30 rounded-xl bg-background/40 text-[11px] animate-in slide-in-from-bottom-2 duration-300">
+              <div className="flex justify-between items-center mb-0.5 border-b border-border/10 pb-1">
+                <span className="font-bold text-emerald-500">Interval 1: 0m ≤ x &lt; 5m</span>
+                <span className="text-[8.5px] text-muted-foreground font-mono">No Load</span>
+              </div>
+              <div className="grid grid-cols-2 gap-2 mt-1">
+                <div>
+                  <span className="text-[8px] uppercase tracking-wider text-muted-foreground block">Shear Force:</span>
+                  <ClickHighlight variant="paint" at={1}>
+                    <LatexFormula math="V_1(x) = R_A = 14.325\text{ kN}" />
+                  </ClickHighlight>
+                </div>
+                <div>
+                  <span className="text-[8px] uppercase tracking-wider text-muted-foreground block">Bending Moment:</span>
+                  <ClickHighlight variant="paint" at={1}>
+                    <LatexFormula math="M_1(x) = 14.325x" />
+                  </ClickHighlight>
+                </div>
               </div>
             </div>
-            <div className="h-full flex flex-col">
-              <span className="text-[8px] font-black text-indigo-500 uppercase tracking-widest text-center block mb-1">Bending Moment Diagram (BMD)</span>
-              <div className="flex-1 min-h-0">
-                <BendingMomentChart
-                  length={beamConfig.length}
-                  supports={beamConfig.supports}
-                  releases={beamConfig.releases}
-                  solverResult={solverResult}
-                  activeStep={activeStep}
-                />
-              </div>
-            </div>
-          </div>
+          )}
         </div>
       }
       rightContent={
-        <div className="flex flex-col justify-between h-full space-y-3 select-text text-left">
+        <div className="flex flex-col justify-start h-full space-y-3 select-text text-left">
           <div>
             <span className="text-[9px] font-bold text-rose-500 uppercase tracking-widest block mb-0.5">Section Cut Calculations</span>
             <h4 className="text-sm font-bold text-foreground">Equilibrium Equations by Interval</h4>
-            <SlideParagraph variant="plain" className="text-[11px] text-muted-foreground leading-normal mt-1">
+            <SlideParagraph variant="plain" className="text-[11px] text-muted-foreground leading-normal mt-1 animate-in fade-in duration-200">
               Verify how internal shear <LatexFormula math="V(x)" /> and moment <LatexFormula math="M(x)" /> vary across the beam intervals.
             </SlideParagraph>
           </div>
 
-          <div className="flex-1 flex flex-col gap-2 overflow-y-auto max-h-[220px] pr-1">
-            {/* Step 0/Default: Setup */}
-            {(activeStep === 0 || isScrollOrBlog) && (
-              <div className="p-2 border border-border/30 rounded-lg bg-background/40 text-[11px] animate-in fade-in duration-200">
-                <span className="font-bold text-indigo-500 block mb-0.5">Boundary Reactions & Load Layout:</span>
-                <p className="text-muted-foreground leading-relaxed">
-                  {"The beam spans 20m with a UDL (\\(w = 3\\text{ kN/m}\\)) from 5m to 12m, and a concentrated load (\\(P = 15\\text{ kN}\\)) at 17m."}
-                  <br />
-                  {"Reactions solved at hinges: \\(R_A = 14.325\\text{ kN}\\) and \\(R_B = 21.675\\text{ kN}\\)."}
-                </p>
-              </div>
-            )}
-
-            {/* Step 1: Interval 1 */}
-            {(activeStep >= 1 || isScrollOrBlog) && (
-              <div className="p-2 border border-border/30 rounded-lg bg-background/40 text-[11px] animate-in slide-in-from-bottom-2 duration-300">
-                <div className="flex justify-between items-center mb-0.5 border-b border-border/10 pb-1">
-                  <span className="font-bold text-emerald-500">Interval 1: 0m ≤ x &lt; 5m</span>
-                  <span className="text-[8.5px] text-muted-foreground font-mono">No Load</span>
-                </div>
-                <div className="grid grid-cols-2 gap-2 mt-1">
-                  <div>
-                    <span className="text-[8px] uppercase tracking-wider text-muted-foreground block">Shear Force:</span>
-                    <ClickHighlight variant="paint" at={1}>
-                      <LatexFormula math="V_1(x) = R_A = 14.325\text{ kN}" />
-                    </ClickHighlight>
-                  </div>
-                  <div>
-                    <span className="text-[8px] uppercase tracking-wider text-muted-foreground block">Bending Moment:</span>
-                    <ClickHighlight variant="paint" at={1}>
-                      <LatexFormula math="M_1(x) = 14.325x" />
-                    </ClickHighlight>
-                  </div>
-                </div>
-              </div>
-            )}
-
+          <div className="flex flex-col gap-2">
             {/* Step 2: Interval 2 */}
             {(activeStep >= 2 || isScrollOrBlog) && (
-              <div className="p-2 border border-border/30 rounded-lg bg-background/40 text-[11px] animate-in slide-in-from-bottom-2 duration-300">
+              <div className="p-3 border border-border/30 rounded-xl bg-background/40 text-[11px] animate-in slide-in-from-bottom-2 duration-300">
                 <div className="flex justify-between items-center mb-0.5 border-b border-border/10 pb-1">
                   <span className="font-bold text-blue-500">Interval 2: 5m ≤ x &lt; 12m</span>
                   <span className="text-[8.5px] text-muted-foreground font-mono">UDL (3 kN/m)</span>
@@ -157,7 +128,7 @@ export const Problem2WorkedExample: React.FC = () => {
 
             {/* Step 3: Interval 3 */}
             {(activeStep >= 3 || isScrollOrBlog) && (
-              <div className="p-2 border border-border/30 rounded-lg bg-background/40 text-[11px] animate-in slide-in-from-bottom-2 duration-300">
+              <div className="p-3 border border-border/30 rounded-xl bg-background/40 text-[11px] animate-in slide-in-from-bottom-2 duration-300">
                 <div className="flex justify-between items-center mb-0.5 border-b border-border/10 pb-1">
                   <span className="font-bold text-indigo-500">Interval 3: 12m ≤ x &lt; 17m</span>
                   <span className="text-[8.5px] text-muted-foreground font-mono">No Load</span>
@@ -181,7 +152,7 @@ export const Problem2WorkedExample: React.FC = () => {
 
             {/* Step 4: Interval 4 */}
             {(activeStep >= 4 || isScrollOrBlog) && (
-              <div className="p-2 border border-border/30 rounded-lg bg-background/40 text-[11px] animate-in slide-in-from-bottom-2 duration-300">
+              <div className="p-3 border border-border/30 rounded-xl bg-background/40 text-[11px] animate-in slide-in-from-bottom-2 duration-300">
                 <div className="flex justify-between items-center mb-0.5 border-b border-border/10 pb-1">
                   <span className="font-bold text-rose-500">Interval 4: 17m ≤ x ≤ 20m</span>
                   <span className="text-[8.5px] text-muted-foreground font-mono">After Point Load</span>

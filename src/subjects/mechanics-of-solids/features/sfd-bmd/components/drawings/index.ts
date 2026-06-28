@@ -10,3 +10,8 @@ export * from './CantileverShearDrawing';
 export * from './IsometricSectionsBeamDrawing';
 export * from './ActionVectors';
 export * from './Beam2DDrawing';
+export * from './CalculusLoopDrawing';
+export * from './SfdBmdRelationsDrawing';
+export * from './CurveCalculusSandboxDrawing';
+export * from './GraphDegreeTransitionsDrawing';
+export * from './TransitionShapeDrawing';

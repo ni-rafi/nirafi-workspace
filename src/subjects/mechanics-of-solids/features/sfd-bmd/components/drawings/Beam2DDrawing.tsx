@@ -40,17 +40,17 @@ export const Beam2DDrawing: React.FC<Beam2DDrawingProps> = ({
   ).sort((a, b) => a - b);
 
   return (
-    <div className="w-full flex flex-col items-center py-2 select-none select-none">
-      <svg className="w-full max-w-[500px] h-[190px] overflow-visible" viewBox="0 0 500 190">
+    <div className="w-full flex flex-col items-center py-0.5 select-none">
+      <svg className="w-full max-w-full h-[150px] overflow-visible" viewBox="0 0 500 150">
         {/* Support lines/ground baseline */}
         <line x1="40" y1="76" x2="460" y2="76" className="stroke-slate-300 dark:stroke-slate-700/60" strokeWidth="1" strokeDasharray="3 3" />
 
         {/* 1. DISCONTINUITY DASHED LINES */}
         {showDiscontinuities && activeStep >= 1 && (
           <g className="animate-in fade-in duration-300">
-            {keyCoords.filter((_, idx) => activeStep >= 99 || idx < activeStep).map((x) => (
+            {keyCoords.filter((_, idx) => activeStep >= 99 || idx <= activeStep).map((x) => (
               <g key={`disc-${x}`}>
-                <line x1={getSvgX(x)} y1="15" x2={getSvgX(x)} y2="80" className="stroke-indigo-500/50" strokeWidth="1" strokeDasharray="3 3" />
+                <line x1={getSvgX(x)} y1="15" x2={getSvgX(x)} y2="118" className="stroke-indigo-500/50" strokeWidth="1" strokeDasharray="3 3" />
                 <text x={getSvgX(x)} y="12" textAnchor="middle" className="text-[8px] font-mono fill-indigo-500">x = {x}m</text>
               </g>
             ))}
@@ -58,19 +58,25 @@ export const Beam2DDrawing: React.FC<Beam2DDrawingProps> = ({
         )}
 
         {/* 2. ZONE LABELS */}
-        {showZones && activeStep >= 2 && (
+        {showZones && activeStep >= 1 && (
           <g className="animate-in fade-in duration-300">
             {keyCoords.slice(0, -1).map((x, idx) => {
+              if (activeStep < 99 && idx >= activeStep) return null;
               const nextX = keyCoords[idx + 1]!;
-              const midSegmentX = getSvgX((x + nextX) / 2);
               const labelWidth = (nextX - x) * scale - 6;
-              const color = idx === 0 ? '#4f46e5' : idx === 1 ? '#3b82f6' : '#10b981';
+              const color = idx === 0 ? '#4f46e5' : idx === 1 ? '#3b82f6' : idx === 2 ? '#10b981' : '#f43f5e';
               return (
                 <g key={`zone-${idx}`}>
-                  <rect x={getSvgX(x) + 3} y="15" width={labelWidth} height="16" rx="3" fill={color} fillOpacity="0.08" stroke={color} strokeWidth="1" />
-                  <text x={midSegmentX} y="26" textAnchor="middle" className="text-[7.5px] font-black font-mono" fill={color}>
-                    Zone {idx + 1}: {x} &le; x &lt; {nextX} m
-                  </text>
+                  <rect x={getSvgX(x) + 3} y="90" width={labelWidth} height="26" rx="3" fill={color} fillOpacity="0.08" stroke={color} strokeWidth="1" />
+                  <foreignObject x={getSvgX(x) + 4} y="91" width={labelWidth - 2} height="24">
+                    <div
+                      className="text-[10px] font-black font-mono text-center leading-tight flex flex-col justify-center items-center h-full overflow-hidden"
+                      style={{ color }}
+                    >
+                      <span>Zone {idx + 1}</span>
+                      <span className="whitespace-nowrap">{x}&le;x&lt;{nextX}m</span>
+                    </div>
+                  </foreignObject>
                 </g>
               );
             })}
@@ -110,9 +116,9 @@ export const Beam2DDrawing: React.FC<Beam2DDrawingProps> = ({
               {/* Reaction Force Vectors */}
               {showReactions && (
                 <g className="animate-in fade-in duration-300">
-                  <path d={`M ${xVal},112 L ${xVal},80 M ${xVal - 3.5},86 L ${xVal},80 L ${xVal + 3.5},86`} fill="none" stroke="#10b981" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                  <foreignObject x={labelLetter === 'A' ? xVal + 7 : xVal - 67} y="82" width="60" height="20">
-                    <div className={`text-[9px] font-mono font-bold text-emerald-500 dark:text-emerald-400 leading-none ${labelLetter === 'A' ? 'text-left' : 'text-right'}`}>
+                  <path d={`M ${xVal},102 L ${xVal},80 M ${xVal - 3.5},86 L ${xVal},80 L ${xVal + 3.5},86`} fill="none" stroke="#10b981" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                  <foreignObject x={xVal - 40} y="138" width="80" height="12">
+                    <div className="text-[9.5px] font-mono font-bold text-emerald-500 dark:text-emerald-400 text-center leading-none">
                       {labelLetter === 'A' ? (
                         <>R<sub>A</sub> = {val}</>
                       ) : (
@@ -142,7 +148,7 @@ export const Beam2DDrawing: React.FC<Beam2DDrawingProps> = ({
             const xEnd = getSvgX(l.endPosition ?? beam.length);
             const segmentsCount = 4;
             const wSegment = (xEnd - xStart) / segmentsCount;
-            
+
             return (
               <g key={l.id}>
                 {/* UDL Arcs */}
@@ -178,14 +184,15 @@ export const Beam2DDrawing: React.FC<Beam2DDrawingProps> = ({
         })}
 
         {/* 6. SECTION CUTS */}
-        {showSections && activeStep >= 3 && (
+        {showSections && activeStep >= 1 && (
           <g className="animate-in fade-in duration-300">
             {keyCoords.slice(0, -1).map((x, idx) => {
+              if (activeStep < 99 && idx >= activeStep) return null;
               const nextX = keyCoords[idx + 1]!;
               const sectionX = getSvgX((x + nextX) / 2);
               return (
                 <g key={`sec-${idx}`}>
-                  <line x1={sectionX} y1="36" x2={sectionX} y2="76" stroke="#ef4444" strokeWidth="1.5" strokeDasharray="2 2" />
+                  <line x1={sectionX} y1="36" x2={sectionX} y2="118" stroke="#ef4444" strokeWidth="1.5" strokeDasharray="2 2" />
                   <circle cx={sectionX} cy="54" r="4.5" className="fill-red-500/10 stroke-red-500" strokeWidth="1" />
                   <text x={sectionX} y="87" textAnchor="middle" className="text-[8px] font-black fill-rose-500 font-mono">Section {idx + 1}</text>
                 </g>
