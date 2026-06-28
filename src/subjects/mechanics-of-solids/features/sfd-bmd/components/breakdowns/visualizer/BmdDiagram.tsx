@@ -2,6 +2,11 @@ import React from 'react';
 import { motion } from 'motion/react';
 import { getSvgX, getParabolaPoints } from './diagramConstants';
 
+const getCircleClass = (step: number, currentStep: number, baseClass: string) => {
+  return `${baseClass} ${step === currentStep ? 'animate-in zoom-in-50 duration-200' : ''}`;
+};
+
+
 interface BmdDiagramProps {
   bmdY: number;
   bmdScale: number;
@@ -89,7 +94,7 @@ export const BmdDiagram: React.FC<BmdDiagramProps> = ({
       {displayedStep >= 14 && (
         <g>
           {((displayedStep === 14 && clickIdx >= 1) || displayedStep > 14) && (
-            <circle cx={getSvgX(0)} cy={bmdY} r="3" className="fill-indigo-500 stroke-white dark:stroke-slate-900 animate-in zoom-in-50 duration-200" strokeWidth="1" />
+            <circle cx={getSvgX(0)} cy={bmdY} r="3" className={getCircleClass(14, displayedStep, "fill-indigo-500 stroke-white dark:stroke-slate-900")} strokeWidth="1" />
           )}
         </g>
       )}
@@ -98,7 +103,7 @@ export const BmdDiagram: React.FC<BmdDiagramProps> = ({
       {displayedStep >= 15 && (
         <g>
           {((displayedStep === 15 && clickIdx >= 1) || displayedStep > 15) && (
-            <circle cx={getSvgX(5)} cy={bmdY - 71.625 * bmdScale} r="3" className="fill-indigo-500 stroke-white dark:stroke-slate-900 animate-in zoom-in-50 duration-200" strokeWidth="1" />
+            <circle cx={getSvgX(5)} cy={bmdY - 71.625 * bmdScale} r="3" className={getCircleClass(15, displayedStep, "fill-indigo-500 stroke-white dark:stroke-slate-900")} strokeWidth="1" />
           )}
           {renderHelperVisuals(
             stepIndex >= 15,
@@ -130,7 +135,7 @@ export const BmdDiagram: React.FC<BmdDiagramProps> = ({
       {displayedStep >= 16 && (
         <g>
           {((displayedStep === 16 && clickIdx >= 1) || displayedStep > 16) && (
-            <circle cx={getSvgX(5)} cy={bmdY - 71.625 * bmdScale} r="3" className="fill-indigo-500 stroke-white dark:stroke-slate-900 animate-in zoom-in-50 duration-200" strokeWidth="1" />
+            <circle cx={getSvgX(5)} cy={bmdY - 71.625 * bmdScale} r="3" className={getCircleClass(16, displayedStep, "fill-indigo-500 stroke-white dark:stroke-slate-900")} strokeWidth="1" />
           )}
         </g>
       )}
@@ -139,7 +144,7 @@ export const BmdDiagram: React.FC<BmdDiagramProps> = ({
       {displayedStep >= 17 && (
         <g>
           {((displayedStep === 17 && clickIdx >= 1) || displayedStep > 17) && (
-            <circle cx={getSvgX(9.775)} cy={bmdY - 105.825 * bmdScale} r="3" className="fill-indigo-500 stroke-white dark:stroke-slate-900 animate-in zoom-in-50 duration-200" strokeWidth="1" />
+            <circle cx={getSvgX(9.775)} cy={bmdY - 105.825 * bmdScale} r="3" className={getCircleClass(17, displayedStep, "fill-indigo-500 stroke-white dark:stroke-slate-900")} strokeWidth="1" />
           )}
           {renderHelperVisuals(
             stepIndex >= 17,
@@ -171,7 +176,7 @@ export const BmdDiagram: React.FC<BmdDiagramProps> = ({
       {displayedStep >= 18 && (
         <g>
           {((displayedStep === 18 && clickIdx >= 1) || displayedStep > 18) && (
-            <circle cx={getSvgX(9.775)} cy={bmdY - 105.825 * bmdScale} r="3" className="fill-indigo-500 stroke-white dark:stroke-slate-900 animate-in zoom-in-50 duration-200" strokeWidth="1" />
+            <circle cx={getSvgX(9.775)} cy={bmdY - 105.825 * bmdScale} r="3" className={getCircleClass(18, displayedStep, "fill-indigo-500 stroke-white dark:stroke-slate-900")} strokeWidth="1" />
           )}
         </g>
       )}
@@ -180,7 +185,7 @@ export const BmdDiagram: React.FC<BmdDiagramProps> = ({
       {displayedStep >= 19 && (
         <g>
           {((displayedStep === 19 && clickIdx >= 1) || displayedStep > 19) && (
-            <circle cx={getSvgX(12)} cy={bmdY - 98.4 * bmdScale} r="3" className="fill-indigo-500 stroke-white dark:stroke-slate-900 animate-in zoom-in-50 duration-200" strokeWidth="1" />
+            <circle cx={getSvgX(12)} cy={bmdY - 98.4 * bmdScale} r="3" className={getCircleClass(19, displayedStep, "fill-indigo-500 stroke-white dark:stroke-slate-900")} strokeWidth="1" />
           )}
           {renderHelperVisuals(
             stepIndex >= 19,
@@ -212,7 +217,7 @@ export const BmdDiagram: React.FC<BmdDiagramProps> = ({
       {displayedStep >= 20 && (
         <g>
           {((displayedStep === 20 && clickIdx >= 1) || displayedStep > 20) && (
-            <circle cx={getSvgX(12)} cy={bmdY - 98.4 * bmdScale} r="3" className="fill-indigo-500 stroke-white dark:stroke-slate-900 animate-in zoom-in-50 duration-200" strokeWidth="1" />
+            <circle cx={getSvgX(12)} cy={bmdY - 98.4 * bmdScale} r="3" className={getCircleClass(20, displayedStep, "fill-indigo-500 stroke-white dark:stroke-slate-900")} strokeWidth="1" />
           )}
         </g>
       )}
@@ -221,7 +226,7 @@ export const BmdDiagram: React.FC<BmdDiagramProps> = ({
       {displayedStep >= 21 && (
         <g>
           {((displayedStep === 21 && clickIdx >= 1) || displayedStep > 21) && (
-            <circle cx={getSvgX(17)} cy={bmdY - 65.025 * bmdScale} r="3" className="fill-indigo-500 stroke-white dark:stroke-slate-900 animate-in zoom-in-50 duration-200" strokeWidth="1" />
+            <circle cx={getSvgX(17)} cy={bmdY - 65.025 * bmdScale} r="3" className={getCircleClass(21, displayedStep, "fill-indigo-500 stroke-white dark:stroke-slate-900")} strokeWidth="1" />
           )}
           {renderHelperVisuals(
             stepIndex >= 21,
@@ -254,7 +259,7 @@ export const BmdDiagram: React.FC<BmdDiagramProps> = ({
       {displayedStep >= 22 && (
         <g>
           {((displayedStep === 22 && clickIdx >= 1) || displayedStep > 22) && (
-            <circle cx={getSvgX(17)} cy={bmdY - 65.025 * bmdScale} r="3" className="fill-indigo-500 stroke-white dark:stroke-slate-900 animate-in zoom-in-50 duration-200" strokeWidth="1" />
+            <circle cx={getSvgX(17)} cy={bmdY - 65.025 * bmdScale} r="3" className={getCircleClass(22, displayedStep, "fill-indigo-500 stroke-white dark:stroke-slate-900")} strokeWidth="1" />
           )}
         </g>
       )}
@@ -263,7 +268,7 @@ export const BmdDiagram: React.FC<BmdDiagramProps> = ({
       {displayedStep >= 23 && (
         <g>
           {((displayedStep === 23 && clickIdx >= 1) || displayedStep > 23) && (
-            <circle cx={getSvgX(20)} cy={bmdY} r="3" className="fill-indigo-500 stroke-white dark:stroke-slate-900 animate-in zoom-in-50 duration-200" strokeWidth="1" />
+            <circle cx={getSvgX(20)} cy={bmdY} r="3" className={getCircleClass(23, displayedStep, "fill-indigo-500 stroke-white dark:stroke-slate-900")} strokeWidth="1" />
           )}
           {renderHelperVisuals(
             stepIndex >= 23,
@@ -296,26 +301,12 @@ export const BmdDiagram: React.FC<BmdDiagramProps> = ({
       {displayedStep >= 24 && (
         <g>
           {((displayedStep === 24 && clickIdx >= 1) || displayedStep > 24) && (
-            <circle cx={getSvgX(20)} cy={bmdY} r="3" className="fill-indigo-500 stroke-white dark:stroke-slate-900 animate-in zoom-in-50 duration-200" strokeWidth="1" />
+            <circle cx={getSvgX(20)} cy={bmdY} r="3" className={getCircleClass(24, displayedStep, "fill-indigo-500 stroke-white dark:stroke-slate-900")} strokeWidth="1" />
           )}
         </g>
       )}
 
-      {/* Curvature selections highlight overrides */}
-      {displayedStep === 13 && (
-        <polyline
-          points={getParabolaPoints(5, 9.775, bmdY, bmdScale)}
-          fill="none"
-          className={`stroke-[3.5] transition-all ${clickIdx >= 1 ? 'stroke-emerald-500' : 'stroke-indigo-500/20'}`}
-        />
-      )}
-      {displayedStep === 14 && (
-        <polyline
-          points={getParabolaPoints(9.775, 12, bmdY, bmdScale)}
-          fill="none"
-          className={`stroke-[3.5] transition-all ${clickIdx >= 1 ? 'stroke-rose-500' : 'stroke-indigo-500/20'}`}
-        />
-      )}
+
 
       {/* Completed BMD overlay */}
       {(displayedStep === 25 || displayedStep === 12) && (

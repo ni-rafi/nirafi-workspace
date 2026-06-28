@@ -1,6 +1,6 @@
 import React from 'react';
 import { ClickReveal, LatexFormula } from '@/features/presentation/components/elements';
-import { TwoColumnLayout } from '@/shared/layouts/TwoColumnLayout';
+import { TwoColumnToastLayout } from '@/shared/layouts/TwoColumnToastLayout';
 
 interface SfdStepContentsProps {
   stepIndex: number;
@@ -12,7 +12,7 @@ export const renderSfdStep = ({ stepIndex, diagram }: SfdStepContentsProps): Rea
   switch (stepIndex) {
     case 3: // SFD Node A Jump
       return (
-        <TwoColumnLayout
+        <TwoColumnToastLayout toastPosition="right"
           title="SFD Jumps: Node A"
           leftWidth="55%"
           leftContent={diagram}
@@ -52,7 +52,7 @@ export const renderSfdStep = ({ stepIndex, diagram }: SfdStepContentsProps): Rea
 
     case 4: // SFD Segment A-C Integration
       return (
-        <TwoColumnLayout
+        <TwoColumnToastLayout toastPosition="right"
           title="SFD Integration: Segment A to C"
           leftWidth="55%"
           leftContent={diagram}
@@ -92,7 +92,7 @@ export const renderSfdStep = ({ stepIndex, diagram }: SfdStepContentsProps): Rea
 
     case 5: // SFD Node C Check
       return (
-        <TwoColumnLayout
+        <TwoColumnToastLayout toastPosition="right"
           title="SFD Jumps: Node C"
           leftWidth="55%"
           leftContent={diagram}
@@ -126,7 +126,7 @@ export const renderSfdStep = ({ stepIndex, diagram }: SfdStepContentsProps): Rea
 
     case 6: // SFD Segment C-D Integration
       return (
-        <TwoColumnLayout
+        <TwoColumnToastLayout toastPosition="left"
           title="SFD Integration: Segment C to D"
           leftWidth="55%"
           leftContent={diagram}
@@ -168,7 +168,7 @@ export const renderSfdStep = ({ stepIndex, diagram }: SfdStepContentsProps): Rea
 
     case 7: // SFD Node D Check
       return (
-        <TwoColumnLayout
+        <TwoColumnToastLayout toastPosition="left"
           title="SFD Jumps: Node D"
           leftWidth="55%"
           leftContent={diagram}
@@ -202,7 +202,7 @@ export const renderSfdStep = ({ stepIndex, diagram }: SfdStepContentsProps): Rea
 
     case 8: // SFD Segment D-E Integration
       return (
-        <TwoColumnLayout
+        <TwoColumnToastLayout toastPosition="left"
           title="SFD Integration: Segment D to E"
           leftWidth="55%"
           leftContent={diagram}
@@ -242,7 +242,7 @@ export const renderSfdStep = ({ stepIndex, diagram }: SfdStepContentsProps): Rea
 
     case 9: // SFD Node E Jump
       return (
-        <TwoColumnLayout
+        <TwoColumnToastLayout toastPosition="left"
           title="SFD Jumps: Node E"
           leftWidth="55%"
           leftContent={diagram}
@@ -282,7 +282,7 @@ export const renderSfdStep = ({ stepIndex, diagram }: SfdStepContentsProps): Rea
 
     case 10: // SFD Segment E-B Integration
       return (
-        <TwoColumnLayout
+        <TwoColumnToastLayout toastPosition="left"
           title="SFD Integration: Segment E to B"
           leftWidth="55%"
           leftContent={diagram}
@@ -322,7 +322,7 @@ export const renderSfdStep = ({ stepIndex, diagram }: SfdStepContentsProps): Rea
 
     case 11: // SFD Node B Jump
       return (
-        <TwoColumnLayout
+        <TwoColumnToastLayout toastPosition="left"
           title="SFD Jumps: Node B"
           leftWidth="55%"
           leftContent={diagram}

@@ -2,6 +2,11 @@ import React from 'react';
 import { motion } from 'motion/react';
 import { getSvgX, rxnA } from './diagramConstants';
 
+const getCircleClass = (step: number, currentStep: number, baseClass: string) => {
+  return `${baseClass} ${step === currentStep ? 'animate-in zoom-in-50 duration-200' : ''}`;
+};
+
+
 interface SfdDiagramProps {
   sfdY: number;
   sfdScale: number;
@@ -172,8 +177,8 @@ export const SfdDiagram: React.FC<SfdDiagramProps> = ({
         <g>
           {((displayedStep === 3 && clickIdx >= 1) || displayedStep > 3) && (
             <>
-              <circle cx={getSvgX(0)} cy={sfdY} r="3" className="fill-rose-500 stroke-white dark:stroke-slate-900 animate-in zoom-in-50 duration-200" strokeWidth="1" />
-              <circle cx={getSvgX(0)} cy={sfdY - rxnA * sfdScale} r="3" className="fill-rose-500 stroke-white dark:stroke-slate-900 animate-in zoom-in-50 duration-200" strokeWidth="1" />
+              <circle cx={getSvgX(0)} cy={sfdY} r="3" className={getCircleClass(3, displayedStep, "fill-rose-500 stroke-white dark:stroke-slate-900")} strokeWidth="1" />
+              <circle cx={getSvgX(0)} cy={sfdY - rxnA * sfdScale} r="3" className={getCircleClass(3, displayedStep, "fill-rose-500 stroke-white dark:stroke-slate-900")} strokeWidth="1" />
             </>
           )}
           {renderHelperVisuals(
@@ -211,7 +216,7 @@ export const SfdDiagram: React.FC<SfdDiagramProps> = ({
       {displayedStep >= 4 && (
         <g>
           {((displayedStep === 4 && clickIdx >= 1) || displayedStep > 4) && (
-            <circle cx={getSvgX(5)} cy={sfdY - rxnA * sfdScale} r="3" className="fill-rose-500 stroke-white dark:stroke-slate-900 animate-in zoom-in-50 duration-200" strokeWidth="1" />
+            <circle cx={getSvgX(5)} cy={sfdY - rxnA * sfdScale} r="3" className={getCircleClass(4, displayedStep, "fill-rose-500 stroke-white dark:stroke-slate-900")} strokeWidth="1" />
           )}
           {renderHelperVisuals(
             stepIndex >= 4,
@@ -245,7 +250,7 @@ export const SfdDiagram: React.FC<SfdDiagramProps> = ({
       {displayedStep >= 5 && (
         <g>
           {((displayedStep === 5 && clickIdx >= 1) || displayedStep > 5) && (
-            <circle cx={getSvgX(5)} cy={sfdY - rxnA * sfdScale} r="3" className="fill-rose-500 stroke-white dark:stroke-slate-900 animate-in zoom-in-50 duration-200" strokeWidth="1" />
+            <circle cx={getSvgX(5)} cy={sfdY - rxnA * sfdScale} r="3" className={getCircleClass(5, displayedStep, "fill-rose-500 stroke-white dark:stroke-slate-900")} strokeWidth="1" />
           )}
         </g>
       )}
@@ -254,7 +259,7 @@ export const SfdDiagram: React.FC<SfdDiagramProps> = ({
       {displayedStep >= 6 && (
         <g>
           {((displayedStep === 6 && clickIdx >= 1) || displayedStep > 6) && (
-            <circle cx={getSvgX(12)} cy={sfdY - (-6.675) * sfdScale} r="3" className="fill-rose-500 stroke-white dark:stroke-slate-900 animate-in zoom-in-50 duration-200" strokeWidth="1" />
+            <circle cx={getSvgX(12)} cy={sfdY - (-6.675) * sfdScale} r="3" className={getCircleClass(6, displayedStep, "fill-rose-500 stroke-white dark:stroke-slate-900")} strokeWidth="1" />
           )}
           {renderHelperVisuals(
             stepIndex >= 6,
@@ -295,7 +300,7 @@ export const SfdDiagram: React.FC<SfdDiagramProps> = ({
       {displayedStep >= 7 && (
         <g>
           {((displayedStep === 7 && clickIdx >= 1) || displayedStep > 7) && (
-            <circle cx={getSvgX(12)} cy={sfdY - (-6.675) * sfdScale} r="3" className="fill-rose-500 stroke-white dark:stroke-slate-900 animate-in zoom-in-50 duration-200" strokeWidth="1" />
+            <circle cx={getSvgX(12)} cy={sfdY - (-6.675) * sfdScale} r="3" className={getCircleClass(7, displayedStep, "fill-rose-500 stroke-white dark:stroke-slate-900")} strokeWidth="1" />
           )}
         </g>
       )}
@@ -304,7 +309,7 @@ export const SfdDiagram: React.FC<SfdDiagramProps> = ({
       {displayedStep >= 8 && (
         <g>
           {((displayedStep === 8 && clickIdx >= 1) || displayedStep > 8) && (
-            <circle cx={getSvgX(17)} cy={sfdY - (-6.675) * sfdScale} r="3" className="fill-rose-500 stroke-white dark:stroke-slate-900 animate-in zoom-in-50 duration-200" strokeWidth="1" />
+            <circle cx={getSvgX(17)} cy={sfdY - (-6.675) * sfdScale} r="3" className={getCircleClass(8, displayedStep, "fill-rose-500 stroke-white dark:stroke-slate-900")} strokeWidth="1" />
           )}
           {renderHelperVisuals(
             stepIndex >= 8,
@@ -339,8 +344,8 @@ export const SfdDiagram: React.FC<SfdDiagramProps> = ({
         <g>
           {((displayedStep === 9 && clickIdx >= 1) || displayedStep > 9) && (
             <>
-              <circle cx={getSvgX(17)} cy={sfdY - (-6.675) * sfdScale} r="3" className="fill-rose-500 stroke-white dark:stroke-slate-900 animate-in zoom-in-50 duration-200" strokeWidth="1" />
-              <circle cx={getSvgX(17)} cy={sfdY - (-21.675) * sfdScale} r="3" className="fill-rose-500 stroke-white dark:stroke-slate-900 animate-in zoom-in-50 duration-200" strokeWidth="1" />
+              <circle cx={getSvgX(17)} cy={sfdY - (-6.675) * sfdScale} r="3" className={getCircleClass(9, displayedStep, "fill-rose-500 stroke-white dark:stroke-slate-900")} strokeWidth="1" />
+              <circle cx={getSvgX(17)} cy={sfdY - (-21.675) * sfdScale} r="3" className={getCircleClass(9, displayedStep, "fill-rose-500 stroke-white dark:stroke-slate-900")} strokeWidth="1" />
             </>
           )}
           {renderHelperVisuals(
@@ -376,7 +381,7 @@ export const SfdDiagram: React.FC<SfdDiagramProps> = ({
       {displayedStep >= 10 && (
         <g>
           {((displayedStep === 10 && clickIdx >= 1) || displayedStep > 10) && (
-            <circle cx={getSvgX(20)} cy={sfdY - (-21.675) * sfdScale} r="3" className="fill-rose-500 stroke-white dark:stroke-slate-900 animate-in zoom-in-50 duration-200" strokeWidth="1" />
+            <circle cx={getSvgX(20)} cy={sfdY - (-21.675) * sfdScale} r="3" className={getCircleClass(10, displayedStep, "fill-rose-500 stroke-white dark:stroke-slate-900")} strokeWidth="1" />
           )}
           {renderHelperVisuals(
             stepIndex >= 10,
@@ -411,8 +416,8 @@ export const SfdDiagram: React.FC<SfdDiagramProps> = ({
         <g>
           {((displayedStep === 11 && clickIdx >= 1) || displayedStep > 11) && (
             <>
-              <circle cx={getSvgX(20)} cy={sfdY - (-21.675) * sfdScale} r="3" className="fill-rose-500 stroke-white dark:stroke-slate-900 animate-in zoom-in-50 duration-200" strokeWidth="1" />
-              <circle cx={getSvgX(20)} cy={sfdY} r="3" className="fill-rose-500 stroke-white dark:stroke-slate-900 animate-in zoom-in-50 duration-200" strokeWidth="1" />
+              <circle cx={getSvgX(20)} cy={sfdY - (-21.675) * sfdScale} r="3" className={getCircleClass(11, displayedStep, "fill-rose-500 stroke-white dark:stroke-slate-900")} strokeWidth="1" />
+              <circle cx={getSvgX(20)} cy={sfdY} r="3" className={getCircleClass(11, displayedStep, "fill-rose-500 stroke-white dark:stroke-slate-900")} strokeWidth="1" />
             </>
           )}
           {renderHelperVisuals(
@@ -453,9 +458,15 @@ export const SfdDiagram: React.FC<SfdDiagramProps> = ({
             className="stroke-rose-500/80"
             strokeWidth="1.6"
           />
-          <text x={getSvgX(2.5)} y={sfdY - rxnA * sfdScale - 3} textAnchor="middle" className="text-[7.5px] font-bold fill-rose-500/80 font-mono">+14.325</text>
-          <text x={getSvgX(12) - 4} y={sfdY - (-6.675) * sfdScale + 9} textAnchor="end" className="text-[7.5px] font-bold fill-rose-500/80 font-mono">-6.675</text>
-          <text x={getSvgX(18.5)} y={sfdY - (-21.675) * sfdScale + 9} textAnchor="middle" className="text-[7.5px] font-bold fill-rose-500/80 font-mono">-21.675</text>
+          {!(pairing === 'sfd-bmd' && stepIndex === 15) && (
+            <text x={getSvgX(2.5)} y={sfdY - rxnA * sfdScale - 3} textAnchor="middle" className="text-[7.5px] font-bold fill-rose-500/80 font-mono">+14.325</text>
+          )}
+          {!(pairing === 'sfd-bmd' && (stepIndex === 19 || stepIndex === 21)) && (
+            <text x={getSvgX(12) - 4} y={sfdY - (-6.675) * sfdScale + 9} textAnchor="end" className="text-[7.5px] font-bold fill-rose-500/80 font-mono">-6.675</text>
+          )}
+          {!(pairing === 'sfd-bmd' && stepIndex === 23) && (
+            <text x={getSvgX(18.5)} y={sfdY - (-21.675) * sfdScale + 9} textAnchor="middle" className="text-[7.5px] font-bold fill-rose-500/80 font-mono">-21.675</text>
+          )}
         </g>
       )}
     </g>

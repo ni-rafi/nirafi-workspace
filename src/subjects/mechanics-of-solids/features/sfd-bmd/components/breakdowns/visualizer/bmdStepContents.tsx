@@ -1,6 +1,6 @@
 import React from 'react';
 import { ClickReveal, LatexFormula } from '@/features/presentation/components/elements';
-import { TwoColumnLayout } from '@/shared/layouts/TwoColumnLayout';
+import { TwoColumnToastLayout } from '@/shared/layouts/TwoColumnToastLayout';
 
 interface BmdStepContentsProps {
   stepIndex: number;
@@ -12,7 +12,7 @@ export const renderBmdStep = ({ stepIndex, diagram }: BmdStepContentsProps): Rea
   switch (stepIndex) {
     case 14: // BMD Node A Start check
       return (
-        <TwoColumnLayout
+        <TwoColumnToastLayout toastPosition="right"
           title="BMD Node Checks: Node A"
           leftWidth="55%"
           leftContent={diagram}
@@ -46,7 +46,7 @@ export const renderBmdStep = ({ stepIndex, diagram }: BmdStepContentsProps): Rea
 
     case 15: // BMD Segment A-C Integration
       return (
-        <TwoColumnLayout
+        <TwoColumnToastLayout toastPosition="right"
           title="BMD Integration: Segment A to C"
           leftWidth="55%"
           leftContent={diagram}
@@ -75,7 +75,7 @@ export const renderBmdStep = ({ stepIndex, diagram }: BmdStepContentsProps): Rea
                 <ClickReveal at={3}>
                   <div className="border-t border-border/25 pt-2">
                     <span className="font-bold text-foreground block mb-0.5">4. Draw Segment:</span>
-                    Constant shear &rarr; animate linear sloped moment line (Degree 1) to Node C.
+                    Constant shear &rarr; draw linear sloped moment line (Degree 1) to Node C.
                   </div>
                 </ClickReveal>
               </div>
@@ -86,7 +86,7 @@ export const renderBmdStep = ({ stepIndex, diagram }: BmdStepContentsProps): Rea
 
     case 16: // BMD Node C check
       return (
-        <TwoColumnLayout
+        <TwoColumnToastLayout toastPosition="right"
           title="BMD Node Checks: Node C"
           leftWidth="55%"
           leftContent={diagram}
@@ -120,7 +120,7 @@ export const renderBmdStep = ({ stepIndex, diagram }: BmdStepContentsProps): Rea
 
     case 17: // BMD Segment C-to-Peak Integration
       return (
-        <TwoColumnLayout
+        <TwoColumnToastLayout toastPosition="right"
           title="BMD Integration: C to Zero-Crossing"
           leftWidth="55%"
           leftContent={diagram}
@@ -151,7 +151,7 @@ export const renderBmdStep = ({ stepIndex, diagram }: BmdStepContentsProps): Rea
                 <ClickReveal at={3}>
                   <div className="border-t border-border/25 pt-2">
                     <span className="font-bold text-foreground block mb-0.5">4. Draw Curve:</span>
-                    Linear shear &rarr; animate parabolic curve (Degree 2) rising to peak.
+                    Linear shear &rarr; draw parabolic curve (Degree 2) rising to peak.
                   </div>
                 </ClickReveal>
               </div>
@@ -162,7 +162,7 @@ export const renderBmdStep = ({ stepIndex, diagram }: BmdStepContentsProps): Rea
 
     case 18: // BMD Peak Moment check
       return (
-        <TwoColumnLayout
+        <TwoColumnToastLayout toastPosition="right"
           title="BMD Node Checks: Peak moment"
           leftWidth="55%"
           leftContent={diagram}
@@ -196,7 +196,7 @@ export const renderBmdStep = ({ stepIndex, diagram }: BmdStepContentsProps): Rea
 
     case 19: // BMD Segment Peak-to-D Integration
       return (
-        <TwoColumnLayout
+        <TwoColumnToastLayout toastPosition="left"
           title="BMD Integration: Zero-Crossing to D"
           leftWidth="55%"
           leftContent={diagram}
@@ -227,7 +227,7 @@ export const renderBmdStep = ({ stepIndex, diagram }: BmdStepContentsProps): Rea
                 <ClickReveal at={3}>
                   <div className="border-t border-border/25 pt-2">
                     <span className="font-bold text-foreground block mb-0.5">4. Draw Curve:</span>
-                    Animate parabolic curve (Degree 2) falling to 98.400 kNm at Node D.
+                    Draw parabolic curve (Degree 2) falling to 98.400 kNm at Node D.
                   </div>
                 </ClickReveal>
               </div>
@@ -238,7 +238,7 @@ export const renderBmdStep = ({ stepIndex, diagram }: BmdStepContentsProps): Rea
 
     case 20: // BMD Node D check
       return (
-        <TwoColumnLayout
+        <TwoColumnToastLayout toastPosition="left"
           title="BMD Node Checks: Node D"
           leftWidth="55%"
           leftContent={diagram}
@@ -272,7 +272,7 @@ export const renderBmdStep = ({ stepIndex, diagram }: BmdStepContentsProps): Rea
 
     case 21: // BMD Segment D-E Integration
       return (
-        <TwoColumnLayout
+        <TwoColumnToastLayout toastPosition="left"
           title="BMD Integration: Segment D to E"
           leftWidth="55%"
           leftContent={diagram}
@@ -314,7 +314,7 @@ export const renderBmdStep = ({ stepIndex, diagram }: BmdStepContentsProps): Rea
 
     case 22: // BMD Node E check
       return (
-        <TwoColumnLayout
+        <TwoColumnToastLayout toastPosition="left"
           title="BMD Node Checks: Node E"
           leftWidth="55%"
           leftContent={diagram}
@@ -348,7 +348,7 @@ export const renderBmdStep = ({ stepIndex, diagram }: BmdStepContentsProps): Rea
 
     case 23: // BMD Segment E-B Integration
       return (
-        <TwoColumnLayout
+        <TwoColumnToastLayout toastPosition="left"
           title="BMD Integration: Segment E to B"
           leftWidth="55%"
           leftContent={diagram}
@@ -379,7 +379,7 @@ export const renderBmdStep = ({ stepIndex, diagram }: BmdStepContentsProps): Rea
                 <ClickReveal at={3}>
                   <div className="border-t border-border/25 pt-2">
                     <span className="font-bold text-foreground block mb-0.5">4. Draw Segment:</span>
-                    Constant negative shear &rarr; animate linear moment line (Degree 1) down to close at 0.
+                    Constant negative shear &rarr; draw linear moment line (Degree 1) down to close at 0.
                   </div>
                 </ClickReveal>
               </div>
@@ -390,7 +390,7 @@ export const renderBmdStep = ({ stepIndex, diagram }: BmdStepContentsProps): Rea
 
     case 24: // BMD Node B check
       return (
-        <TwoColumnLayout
+        <TwoColumnToastLayout toastPosition="left"
           title="BMD Node Checks: Node B"
           leftWidth="55%"
           leftContent={diagram}

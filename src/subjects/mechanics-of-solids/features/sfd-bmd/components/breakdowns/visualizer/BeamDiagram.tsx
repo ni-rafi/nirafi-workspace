@@ -152,7 +152,9 @@ export const BeamDiagram: React.FC<BeamDiagramProps> = ({
         className="stroke-amber-500/80"
         strokeWidth="1.5"
       />
-      <text x={getSvgX(8.5)} y={beamY - 22} textAnchor="middle" className="text-[9px] font-black fill-amber-500/90 font-mono">w = 3 kN/m</text>
+      {!(pairing === 'beam-sfd' && stepIndex === 6) && (
+        <text x={getSvgX(8.5)} y={beamY - 22} textAnchor="middle" className="text-[9px] font-black fill-amber-500/90 font-mono">w = 3 kN/m</text>
+      )}
 
       {/* Point Load P at x = 17 */}
       <path

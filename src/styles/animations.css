@@ -43,3 +43,9 @@
   transform: scale(0.96);
   opacity: 0;
 }
+
+/* Animate SVG circles from their exact center instead of top-left origin */
+svg circle.animate-in {
+  transform-origin: center;
+  transform-box: fill-box;
+}
