@@ -65,7 +65,7 @@ export const GraphicalStackedDiagrams: React.FC<GraphicalStackedDiagramsProps> =
   const bmdScale = (pairing === 'all' ? 45 : 48) / maxM;
 
   return (
-    <div className="w-full flex flex-col items-center justify-center p-3 border border-border/40 bg-muted/5 dark:bg-slate-900/10 rounded-xl">
+    <div className="w-full flex flex-col items-center justify-center p-3 border border-border/40 bg-muted/5 dark:bg-slate-900/10 rounded-xl diagrams-transition-wrapper">
       <svg className="w-full h-full overflow-visible" viewBox={`0 0 ${svgWidth} ${svgHeight}`}>
         
         <defs>

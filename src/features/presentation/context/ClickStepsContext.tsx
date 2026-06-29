@@ -98,6 +98,27 @@ export const ClickStepsProvider: React.FC<ClickStepsProviderProps> = ({
   const registryRef = useRef<Record<string, number>>({});
   const nextRelativeRef = useRef(1);
 
+  // Render-phase prop synchronization to reset state when slide changes
+  const [prevSlideNo, setPrevSlideNo] = useState(slideNo);
+  const [prevInitialClick, setPrevInitialClick] = useState(initialClick);
+
+  if (slideNo !== prevSlideNo || initialClick !== prevInitialClick) {
+    setPrevSlideNo(slideNo);
+    setPrevInitialClick(initialClick);
+
+    // Clear in-memory registries
+    registryRef.current = {};
+    nextRelativeRef.current = 1;
+    isBackwardEntryRef.current = initialClick >= 999;
+
+    // Re-seed state immediately during the render phase
+    const nextStorageKey = slideNo ? storageKeys.clickStep(lectureId, slideNo) : '';
+    const startingClick = nextStorageKey ? getStorageItem<number>(nextStorageKey, initialClick) : initialClick;
+    setCurrentClickState(startingClick);
+    setTotalClicks(0);
+    setIsTabbedSlide(false);
+  }
+
   // Synchronize click step state from localStorage events (e.g. leader stepping)
   useEffect(() => {
     if (!storageKey) return;

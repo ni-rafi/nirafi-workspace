@@ -24,7 +24,6 @@ const PresentationModeInner: React.FC<PresentationModeViewProps> = ({ orchestrat
 
   const content = (
     <ClickStepsProvider
-      key={activeSlide}
       slideNo={activeSlide}
       initialClick={slideDirectionRef.current === 'backward' ? 999 : 0}
     >

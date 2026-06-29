@@ -96,7 +96,7 @@ const PresentationModeContent: React.FC<PresentationModeContentProps> = ({
         <SlideContainer zoom={viewerState.isPresenterView ? 0.95 : 1} scaleMode={presenterFeatures.settings.scale}>
           <MorphingBackground variant={bgVariant} />
           <GlobalTop subjectName={activeSub.courseTitle} subjectCode={activeSub.courseCode} lectureTitle={activeLec.title} hide={isCoverPage} />
-          <div className="flex-1 flex flex-col justify-center items-center px-4 pt-[20px] pb-[35px] text-center select-text relative z-10">
+          <div className="flex-1 flex flex-col justify-center items-center px-4 pt-[20px] pb-[35px] text-center select-text relative z-10 slide-canvas-transition">
             <SlideRenderer slideNo={activeSlide} subject={activeSub} lecture={activeLec} session={activeSession} />
           </div>
           <DrawingBoard

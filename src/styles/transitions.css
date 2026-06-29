@@ -132,6 +132,24 @@
   z-index: 100;
 }
 
+/* Dynamic Stacked Diagrams persistent View Transition */
+.diagrams-transition-wrapper {
+  view-transition-name: sfd-bmd-diagrams;
+}
+
+::view-transition-group(sfd-bmd-diagrams) {
+  z-index: 10;
+}
+
+/* Floating Presentation Toast Card persistent View Transition */
+.presentation-toast-container {
+  view-transition-name: presentation-toast;
+}
+
+::view-transition-group(presentation-toast) {
+  z-index: 50;
+}
+
 
 
 
