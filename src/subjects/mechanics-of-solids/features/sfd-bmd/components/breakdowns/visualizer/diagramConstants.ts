@@ -9,7 +9,7 @@ export const getSvgX = (x: number, beamLength: number = 20): number => {
 
 export const getBaselines = (pairing: 'beam' | 'beam-sfd' | 'sfd-bmd' | 'all') => {
   const beamY = pairing === 'all' ? 38 : 42;
-  const sfdY = pairing === 'all' ? 124 : pairing === 'sfd-bmd' ? 42 : 152;
+  const sfdY = pairing === 'all' ? 124 : pairing === 'sfd-bmd' ? 50 : 152;
   const bmdY = pairing === 'all' ? 192 : pairing === 'sfd-bmd' ? 130 : 142;
   return { beamY, sfdY, bmdY };
 };

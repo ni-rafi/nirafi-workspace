@@ -326,7 +326,7 @@ export const ExpandableDrawing: React.FC<ExpandableDrawingProps> = ({
 
   const wrapperClasses = isBlog
     ? `w-full ${className}`
-    : `group relative rounded-xl overflow-hidden border border-border/60 bg-background/50 dark:bg-slate-900/5 ${className}`;
+    : `group relative rounded-xl border border-border/60 bg-background/50 dark:bg-slate-900/5 ${className}`;
 
   return (
     <div ref={containerRef} className={wrapperClasses} onClick={onClick}>

@@ -590,7 +590,7 @@ export const BmdDiagram: React.FC<BmdDiagramProps> = ({
       {/* Unified deduplicated boundary labels */}
       {uniqueBmdLabels.map((lbl, idx) => {
         const xPos = getSvgX(lbl.x, beam.length);
-        const yPos = bmdY - lbl.val * bmdScale + (lbl.val === maxMomentVal ? -6 : 10);
+        const yPos = bmdY - lbl.val * bmdScale + (lbl.val > 1e-3 ? -6 : 10);
         const anchor = lbl.x === beam.length ? 'end' : lbl.x === 0 ? 'start' : 'middle';
 
         return (
@@ -617,9 +617,9 @@ export const BmdDiagram: React.FC<BmdDiagramProps> = ({
               <DimensionLine
                 key={idx}
                 x1={sX}
-                y1={174}
+                y1={194}
                 x2={eX}
-                y2={174}
+                y2={194}
                 label={`${L.toFixed(1)}m`}
                 color="#94a3b8"
                 className="opacity-90 dark:opacity-85 text-[7px]"

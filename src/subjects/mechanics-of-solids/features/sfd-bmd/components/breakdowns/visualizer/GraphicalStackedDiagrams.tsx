@@ -23,7 +23,7 @@ export const GraphicalStackedDiagrams: React.FC<GraphicalStackedDiagramsProps> =
   beam,
   solverResult,
 }) => {
-  const svgHeight = pairing === 'all' ? 260 : pairing === 'beam-sfd' ? 195 : 185;
+  const svgHeight = pairing === 'all' ? 260 : pairing === 'beam-sfd' ? 195 : 205;
   const { beamY, sfdY, bmdY } = getBaselines(pairing);
 
   // Dynamic gridlines calculation
