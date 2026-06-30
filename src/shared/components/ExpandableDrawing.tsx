@@ -332,7 +332,7 @@ export const ExpandableDrawing: React.FC<ExpandableDrawingProps> = ({
     <div ref={containerRef} className={wrapperClasses} onClick={onClick}>
       <div className={isBlog ? 'w-full' : 'w-full h-full p-2'}>
         <div className="w-full h-full expandable-inner-target">
-          {children}
+          {(!isOpen || isBlog) && children}
         </div>
       </div>
 
@@ -363,11 +363,11 @@ export const ExpandableDrawing: React.FC<ExpandableDrawingProps> = ({
           {/* Overlay */}
           <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-black/60 backdrop-blur-md transition-all duration-300 animate-in fade-in-0" />
           
-          {/* Main Modal Container */}
-          <DialogPrimitive.Content className="fixed inset-0 z-50 flex flex-col items-center justify-center p-4 md:p-8 animate-in fade-in-0 scale-95 duration-200 focus:outline-none">
+          {/* Main Modal Container: Centered box layout that enables click-outside triggers on overlay */}
+          <DialogPrimitive.Content className="fixed left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%] z-50 w-full max-w-5xl h-[85vh] flex flex-col focus:outline-none select-none animate-in fade-in-0 scale-95 duration-200">
             
             {/* 1. Floating Glassmorphic Header */}
-            <div className="w-full max-w-5xl flex items-center justify-between px-4 py-3 bg-background/75 dark:bg-slate-950/75 border border-border/40 backdrop-blur-md rounded-xl mb-4 shadow-lg select-none">
+            <div className="w-full flex items-center justify-between px-4 py-3 bg-background/75 dark:bg-slate-950/75 border border-border/40 backdrop-blur-md rounded-xl mb-4 shadow-lg">
               <div>
                 <DialogPrimitive.Title className="text-sm font-semibold text-foreground">
                   {title}
@@ -413,19 +413,20 @@ export const ExpandableDrawing: React.FC<ExpandableDrawingProps> = ({
               </div>
             </div>
 
+            {/* 2. Expanded Drawing Display Container */}
             <div 
               id={`modal-content-${modalId}`}
-              className="flex-1 w-full max-w-5xl max-h-[75vh] flex items-center justify-center p-6 bg-white dark:bg-white text-slate-900 rounded-2xl border border-border shadow-lg select-none overflow-hidden relative expandable-modal-graphic-wrapper light"
+              className="flex-1 w-full max-h-[70vh] flex items-center justify-center p-6 bg-white dark:bg-white text-slate-900 rounded-2xl border border-border shadow-lg overflow-hidden relative expandable-modal-graphic-wrapper light"
             >
               <div className="w-full h-full flex items-center justify-center expandable-inner-target">
-                {children}
+                {isOpen && children}
               </div>
             </div>
 
             {/* Modal Global CSS Override to scale nested SVGs inside fullscreen */}
             <style>{`
               .expandable-modal-graphic-wrapper svg {
-                max-height: 70vh !important;
+                max-height: 65vh !important;
                 width: 100% !important;
                 height: 100% !important;
                 max-width: 100% !important;
