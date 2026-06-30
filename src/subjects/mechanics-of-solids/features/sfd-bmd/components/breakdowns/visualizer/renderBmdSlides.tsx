@@ -26,10 +26,10 @@ export const getBmdDegreeInfo = (
   intervals: ISolverOutput['intervals']
 ) => {
   const interval = intervals?.find(
-    int => Math.abs(int.startX - startX) < 1e-3 && Math.abs(int.endX - endX) < 1e-3
+    int => startX >= int.startX - 1e-3 && endX <= int.endX + 1e-3
   );
   if (!interval) return { degree: 1, label: 'linear (Degree 1)' };
-  
+
   const [a, b, c] = interval.mCoeffs;
   if (Math.abs(a) > 1e-6) {
     return { degree: 3, label: 'cubic curve (Degree 3)' };
@@ -125,21 +125,30 @@ export const renderBmdSegment = (
   else if (isPeakSecond) step1Desc = `Analyze negative shear area between zero-shear crossing point (${peakX.toFixed(3)}m) and x = ${endX.toFixed(2)}m.`;
 
   const activeUdl = beam.loads.find(
-    l => l.type === 'udl' && 
-         midX >= (l.startPosition ?? 0) && 
-         midX <= (l.endPosition ?? 0)
+    l => l.type === 'udl' &&
+      midX >= (l.startPosition ?? 0) &&
+      midX <= (l.endPosition ?? 0)
   );
 
   const activeUvl = beam.loads.find(
     l => l.type === 'uvl' &&
-         midX >= (l.startPosition ?? 0) &&
-         midX <= (l.endPosition ?? 0)
+      midX >= (l.startPosition ?? 0) &&
+      midX <= (l.endPosition ?? 0)
   );
 
   const { degree, label } = getBmdDegreeInfo(startX, endX, intervals);
+  const activeLoad = activeUdl || activeUvl;
   let finalLabel = label;
-  if (degree >= 2 && activeUdl) {
-    const isDownward = (activeUdl.magnitude ?? 0) > 0;
+  let isDownward = true;
+
+  if (activeLoad) {
+    const mag = activeLoad.type === 'udl'
+      ? (activeLoad.magnitude ?? 0)
+      : Math.max(Math.abs(activeLoad.startMagnitude ?? 0), Math.abs(activeLoad.endMagnitude ?? 0));
+    isDownward = mag >= 0; // standard conventions treat downward load magnitudes positive
+  }
+
+  if (degree >= 2 && activeLoad) {
     finalLabel = `${label.split(' (')[0]} (Degree ${degree}, ${isDownward ? 'concave down' : 'concave up'})`;
   }
 
@@ -208,6 +217,16 @@ export const renderBmdSegment = (
               <div className="border-t border-border/25 pt-2">
                 <span className="font-bold text-foreground block mb-0.5">4. Draw Segment:</span>
                 {buildBmdDrawText(activeSlide.mStart || 0, activeSlide.mEnd || 0, finalLabel)}
+                {degree >= 2 && (
+                  <div className="text-[10px] text-muted-foreground mt-1 flex flex-col gap-0.5 font-sans font-medium leading-relaxed">
+                    <div>
+                      • <span className="font-bold text-foreground/80">Concavity:</span> Since the load is {isDownward ? 'downward' : 'upward'}, the moment curve is <span className="font-bold text-indigo-500">{isDownward ? 'concave down' : 'concave up'}</span>.
+                    </div>
+                    <div>
+                      • <span className="font-bold text-foreground/80">Slope:</span> The slope <ClickHighlight variant="paint" at={3} className="inline-block">magnitude {Math.abs(vEnd) < Math.abs(vStart) ? 'decreases' : 'increases'}</ClickHighlight> from <LatexFormula math={`${Math.abs(vStart).toFixed(3)}`} /> to <LatexFormula math={`${Math.abs(vEnd).toFixed(3)}`} />.
+                    </div>
+                  </div>
+                )}
               </div>
             </ClickReveal>
             {noteText && (

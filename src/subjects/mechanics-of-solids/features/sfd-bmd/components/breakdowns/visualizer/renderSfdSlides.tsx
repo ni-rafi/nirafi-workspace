@@ -1,5 +1,5 @@
 import React from 'react';
-import { ClickReveal, LatexFormula } from '@/features/presentation/components/elements';
+import { ClickReveal, LatexFormula, ClickHighlight } from '@/features/presentation/components/elements';
 import { TwoColumnToastLayout } from '@/shared/layouts/TwoColumnToastLayout';
 import { IBeam, ISolverOutput } from '@/subjects/mechanics-of-solids/cores/sfd-bmd/types';
 
@@ -21,10 +21,10 @@ export const getSfdDegreeInfo = (
   intervals: ISolverOutput['intervals']
 ) => {
   const interval = intervals?.find(
-    int => Math.abs(int.startX - startX) < 1e-3 && Math.abs(int.endX - endX) < 1e-3
+    int => startX >= int.startX - 1e-3 && endX <= int.endX + 1e-3
   );
   if (!interval) return { degree: 0, label: 'horizontal (Degree 0)' };
-  
+
   const [a, b] = interval.vCoeffs;
   if (Math.abs(a) > 1e-6) {
     return { degree: 2, label: 'quadratic parabolic curve (Degree 2)' };
@@ -123,12 +123,15 @@ export const renderSfdSegment = (
 
   const activeLoad = beam.loads.find(
     l => midX >= (l.startPosition ?? l.position ?? 0) &&
-         midX <= (l.endPosition ?? l.position ?? beam.length)
+      midX <= (l.endPosition ?? l.position ?? beam.length)
   );
 
   let step1Desc = '';
   let formulaLatex = '';
   let calcLatex = '';
+  let slopeStart = 0;
+  let slopeEnd = 0;
+  let isConcaveUp = true;
 
   if (isUnloaded || !activeLoad) {
     step1Desc = 'External distributed load is zero (unloaded span).';
@@ -143,6 +146,10 @@ export const renderSfdSegment = (
 
     const w_startX = wStartFull + (wEndFull - wStartFull) * ((startX - Xs) / loadSpan);
     const w_endX = wStartFull + (wEndFull - wStartFull) * ((endX - Xs) / loadSpan);
+
+    slopeStart = -w_startX;
+    slopeEnd = -w_endX;
+    isConcaveUp = Math.abs(w_endX) < Math.abs(w_startX);
 
     const isTriangle = Math.abs(w_startX) < 1e-3 || Math.abs(w_endX) < 1e-3;
     if (isTriangle) {
@@ -163,7 +170,7 @@ export const renderSfdSegment = (
     calcLatex = `\\Delta V = -${wMag.toFixed(2)}\\text{kN/m} \\cdot ${dx.toFixed(2)}\\text{m} = -${Math.abs(activeStep.loadArea || 0).toFixed(3)}\\text{ kN}`;
   }
 
-  const { label } = getSfdDegreeInfo(startX, endX, intervals);
+  const { degree, label } = getSfdDegreeInfo(startX, endX, intervals);
 
   return (
     <TwoColumnToastLayout
@@ -188,7 +195,14 @@ export const renderSfdSegment = (
                     <span className="text-foreground/80 font-bold">Formula:</span> <LatexFormula math={formulaLatex} />
                   </div>
                   <div>
-                    <span className="text-foreground/80 font-bold">Solve:</span> <LatexFormula math={calcLatex} />
+                    <span className="text-foreground/80 font-bold">Solve:</span>{' '}
+                    {Math.abs(activeStep.loadArea || 0) > 1e-3 ? (
+                      <ClickHighlight variant="paint" at={1} className="inline-block">
+                        <LatexFormula math={calcLatex} />
+                      </ClickHighlight>
+                    ) : (
+                      <LatexFormula math={calcLatex} />
+                    )}
                   </div>
                 </div>
               </div>
@@ -203,6 +217,16 @@ export const renderSfdSegment = (
               <div className="border-t border-border/25 pt-2">
                 <span className="font-bold text-foreground block mb-0.5">4. Draw Segment:</span>
                 {buildSfdDrawText(activeStep.vStart || 0, activeStep.vEnd || 0, label)}
+                {degree >= 2 && activeLoad?.type === 'uvl' && (
+                  <div className="text-[10px] text-muted-foreground mt-1 flex flex-col gap-0.5 font-sans font-medium leading-relaxed">
+                    <div>
+                      • <span className="font-bold text-foreground/80">Concavity:</span> Since the load magnitude {isConcaveUp ? 'decreases' : 'increases'}, the shear curve is <span className="font-bold text-indigo-500">{isConcaveUp ? 'concave up' : 'concave down'}</span>.
+                    </div>
+                    <div>
+                      • <span className="font-bold text-foreground/80">Slope:</span> The slope <ClickHighlight variant="paint" at={3} className="inline-block">magnitude {Math.abs(slopeEnd) < Math.abs(slopeStart) ? 'decreases' : 'increases'}</ClickHighlight> from <LatexFormula math={`${Math.abs(slopeStart).toFixed(3)}`} /> to <LatexFormula math={`${Math.abs(slopeEnd).toFixed(3)}`} />.
+                    </div>
+                  </div>
+                )}
               </div>
             </ClickReveal>
           </div>
