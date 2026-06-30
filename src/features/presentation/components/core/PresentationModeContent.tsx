@@ -37,6 +37,15 @@ const PresentationModeContent: React.FC<PresentationModeContentProps> = ({
   setIsThemePlaygroundOpen,
   slideContainerRef,
 }) => {
+  const [containerEl, setContainerEl] = React.useState<HTMLDivElement | null>(null);
+
+  const setRef = React.useCallback((node: HTMLDivElement | null) => {
+    if (slideContainerRef) {
+      (slideContainerRef as React.MutableRefObject<HTMLDivElement | null>).current = node;
+    }
+    setContainerEl(node);
+  }, [slideContainerRef]);
+
   const {
     activeSub, activeSession, activeLec, totalSlidesCount, activeSlide,
     viewMode, activeTheme, lectureId, viewerState, presenterFeatures,
@@ -65,6 +74,30 @@ const PresentationModeContent: React.FC<PresentationModeContentProps> = ({
     return () => window.removeEventListener('storage', handleStorage);
   }, [activeSlide, changeSlideWithTransition, viewMode, viewerState.isProjectionView, lectureId]);
 
+  // Handle scroll-wheel-to-zoom adjustment when magnifier is active
+  React.useEffect(() => {
+    if (!containerEl) return;
+
+    const handleWheel = (e: WheelEvent) => {
+      if (presenterFeatures.isMagnifierActive) {
+        e.preventDefault();
+        const delta = e.deltaY < 0 ? 0.25 : -0.25;
+        const nextZoom = Math.min(Math.max(presenterFeatures.magnifierZoom + delta, 1.5), 5.0);
+        presenterFeatures.setMagnifierZoom(nextZoom);
+      }
+    };
+
+    containerEl.addEventListener('wheel', handleWheel, { passive: false });
+    return () => {
+      containerEl.removeEventListener('wheel', handleWheel);
+    };
+  }, [
+    containerEl,
+    presenterFeatures.isMagnifierActive,
+    presenterFeatures.magnifierZoom,
+    presenterFeatures.setMagnifierZoom,
+  ]);
+
   // Bind keyboard navigation shortcuts globally for standard and presenter views
   useNavShortcuts({
     onNext: clickSteps.handleNext,
@@ -88,7 +121,7 @@ const PresentationModeContent: React.FC<PresentationModeContentProps> = ({
   const mainSlideContent = (
     <PresentationContext.Provider value={{ theme: activeTheme, viewMode, activeSubStep: currentClick, slideNo: activeSlide }}>
       <div
-        ref={slideContainerRef}
+        ref={setRef}
         className="flex-1 w-full h-full relative"
         style={{ filter: presenterFeatures.filterStyle || undefined }}
         onMouseMove={presenterFeatures.handleMagnifierMouseMove}
@@ -212,13 +245,6 @@ const PresentationModeContent: React.FC<PresentationModeContentProps> = ({
         activeSub={activeSub} activeLec={activeLec} activeSession={activeSession}
         isThemePlaygroundOpen={isThemePlaygroundOpen}
         onToggleThemePlayground={() => setIsThemePlaygroundOpen(!isThemePlaygroundOpen)}
-        isMagnifierActive={presenterFeatures.isMagnifierActive}
-        magnifierPosition={presenterFeatures.magnifierPosition}
-        magnifierZoom={presenterFeatures.magnifierZoom}
-        isWhiteboardOpen={presenterFeatures.isWhiteboardOpen}
-        lectureSlideNo={activeSlide}
-        boardMode={presenterFeatures.boardMode}
-        onToggleBoardMode={presenterFeatures.toggleBoardMode}
       />
 
       <WhiteboardOverlay

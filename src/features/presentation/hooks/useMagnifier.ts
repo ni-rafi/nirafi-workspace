@@ -8,7 +8,7 @@ interface MagnifierState {
   active: boolean;
 }
 
-const DEFAULT_STATE: MagnifierState = { x: 50, y: 50, zoom: 2.5, active: false };
+const DEFAULT_STATE: MagnifierState = { x: 50, y: 50, zoom: 2, active: false };
 
 /**
  * useMagnifier manages a loupe lens that follows the mouse cursor.

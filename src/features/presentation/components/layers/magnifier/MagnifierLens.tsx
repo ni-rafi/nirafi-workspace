@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
 interface MagnifierLensProps {
   /** Lens centre as percentage of the container width/height (0-100). */
@@ -24,9 +24,10 @@ export const MagnifierLens: React.FC<MagnifierLensProps> = ({
   zoomLevel,
   containerRef,
 }) => {
-  const [containerSize, setContainerSize] = React.useState({ w: 0, h: 0 });
+  const [containerSize, setContainerSize] = useState({ w: 0, h: 0 });
+  const cloneContainerRef = useRef<HTMLDivElement | null>(null);
 
-  React.useEffect(() => {
+  useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
     const update = () => {
@@ -38,6 +39,67 @@ export const MagnifierLens: React.FC<MagnifierLensProps> = ({
     ro.observe(el);
     return () => ro.disconnect();
   }, [containerRef]);
+
+  // Clone slide content DOM and synchronize drawings from canvas nodes
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el || containerSize.w === 0) return;
+
+    const getSourceElement = () => {
+      return el.querySelector('[data-slide-container]') ||
+             el.querySelector('[data-slide-canvas="active"]') ||
+             el.firstElementChild ||
+             el;
+    };
+
+    const updateClone = () => {
+      const source = getSourceElement();
+      const dest = cloneContainerRef.current;
+      if (!source || !dest) return;
+
+      dest.innerHTML = '';
+      const clone = source.cloneNode(true) as HTMLElement;
+
+      // Prevent infinite loop by removing nested magnifier components in the clone
+      const magnifiers = clone.querySelectorAll('[aria-label="magnifier"], [data-magnifier-lens], .magnifier-lens');
+      magnifiers.forEach(m => m.remove());
+
+      // Sync drawings on canvas nodes
+      const originalCanvases = source.querySelectorAll('canvas');
+      const clonedCanvases = clone.querySelectorAll('canvas');
+      clonedCanvases.forEach((clonedCanvas, index) => {
+        const originalCanvas = originalCanvases[index] as HTMLCanvasElement;
+        if (originalCanvas) {
+          const ctx = (clonedCanvas as HTMLCanvasElement).getContext('2d');
+          if (ctx) {
+            ctx.drawImage(originalCanvas, 0, 0);
+          }
+        }
+      });
+
+      dest.appendChild(clone);
+    };
+
+    updateClone();
+
+    const source = getSourceElement();
+    if (!source) return;
+
+    const observer = new MutationObserver(() => {
+      updateClone();
+    });
+
+    observer.observe(source, {
+      childList: true,
+      subtree: true,
+      attributes: true,
+      characterData: true,
+    });
+
+    return () => {
+      observer.disconnect();
+    };
+  }, [containerRef, containerSize.w]);
 
   if (!containerRef.current || containerSize.w === 0) return null;
 
@@ -57,6 +119,7 @@ export const MagnifierLens: React.FC<MagnifierLensProps> = ({
   return (
     <div
       aria-hidden="true"
+      data-magnifier-lens="true"
       style={{
         position: 'absolute',
         left: lensLeft,
@@ -74,6 +137,7 @@ export const MagnifierLens: React.FC<MagnifierLensProps> = ({
     >
       {/* Zoomed content layer */}
       <div
+        ref={cloneContainerRef}
         style={{
           position: 'absolute',
           left: innerLeft,
@@ -82,19 +146,16 @@ export const MagnifierLens: React.FC<MagnifierLensProps> = ({
           height: containerSize.h,
           transform: `scale(${zoomLevel})`,
           transformOrigin: '0 0',
+          transition: 'transform 0.15s cubic-bezier(0.16, 1, 0.3, 1)',
           pointerEvents: 'none',
         }}
-      >
-        {/* Mirror slide content via DOM clone is not possible; we instead show a
-            descriptive focal ring — a translucent overlay on the cloned region.
-            Full pixel-perfect zoom is achieved via the CSS transform on this wrapper
-            which scales the actual slide DOM node's rendered pixels. */}
-      </div>
+      />
 
       {/* Frosted ring overlay for premium glass look */}
       <div
         style={{
-          position: 'absolute', inset: 0,
+          position: 'absolute',
+          inset: 0,
           borderRadius: 10,
           background: 'linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0) 60%)',
           pointerEvents: 'none',

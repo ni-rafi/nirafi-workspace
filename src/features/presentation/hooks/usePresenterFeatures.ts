@@ -111,6 +111,7 @@ export const usePresenterFeatures = (slideNo?: number) => {
     magnifierZoom: magnifier.magnifierZoom,
     toggleMagnifier: magnifier.toggleMagnifier,
     handleMagnifierMouseMove: magnifier.handleMagnifierMouseMove,
+    setMagnifierZoom: magnifier.setMagnifierZoom,
     // Whiteboard
     isWhiteboardOpen: whiteboard.isWhiteboardOpen,
     boardMode: whiteboard.boardMode,
