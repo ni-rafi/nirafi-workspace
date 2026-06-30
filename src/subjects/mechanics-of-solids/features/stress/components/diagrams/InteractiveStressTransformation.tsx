@@ -7,6 +7,7 @@ import { StressTransformationEngine } from '@/subjects/mechanics-of-solids/cores
 import { TransformationSliders } from './TransformationSliders';
 import { StressElementBlock } from './StressElementBlock';
 import { MohrsCircleChart } from './MohrsCircleChart';
+import { ExpandableDrawing } from '@/shared/components';
 
 export const InteractiveStressTransformation: React.FC = () => {
   const {
@@ -71,13 +72,13 @@ export const InteractiveStressTransformation: React.FC = () => {
   const thetaSDeg = Math.round((principal.thetaS * 180) / Math.PI);
 
   return (
-    <div className="rounded-xl border border-border bg-card/40 p-5 backdrop-blur-md flex flex-col gap-6">
-      {/* Row 1: Header and Snap Controls */}
-      <div className="flex flex-col gap-3.5">
-        <div className="flex flex-col gap-0.5">
-          <span className="text-xs font-bold uppercase tracking-wider text-primary">Interactive 2D Stress Transformation</span>
-          <p className="text-[10px] text-muted-foreground">Snap to critical planes or use the sliders below to transform stresses</p>
-        </div>
+    <ExpandableDrawing
+      title="Interactive 2D Stress Transformation"
+      description="Interactive stress transformation playground. View transformed stress states, principal planes, and Mohr's Circle."
+    >
+      <div className="relative w-full select-none flex flex-col gap-6">
+        {/* Row 1: Snap Controls */}
+        <div className="flex flex-col gap-3.5">
 
         {/* Snap Controls */}
         <div className="flex flex-col gap-1.5">
@@ -152,5 +153,6 @@ export const InteractiveStressTransformation: React.FC = () => {
         </div>
       </div>
     </div>
+  </ExpandableDrawing>
   );
 };

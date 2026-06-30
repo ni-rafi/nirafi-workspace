@@ -5,6 +5,7 @@ import { ISolverOutput } from '@/subjects/mechanics-of-solids/cores/sfd-bmd/type
 import { IDeflectionPoint, IDeflectionResult } from '@/subjects/mechanics-of-solids/cores/deflection/types';
 import { motion, AnimatePresence } from 'motion/react';
 import { splitIntoSignSegments } from '../../utils/chartUtils';
+import { ExpandableDrawing } from '@/shared/components';
 
 interface DeflectionChartProps {
   length?: number;
@@ -49,8 +50,6 @@ export const DeflectionChart: React.FC<DeflectionChartProps> = ({
   const eiSegments: { startPosition: number; endPosition: number }[] = propsEiSegments ?? workspaceContext?.eiSegments ?? [];
   const solverResult: ISolverOutput | undefined = propsSolverResult ?? engineContext?.solverResult;
   const deflectionResult: IDeflectionResult | undefined = propsDeflectionResult ?? engineContext?.deflectionResult;
-
-  const containerRef = useRef<HTMLDivElement>(null);
   const svgRef = useRef<SVGSVGElement>(null);
 
   if (
@@ -155,8 +154,11 @@ export const DeflectionChart: React.FC<DeflectionChartProps> = ({
   }
 
   return (
-    <div ref={containerRef} className="relative w-full rounded-xl border border-border bg-card/40 p-4 backdrop-blur-md">
-      <div className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Deflection Diagram (Δ) - mm</div>
+    <ExpandableDrawing
+      title="Deflection Diagram (Δ) - mm"
+      description="Calculated elastic deflection profile along the span of the beam."
+    >
+      <div className="relative w-full select-none">
 
       <div className="relative">
         <svg
@@ -166,6 +168,8 @@ export const DeflectionChart: React.FC<DeflectionChartProps> = ({
           onMouseMove={handleMouseMove}
           onMouseLeave={() => setHoverX(null)}
         >
+          {/* Transparent capture surface for pointer events */}
+          <rect width={width} height={height} fill="transparent" pointerEvents="all" />
           <defs>
             <linearGradient id="deflGradPos" x1="0%" y1="0%" x2="0%" y2="100%">
               <stop offset="0%" stopColor="#10b981" stopOpacity="0.25" />
@@ -294,7 +298,7 @@ export const DeflectionChart: React.FC<DeflectionChartProps> = ({
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
               transition={{ duration: 0.1 }}
-              className="absolute pointer-events-none rounded-xl border border-border/80 bg-background/85 px-3 py-2 text-left shadow-lg backdrop-blur-md"
+              className="absolute pointer-events-none z-20 rounded-xl border border-border/80 bg-background/85 px-3 py-2 text-left shadow-lg backdrop-blur-md"
               style={{
                 left: `${hoverData.px}%`,
                 top: `${hoverData.py}%`,
@@ -310,6 +314,7 @@ export const DeflectionChart: React.FC<DeflectionChartProps> = ({
         </AnimatePresence>
       </div>
     </div>
+  </ExpandableDrawing>
   );
 };
 export default DeflectionChart;

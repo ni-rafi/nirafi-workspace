@@ -8,6 +8,7 @@ import { CanvasSupports } from './CanvasSupports';
 import { CanvasReleases } from './CanvasReleases';
 import { CanvasLoads } from './CanvasLoads';
 import { DimensionChain } from './DimensionChain';
+import { ExpandableDrawing } from '@/shared/components';
 
 export const BeamCanvas: React.FC = () => {
   const {
@@ -76,9 +77,12 @@ export const BeamCanvas: React.FC = () => {
   });
 
   return (
-    <div className="relative w-full overflow-hidden rounded-xl border border-border bg-card/40 p-4 backdrop-blur-md">
-      <div className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Interactive Beam Workspace</div>
-      <svg
+    <ExpandableDrawing
+      title="Interactive Beam Workspace"
+      description="Visual builder for configuring beam geometry, supports, release joints, and loading configurations."
+    >
+      <div className="relative w-full select-none">
+        <svg
         ref={svgRef}
         viewBox={`0 0 ${width} 205`} // Adjusted height to 205 for a more compact workspace
         className="w-full select-none overflow-visible"
@@ -175,5 +179,6 @@ export const BeamCanvas: React.FC = () => {
         )}
       </svg>
     </div>
+  </ExpandableDrawing>
   );
 };

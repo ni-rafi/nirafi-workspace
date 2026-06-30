@@ -8,6 +8,7 @@ import { Info } from 'lucide-react';
 import { ProfileShapeView } from './ProfileShapeView';
 import { BendingStressProfileChart } from './BendingStressProfileChart';
 import { ShearStressProfileChart } from './ShearStressProfileChart';
+import { ExpandableDrawing } from '@/shared/components';
 
 export const StressGradientProfile: React.FC = () => {
   const { length, hoverX, customInspectX, inspectY, setInspectY, eiSegments } = useBeamWorkspace();
@@ -109,15 +110,12 @@ export const StressGradientProfile: React.FC = () => {
   const sigmaBottomMPa = sigmaBottom / 1e6;
 
   return (
-    <div className="rounded-xl border border-border bg-card/40 p-4 backdrop-blur-md">
-      <div className="mb-3 flex items-center justify-between text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-        <span>Cross-Section Stress Distributions at x = {inspectX.toFixed(2)}m</span>
-        <span className="text-[10px] text-primary">
-          y = {inspectY.toFixed(1)}mm{Math.abs(inspectY) < 0.1 ? ' (Neutral Axis)' : ''}
-        </span>
-      </div>
-
-      <div className="relative">
+    <ExpandableDrawing
+      title={`Cross-Section Stress Distributions at x = ${inspectX.toFixed(2)}m`}
+      description={`Normal bending and shear stress profiles across the cross-section height at the selected span coordinate.`}
+    >
+      <div className="relative w-full select-none">
+        <div className="relative">
         <svg
           ref={svgRef}
           viewBox={`0 0 ${width} ${height}`}
@@ -179,5 +177,6 @@ export const StressGradientProfile: React.FC = () => {
         </svg>
       </div>
     </div>
+  </ExpandableDrawing>
   );
 };

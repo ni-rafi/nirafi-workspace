@@ -4,6 +4,7 @@ import { motion } from 'motion/react';
 import { Play, Pause, RefreshCw } from 'lucide-react';
 import { IInfluenceTarget } from '../../../../cores/influence-lines/influence-lines.interface';
 import { InfluenceLinesService } from '../../../../cores/influence-lines/influenceLinesService';
+import { ExpandableDrawing } from '@/shared/components';
 import { splitIntoSignSegments } from '@/subjects/mechanics-of-solids/features/sfd-bmd/utils/chartUtils';
 
 interface MullerBreslauAnimatorProps {
@@ -114,6 +115,18 @@ export const MullerBreslauAnimator: React.FC<MullerBreslauAnimatorProps> = ({ ta
         );
     };
 
+    const getChartTitleString = () => {
+        if (target.type === 'reaction') {
+            const letter = supportPosToLetter.get(target.targetSupportX ?? 0) || '?';
+            return `Müller-Breslau Shape (R_${letter})`;
+        }
+        const xcStr = target.targetSection.xc.toFixed(2);
+        if (target.type === 'shear') {
+            return `Müller-Breslau Shape (V_c, x_c = ${xcStr}m)`;
+        }
+        return `Müller-Breslau Shape (M_c, x_c = ${xcStr}m)`;
+    };
+
     const refPointsRaw = [
         { x: 0, label: '0.0m' },
         { x: length, label: `${length.toFixed(1)}m` }
@@ -140,14 +153,17 @@ export const MullerBreslauAnimator: React.FC<MullerBreslauAnimatorProps> = ({ ta
     });
 
     return (
-        <div
+        <ExpandableDrawing
+            title={getChartTitleString()}
+            description="Deflected mechanism shape from unit virtual displacement (Müller-Breslau Principle)."
             onClick={() => setActiveTargetId(target.id)}
-            className={`flex flex-col gap-4 rounded-xl border p-4 backdrop-blur-md transition-all cursor-pointer ${
+            className={`transition-all cursor-pointer ${
                 isActive
                     ? 'border-primary bg-card/75 shadow-[0_4px_20px_rgba(59,130,246,0.12)] ring-1 ring-primary/20'
                     : 'border-border bg-card/40 hover:border-border/80 hover:bg-card/50'
             }`}
         >
+            <div className="relative w-full select-none flex flex-col gap-4 p-1">
             <div className="flex items-center justify-between border-b border-border/40 pb-2">
                 <div>
                     <h3 className={`text-xs font-bold uppercase tracking-wider ${isActive ? 'text-primary' : 'text-foreground/90'}`}>
@@ -273,6 +289,7 @@ export const MullerBreslauAnimator: React.FC<MullerBreslauAnimatorProps> = ({ ta
                 </svg>
             </div>
         </div>
+    </ExpandableDrawing>
     );
 };
 export default MullerBreslauAnimator;

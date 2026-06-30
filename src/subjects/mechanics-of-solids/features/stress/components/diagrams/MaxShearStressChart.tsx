@@ -4,6 +4,7 @@ import { useBeamEngine } from '../../../sfd-bmd/hooks/useBeamEngine';
 import { StressSolverEngine } from '@/subjects/mechanics-of-solids/cores/stress/stress-solver.engine';
 import { motion, AnimatePresence } from 'motion/react';
 import { Info } from 'lucide-react';
+import { ExpandableDrawing } from '@/shared/components';
 
 export const MaxShearStressChart: React.FC = () => {
   const { length, hoverX, setHoverX, supports, releases, eiSegments } = useBeamWorkspace();
@@ -206,12 +207,12 @@ export const MaxShearStressChart: React.FC = () => {
   const shearCriticalPoints = getShearCriticalPoints();
 
   return (
-    <div className="relative w-full rounded-xl border border-border bg-card/40 p-4 backdrop-blur-md">
-      <div className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-        Maximum Shear Stress Envelope (τ<sub>max</sub>) - MPa
-      </div>
-
-      <div className="relative">
+    <ExpandableDrawing
+      title="Maximum Shear Stress Envelope (τmax) - MPa"
+      description="Envelope of maximum shear stress calculated along the beam length based on the cross-section shape."
+    >
+      <div className="relative w-full select-none">
+        <div className="relative">
         <svg
           ref={svgRef}
           viewBox={`0 0 ${width} ${height}`}
@@ -321,5 +322,6 @@ export const MaxShearStressChart: React.FC = () => {
         </AnimatePresence>
       </div>
     </div>
+  </ExpandableDrawing>
   );
 };

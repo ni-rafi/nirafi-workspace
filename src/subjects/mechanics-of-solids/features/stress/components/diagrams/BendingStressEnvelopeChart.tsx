@@ -4,6 +4,7 @@ import { useBeamEngine } from '../../../sfd-bmd/hooks/useBeamEngine';
 import { StressSolverEngine } from '@/subjects/mechanics-of-solids/cores/stress/stress-solver.engine';
 import { motion, AnimatePresence } from 'motion/react';
 import { Info } from 'lucide-react';
+import { ExpandableDrawing } from '@/shared/components';
 
 export const BendingStressEnvelopeChart: React.FC = () => {
   const { length, hoverX, setHoverX, supports, releases, eiSegments } = useBeamWorkspace();
@@ -218,12 +219,12 @@ export const BendingStressEnvelopeChart: React.FC = () => {
   const bendingCriticalPoints = getBendingCriticalPoints();
 
   return (
-    <div className="relative w-full rounded-xl border border-border bg-card/40 p-4 backdrop-blur-md">
-      <div className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-        Normal Bending Stress Envelope (σ) - MPa
-      </div>
-
-      <div className="relative">
+    <ExpandableDrawing
+      title="Normal Bending Stress Envelope (σ) - MPa"
+      description="Envelope of maximum normal bending stress (tension and compression) calculated along the beam length."
+    >
+      <div className="relative w-full select-none">
+        <div className="relative">
         <svg
           ref={svgRef}
           viewBox={`0 0 ${width} ${height}`}
@@ -364,5 +365,6 @@ export const BendingStressEnvelopeChart: React.FC = () => {
         </AnimatePresence>
       </div>
     </div>
+  </ExpandableDrawing>
   );
 };

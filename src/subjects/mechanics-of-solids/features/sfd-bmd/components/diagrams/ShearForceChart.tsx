@@ -4,6 +4,7 @@ import { useBeamEngine } from '../../hooks/useBeamEngine';
 import { IIntervalEquation, ISolverOutput } from '@/subjects/mechanics-of-solids/cores/sfd-bmd/types';
 import { motion, AnimatePresence } from 'motion/react';
 import { splitIntoSignSegments, evalPoly } from '../../utils/chartUtils';
+import { ExpandableDrawing } from '@/shared/components';
 
 interface ShearForceChartProps {
   length?: number;
@@ -55,7 +56,6 @@ export const ShearForceChart: React.FC<ShearForceChartProps> = ({
     else if (activeStep === 4) limitX = 20.0;
   }
 
-  const containerRef = useRef<HTMLDivElement>(null);
   const svgRef = useRef<SVGSVGElement>(null);
 
   if (!solverResult || !solverResult.success || !solverResult.intervals || solverResult.intervals.length === 0) return null;
@@ -135,8 +135,11 @@ export const ShearForceChart: React.FC<ShearForceChartProps> = ({
   }
 
   return (
-    <div ref={containerRef} className="relative w-full rounded-xl border border-border bg-card/40 p-4 backdrop-blur-md">
-      <div className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Shear Force Diagram (SFD) - kN</div>
+    <ExpandableDrawing
+      title="Shear Force Diagram (SFD) - kN"
+      description="Calculated shear force profile along the span of the beam."
+    >
+      <div className="relative w-full select-none">
 
       <div className="relative">
         <svg
@@ -146,6 +149,8 @@ export const ShearForceChart: React.FC<ShearForceChartProps> = ({
           onMouseMove={handleMouseMove}
           onMouseLeave={() => setHoverX(null)}
         >
+          {/* Transparent capture surface for pointer events */}
+          <rect width={width} height={height} fill="transparent" pointerEvents="all" />
           <defs>
             <linearGradient id="shearGradPos" x1="0%" y1="0%" x2="0%" y2="100%">
               <stop offset="0%" stopColor="var(--primary)" stopOpacity="0.25" />
@@ -268,7 +273,7 @@ export const ShearForceChart: React.FC<ShearForceChartProps> = ({
               y1={10}
               x2={toPixelX(hoverX)}
               y2={height - 10}
-              stroke={hoverData ? (hoverData.v >= 0 ? 'var(--primary)' : '#f97316') : 'var(--muted-foreground)'}
+              stroke={hoverData ? (hoverData.v >= 0 ? 'var(--primary, #6366f1)' : '#f97316') : 'var(--muted-foreground)'}
               strokeWidth={1}
               strokeDasharray="3,3"
               opacity={0.65}
@@ -279,7 +284,7 @@ export const ShearForceChart: React.FC<ShearForceChartProps> = ({
               cx={toPixelX(hoverData.x)}
               cy={midY - hoverData.v * scaleY}
               r={4}
-              fill={hoverData.v >= 0 ? 'var(--primary)' : '#f97316'}
+              fill={hoverData.v >= 0 ? 'var(--primary, #6366f1)' : '#f97316'}
               transition={{ type: 'spring', stiffness: 260, damping: 30 }}
             />
           )}
@@ -293,7 +298,7 @@ export const ShearForceChart: React.FC<ShearForceChartProps> = ({
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
               transition={{ duration: 0.1 }}
-              className="absolute pointer-events-none rounded-xl border border-border/80 bg-background/85 px-3 py-2 text-left shadow-lg backdrop-blur-md"
+              className="absolute pointer-events-none z-20 rounded-xl border border-border/80 bg-background/85 px-3 py-2 text-left shadow-lg backdrop-blur-md"
               style={{
                 left: `${hoverData.px}%`,
                 top: `${hoverData.py}%`,
@@ -309,6 +314,7 @@ export const ShearForceChart: React.FC<ShearForceChartProps> = ({
         </AnimatePresence>
       </div>
     </div>
+  </ExpandableDrawing>
   );
 };
 export default ShearForceChart;

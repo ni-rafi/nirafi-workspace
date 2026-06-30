@@ -9,6 +9,7 @@ import { CanvasVehicleTransit } from './CanvasVehicleTransit';
 import { CanvasBeamMember } from './CanvasBeamMember';
 import { CanvasHoverSync } from './CanvasHoverSync';
 import { CanvasArrowMarker } from './CanvasArrowMarker';
+import { ExpandableDrawing } from '@/shared/components';
 
 export const InfluenceLineBeamCanvas: React.FC = () => {
     const {
@@ -68,12 +69,12 @@ export const InfluenceLineBeamCanvas: React.FC = () => {
     });
 
     return (
-        <div className="relative w-full overflow-hidden rounded-xl border border-border bg-card/40 p-4 backdrop-blur-md">
-            <div className="mb-2 flex items-center justify-between">
-                <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Influence Line Builder Canvas</span>
-                <span className="text-[10px] text-muted-foreground">Drag supports or target section to configure</span>
-            </div>
-            <svg
+        <ExpandableDrawing
+            title="Influence Line Builder Canvas"
+            description="Visual builder for configuring beam geometry, supports, internal joints, and target shear/moment sections."
+        >
+            <div className="relative w-full select-none">
+                <svg
                 ref={svgRef}
                 viewBox={`0 0 ${width} 205`}
                 className="w-full select-none overflow-visible"
@@ -141,6 +142,7 @@ export const InfluenceLineBeamCanvas: React.FC = () => {
                 <CanvasHoverSync hoverX={hoverX} toPixel={toPixel} yBeam={yBeam} />
             </svg>
         </div>
+    </ExpandableDrawing>
     );
 };
 

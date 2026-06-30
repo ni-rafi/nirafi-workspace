@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useRef } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { getLectureIdFromPath, isProjectionView, getStorageItem, setStorageItem } from '../utils/presentationStorage';
 
 interface MagnifierState {
@@ -21,7 +21,6 @@ export const useMagnifier = () => {
   const lectureId = getLectureIdFromPath();
   const storageKey = `cee_magnifier_${lectureId}`;
   const isProjection = isProjectionView();
-  const containerRectRef = useRef<DOMRect | null>(null);
 
   const [state, setState] = useState<MagnifierState>(() =>
     getStorageItem<MagnifierState>(storageKey, DEFAULT_STATE)
@@ -63,8 +62,7 @@ export const useMagnifier = () => {
   /** Called on mousemove over the slide container on the main screen. */
   const handleMagnifierMouseMove = useCallback((e: React.MouseEvent<HTMLElement>) => {
     if (!state.active || isProjection) return;
-    const rect = containerRectRef.current ?? e.currentTarget.getBoundingClientRect();
-    containerRectRef.current = rect;
+    const rect = e.currentTarget.getBoundingClientRect();
     const x = ((e.clientX - rect.left) / rect.width) * 100;
     const y = ((e.clientY - rect.top) / rect.height) * 100;
     updateState({ x, y });

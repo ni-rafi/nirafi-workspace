@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { IInfluenceOrdinate, IInfluenceTarget } from '../../../../cores/influence-lines/influence-lines.interface';
 import { InfluenceLinesService } from '../../../../cores/influence-lines/influenceLinesService';
 import { splitIntoSignSegments } from '@/subjects/mechanics-of-solids/features/sfd-bmd/utils/chartUtils';
+import { ExpandableDrawing } from '@/shared/components';
 
 interface InfluenceLineChartProps {
     target: IInfluenceTarget;
@@ -136,6 +137,18 @@ export const InfluenceLineChart: React.FC<InfluenceLineChartProps> = ({ target }
         );
     };
 
+    const getChartTitleString = () => {
+        if (target.type === 'reaction') {
+            const letter = supportPosToLetter.get(target.targetSupportX ?? 0) || '?';
+            return `Influence Line Diagram (R_${letter})`;
+        }
+        const xcStr = target.targetSection.xc.toFixed(2);
+        if (target.type === 'shear') {
+            return `Influence Line Diagram (V_c, x_c = ${xcStr}m)`;
+        }
+        return `Influence Line Diagram (M_c, x_c = ${xcStr}m)`;
+    };
+
     const refPointsRaw = [
         { x: 0, label: '0.0m' },
         { x: length, label: `${length.toFixed(1)}m` }
@@ -162,22 +175,25 @@ export const InfluenceLineChart: React.FC<InfluenceLineChartProps> = ({ target }
     });
 
     return (
-        <div
+        <ExpandableDrawing
+            title={getChartTitleString()}
+            description={`Influence line diagram for structural response under a moving unit load.`}
             onClick={() => setActiveTargetId(target.id)}
-            className={`relative w-full rounded-xl border p-4 backdrop-blur-md transition-all cursor-pointer ${
+            className={`transition-all cursor-pointer ${
                 isActive
                     ? 'border-primary bg-card/75 shadow-[0_4px_20px_rgba(59,130,246,0.12)] ring-1 ring-primary/20'
                     : 'border-border bg-card/40 hover:border-border/80 hover:bg-card/50'
             }`}
         >
-            <div className="mb-2 flex items-center justify-between text-xs font-bold uppercase tracking-wider">
-                <span className={isActive ? 'text-primary' : 'text-muted-foreground'}>
-                    {renderChartTitle()}
-                </span>
-                <span className="text-[10px] lowercase text-muted-foreground/70">units: {getUnitString()}</span>
-            </div>
+            <div className="relative w-full select-none p-1">
+                <div className="mb-2 flex items-center justify-between text-xs font-bold uppercase tracking-wider">
+                    <span className={isActive ? 'text-primary' : 'text-muted-foreground'}>
+                        {renderChartTitle()}
+                    </span>
+                    <span className="text-[10px] lowercase text-muted-foreground/70">units: {getUnitString()}</span>
+                </div>
 
-            <div className="relative">
+                <div className="relative">
                 <svg
                     ref={svgRef}
                     viewBox={`0 0 ${width} ${height}`}
@@ -290,6 +306,7 @@ export const InfluenceLineChart: React.FC<InfluenceLineChartProps> = ({ target }
                 </AnimatePresence>
             </div>
         </div>
+    </ExpandableDrawing>
     );
 };
 export default InfluenceLineChart;

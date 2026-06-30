@@ -6,12 +6,123 @@ import html2canvas from 'html2canvas';
 import { PresentationContext } from '@/features/presentation/context/PresentationContext';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
+// Resolves CSS custom properties and oklch colors natively to standard colors, and inlines them
+const getStyledSvgClone = (svgElement: SVGSVGElement): SVGSVGElement => {
+  const clone = svgElement.cloneNode(true) as SVGSVGElement;
+  
+  const originalElements = Array.from(svgElement.querySelectorAll('*'));
+  const clonedElements = Array.from(clone.querySelectorAll('*'));
+  
+  originalElements.unshift(svgElement);
+  clonedElements.unshift(clone);
+  
+  clonedElements.forEach((el, index) => {
+    const originalEl = originalElements[index];
+    if (!originalEl) return;
+    
+    const computedStyle = window.getComputedStyle(originalEl);
+    const htmlEl = el as HTMLElement;
+    
+    // Core attributes that define colors and typography
+    const propertiesToInline = [
+      'fill',
+      'stroke',
+      'stroke-width',
+      'stroke-dasharray',
+      'stroke-opacity',
+      'fill-opacity',
+      'opacity',
+      'font-size',
+      'font-family',
+      'font-weight',
+      'text-anchor',
+    ];
+    
+    propertiesToInline.forEach(prop => {
+      const value = computedStyle.getPropertyValue(prop);
+      // Only inline if the value is defined and not default/empty
+      if (value && value !== 'none') {
+        htmlEl.style.setProperty(prop, value);
+      }
+    });
+  });
+  
+  // Set explicit width and height attributes based on bounding box
+  const rect = svgElement.getBoundingClientRect();
+  const width = rect.width || 800;
+  const height = rect.height || 600;
+  clone.setAttribute('width', width.toString());
+  clone.setAttribute('height', height.toString());
+  
+  return clone;
+};
+
+// Converts the styled SVG element to an offscreen Canvas element natively
+const captureSvgAsCanvas = (svgElement: SVGSVGElement, scale: number = 3): Promise<HTMLCanvasElement> => {
+  return new Promise((resolve, reject) => {
+    try {
+      const rect = svgElement.getBoundingClientRect();
+      const width = rect.width || 800;
+      const height = rect.height || 600;
+      
+      const styledClone = getStyledSvgClone(svgElement);
+      // Force the cloned SVG dimensions to the target high-res canvas size so the browser rasterizer renders sharp vector shapes
+      styledClone.setAttribute('width', (width * scale).toString());
+      styledClone.setAttribute('height', (height * scale).toString());
+      
+      const serializer = new XMLSerializer();
+      let svgString = serializer.serializeToString(styledClone);
+      
+      if (!svgString.match(/^<svg[^>]+xmlns="http:\/\/www\.w3\.org\/2000\/svg"/)) {
+        svgString = svgString.replace(/^<svg/, '<svg xmlns="http://www.w3.org/2000/svg"');
+      }
+      if (!svgString.match(/^<svg[^>]+xmlns:xlink="http:\/\/www\.w3\.org\/1999\/xlink"/)) {
+        svgString = svgString.replace(/^<svg/, '<svg xmlns:xlink="http://www.w3.org/1999/xlink"');
+      }
+      
+      const base64Svg = window.btoa(unescape(encodeURIComponent(svgString)));
+      const dataUrl = `data:image/svg+xml;base64,${base64Svg}`;
+      
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        canvas.width = width * scale;
+        canvas.height = height * scale;
+        
+        const ctx = canvas.getContext('2d');
+        if (!ctx) {
+          reject(new Error('Failed to get 2D canvas context'));
+          return;
+        }
+        
+        // Add solid white background to make drawing standalone copies clean
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        resolve(canvas);
+      };
+      
+      img.onerror = () => {
+        reject(new Error('Failed to load SVG image source'));
+      };
+      
+      img.src = dataUrl;
+    } catch (err) {
+      reject(err);
+    }
+  });
+};
+
 interface ExpandableDrawingProps {
   children: React.ReactNode;
   title: string;
   description?: string;
   downloadFileName?: string;
   className?: string;
+  onClick?: (e: React.MouseEvent<HTMLDivElement>) => void;
 }
 
 export const ExpandableDrawing: React.FC<ExpandableDrawingProps> = ({
@@ -20,6 +131,7 @@ export const ExpandableDrawing: React.FC<ExpandableDrawingProps> = ({
   description,
   downloadFileName,
   className = '',
+  onClick,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [hasSvg, setHasSvg] = useState(false);
@@ -52,13 +164,21 @@ export const ExpandableDrawing: React.FC<ExpandableDrawingProps> = ({
     });
 
     try {
-      const target = element.querySelector('svg') || element;
-      const canvas = await html2canvas(target as HTMLElement, {
-        scale: 3, // High DPI for clean vectors
-        useCORS: true,
-        backgroundColor: null, // Transparent background
-        logging: false,
-      });
+      const svgEl = element.querySelector('svg');
+      let canvas: HTMLCanvasElement;
+      
+      if (svgEl) {
+        // Use native high-quality SVG capture (supports oklch, CSS variables, etc.)
+        canvas = await captureSvgAsCanvas(svgEl, 5);
+      } else {
+        // Fallback to html2canvas for pure HTML containers
+        canvas = await html2canvas(element as HTMLElement, {
+          scale: 3,
+          useCORS: true,
+          backgroundColor: '#ffffff',
+          logging: false,
+        });
+      }
 
       canvas.toBlob(async (blob) => {
         if (!blob) {
@@ -115,13 +235,19 @@ export const ExpandableDrawing: React.FC<ExpandableDrawingProps> = ({
     });
 
     try {
-      const target = element.querySelector('svg') || element;
-      const canvas = await html2canvas(target as HTMLElement, {
-        scale: 3,
-        useCORS: true,
-        backgroundColor: null,
-        logging: false,
-      });
+      const svgEl = element.querySelector('svg');
+      let canvas: HTMLCanvasElement;
+      
+      if (svgEl) {
+        canvas = await captureSvgAsCanvas(svgEl, 5);
+      } else {
+        canvas = await html2canvas(element as HTMLElement, {
+          scale: 3,
+          useCORS: true,
+          backgroundColor: '#ffffff',
+          logging: false,
+        });
+      }
 
       canvas.toBlob((blob) => {
         if (!blob) {
@@ -170,10 +296,12 @@ export const ExpandableDrawing: React.FC<ExpandableDrawingProps> = ({
     }
 
     try {
+      // Use helper to resolve all style variables dynamically and get self-contained SVG node
+      const styledSvg = getStyledSvgClone(svgEl);
+      
       const serializer = new XMLSerializer();
-      let source = serializer.serializeToString(svgEl);
+      let source = serializer.serializeToString(styledSvg);
 
-      // Ensure xmlns namespaces are added
       if (!source.match(/^<svg[^>]+xmlns="http:\/\/www\.w3\.org\/2000\/svg"/)) {
         source = source.replace(/^<svg/, '<svg xmlns="http://www.w3.org/2000/svg"');
       }
@@ -201,9 +329,12 @@ export const ExpandableDrawing: React.FC<ExpandableDrawingProps> = ({
     : `group relative rounded-xl overflow-hidden border border-border/60 bg-background/50 dark:bg-slate-900/5 ${className}`;
 
   return (
-    <div ref={containerRef} className={wrapperClasses}>
-      {/* Target Content */}
-      <div className={isBlog ? 'w-full' : 'w-full h-full p-2'}>{children}</div>
+    <div ref={containerRef} className={wrapperClasses} onClick={onClick}>
+      <div className={isBlog ? 'w-full' : 'w-full h-full p-2'}>
+        <div className="w-full h-full expandable-inner-target">
+          {children}
+        </div>
+      </div>
 
       {/* Small hover-reveal button in the top-right corner with tooltip */}
       {!isBlog && (
@@ -282,12 +413,13 @@ export const ExpandableDrawing: React.FC<ExpandableDrawingProps> = ({
               </div>
             </div>
 
-            {/* 2. Expanded Drawing Display Container */}
             <div 
               id={`modal-content-${modalId}`}
-              className="flex-1 w-full max-w-5xl max-h-[75vh] flex items-center justify-center p-6 bg-muted/10 dark:bg-slate-900/40 rounded-2xl border border-border/40 backdrop-blur-xs select-none overflow-hidden relative expandable-modal-graphic-wrapper"
+              className="flex-1 w-full max-w-5xl max-h-[75vh] flex items-center justify-center p-6 bg-white dark:bg-white text-slate-900 rounded-2xl border border-border shadow-lg select-none overflow-hidden relative expandable-modal-graphic-wrapper light"
             >
-              {children}
+              <div className="w-full h-full flex items-center justify-center expandable-inner-target">
+                {children}
+              </div>
             </div>
 
             {/* Modal Global CSS Override to scale nested SVGs inside fullscreen */}

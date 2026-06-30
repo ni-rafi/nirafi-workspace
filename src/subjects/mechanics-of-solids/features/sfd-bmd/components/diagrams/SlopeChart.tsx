@@ -5,6 +5,7 @@ import { ISolverOutput } from '@/subjects/mechanics-of-solids/cores/sfd-bmd/type
 import { IDeflectionPoint, IDeflectionResult } from '@/subjects/mechanics-of-solids/cores/deflection/types';
 import { motion, AnimatePresence } from 'motion/react';
 import { splitIntoSignSegments } from '../../utils/chartUtils';
+import { ExpandableDrawing } from '@/shared/components';
 
 interface SlopeChartProps {
   length?: number;
@@ -49,8 +50,6 @@ export const SlopeChart: React.FC<SlopeChartProps> = ({
   const eiSegments: { startPosition: number; endPosition: number }[] = propsEiSegments ?? workspaceContext?.eiSegments ?? [];
   const solverResult: ISolverOutput | undefined = propsSolverResult ?? engineContext?.solverResult;
   const deflectionResult: IDeflectionResult | undefined = propsDeflectionResult ?? engineContext?.deflectionResult;
-
-  const containerRef = useRef<HTMLDivElement>(null);
   const svgRef = useRef<SVGSVGElement>(null);
 
   if (
@@ -155,8 +154,11 @@ export const SlopeChart: React.FC<SlopeChartProps> = ({
   }
 
   return (
-    <div ref={containerRef} className="relative w-full rounded-xl border border-border bg-card/40 p-4 backdrop-blur-md">
-      <div className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Slope Diagram (θ) - rad</div>
+    <ExpandableDrawing
+      title="Slope Diagram (θ) - rad"
+      description="Calculated slope profile along the span of the beam."
+    >
+      <div className="relative w-full select-none">
 
       <div className="relative">
         <svg
@@ -166,6 +168,8 @@ export const SlopeChart: React.FC<SlopeChartProps> = ({
           onMouseMove={handleMouseMove}
           onMouseLeave={() => setHoverX(null)}
         >
+          {/* Transparent capture surface for pointer events */}
+          <rect width={width} height={height} fill="transparent" pointerEvents="all" />
           <defs>
             <linearGradient id="slopeGradPos" x1="0%" y1="0%" x2="0%" y2="100%">
               <stop offset="0%" stopColor="var(--primary, #6366f1)" stopOpacity="0.25" />
@@ -294,7 +298,7 @@ export const SlopeChart: React.FC<SlopeChartProps> = ({
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
               transition={{ duration: 0.1 }}
-              className="absolute pointer-events-none rounded-xl border border-border/80 bg-background/85 px-3 py-2 text-left shadow-lg backdrop-blur-md"
+              className="absolute pointer-events-none z-20 rounded-xl border border-border/80 bg-background/85 px-3 py-2 text-left shadow-lg backdrop-blur-md"
               style={{
                 left: `${hoverData.px}%`,
                 top: `${hoverData.py}%`,
@@ -310,6 +314,7 @@ export const SlopeChart: React.FC<SlopeChartProps> = ({
         </AnimatePresence>
       </div>
     </div>
+  </ExpandableDrawing>
   );
 };
 export default SlopeChart;
