@@ -59,15 +59,48 @@ export function calculateSfdSegmentArea(
   if (isCurved) {
     if (isPeakSplit === 'first' && hasVertexAtStart) {
       formulaLatex = `\\Delta M = \\frac{2}{3} \\cdot b \\cdot h`;
-      calcLatex = `\\Delta M = \\frac{2}{3} \\cdot ${L_seg.toFixed(3)}\\text{m} \\cdot ${Math.abs(vStart).toFixed(3)}\\text{kN} = ${areaSign}${finalArea.toFixed(3)}\\text{ kNm}`;
+      calcLatex = `\\Delta M = \\frac{2}{3} \\cdot ${L_seg.toFixed(3)}\\text{m} \\cdot ${Math.abs(vEnd).toFixed(3)}\\text{kN} = ${areaSign}${finalArea.toFixed(3)}\\text{ kNm}`;
       noteText = `★ Note: Since the shear curve has a vertex (zero load) at x = ${startX.toFixed(1)}m, we can use the parabolic spandrel area formula: A = 2/3 * b * h.`;
     } else if (isPeakSplit === 'second' && hasVertexAtEnd) {
       formulaLatex = `\\Delta M = \\frac{2}{3} \\cdot b \\cdot h`;
-      calcLatex = `\\Delta M = \\frac{2}{3} \\cdot ${L_seg.toFixed(3)}\\text{m} \\cdot ${Math.abs(vEnd).toFixed(3)}\\text{kN} = ${areaSign}${finalArea.toFixed(3)}\\text{ kNm}`;
+      calcLatex = `\\Delta M = \\frac{2}{3} \\cdot ${L_seg.toFixed(3)}\\text{m} \\cdot ${Math.abs(vStart).toFixed(3)}\\text{kN} = ${areaSign}${finalArea.toFixed(3)}\\text{ kNm}`;
       noteText = `★ Note: Since the shear curve has a vertex (zero load) at x = ${endX.toFixed(1)}m, we can use the parabolic spandrel area formula: A = 2/3 * b * h.`;
     } else {
-      formulaLatex = `\\Delta M = \\int_{x_1}^{x_2} V(x) \\, dx`;
-      calcLatex = `\\Delta M = \\text{Area} = ${areaSign}${finalArea.toFixed(3)}\\text{ kNm}`;
+      if (interval) {
+        const [aVal, bVal, cVal] = interval.vCoeffs;
+        
+        let integrand = '';
+        if (Math.abs(aVal) > 1e-4) {
+          integrand += `${aVal >= 0 ? '' : '-'}${Math.abs(aVal).toFixed(3)}x^2`;
+        }
+        if (Math.abs(bVal) > 1e-4) {
+          const sign = bVal >= 0 ? (integrand ? '+' : '') : '-';
+          integrand += ` ${sign} ${Math.abs(bVal).toFixed(3)}x`;
+        }
+        if (Math.abs(cVal) > 1e-4 || !integrand) {
+          const sign = cVal >= 0 ? (integrand ? '+' : '') : '-';
+          integrand += ` ${sign} ${Math.abs(cVal).toFixed(3)}`;
+        }
+
+        let antiderivative = '';
+        if (Math.abs(aVal) > 1e-4) {
+          antiderivative += `${aVal >= 0 ? '' : '-'}\\frac{${Math.abs(aVal).toFixed(3)}}{3}x^3`;
+        }
+        if (Math.abs(bVal) > 1e-4) {
+          const sign = bVal >= 0 ? (antiderivative ? '+' : '') : '-';
+          antiderivative += ` ${sign} \\frac{${Math.abs(bVal).toFixed(3)}}{2}x^2`;
+        }
+        if (Math.abs(cVal) > 1e-4 || !antiderivative) {
+          const sign = cVal >= 0 ? (antiderivative ? '+' : '') : '-';
+          antiderivative += ` ${sign} ${Math.abs(cVal).toFixed(3)}x`;
+        }
+
+        formulaLatex = `\\Delta M = \\int_{${startX.toFixed(2)}}^{${endX.toFixed(2)}} \\left( ${integrand} \\right) \\, dx`;
+        calcLatex = `\\Delta M = \\left[ ${antiderivative} \\right]_{${startX.toFixed(2)}}^{${endX.toFixed(2)}} = ${areaSign}${finalArea.toFixed(3)}\\text{ kNm}`;
+      } else {
+        formulaLatex = `\\Delta M = \\int_{x_1}^{x_2} V(x) \\, dx`;
+        calcLatex = `\\Delta M = \\text{Area} = ${areaSign}${finalArea.toFixed(3)}\\text{ kNm}`;
+      }
       noteText = `★ Note: Since this parabolic segment does not start or end at the vertex (slope is non-zero at both boundaries), the area is calculated using the difference of parabolic spandrels or formal integration.`;
     }
   } else if (isLinear) {

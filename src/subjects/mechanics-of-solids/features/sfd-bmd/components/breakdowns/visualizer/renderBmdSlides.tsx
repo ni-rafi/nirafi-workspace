@@ -1,5 +1,5 @@
 import React from 'react';
-import { ClickReveal, LatexFormula } from '@/features/presentation/components/elements';
+import { ClickReveal, LatexFormula, ClickHighlight } from '@/features/presentation/components/elements';
 import { TwoColumnToastLayout } from '@/shared/layouts/TwoColumnToastLayout';
 import { IBeam, ISolverOutput, calculateSfdSegmentArea } from '@/subjects/mechanics-of-solids/cores/sfd-bmd';
 
@@ -186,15 +186,22 @@ export const renderBmdSegment = (
                     <span className="text-foreground/80 font-bold">Formula:</span> <LatexFormula math={formulaLatex} />
                   </div>
                   <div>
-                    <span className="text-foreground/80 font-bold">Solve:</span> <LatexFormula math={calcLatex} />
+                    <span className="text-foreground/80 font-bold">Solve:</span>{' '}
+                    {Math.abs(areaResult.area) > 1e-3 ? (
+                      <ClickHighlight variant="paint" at={1} className="inline-block">
+                        <LatexFormula math={calcLatex} />
+                      </ClickHighlight>
+                    ) : (
+                      <LatexFormula math={calcLatex} />
+                    )}
                   </div>
                 </div>
               </div>
             </ClickReveal>
             <ClickReveal at={2}>
-              <div className={`border-t border-border/25 pt-2 ${clickIdx >= 3 ? 'line-through text-muted-foreground/50 transition-all duration-300' : ''}`}>
-                <span className={`font-bold block mb-0.5 ${clickIdx >= 3 ? 'text-muted-foreground/60' : 'text-foreground'}`}>3. Reference line & arrow:</span>
-                Draw reference line at <LatexFormula math={`${activeSlide.mStart?.toFixed(3)}\\text{ kNm}`} />, show difference arrow.
+              <div className={`border-t border-border/25 pt-2 ${clickIdx >= 3 ? 'text-muted-foreground/40 transition-all duration-300' : ''}`}>
+                <span className={`font-bold block mb-0.5 ${clickIdx >= 3 ? 'text-muted-foreground/40' : 'text-foreground'}`}>3. Reference line & arrow:</span>
+                Draw reference line at <LatexFormula math={`${activeSlide.mStart?.toFixed(3)}\\text{ kNm}`} />, show difference arrow of <LatexFormula math={`${(activeSlide.shearArea ?? 0) >= 0 ? '+' : ''}${(activeSlide.shearArea ?? 0).toFixed(3)}\\text{ kNm}`} />.
               </div>
             </ClickReveal>
             <ClickReveal at={3}>

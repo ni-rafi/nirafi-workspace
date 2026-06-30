@@ -89,8 +89,8 @@ export const renderSfdJump = (
               </div>
             </ClickReveal>
             <ClickReveal at={2}>
-              <div className={`border-t border-border/25 pt-2 ${clickIdx >= 3 ? 'line-through text-muted-foreground/50 transition-all duration-300' : ''}`}>
-                <span className={`font-bold block mb-0.5 ${clickIdx >= 3 ? 'text-muted-foreground/60' : 'text-foreground'}`}>3. Reference line & arrow:</span>
+              <div className={`border-t border-border/25 pt-2 ${clickIdx >= 3 ? 'text-muted-foreground/40 transition-all duration-300' : ''}`}>
+                <span className={`font-bold block mb-0.5 ${clickIdx >= 3 ? 'text-muted-foreground/40' : 'text-foreground'}`}>3. Reference line & arrow:</span>
                 Draw reference line at <LatexFormula math={`V=${activeStep.vStart?.toFixed(3)}`} />, show difference arrow of <LatexFormula math={`${sign}${Math.abs(activeStep.jump || 0).toFixed(3)}\\text{ kN}`} />.
               </div>
             </ClickReveal>
@@ -194,8 +194,8 @@ export const renderSfdSegment = (
               </div>
             </ClickReveal>
             <ClickReveal at={2}>
-              <div className={`border-t border-border/25 pt-2 ${clickIdx >= 3 ? 'line-through text-muted-foreground/50 transition-all duration-300' : ''}`}>
-                <span className={`font-bold block mb-0.5 ${clickIdx >= 3 ? 'text-muted-foreground/60' : 'text-foreground'}`}>3. Reference line & arrow:</span>
+              <div className={`border-t border-border/25 pt-2 ${clickIdx >= 3 ? 'text-muted-foreground/40 transition-all duration-300' : ''}`}>
+                <span className={`font-bold block mb-0.5 ${clickIdx >= 3 ? 'text-muted-foreground/40' : 'text-foreground'}`}>3. Reference line & arrow:</span>
                 Draw reference line at <LatexFormula math={`V=${activeStep.vStart?.toFixed(3)}`} />, difference arrow of <LatexFormula math={`-${Math.abs(activeStep.loadArea || 0).toFixed(3)}\\text{ kN}`} />.
               </div>
             </ClickReveal>

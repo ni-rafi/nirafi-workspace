@@ -157,6 +157,8 @@ export const renderDynamicStep = (stepIndex: number, params: StepParams): React.
           endX: segmentPeakX,
           mStart: step.mStart,
           mEnd: segmentPeakM,
+          vStart: matchingSfd?.vStart || 0,
+          vEnd: 0,
           shearArea: segmentPeakM - (step.mStart || 0),
           isPeakSplit: 'first',
           peakX: segmentPeakX,
@@ -173,6 +175,8 @@ export const renderDynamicStep = (stepIndex: number, params: StepParams): React.
           endX: eX,
           mStart: segmentPeakM,
           mEnd: step.mEnd,
+          vStart: 0,
+          vEnd: matchingSfd?.vEnd || 0,
           shearArea: (step.mEnd || 0) - segmentPeakM,
           isPeakSplit: 'second',
           peakX: segmentPeakX,
@@ -185,6 +189,8 @@ export const renderDynamicStep = (stepIndex: number, params: StepParams): React.
           endX: eX,
           mStart: step.mStart,
           mEnd: step.mEnd,
+          vStart: matchingSfd?.vStart || 0,
+          vEnd: matchingSfd?.vEnd || 0,
           shearArea: step.shearArea,
         });
       }
