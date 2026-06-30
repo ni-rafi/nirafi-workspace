@@ -123,3 +123,39 @@ Topographical sandbox overlaying existing ground lines (EGL) and formation bed l
     scaleFactor={1} // EGL coordinates in meters
   />
   ```
+
+---
+
+## 3. Fullscreen Maximization & Image Copying (`ExpandableDrawing`)
+
+To allow students and instructors to view, download, or copy engineering diagrams directly from the web application, all drawings and stacked diagrams must be wrapped with the `<ExpandableDrawing>` component from `@/shared/components`.
+
+### Props
+* `children: React.ReactNode` - The target SVG drawing or stacked diagram to wrap.
+* `title: string` - The descriptive title of the drawing (displays in the modal header).
+* `description?: string` - A brief conceptual summary of the drawing (displays below the title in the modal).
+* `downloadFileName?: string` - Optional custom name for the downloaded files. Defaults to the kebab-case version of the `title`.
+* `className?: string` - Extra tailwind classes for the container card.
+
+### Example Integration
+
+When defining a custom SVG drawing (e.g. `MyBridgeDrawing.tsx`), wrap the SVG container elements inside the return block:
+
+```tsx
+import { ExpandableDrawing } from '@/shared/components';
+
+export const MyBridgeDrawing: React.FC = () => {
+  return (
+    <ExpandableDrawing 
+      title="Bridge Truss Layout"
+      description="Interactive truss diagram showing members under tension (amber) and compression (blue)."
+    >
+      <div className="w-full h-full flex flex-col items-center">
+        <svg viewBox="0 0 500 200" className="w-full h-full">
+          {/* SVG nodes */}
+        </svg>
+      </div>
+    </ExpandableDrawing>
+  );
+};
+```

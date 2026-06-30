@@ -4,6 +4,7 @@ import { BeamDiagram } from './BeamDiagram';
 import { SfdDiagram } from './SfdDiagram';
 import { BmdDiagram } from './BmdDiagram';
 import { IBeam, ISolverOutput } from '@/subjects/mechanics-of-solids/cores/sfd-bmd/types';
+import { ExpandableDrawing } from '@/shared/components';
 
 interface GraphicalStackedDiagramsProps {
   pairing: 'beam' | 'beam-sfd' | 'sfd-bmd' | 'all';
@@ -65,7 +66,11 @@ export const GraphicalStackedDiagrams: React.FC<GraphicalStackedDiagramsProps> =
   const bmdScale = (pairing === 'all' ? 36 : 32) / maxM;
 
   return (
-    <div className="relative w-full flex flex-col items-center justify-center p-3 border border-border/40 bg-muted/5 dark:bg-slate-900/10 rounded-xl diagrams-transition-wrapper">
+    <ExpandableDrawing
+      title="Shear Force & Bending Moment Diagrams"
+      description={`Visualizing stacked SFD & BMD profiles for ${beam.supports.length}-support beam system.`}
+    >
+      <div className="relative w-full flex flex-col items-center justify-center diagrams-transition-wrapper">
       <svg className="w-full h-full overflow-visible" viewBox={`0 0 ${svgWidth} ${svgHeight}`}>
         
         <defs>
@@ -127,5 +132,6 @@ export const GraphicalStackedDiagrams: React.FC<GraphicalStackedDiagramsProps> =
 
       </svg>
     </div>
+  </ExpandableDrawing>
   );
 };

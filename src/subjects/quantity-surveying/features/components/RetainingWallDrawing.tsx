@@ -1,5 +1,5 @@
-import React, { useContext } from 'react';
-import { PresentationContext } from '@/features/presentation/context/PresentationContext';
+import React from 'react';
+import { ExpandableDrawing } from '@/shared/components';
 
 interface RetainingWallDrawingProps {
   activeHighlight?: 'none' | 'base' | 'stem' | 'weepholes' | 'drainage';
@@ -12,12 +12,8 @@ export const RetainingWallDrawing: React.FC<RetainingWallDrawingProps> = ({
   className = '',
   showAnnotation = true,
 }) => {
-  const presentation = useContext(PresentationContext);
-  const isBlog = presentation?.viewMode === 'blog';
 
-  const containerClasses = isBlog
-    ? 'bg-transparent border-none shadow-none p-0 flex flex-col items-center select-none w-full'
-    : `relative border border-border/80 bg-muted/20 dark:bg-muted/5 rounded-xl p-1 flex flex-col items-center shadow-sm select-none w-full justify-center ${className}`;
+  const containerClasses = 'w-full flex flex-col items-center justify-center select-none p-1';
 
   const isBaseActive = activeHighlight === 'none' || activeHighlight === 'base';
   const isStemActive = activeHighlight === 'none' || activeHighlight === 'stem';
@@ -25,7 +21,12 @@ export const RetainingWallDrawing: React.FC<RetainingWallDrawingProps> = ({
   const isDrainActive = activeHighlight === 'none' || activeHighlight === 'drainage';
 
   return (
-    <div className={containerClasses}>
+    <ExpandableDrawing
+      title="Cantilever Retaining Wall Anatomy"
+      description="Interactive technical drawing representing concrete stem, base raft, and drainage packing."
+      className={className}
+    >
+      <div className={containerClasses}>
       <svg
         width="100%"
         height="100%"
@@ -144,6 +145,7 @@ export const RetainingWallDrawing: React.FC<RetainingWallDrawingProps> = ({
         )}
       </svg>
     </div>
+  </ExpandableDrawing>
   );
 };
 

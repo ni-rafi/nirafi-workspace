@@ -179,6 +179,7 @@ For plan-view grid alignments, foundation pile layouts, road pavement cross-sect
 * **Vertical Space Optimization**: Keep SVG canvas containers bounded (e.g., changing container heights from `h-56` to `h-44` and cropping the viewBox to remove unnecessary margins) so that slides remain spacious on standard 16:9 presentation viewports without scrollbars or text cutoff.
 * **Drawing Text Visibility**: Text labels inside SVG drawings must use a minimum font size of `11px` to `12px` (equivalent to standard browser `text-xs`/`text-sm` scales) to guarantee legibility on classroom projection screens.
 * **Synced Click-Reveal Design**: All reusable drawings/figures must be designed to support dynamic active step overrides (like a `currentClick` or `activeStep` prop). This allows them to highlight layers and components progressively to synchronize with the sessional click-reveals of descriptions.
+* **Drawing Accessibility & Exporting (Modal Zoom)**: Wrap all structural drawings, stacked diagrams, or charts inside the `<ExpandableDrawing>` component (exported from `@/shared/components`). This adds support for a hover-reveal maximize overlay on desktop, touch overlay on mobile, fullscreen presentation overlay, copy-to-clipboard (as high-res PNG for slide/report pasting), and download support (both PNG and vector SVG formats).
 
 ---
 
@@ -211,6 +212,7 @@ When authoring or modifying slides:
 - [ ] **Semantic Presentational Elements**: No raw HTML `<p>`, `<ul>`, `<li>`, or `<table>` tags are used; use `<SlideParagraph>`, `<SlideBullet>`, `<SlideTable>`, etc.
 - [ ] **SVG & Drawings Separation**: No raw SVG markup is coupled directly inside the slide file. Drawings are imported as reusable components and driven by JSON parameters.
 - [ ] **Drawing Wrapper Heights**: Outer drawing card containers do not define hardcoded `h-full` height constraints, allowing them to scale dynamically via parent flex boundaries when stacked with formulas/notes.
+- [ ] **Drawing Accessibility & Exporting**: Verify all diagrams, structural drawings, and charts are wrapped with `<ExpandableDrawing>` to support fullscreen maximize, copy-as-PNG, and download operations.
 - [ ] **Cross-Window Sync**: All interactive parameters and values (inputs, sliders, dropdown choices) are declared via `useUrlSyncedState` (not `useState`).
 - [ ] **Draggables**: Every draggable element is assigned a stable, explicit string for `syncKey`.
 - [ ] **Theme Contrast**: Slide content is fully readable in both Light and Dark modes.
