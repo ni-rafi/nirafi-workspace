@@ -3,6 +3,7 @@ import { getSvgX } from './diagramConstants';
 import { IBeam, ISolverOutput } from '@/subjects/mechanics-of-solids/cores/sfd-bmd/types';
 import { DimensionLine } from '@/features/presentation/components/elements';
 import { UdlLoad, UvlLoad, PointLoad, MomentLoad } from '@/features/civil-drawing/components/loads';
+import { LoadAreaShading } from './LoadAreaShading';
 
 interface BeamDiagramProps {
   beamY: number;
@@ -25,6 +26,32 @@ export const BeamDiagram: React.FC<BeamDiagramProps> = ({
   if (!showBeam) return null;
 
   const reactions = solverResult.reactions;
+
+  // Extract reaction reveal step indexes dynamically from analytical solver equations
+  const reactionRevealSteps = React.useMemo(() => {
+    const steps: { [name: string]: number } = {};
+    if (solverResult.reactionEquations) {
+      let stepCounter = 0;
+      solverResult.reactionEquations.equations.forEach((_, i) => {
+        // Equation step
+        stepCounter++;
+        
+        // Solved value step
+        const solvedVal = solverResult.reactionEquations?.solvedValues?.[i];
+        if (solvedVal) {
+          steps[solvedVal.name] = stepCounter;
+          stepCounter++;
+        }
+      });
+    } else {
+      // Fallback: list sequentially
+      const rxnsList = reactions.filter(r => r.type === 'R_y');
+      rxnsList.forEach((rxn, idx) => {
+        steps[`R_{y${rxn.supportId}}`] = idx;
+      });
+    }
+    return steps;
+  }, [solverResult.reactionEquations, reactions]);
 
   const sfdSteps = (solverResult.graphicalStepsData || []).filter(s => s.type.startsWith('sfd-'));
   const sfdSlides: {
@@ -131,15 +158,17 @@ export const BeamDiagram: React.FC<BeamDiagramProps> = ({
       labelText = `w = ${wMag.toFixed(1)} kN/m, L = ${dx.toFixed(1)}m`;
     }
 
-    const points = `${sX},${beamY} ${sX},${beamY - hStart} ${eX},${beamY - hEnd} ${eX},${beamY}`;
     const maxH = Math.max(hStart, hEnd);
 
     shadeSource = (
       <g>
-        <polygon
-          points={points}
-          className="fill-fuchsia-500/20 stroke-fuchsia-500/20 animate-in fade-in duration-300"
-          strokeWidth="0.5"
+        <LoadAreaShading
+          startX={activeStep.startX ?? 0}
+          endX={activeStep.endX ?? 0}
+          beamY={beamY}
+          hStart={hStart}
+          hEnd={hEnd}
+          beamLength={beam.length}
         />
         {clickIdx >= 1 && (
           <text
@@ -167,6 +196,21 @@ export const BeamDiagram: React.FC<BeamDiagramProps> = ({
         className="fill-slate-200 dark:fill-slate-800 stroke-slate-400 dark:stroke-slate-700"
         strokeWidth="1.2"
       />
+
+      {/* Internal Hinge Releases */}
+      {beam.releases?.map(release => {
+        const xPos = getSvgX(release.position, beam.length);
+        return (
+          <circle
+            key={release.id}
+            cx={xPos}
+            cy={beamY}
+            r="4.5"
+            className="fill-white dark:fill-slate-950 stroke-slate-500 dark:stroke-slate-400"
+            strokeWidth="1.8"
+          />
+        );
+      })}
 
       {/* Supports */}
       {beam.supports.map(support => {
@@ -308,13 +352,24 @@ export const BeamDiagram: React.FC<BeamDiagramProps> = ({
       })}
 
       {/* Reaction force vectors */}
-      {((stepIndex === 1 && clickIdx >= 1) || stepIndex > 1) && reactions.filter(r => r.type === 'R_y').map((rxn, idx) => {
+      {stepIndex >= 1 && reactions.filter(r => r.type === 'R_y').map((rxn, idx) => {
         const support = beam.supports.find(s => s.id === rxn.supportId);
         if (!support) return null;
         const xPos = getSvgX(support.position, beam.length);
         const isA = rxn.supportId === 'A';
         
-        if (stepIndex === 1 && isA && clickIdx < 3) return null;
+        // Dynamically show the reaction arrow only after it is solved in the equations
+        if (stepIndex === 1) {
+          const rxnName = `R_{y${rxn.supportId}}`;
+          const revealStep = reactionRevealSteps[rxnName];
+          if (revealStep !== undefined && clickIdx < revealStep) {
+            return null;
+          }
+          // Default fallback safety
+          if (revealStep === undefined && clickIdx < 1) {
+            return null;
+          }
+        }
  
         return (
           <g key={idx}>

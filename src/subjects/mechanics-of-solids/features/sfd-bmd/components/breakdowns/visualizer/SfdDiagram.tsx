@@ -1,7 +1,8 @@
 import React from 'react';
 import { motion } from 'motion/react';
 import { getSvgX, getBaselines, getSfdCurvePoints } from './diagramConstants';
-import { IBeam, ISolverOutput } from '@/subjects/mechanics-of-solids/cores/sfd-bmd/types';
+import { IBeam, ISolverOutput, solveZeroShearCrossing } from '@/subjects/mechanics-of-solids/cores/sfd-bmd';
+import { ShearAreaShading } from './ShearAreaShading';
 
 const getCircleClass = (step: number, currentStep: number, baseClass: string) => {
   return `${baseClass} ${step === currentStep ? 'animate-in zoom-in-50 duration-200' : ''}`;
@@ -68,7 +69,7 @@ export const SfdDiagram: React.FC<SfdDiagramProps> = ({
         loadArea: step.loadArea,
         vCoeffs: step.vCoeffs,
       });
-      
+
       // Check if there is a jump at endX
       const nextStep = sfdSteps[idx + 1];
       const hasJumpAtEnd = nextStep && nextStep.type === 'sfd-jump' && Math.abs((nextStep.x || 0) - (step.endX || 0)) < 1e-3;
@@ -140,32 +141,13 @@ export const SfdDiagram: React.FC<SfdDiagramProps> = ({
 
   // Integration highlight area on SFD dynamically
   let shadeSource: React.ReactNode = null;
-  let activeBmdSlide: { type: string; startX?: number; endX?: number; x?: number; vStart?: number; vEnd?: number; isPeakSplit?: 'first' | 'second' } | null | undefined = null;
+
+  let activeBmdSlide: { type: string; startX?: number; endX?: number; x?: number; vStart?: number; vEnd?: number; isPeakSplit?: 'first' | 'second'; peakX?: number } | null | undefined = null;
   if (pairing === 'sfd-bmd' && solverResult.graphicalStepsData) {
     // Locate the active BMD step segment
     const bmdSteps = solverResult.graphicalStepsData.filter(s => s.type.startsWith('bmd-'));
     // Replicate visualStepsBuilder's bmdSlides sequence index-for-index
-    const bmdSlides: { type: string; startX?: number; endX?: number; x?: number; vStart?: number; vEnd?: number; isPeakSplit?: 'first' | 'second' }[] = [];
-
-    // Find crossing
-    const crossingSegment = sfdSteps.find(s => s.type === 'sfd-segment' && (s.vStart || 0) * (s.vEnd || 0) < 0);
-    let peakX = 0;
-    if (crossingSegment) {
-      const sX = crossingSegment.startX || 0;
-      const eX = crossingSegment.endX || 0;
-      const exactCP = solverResult.criticalPoints.find(
-        cp => cp.x > sX + 1e-3 && cp.x < eX - 1e-3 && cp.isLocalMaxMinM
-      );
-      if (exactCP) {
-        peakX = exactCP.x;
-      } else {
-        const v1 = Math.abs(crossingSegment.vStart || 0);
-        const v2 = Math.abs(crossingSegment.vEnd || 0);
-        const L_seg = eX - sX;
-        const x0 = (v1 * L_seg) / (v1 + v2);
-        peakX = sX + x0;
-      }
-    }
+    const bmdSlides: { type: string; startX?: number; endX?: number; x?: number; vStart?: number; vEnd?: number; isPeakSplit?: 'first' | 'second'; peakX?: number }[] = [];
 
     // Step 14 is always the start node check at x = 0
     bmdSlides.push({
@@ -186,29 +168,45 @@ export const SfdDiagram: React.FC<SfdDiagramProps> = ({
         const sX = step.startX || 0;
         const eX = step.endX || 0;
         const matchingSfd = sfdSteps.find(s => s.type === 'sfd-segment' && s.startX === sX && s.endX === eX);
+        const crossesZero = matchingSfd && (matchingSfd.vStart || 0) * (matchingSfd.vEnd || 0) < 0;
 
-        if (crossingSegment && peakX > sX + 1e-2 && peakX < eX - 1e-2) {
-          // Split!
+        if (crossesZero) {
+          const exactCP = solverResult.criticalPoints.find(
+            cp => cp.x > sX + 1e-3 && cp.x < eX - 1e-3 && cp.isLocalMaxMinM
+          );
+          let segmentPeakX = 0;
+          if (exactCP) {
+            segmentPeakX = exactCP.x;
+          } else {
+            const v1 = Math.abs(matchingSfd.vStart || 0);
+            const v2 = Math.abs(matchingSfd.vEnd || 0);
+            const L_seg = eX - sX;
+            const x0 = (v1 * L_seg) / (v1 + v2);
+            segmentPeakX = sX + x0;
+          }
+
           bmdSlides.push({
             type: 'bmd-segment',
             startX: sX,
-            endX: peakX,
+            endX: segmentPeakX,
             vStart: matchingSfd?.vStart || 0,
             vEnd: 0,
-            isPeakSplit: 'first'
+            isPeakSplit: 'first',
+            peakX: segmentPeakX
           });
           bmdSlides.push({
             type: 'bmd-node-check',
-            x: peakX,
+            x: segmentPeakX,
             vEnd: 0,
           });
           bmdSlides.push({
             type: 'bmd-segment',
-            startX: peakX,
+            startX: segmentPeakX,
             endX: eX,
             vStart: 0,
             vEnd: matchingSfd?.vEnd || 0,
-            isPeakSplit: 'second'
+            isPeakSplit: 'second',
+            peakX: segmentPeakX
           });
         } else {
           bmdSlides.push({
@@ -242,7 +240,8 @@ export const SfdDiagram: React.FC<SfdDiagramProps> = ({
     if (stepIndex >= 19 && stepIndex <= 22) {
       activeBmdSlide = bmdSlides[stepIndex - 19];
     } else if (stepIndex === 23) {
-      activeBmdSlide = bmdSlides[3];
+      // Find the first split segment to scan over for curvature application slide
+      activeBmdSlide = bmdSlides.find(s => s.type === 'bmd-segment' && s.isPeakSplit === 'first') || bmdSlides[3];
     } else if (stepIndex >= 25 && stepIndex <= 31) {
       activeBmdSlide = bmdSlides[stepIndex - 21];
     }
@@ -256,22 +255,7 @@ export const SfdDiagram: React.FC<SfdDiagramProps> = ({
       const vStart = activeBmdSlide.vStart || 0;
       const vEnd = activeBmdSlide.vEnd || 0;
 
-      const interval = solverResult.intervals.find(
-        inv => startX >= inv.startX - 1e-3 && endX <= inv.endX + 1e-3
-      );
-      const isCurved = interval && Math.abs(interval.vCoeffs[0]) > 1e-6;
-
-      let pathD = '';
-      if (isCurved) {
-        const ptsStr = getSfdCurvePoints(startX, endX, sfdY, sfdScale, beam.length, solverResult.intervals);
-        const curveCmds = ptsStr.trim().split(' ').map(pair => `L ${pair.split(',').join(' ')}`).join(' ');
-        pathD = `M ${sX} ${sfdY} ${curveCmds} L ${eX} ${sfdY} Z`;
-      } else {
-        pathD = `M ${sX} ${sfdY} L ${sX} ${sfdY - vStart * sfdScale} L ${eX} ${sfdY - vEnd * sfdScale} L ${eX} ${sfdY} Z`;
-      }
-
       const isPositive = vStart >= -1e-6 && vEnd >= -1e-6;
-      const colorClass = "fill-fuchsia-500/20 stroke-fuchsia-500/20";
       const textColorClass = "fill-fuchsia-600 dark:fill-fuchsia-400";
 
       // Label positioning
@@ -283,7 +267,18 @@ export const SfdDiagram: React.FC<SfdDiagramProps> = ({
 
       shadeSource = (
         <g>
-          <path d={pathD} className={`${colorClass} animate-in fade-in duration-300`} />
+          <ShearAreaShading
+            startX={startX}
+            endX={endX}
+            sfdY={sfdY}
+            sfdScale={sfdScale}
+            beamLength={beam.length}
+            intervals={solverResult.intervals}
+            vStart={vStart}
+            vEnd={vEnd}
+            fillColor="fill-fuchsia-500/20"
+            strokeColor="stroke-fuchsia-500/20"
+          />
           {clickIdx >= 1 && (
             <text x={textX} y={textY} textAnchor="middle" className={`text-[7px] font-black font-mono ${textColorClass} animate-in fade-in`}>
               V = {Math.abs(vStart || vEnd).toFixed(3)}, L = {dx.toFixed(3)}m
@@ -300,27 +295,43 @@ export const SfdDiagram: React.FC<SfdDiagramProps> = ({
       s => s.type === 'sfd-segment' && (s.vStart || 0) * (s.vEnd || 0) < 0
     );
     if (crossingSegment) {
-      const sX = getSvgX(crossingSegment.startX || 0, beam.length);
-      const eX = getSvgX(crossingSegment.endX || 0, beam.length);
       const vStart = crossingSegment.vStart || 0;
       const vEnd = crossingSegment.vEnd || 0;
       const dx = (crossingSegment.endX || 0) - (crossingSegment.startX || 0);
       const startVal = crossingSegment.startX || 0;
-      const exactCP = solverResult.criticalPoints.find(
-        cp => cp.x > startVal + 1e-3 && cp.x < (crossingSegment.endX || 0) - 1e-3 && cp.isLocalMaxMinM
-      );
-      const crossXVal = exactCP ? exactCP.x : startVal + (Math.abs(vStart) * dx) / (Math.abs(vStart) + Math.abs(vEnd));
-      const midX = getSvgX(crossXVal, beam.length);
+      const endVal = crossingSegment.endX || 0;
 
-      const ptsPos = `${sX},${sfdY} ${sX},${sfdY - vStart * sfdScale} ${midX},${sfdY}`;
-      const ptsNeg = `${midX},${sfdY} ${eX},${sfdY - vEnd * sfdScale} ${eX},${sfdY}`;
+      const crossInfo = solveZeroShearCrossing(beam, solverResult, startVal, endVal, vStart, vEnd);
+      const crossXVal = crossInfo ? crossInfo.totalX : startVal + (Math.abs(vStart) * dx) / (Math.abs(vStart) + Math.abs(vEnd));
 
       shadeSource = (
         <g>
-          {/* Positive green triangle */}
-          <polygon points={ptsPos} className="fill-emerald-500/20 stroke-emerald-500/10 animate-in fade-in duration-300" />
-          {/* Negative red triangle */}
-          <polygon points={ptsNeg} className="fill-rose-500/20 stroke-rose-500/10 animate-in fade-in duration-300" />
+          {/* Positive green path */}
+          <ShearAreaShading
+            startX={startVal}
+            endX={crossXVal}
+            sfdY={sfdY}
+            sfdScale={sfdScale}
+            beamLength={beam.length}
+            intervals={solverResult.intervals}
+            vStart={vStart}
+            vEnd={0}
+            fillColor="fill-emerald-500/20"
+            strokeColor="stroke-emerald-500/10"
+          />
+          {/* Negative red path */}
+          <ShearAreaShading
+            startX={crossXVal}
+            endX={endVal}
+            sfdY={sfdY}
+            sfdScale={sfdScale}
+            beamLength={beam.length}
+            intervals={solverResult.intervals}
+            vStart={0}
+            vEnd={vEnd}
+            fillColor="fill-rose-500/20"
+            strokeColor="stroke-rose-500/10"
+          />
         </g>
       );
     }
@@ -397,17 +408,17 @@ export const SfdDiagram: React.FC<SfdDiagramProps> = ({
     const { bmdY } = getBaselines(pairing);
     const startX = activeBmdSlide?.startX ?? 5.0;
     const endX = activeBmdSlide?.endX ?? 9.775;
-    
+
     // Position of x_scan based on clickIdx (0 = start, 1 = mid, >=2 = end)
     const xScanVal = startX + (clickIdx === 0 ? 0 : clickIdx === 1 ? (endX - startX) / 2 : endX - startX);
     const xScanSvg = getSvgX(xScanVal, beam.length);
-    
+
     // Shear value at x_scan
     const vStart = activeBmdSlide?.vStart ?? 14.325;
     const vEnd = activeBmdSlide?.vEnd ?? 0;
     const vScanVal = vStart + (vEnd - vStart) * ((xScanVal - startX) / (endX - startX));
     const yScanSvg = sfdY - vScanVal * sfdScale;
-    
+
     sfdScanVisuals = (
       <g>
         {/* Projection dashed line down to BMD baseline */}
@@ -417,7 +428,7 @@ export const SfdDiagram: React.FC<SfdDiagramProps> = ({
           className="stroke-indigo-500/60 stroke-[1.2]"
           strokeDasharray="3 3"
         />
-        
+
         {/* Dot marker on SFD curve */}
         <motion.circle
           animate={{ cx: xScanSvg, cy: yScanSvg }}
@@ -425,7 +436,7 @@ export const SfdDiagram: React.FC<SfdDiagramProps> = ({
           r="4.5"
           className="fill-indigo-500 stroke-white dark:stroke-slate-900 stroke-[1]"
         />
-        
+
         {/* Value tag next to dot */}
         <motion.text
           animate={{ x: xScanSvg + 8, y: yScanSvg - 6 }}
@@ -445,7 +456,7 @@ export const SfdDiagram: React.FC<SfdDiagramProps> = ({
       <text x="473" y={sfdY + 3} className="text-[8px] font-bold fill-muted-foreground font-mono">x</text>
       <text x="45" y={sfdY - 26} textAnchor="end" className="text-[8px] font-black fill-rose-500 font-mono">V (kN)</text>
 
-      {(pairing === 'sfd-bmd' || (stepIndex >= 12 && stepIndex <= 15)) && shadeSource}
+      {shadeSource}
 
       {/* Dynamic Step-by-Step SFD drawing */}
       {sfdSlides.map((slide, idx) => {

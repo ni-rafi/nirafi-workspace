@@ -5,3 +5,7 @@ export * from './reactionSolver';
 export * from './sectionMethodEngine';
 export * from './graphicalMethodEngine';
 export * from './sfdBmdService';
+export * from './utils/zeroShearSolver';
+export * from './utils/sfdAreaCalculator';
+
+

@@ -87,24 +87,6 @@ export function getValidStepIndices(beam: IBeam, solverResult: ISolverOutput): I
   const bmdSlides: IBmdSlideInfo[] = [];
   bmdSlides.push({ type: 'bmd-node-check', x: 0 });
 
-  let peakX = 0;
-  if (crossingSegment) {
-    const sX = crossingSegment.startX || 0;
-    const eX = crossingSegment.endX || 0;
-    const exactCP = solverResult.criticalPoints.find(
-      cp => cp.x > sX + 1e-3 && cp.x < eX - 1e-3 && cp.isLocalMaxMinM
-    );
-    if (exactCP) {
-      peakX = exactCP.x;
-    } else {
-      const v1 = Math.abs(crossingSegment.vStart || 0);
-      const v2 = Math.abs(crossingSegment.vEnd || 0);
-      const L_seg = eX - sX;
-      const x0 = (v1 * L_seg) / (v1 + v2);
-      peakX = sX + x0;
-    }
-  }
-
   bmdSteps.forEach((step, idx) => {
     if (step.type === 'bmd-start') return;
     if (step.type === 'bmd-jump') {
@@ -112,9 +94,26 @@ export function getValidStepIndices(beam: IBeam, solverResult: ISolverOutput): I
     } else if (step.type === 'bmd-segment') {
       const sX = step.startX || 0;
       const eX = step.endX || 0;
-      if (crossingSegment && peakX > sX + 1e-2 && peakX < eX - 1e-2) {
+      const matchingSfd = sfdSteps.find(s => s.type === 'sfd-segment' && s.startX === sX && s.endX === eX);
+      const crossesZero = matchingSfd && (matchingSfd.vStart || 0) * (matchingSfd.vEnd || 0) < 0;
+
+      if (crossesZero) {
+        const exactCP = solverResult.criticalPoints.find(
+          cp => cp.x > sX + 1e-3 && cp.x < eX - 1e-3 && cp.isLocalMaxMinM
+        );
+        let segmentPeakX = 0;
+        if (exactCP) {
+          segmentPeakX = exactCP.x;
+        } else {
+          const v1 = Math.abs(matchingSfd.vStart || 0);
+          const v2 = Math.abs(matchingSfd.vEnd || 0);
+          const L_seg = eX - sX;
+          const x0 = v1 + v2 > 1e-9 ? (v1 * L_seg) / (v1 + v2) : 0;
+          segmentPeakX = sX + x0;
+        }
+
         bmdSlides.push({ type: 'bmd-segment', isPeakSplit: 'first' });
-        bmdSlides.push({ type: 'bmd-node-check', x: peakX });
+        bmdSlides.push({ type: 'bmd-node-check', x: segmentPeakX });
         bmdSlides.push({ type: 'bmd-segment', isPeakSplit: 'second' });
       } else {
         bmdSlides.push(step);

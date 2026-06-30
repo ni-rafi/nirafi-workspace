@@ -70,7 +70,7 @@ export const MiniBeamVisual: React.FC<MiniBeamVisualProps> = ({
   const sortedSupports = [...activeSupports].sort((a, b) => a.position - b.position);
   const supportIdToLetter = new Map<string, string>();
   sortedSupports.forEach((s, idx) => {
-    supportIdToLetter.set(s.id, String.fromCharCode(65 + idx));
+    supportIdToLetter.set(s.id, /^[A-Z]$/.test(s.id) ? s.id : String.fromCharCode(65 + idx));
   });
 
   return (

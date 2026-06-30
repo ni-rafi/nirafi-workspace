@@ -22,7 +22,7 @@ export const GraphicalStackedDiagrams: React.FC<GraphicalStackedDiagramsProps> =
   beam,
   solverResult,
 }) => {
-  const svgHeight = pairing === 'all' ? 245 : 185;
+  const svgHeight = pairing === 'all' ? 260 : pairing === 'beam-sfd' ? 195 : 185;
   const { beamY, sfdY, bmdY } = getBaselines(pairing);
 
   // Dynamic gridlines calculation
@@ -61,8 +61,8 @@ export const GraphicalStackedDiagrams: React.FC<GraphicalStackedDiagramsProps> =
     return maxVal;
   }, [solverResult.criticalPoints]);
 
-  const sfdScale = (pairing === 'all' ? 25 : pairing === 'sfd-bmd' ? 30 : 40) / maxV;
-  const bmdScale = (pairing === 'all' ? 45 : 48) / maxM;
+  const sfdScale = (pairing === 'all' ? 22 : pairing === 'sfd-bmd' ? 26 : 32) / maxV;
+  const bmdScale = (pairing === 'all' ? 36 : 32) / maxM;
 
   return (
     <div className="relative w-full flex flex-col items-center justify-center p-3 border border-border/40 bg-muted/5 dark:bg-slate-900/10 rounded-xl diagrams-transition-wrapper">

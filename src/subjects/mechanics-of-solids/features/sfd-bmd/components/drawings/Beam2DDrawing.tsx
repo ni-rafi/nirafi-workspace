@@ -87,6 +87,21 @@ export const Beam2DDrawing: React.FC<Beam2DDrawingProps> = ({
         {/* 3. BEAM MEMBER */}
         <rect x="70" y="48" width="360" height="12" rx="2" className="fill-slate-200 dark:fill-slate-800 stroke-slate-400 dark:stroke-slate-650" strokeWidth="1.5" />
 
+        {/* Internal Hinge Releases */}
+        {beam.releases?.map(release => {
+          const xVal = getSvgX(release.position);
+          return (
+            <circle
+              key={release.id}
+              cx={xVal}
+              cy={54}
+              r="4.5"
+              className="fill-white dark:fill-slate-950 stroke-slate-500 dark:stroke-slate-400"
+              strokeWidth="1.8"
+            />
+          );
+        })}
+
         {/* 4. SUPPORTS */}
         {beam.supports.map((s, idx) => {
           const xVal = getSvgX(s.position);

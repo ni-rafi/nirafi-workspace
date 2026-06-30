@@ -31,7 +31,7 @@ export const BeamCanvas: React.FC = () => {
   const sortedSupports = [...supports].sort((a, b) => a.position - b.position);
   const supportIdToLetter = new Map<string, string>();
   sortedSupports.forEach((s, idx) => {
-    const letter = String.fromCharCode(65 + idx); // A, B, C...
+    const letter = /^[A-Z]$/.test(s.id) ? s.id : String.fromCharCode(65 + idx);
     supportIdToLetter.set(s.id, letter);
   });
 

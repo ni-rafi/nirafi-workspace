@@ -1,7 +1,7 @@
 import React from 'react';
 import { ClickReveal, LatexFormula } from '@/features/presentation/components/elements';
 import { TwoColumnToastLayout } from '@/shared/layouts/TwoColumnToastLayout';
-import { IBeam, ISolverOutput } from '@/subjects/mechanics-of-solids/cores/sfd-bmd/types';
+import { IBeam, ISolverOutput, calculateSfdSegmentArea } from '@/subjects/mechanics-of-solids/cores/sfd-bmd';
 
 export interface IBmdSlide {
   type: 'bmd-segment' | 'bmd-jump' | 'bmd-node-check';
@@ -143,57 +143,25 @@ export const renderBmdSegment = (
     finalLabel = `${label.split(' (')[0]} (Degree ${degree}, ${isDownward ? 'concave down' : 'concave up'})`;
   }
 
-  // Dynamic formula selection matching FloatingIntegrationToast's algorithm
   const vStart = activeSlide.vStart ?? 0;
   const vEnd = activeSlide.vEnd ?? 0;
-  const L_seg = isPeakFirst ? (peakX - startX) : isPeakSecond ? (endX - peakX) : (endX - startX);
-  const finalShearArea = Math.abs(activeSlide.shearArea || 0);
-  const areaSign = (activeSlide.shearArea || 0) >= 0 ? '+' : '-';
 
-  const segmentInterval = intervals?.find(
-    inv => startX >= inv.startX - 1e-3 && endX <= inv.endX + 1e-3
+  const hasVertexAtStart = activeUvl && (activeUvl.startMagnitude === 0) && (Math.abs(startX - (activeUvl.startPosition ?? 0)) < 1e-3);
+  const hasVertexAtEnd = activeUvl && (activeUvl.endMagnitude === 0) && (Math.abs(endX - (activeUvl.endPosition ?? 0)) < 1e-3);
+
+  const areaResult = calculateSfdSegmentArea(
+    isPeakSecond ? peakX : startX,
+    isPeakFirst ? peakX : endX,
+    vStart,
+    vEnd,
+    intervals,
+    activeSlide.isPeakSplit,
+    peakX,
+    hasVertexAtStart,
+    hasVertexAtEnd
   );
-  const [a, b] = segmentInterval ? (segmentInterval.vCoeffs || [0, 0]) : [0, 0];
-  const isCurved = Math.abs(a) > 1e-6;
-  const isLinear = Math.abs(b) > 1e-6;
 
-  let formulaLatex = '';
-  let calcLatex = '';
-  let noteText = '';
-
-  if (isCurved) {
-    const hasVertexAtStart = activeUvl && (activeUvl.startMagnitude === 0) && (Math.abs(startX - (activeUvl.startPosition ?? 0)) < 1e-3);
-    const hasVertexAtEnd = activeUvl && (activeUvl.endMagnitude === 0) && (Math.abs(endX - (activeUvl.endPosition ?? 0)) < 1e-3);
-
-    if (isPeakFirst && hasVertexAtStart) {
-      formulaLatex = `\\Delta M = \\frac{2}{3} \\cdot b \\cdot h`;
-      calcLatex = `\\Delta M = \\frac{2}{3} \\cdot ${L_seg.toFixed(3)}\\text{m} \\cdot ${Math.abs(vStart).toFixed(3)}\\text{kN} = ${areaSign}${finalShearArea.toFixed(3)}\\text{ kNm}`;
-      noteText = `★ Note: Since the shear curve has a vertex (zero load) at x = ${startX.toFixed(1)}m, we can use the parabolic spandrel area formula: A = 2/3 * b * h.`;
-    } else if (isPeakSecond && hasVertexAtEnd) {
-      formulaLatex = `\\Delta M = \\frac{2}{3} \\cdot b \\cdot h`;
-      calcLatex = `\\Delta M = \\frac{2}{3} \\cdot ${L_seg.toFixed(3)}\\text{m} \\cdot ${Math.abs(vEnd).toFixed(3)}\\text{kN} = ${areaSign}${finalShearArea.toFixed(3)}\\text{ kNm}`;
-      noteText = `★ Note: Since the shear curve has a vertex (zero load) at x = ${endX.toFixed(1)}m, we can use the parabolic spandrel area formula: A = 2/3 * b * h.`;
-    } else {
-      formulaLatex = `\\Delta M = \\int_{x_1}^{x_2} V(x) \\, dx`;
-      calcLatex = `\\Delta M = \\text{Area} = ${areaSign}${finalShearArea.toFixed(3)}\\text{ kNm}`;
-      noteText = `★ Note: Since this parabolic segment does not start or end at the vertex (slope is non-zero at both boundaries), the area is calculated using the difference of parabolic spandrels or formal integration.`;
-    }
-  } else if (isLinear) {
-    if (isPeakFirst || isPeakSecond) {
-      // Crossing zero-shear: Triangle area
-      formulaLatex = `\\Delta M = \\frac{1}{2} \\cdot b \\cdot h`;
-      calcLatex = `\\Delta M = \\frac{1}{2} \\cdot ${L_seg.toFixed(3)}\\text{m} \\cdot ${Math.abs(isPeakFirst ? vStart : vEnd).toFixed(3)}\\text{kN} = ${areaSign}${finalShearArea.toFixed(3)}\\text{ kNm}`;
-      noteText = `★ Note: Since the shear crosses zero, this segment forms a right-angled triangle.`;
-    } else {
-      // Non-crossing linear segment: Trapezoid area
-      formulaLatex = `\\Delta M = \\frac{V_1 + V_2}{2} \\cdot L`;
-      calcLatex = `\\Delta M = \\frac{${vStart.toFixed(3)} + ${vEnd.toFixed(3)}}{2} \\cdot ${L_seg.toFixed(3)} = ${areaSign}${finalShearArea.toFixed(3)}\\text{ kNm}`;
-    }
-  } else {
-    // Constant shear: Rectangle area
-    formulaLatex = `\\Delta M = V \\cdot L`;
-    calcLatex = `\\Delta M = ${vStart.toFixed(3)}\\text{kN} \\cdot ${L_seg.toFixed(3)}\\text{m} = ${areaSign}${finalShearArea.toFixed(3)}\\text{ kNm}`;
-  }
+  const { formulaLatex, calcLatex, noteText } = areaResult;
 
   return (
     <TwoColumnToastLayout

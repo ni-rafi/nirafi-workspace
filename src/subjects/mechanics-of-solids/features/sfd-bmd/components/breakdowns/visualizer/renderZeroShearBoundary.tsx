@@ -2,6 +2,7 @@ import React from 'react';
 import { IBeam, ISolverOutput } from '@/subjects/mechanics-of-solids/cores/sfd-bmd/types';
 import { LatexFormula } from '@/features/presentation/components/elements';
 import { TwoColumnToastLayout } from '@/shared/layouts/TwoColumnToastLayout';
+import { solveZeroShearCrossing } from '@/subjects/mechanics-of-solids/cores/sfd-bmd';
 
 export const renderZeroShearBoundary = (
   diagram: React.ReactNode,
@@ -14,56 +15,13 @@ export const renderZeroShearBoundary = (
 
   const startX = crossingSegment.startX || 0;
   const endX = crossingSegment.endX || 0;
-  const v1 = Math.abs(crossingSegment.vStart || 0);
-  const v2 = Math.abs(crossingSegment.vEnd || 0);
-  const L_seg = endX - startX;
+  const vStart = crossingSegment.vStart || 0;
+  const vEnd = crossingSegment.vEnd || 0;
 
-  let x0 = 0;
-  let totalX = 0;
-  const exactCP = solverResult.criticalPoints.find(
-    cp => cp.x > startX + 1e-3 && cp.x < endX - 1e-3 && cp.isLocalMaxMinM
-  );
-  if (exactCP) {
-    totalX = exactCP.x;
-    x0 = totalX - startX;
-  } else {
-    x0 = (v1 * L_seg) / (v1 + v2);
-    totalX = startX + x0;
-  }
+  const crossInfo = solveZeroShearCrossing(beam, solverResult, startX, endX, vStart, vEnd);
+  if (!crossInfo) return null;
 
-  const midX = (startX + endX) / 2;
-  const udlLoad = beam.loads.find(
-    l => l.type === 'udl' && midX >= (l.startPosition ?? 0) && midX <= (l.endPosition ?? 0)
-  );
-  const uvlLoad = beam.loads.find(
-    l => l.type === 'uvl' && midX >= (l.startPosition ?? 0) && midX <= (l.endPosition ?? 0)
-  );
-
-  let formulaLatex = '';
-  let calcLatex = '';
-
-  if (udlLoad) {
-    const w = udlLoad.magnitude || 0;
-    formulaLatex = `x_0 = \\frac{V_1}{w}`;
-    calcLatex = `x_0 = \\frac{${v1.toFixed(2)}}{${w.toFixed(2)}} = ${x0.toFixed(3)}\\text{ m}`;
-  } else if (uvlLoad) {
-    const w1 = uvlLoad.startMagnitude || 0;
-    const w2 = uvlLoad.endMagnitude || 0;
-    if (w1 === 0) {
-      formulaLatex = `x_0 = \\sqrt{\\frac{2 V_1 L_{seg}}{w_{max}}}`;
-      calcLatex = `x_0 = \\sqrt{\\frac{2 \\cdot ${v1.toFixed(2)} \\cdot ${L_seg.toFixed(2)}}{${Math.max(w1, w2).toFixed(2)}}} = ${x0.toFixed(3)}\\text{ m}`;
-    } else if (w2 === 0) {
-      const w_max = Math.max(w1, w2);
-      formulaLatex = `V_1 - w_{max} x_0 + \\frac{w_{max} x_0^2}{2 L_{seg}} = 0`;
-      calcLatex = `${v1.toFixed(2)} - ${w_max.toFixed(2)} x_0 + \\frac{${w_max.toFixed(2)} x_0^2}{${(2 * L_seg).toFixed(2)}} = 0 \\implies x_0 = ${x0.toFixed(3)}\\text{ m}`;
-    } else {
-      formulaLatex = `x_0 = \\frac{V_1 \\cdot L_{seg}}{V_1 + V_2}`;
-      calcLatex = `x_0 = \\frac{${v1.toFixed(2)} \\cdot ${L_seg.toFixed(2)}}{${v1.toFixed(2)} + ${v2.toFixed(2)}} = ${x0.toFixed(3)}\\text{ m}`;
-    }
-  } else {
-    formulaLatex = `x_0 = \\frac{V_1 \\cdot L_{seg}}{V_1 + V_2}`;
-    calcLatex = `x_0 = \\frac{${v1.toFixed(2)} \\cdot ${L_seg.toFixed(2)}}{${v1.toFixed(2)} + ${v2.toFixed(2)}} = ${x0.toFixed(3)}\\text{ m}`;
-  }
+  const { totalX, formulaLatex, calcLatex } = crossInfo;
 
   const toastPosition = totalX < beam.length / 2 ? 'right' : 'left';
 

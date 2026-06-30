@@ -147,29 +147,28 @@ export const BmdDiagram: React.FC<BmdDiagramProps> = ({
     mEnd: 0,
   });
 
-  // Auto-discover zero shear crossing from SFD steps
   const sfdSteps = (solverResult.graphicalStepsData || []).filter(s => s.type.startsWith('sfd-'));
-  const crossingSegment = sfdSteps.find(s => s.type === 'sfd-segment' && (s.vStart || 0) * (s.vEnd || 0) < 0);
-  let peakX = 0;
-  let peakM = 0;
-  if (crossingSegment) {
-    const sX = crossingSegment.startX || 0;
-    const eX = crossingSegment.endX || 0;
+
+  // Find crossing peak values dynamically for segment calculations
+  const getPeakValues = (sX: number, eX: number, vStart: number, vEnd: number) => {
     const exactCP = solverResult.criticalPoints.find(
       cp => cp.x > sX + 1e-3 && cp.x < eX - 1e-3 && cp.isLocalMaxMinM
     );
+    let segmentPeakX = 0;
+    let segmentPeakM = 0;
     if (exactCP) {
-      peakX = exactCP.x;
-      peakM = exactCP.m;
+      segmentPeakX = exactCP.x;
+      segmentPeakM = exactCP.m;
     } else {
-      const v1 = Math.abs(crossingSegment.vStart || 0);
-      const v2 = Math.abs(crossingSegment.vEnd || 0);
+      const v1 = Math.abs(vStart);
+      const v2 = Math.abs(vEnd);
       const L_seg = eX - sX;
-      const x0 = (v1 * L_seg) / (v1 + v2);
-      peakX = sX + x0;
-      peakM = solverResult.criticalPoints.find(cp => Math.abs(cp.x - peakX) < 1e-2)?.m || 0;
+      const x0 = v1 + v2 > 1e-9 ? (v1 * L_seg) / (v1 + v2) : 0;
+      segmentPeakX = sX + x0;
+      segmentPeakM = solverResult.criticalPoints.find(cp => Math.abs(cp.x - segmentPeakX) < 1e-2)?.m || 0;
     }
-  }
+    return { peakX: segmentPeakX, peakM: segmentPeakM };
+  };
 
   bmdSteps.forEach((step, idx) => {
     if (step.type === 'bmd-start') return;
@@ -184,33 +183,38 @@ export const BmdDiagram: React.FC<BmdDiagramProps> = ({
     } else if (step.type === 'bmd-segment') {
       const sX = step.startX || 0;
       const eX = step.endX || 0;
-      if (crossingSegment && peakX > sX + 1e-2 && peakX < eX - 1e-2) {
+      const matchingSfd = sfdSteps.find(s => s.type === 'sfd-segment' && s.startX === sX && s.endX === eX);
+      const crossesZero = matchingSfd && (matchingSfd.vStart || 0) * (matchingSfd.vEnd || 0) < 0;
+
+      if (crossesZero) {
+        const { peakX: segmentPeakX, peakM: segmentPeakM } = getPeakValues(sX, eX, matchingSfd.vStart || 0, matchingSfd.vEnd || 0);
+
         bmdSlides.push({
           type: 'bmd-segment',
           startX: sX,
-          endX: peakX,
+          endX: segmentPeakX,
           mStart: step.mStart,
-          mEnd: peakM,
-          shearArea: peakM - (step.mStart || 0),
+          mEnd: segmentPeakM,
+          shearArea: segmentPeakM - (step.mStart || 0),
           isPeakSplit: 'first',
-          peakX,
-          peakM,
+          peakX: segmentPeakX,
+          peakM: segmentPeakM,
         });
         bmdSlides.push({
           type: 'bmd-node-check',
-          x: peakX,
-          mEnd: peakM,
+          x: segmentPeakX,
+          mEnd: segmentPeakM,
         });
         bmdSlides.push({
           type: 'bmd-segment',
-          startX: peakX,
+          startX: segmentPeakX,
           endX: eX,
-          mStart: peakM,
+          mStart: segmentPeakM,
           mEnd: step.mEnd,
-          shearArea: (step.mEnd || 0) - peakM,
+          shearArea: (step.mEnd || 0) - segmentPeakM,
           isPeakSplit: 'second',
-          peakX,
-          peakM,
+          peakX: segmentPeakX,
+          peakM: segmentPeakM,
         });
       } else {
         bmdSlides.push({
