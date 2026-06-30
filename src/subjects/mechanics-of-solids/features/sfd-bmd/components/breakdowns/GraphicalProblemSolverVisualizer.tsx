@@ -74,7 +74,9 @@ export const GraphicalProblemSolverVisualizer: React.FC<GraphicalProblemSolverVi
 
   // Determine pairing mode
   let pairing: 'beam' | 'beam-sfd' | 'sfd-bmd' | 'all' = 'beam';
-  if (stepIndex >= 3 && stepIndex <= 18) {
+  if (stepIndex >= 0 && stepIndex <= 2) {
+    pairing = 'beam';
+  } else if (stepIndex >= 3 && stepIndex <= 18) {
     pairing = 'beam-sfd';
   } else if ((stepIndex >= 19 && stepIndex <= 23) || (stepIndex >= 25 && stepIndex <= 31)) {
     pairing = 'sfd-bmd';

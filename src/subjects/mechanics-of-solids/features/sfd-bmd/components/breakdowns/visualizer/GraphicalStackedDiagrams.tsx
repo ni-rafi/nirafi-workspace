@@ -42,30 +42,30 @@ export const GraphicalStackedDiagrams: React.FC<GraphicalStackedDiagramsProps> =
 
   // Dynamic scale calculation based on engine solver results
   const maxV = React.useMemo(() => {
-    if (!solverResult.graphicalStepsData) return 1;
     let maxVal = 0.1;
-    solverResult.graphicalStepsData.forEach(step => {
-      if (step.vStart !== undefined) maxVal = Math.max(maxVal, Math.abs(step.vStart));
-      if (step.vEnd !== undefined) maxVal = Math.max(maxVal, Math.abs(step.vEnd));
-    });
+    if (solverResult.criticalPoints) {
+      solverResult.criticalPoints.forEach(cp => {
+        maxVal = Math.max(maxVal, Math.abs(cp.v));
+      });
+    }
     return maxVal;
-  }, [solverResult.graphicalStepsData]);
+  }, [solverResult.criticalPoints]);
 
   const maxM = React.useMemo(() => {
-    if (!solverResult.graphicalStepsData) return 1;
     let maxVal = 0.1;
-    solverResult.graphicalStepsData.forEach(step => {
-      if (step.mStart !== undefined) maxVal = Math.max(maxVal, Math.abs(step.mStart));
-      if (step.mEnd !== undefined) maxVal = Math.max(maxVal, Math.abs(step.mEnd));
-    });
+    if (solverResult.criticalPoints) {
+      solverResult.criticalPoints.forEach(cp => {
+        maxVal = Math.max(maxVal, Math.abs(cp.m));
+      });
+    }
     return maxVal;
-  }, [solverResult.graphicalStepsData]);
+  }, [solverResult.criticalPoints]);
 
   const sfdScale = (pairing === 'all' ? 25 : pairing === 'sfd-bmd' ? 30 : 40) / maxV;
   const bmdScale = (pairing === 'all' ? 45 : 48) / maxM;
 
   return (
-    <div className="w-full flex flex-col items-center justify-center p-3 border border-border/40 bg-muted/5 dark:bg-slate-900/10 rounded-xl diagrams-transition-wrapper">
+    <div className="relative w-full flex flex-col items-center justify-center p-3 border border-border/40 bg-muted/5 dark:bg-slate-900/10 rounded-xl diagrams-transition-wrapper">
       <svg className="w-full h-full overflow-visible" viewBox={`0 0 ${svgWidth} ${svgHeight}`}>
         
         <defs>

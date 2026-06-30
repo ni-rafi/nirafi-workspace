@@ -153,12 +153,22 @@ export const BmdDiagram: React.FC<BmdDiagramProps> = ({
   let peakX = 0;
   let peakM = 0;
   if (crossingSegment) {
-    const v1 = Math.abs(crossingSegment.vStart || 0);
-    const v2 = Math.abs(crossingSegment.vEnd || 0);
-    const L_seg = (crossingSegment.endX || 0) - (crossingSegment.startX || 0);
-    const x0 = (v1 * L_seg) / (v1 + v2);
-    peakX = (crossingSegment.startX || 0) + x0;
-    peakM = solverResult.criticalPoints.find(cp => Math.abs(cp.x - peakX) < 1e-2)?.m || 0;
+    const sX = crossingSegment.startX || 0;
+    const eX = crossingSegment.endX || 0;
+    const exactCP = solverResult.criticalPoints.find(
+      cp => cp.x > sX + 1e-3 && cp.x < eX - 1e-3 && cp.isLocalMaxMinM
+    );
+    if (exactCP) {
+      peakX = exactCP.x;
+      peakM = exactCP.m;
+    } else {
+      const v1 = Math.abs(crossingSegment.vStart || 0);
+      const v2 = Math.abs(crossingSegment.vEnd || 0);
+      const L_seg = eX - sX;
+      const x0 = (v1 * L_seg) / (v1 + v2);
+      peakX = sX + x0;
+      peakM = solverResult.criticalPoints.find(cp => Math.abs(cp.x - peakX) < 1e-2)?.m || 0;
+    }
   }
 
   bmdSteps.forEach((step, idx) => {
@@ -350,7 +360,7 @@ export const BmdDiagram: React.FC<BmdDiagramProps> = ({
             ? getBmdCurvePoints(slide.startX || 0, slide.endX || 0, bmdY, bmdScale, beam.length, solverResult.intervals)
             : `${sX},${yStart} ${eX},${yEnd}`;
 
-          if (slide.isPeakSplit === 'first' && (displayedStep === 22 || displayedStep === 23)) {
+          if (slide.isPeakSplit === 'first' && (displayedStep === 22 || displayedStep === 23) && beam.length === 20) {
             const ptsConcaveUp = getConcaveUpCurvePoints(
               slide.startX || 0,
               slide.endX || 0,

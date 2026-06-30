@@ -1,5 +1,6 @@
 import React from 'react';
 import { VisualCanvasShape } from '../../types/schema';
+import { UdlLoad, UvlLoad, PointLoad, MomentLoad } from '@/features/civil-drawing/components/loads';
 
 interface BeamLoadsProps {
   el: VisualCanvasShape;
@@ -11,171 +12,88 @@ interface BeamLoadsProps {
   momentHalf?: 'left' | 'right';
 }
 
-export const BeamLoads: React.FC<BeamLoadsProps> = ({ el, stroke, fill, sw, transform, strokeDasharray, momentHalf }) => {
-  if (el.type === 'udl') {
-    const S = el.udlSegmentsCount || 8;
-    const ry = el.h * 0.45;
-    const rx = el.w / S / 2;
-    const y_bottom = el.h;
-    const y_top = el.h * 0.55;
-    
-    let archesPath = `M 0 ${y_bottom}`;
-    for (let i = 0; i < S; i++) {
-      const x2 = ((i + 1) * el.w) / S;
-      archesPath += ` A ${rx} ${ry} 0 0 1 ${x2} ${y_bottom}`;
-    }
-    
-    const arrows = [];
-    const numArrows = S + 1;
-    for (let i = 0; i < numArrows; i++) {
-      const x_i = (i * el.w) / (numArrows - 1);
-      arrows.push(
-        <g key={i}>
-          <line
-            x1={x_i}
-            y1={y_top}
-            x2={x_i}
-            y2={y_bottom - 5}
-            stroke={stroke}
-            strokeWidth={sw}
-            strokeDasharray={strokeDasharray}
-          />
-          <path
-            d={`M ${x_i - 3} ${y_bottom - 5} L ${x_i} ${y_bottom} L ${x_i + 3} ${y_bottom - 5} Z`}
-            fill={stroke}
-          />
-        </g>
-      );
-    }
-    
-    return (
-      <g transform={transform}>
-        <line x1={0} y1={y_bottom} x2={el.w} y2={y_bottom} stroke={stroke} strokeWidth={sw} strokeDasharray={strokeDasharray} />
-        <path d={archesPath} fill="none" stroke={stroke} strokeWidth={sw} />
-        {arrows}
-      </g>
-    );
-  }
+export const BeamLoads: React.FC<BeamLoadsProps> = ({
+  el,
+  stroke,
+  fill,
+  sw,
+  transform,
+  momentHalf,
+}) => {
+  return (
+    <g transform={transform}>
+      {(() => {
+        if (el.type === 'udl') {
+          return (
+            <UdlLoad
+              x={0}
+              y={el.h}
+              width={el.w}
+              height={el.h * 0.45}
+              direction="down"
+              color={stroke}
+              strokeWidth={sw}
+            />
+          );
+        }
 
-  if (el.type === 'uvl') {
-    const y_bottom = el.h;
-    const y1 = el.h - (el.h - 15) * (el.uvlStartHeight ?? 0);
-    const y2 = el.h - (el.h - 15) * (el.uvlEndHeight ?? 1);
-    
-    const arrows = [];
-    const numArrows = 6;
-    for (let i = 0; i < numArrows; i++) {
-      const x_i = (i * el.w) / (numArrows - 1);
-      const y_top_i = y1 + ((y2 - y1) * i) / (numArrows - 1);
-      arrows.push(
-        <g key={i}>
-          <line
-            x1={x_i}
-            y1={y_top_i}
-            x2={x_i}
-            y2={y_bottom - 5}
-            stroke={stroke}
-            strokeWidth={sw}
-            strokeDasharray={strokeDasharray}
-          />
-          <path
-            d={`M ${x_i - 3} ${y_bottom - 5} L ${x_i} ${y_bottom} L ${x_i + 3} ${y_bottom - 5} Z`}
-            fill={stroke}
-          />
-        </g>
-      );
-    }
-    
-    return (
-      <g transform={transform}>
-        <polygon
-          points={`0,${y_bottom} 0,${y1} ${el.w},${y2} ${el.w},${y_bottom}`}
-          fill={fill}
-          stroke={stroke}
-          strokeWidth={sw}
-          strokeOpacity={0.5}
-        />
-        {arrows}
-      </g>
-    );
-  }
+        if (el.type === 'uvl') {
+          const y_bottom = el.h;
+          const startHeight = (el.h - 15) * (el.uvlStartHeight ?? 0);
+          const endHeight = (el.h - 15) * (el.uvlEndHeight ?? 1);
+          return (
+            <UvlLoad
+              x={0}
+              y={y_bottom}
+              width={el.w}
+              startHeight={startHeight}
+              endHeight={endHeight}
+              direction="down"
+              color={stroke}
+              fill={fill}
+              strokeWidth={sw}
+            />
+          );
+        }
 
-  if (el.type === 'moment') {
-    const cw = el.momentDirection !== 'ccw';
-    const showRightHalf = momentHalf === 'right';
-    
-    const angleBottom = Math.PI / 2;
-    const angleTop = 3 * Math.PI / 2;
-    
-    const startAngle = showRightHalf
-      ? (cw ? angleTop : angleBottom)
-      : (cw ? angleBottom : angleTop);
-      
-    const endAngle = showRightHalf
-      ? (cw ? angleBottom : angleTop)
-      : (cw ? angleTop : angleBottom);
-      
-    const pathEndAngle = endAngle - (cw ? 0.35 : -0.35);
-    
-    const r = Math.min(el.w, el.h) * 0.35;
-    const cx = el.w / 2;
-    const cy = el.h / 2;
+        if (el.type === 'point-load') {
+          const dir = el.pointLoadDirection || 'down';
+          const tipY = dir === 'down' ? el.h : dir === 'up' ? 0 : el.h / 2;
+          const tipX = dir === 'left' ? 0 : dir === 'right' ? el.w : el.w / 2;
+          const length = dir === 'left' || dir === 'right' ? el.w : el.h;
+          return (
+            <PointLoad
+              x={tipX}
+              y={tipY}
+              length={length}
+              direction={dir}
+              color={stroke}
+              strokeWidth={sw}
+            />
+          );
+        }
 
-    const x1 = cx + r * Math.cos(startAngle);
-    const y1 = cy + r * Math.sin(startAngle);
-    const x2 = cx + r * Math.cos(pathEndAngle);
-    const y2 = cy + r * Math.sin(pathEndAngle);
+        if (el.type === 'moment') {
+          const dir = el.momentDirection === 'ccw' ? 'ccw' : 'cw';
+          const half = momentHalf === 'right' ? 'right' : 'left';
+          const variant = `${dir}-${half}` as 'cw-left' | 'cw-right' | 'ccw-left' | 'ccw-right';
+          const r = Math.min(el.w, el.h) * 0.35;
+          return (
+            <MomentLoad
+              cx={el.w / 2}
+              cy={el.h / 2}
+              radius={r}
+              variant={variant}
+              color={stroke}
+              strokeWidth={sw}
+            />
+          );
+        }
 
-    const sweepFlag = cw ? 1 : 0;
-    const pathD = `M ${x1} ${y1} A ${r} ${r} 0 1 ${sweepFlag} ${x2} ${y2}`;
-    
-    const theta = endAngle;
-    const arrowLength = 9;
-    const arrowAngle = Math.PI / 6;
-    const tangent = theta + (cw ? Math.PI / 2 : -Math.PI / 2);
-    const ax = cx + r * Math.cos(theta);
-    const ay = cy + r * Math.sin(theta);
-    
-    const p1x = ax - arrowLength * Math.cos(tangent - arrowAngle);
-    const p1y = ay - arrowLength * Math.sin(tangent - arrowAngle);
-    const p2x = ax - arrowLength * Math.cos(tangent + arrowAngle);
-    const p2y = ay - arrowLength * Math.sin(tangent + arrowAngle);
-    const arrowheadD = `M ${p1x} ${p1y} L ${ax} ${ay} L ${p2x} ${p2y} Z`;
-
-    return (
-      <g transform={transform}>
-        <path d={pathD} fill="none" stroke={stroke} strokeWidth={Math.max(2.5, sw)} strokeLinecap="round" strokeDasharray={strokeDasharray} />
-        <path d={arrowheadD} fill={stroke} />
-      </g>
-    );
-  }
-
-  if (el.type === 'point-load') {
-    const dir = el.pointLoadDirection || 'down';
-    let x1 = el.w / 2, y1 = 0, x2 = el.w / 2, y2 = el.h;
-    let arrowheadD = '';
-    
-    if (dir === 'down') {
-      x1 = el.w / 2; y1 = 0; x2 = el.w / 2; y2 = el.h - 9;
-      arrowheadD = `M ${el.w / 2 - 6} ${el.h - 12} L ${el.w / 2} ${el.h} L ${el.w / 2 + 6} ${el.h - 12} Z`;
-    } else if (dir === 'up') {
-      x1 = el.w / 2; y1 = el.h; x2 = el.w / 2; y2 = 9;
-      arrowheadD = `M ${el.w / 2 - 6} 12 L ${el.w / 2} 0 L ${el.w / 2 + 6} 12 Z`;
-    } else if (dir === 'left') {
-      x1 = el.w; y1 = el.h / 2; x2 = 9; y2 = el.h / 2;
-      arrowheadD = `M 12 ${el.h / 2 - 6} L 0 ${el.h / 2} L 12 ${el.h / 2 + 6} Z`;
-    } else if (dir === 'right') {
-      x1 = 0; y1 = el.h / 2; x2 = el.w - 9; y2 = el.h / 2;
-      arrowheadD = `M ${el.w - 12} ${el.h / 2 - 6} L ${el.w} ${el.h / 2} L ${el.w - 12} ${el.h / 2 + 6} Z`;
-    }
-    
-    return (
-      <g transform={transform}>
-        <line x1={x1} y1={y1} x2={x2} y2={y2} stroke={stroke} strokeWidth={Math.max(3.5, sw + 1)} strokeLinecap="round" strokeDasharray={strokeDasharray} />
-        <path d={arrowheadD} fill={stroke} />
-      </g>
-    );
-  }
-
-  return null;
+        return null;
+      })()}
+    </g>
+  );
 };
+
+export default BeamLoads;

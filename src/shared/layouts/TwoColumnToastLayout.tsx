@@ -52,8 +52,10 @@ export const TwoColumnToastLayout: React.FC<TwoColumnToastLayoutProps> = (props)
 
           {/* Premium highly transparent glassmorphic toast pinned to corner */}
           <div className={`absolute z-50 w-80 max-w-xs presentation-toast-container ${positionClasses}`}>
-            <div className="bg-background/80 backdrop-blur-md border border-border/50 rounded-2xl shadow-xl p-3 text-left transition-all duration-300">
-              {rightContent}
+            <div className="bg-background/70 backdrop-blur-md rounded-2xl shadow-[0_0_15px_rgba(0,0,0,0.03)] dark:shadow-[0_0_15px_rgba(0,0,0,0.2)] p-3.5 text-left transition-all duration-300">
+              <div className="toast-content">
+                {rightContent}
+              </div>
             </div>
           </div>
         </main>
@@ -75,10 +77,10 @@ export const TwoColumnToastLayout: React.FC<TwoColumnToastLayoutProps> = (props)
               display: none !important;
             }
             /* Strip card-nested borders/backgrounds to keep the floating toast layout sleek and single-layer */
-            .presentation-toast-container .border,
-            .presentation-toast-container [class*="border-"],
-            .presentation-toast-container [class*="bg-muted"],
-            .presentation-toast-container [class*="shadow-"] {
+            .toast-content .border,
+            .toast-content [class*="border-"],
+            .toast-content [class*="bg-muted"],
+            .toast-content [class*="shadow-"] {
               border-color: transparent !important;
               background-color: transparent !important;
               background: transparent !important;

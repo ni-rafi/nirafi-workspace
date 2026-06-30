@@ -1,6 +1,7 @@
 import React from 'react';
 import { IFrameLoad, INode, IMember } from '../../types/frame';
 import { toPixelX, toPixelY } from '../../hooks/useFrameBuilder';
+import { UdlLoad } from '@/features/civil-drawing/components/loads';
 
 interface CanvasLoadsProps {
   loads: IFrameLoad[];
@@ -211,41 +212,16 @@ export const CanvasLoads: React.FC<CanvasLoadsProps> = ({
     const dx = x2 - x1;
     const dy = y2 - y1;
 
-    
+    const length = Math.sqrt(dx * dx + dy * dy);
+    const angleRad = Math.atan2(dy, dx);
+    const angleDeg = (angleRad * 180) / Math.PI;
+
     // Perpendicular direction for ticks
-    const angle = Math.atan2(dy, dx);
-    const perpAngle = angle - Math.PI / 2;
+    const perpAngle = angleRad - Math.PI / 2;
     const tickLen = 14;
 
-    const tdx = Math.cos(perpAngle) * tickLen;
-    const tdy = Math.sin(perpAngle) * tickLen;
-
-    const ux1 = x1 + tdx;
-    const uy1 = y1 + tdy;
-    const ux2 = x2 + tdx;
-    const uy2 = y2 + tdy;
-
-    // Draw 5 perpendicular arrows along the member length
-    const arrowCount = 5;
-    const arrows = [];
-    for (let i = 0; i < arrowCount; i++) {
-      const t = i / (arrowCount - 1);
-      const mx = x1 + t * dx;
-      const my = y1 + t * dy;
-      const ax = mx + tdx;
-      const ay = my + tdy;
-      arrows.push(
-        <line
-          key={i}
-          x1={ax}
-          y1={ay}
-          x2={mx + Math.cos(perpAngle) * 3}
-          y2={my + Math.sin(perpAngle) * 3}
-          stroke={isSelected ? 'var(--primary)' : 'var(--destructive)'}
-          strokeWidth={1.5}
-        />
-      );
-    }
+    const ox = Math.cos(perpAngle) * tickLen;
+    const oy = Math.sin(perpAngle) * tickLen;
 
     const labelStr = `${Math.abs(load.magnitude)} kN/m`;
 
@@ -261,32 +237,32 @@ export const CanvasLoads: React.FC<CanvasLoadsProps> = ({
       >
         {/* Click target helper */}
         <polygon
-          points={`${x1},${y1} ${x2},${y2} ${ux2},${uy2} ${ux1},${uy1}`}
+          points={`${x1},${y1} ${x2},${y2} ${x2 + ox},${y2 + oy} ${x1 + ox},${y1 + oy}`}
           fill="transparent"
         />
 
-        {/* Outer parallel baseline */}
-        <line
-          x1={ux1}
-          y1={uy1}
-          x2={ux2}
-          y2={uy2}
-          stroke={isSelected ? 'var(--primary)' : 'var(--destructive)'}
-          strokeWidth={isSelected ? 2.5 : 1.5}
-        />
-
-        {/* Ticks/arrows */}
-        {arrows}
+        {/* Rotated Standard UDL primitive */}
+        <g transform={`translate(${x1 + ox}, ${y1 + oy}) rotate(${angleDeg})`}>
+          <UdlLoad
+            x={0}
+            y={0}
+            width={length}
+            height={10}
+            direction="down"
+            color={isSelected ? 'var(--primary)' : 'var(--destructive)'}
+            strokeWidth={1.5}
+          />
+        </g>
 
         {/* UDL label text */}
         <text
-          x={(ux1 + ux2) / 2 - Math.cos(perpAngle) * 8}
-          y={(uy1 + uy2) / 2 - Math.sin(perpAngle) * 8}
+          x={(x1 + x2) / 2 + ox * 1.5}
+          y={(y1 + y2) / 2 + oy * 1.5}
           fill={isSelected ? 'var(--primary)' : 'var(--destructive)'}
           fontSize={10}
           fontWeight="bold"
           textAnchor="middle"
-          transform={`rotate(${(angle * 180) / Math.PI}, ${(ux1 + ux2) / 2}, ${(uy1 + uy2) / 2})`}
+          transform={`rotate(${angleDeg}, ${(x1 + x2) / 2 + ox * 1.5}, ${(y1 + y2) / 2 + oy * 1.5})`}
         >
           {labelStr}
         </text>

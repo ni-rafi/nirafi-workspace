@@ -7,6 +7,7 @@ import { IBeam, ISolverOutput } from '@/subjects/mechanics-of-solids/cores/sfd-b
 
 export const renderSetupSlide = (beam: IBeam, diagram: React.ReactNode) => {
   const udlLoads = beam.loads.filter(l => l.type === 'udl');
+  const uvlLoads = beam.loads.filter(l => l.type === 'uvl');
   const pointLoads = beam.loads.filter(l => l.type === 'point');
   const momentLoads = beam.loads.filter(l => l.type === 'moment');
 
@@ -45,9 +46,16 @@ export const renderSetupSlide = (beam: IBeam, diagram: React.ReactNode) => {
               </SlideParagraph>
               <div className="space-y-1.5 pl-1.5 text-left text-xs font-medium">
                 {udlLoads.map((load, i) => (
-                  <SlideBullet key={i}>
+                  <SlideBullet key={`udl-${i}`}>
                     <span>
                       A UDL of <LatexFormula math={`${load.magnitude}\\text{ kN/m}`} /> acting over a {Math.abs((load.endPosition ?? 0) - (load.startPosition ?? 0))}m span from <LatexFormula math={`x = ${load.startPosition}\\text{ m}`} /> to <LatexFormula math={`x = ${load.endPosition}\\text{ m}`} />.
+                    </span>
+                  </SlideBullet>
+                ))}
+                {uvlLoads.map((load, i) => (
+                  <SlideBullet key={`uvl-${i}`}>
+                    <span>
+                      A UVL varying from <LatexFormula math={`${load.startMagnitude}\\text{ kN/m}`} /> to <LatexFormula math={`${load.endMagnitude}\\text{ kN/m}`} /> over a {Math.abs((load.endPosition ?? 0) - (load.startPosition ?? 0))}m span from <LatexFormula math={`x = ${load.startPosition}\\text{ m}`} /> to <LatexFormula math={`x = ${load.endPosition}\\text{ m}`} />.
                     </span>
                   </SlideBullet>
                 ))}

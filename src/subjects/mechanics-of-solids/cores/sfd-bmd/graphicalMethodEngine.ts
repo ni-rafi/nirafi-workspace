@@ -178,8 +178,8 @@ export function calculateGraphicalMethod(
       if (r.type === 'M') {
         const support = beam.supports.find(s => s.id === r.supportId);
         if (support && Math.abs(support.position - x) < 1e-9) {
-          jumpMoment -= r.value; // jump direction is opposite to sign convention
-          desc += `${desc ? ' + ' : ''}Reaction Moment $M$ (-${r.value.toFixed(2)})`;
+          jumpMoment += r.value;
+          desc += `${desc ? ' + ' : ''}Reaction Moment $M$ (${r.value >= 0 ? '+' : ''}${r.value.toFixed(2)})`;
         }
       }
     });

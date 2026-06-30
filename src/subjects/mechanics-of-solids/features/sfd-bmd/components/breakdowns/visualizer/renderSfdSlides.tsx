@@ -1,7 +1,7 @@
 import React from 'react';
 import { ClickReveal, LatexFormula } from '@/features/presentation/components/elements';
 import { TwoColumnToastLayout } from '@/shared/layouts/TwoColumnToastLayout';
-import { ISolverOutput } from '@/subjects/mechanics-of-solids/cores/sfd-bmd/types';
+import { IBeam, ISolverOutput } from '@/subjects/mechanics-of-solids/cores/sfd-bmd/types';
 
 export interface ISfdSlide {
   type: 'sfd-segment' | 'sfd-jump' | 'sfd-node-check';
@@ -112,17 +112,63 @@ export const renderSfdSegment = (
   toastPosition: 'left' | 'right',
   diagram: React.ReactNode,
   clickIdx: number,
-  intervals: ISolverOutput['intervals']
+  intervals: ISolverOutput['intervals'],
+  beam: IBeam
 ) => {
-  const dx = (activeStep.endX || 0) - (activeStep.startX || 0);
+  const startX = activeStep.startX ?? 0;
+  const endX = activeStep.endX ?? 0;
+  const dx = endX - startX;
+  const midX = (startX + endX) / 2;
   const isUnloaded = Math.abs(activeStep.loadArea || 0) < 1e-6;
-  const w = isUnloaded ? 0 : Math.abs(activeStep.loadArea || 0) / dx;
-  const { label } = getSfdDegreeInfo(activeStep.startX || 0, activeStep.endX || 0, intervals);
+
+  const activeLoad = beam.loads.find(
+    l => midX >= (l.startPosition ?? l.position ?? 0) &&
+         midX <= (l.endPosition ?? l.position ?? beam.length)
+  );
+
+  let step1Desc = '';
+  let formulaLatex = '';
+  let calcLatex = '';
+
+  if (isUnloaded || !activeLoad) {
+    step1Desc = 'External distributed load is zero (unloaded span).';
+    formulaLatex = '\\Delta V = 0';
+    calcLatex = '\\Delta V = 0\\text{ kN}';
+  } else if (activeLoad.type === 'uvl') {
+    const wStartFull = activeLoad.startMagnitude ?? 0;
+    const wEndFull = activeLoad.endMagnitude ?? 0;
+    const Xs = activeLoad.startPosition ?? 0;
+    const Xe = activeLoad.endPosition ?? 0;
+    const loadSpan = Xe - Xs;
+
+    const w_startX = wStartFull + (wEndFull - wStartFull) * ((startX - Xs) / loadSpan);
+    const w_endX = wStartFull + (wEndFull - wStartFull) * ((endX - Xs) / loadSpan);
+
+    const isTriangle = Math.abs(w_startX) < 1e-3 || Math.abs(w_endX) < 1e-3;
+    if (isTriangle) {
+      const wMax = Math.max(w_startX, w_endX);
+      step1Desc = `External distributed load is a triangular UVL varying from ${w_startX.toFixed(2)} kN/m to ${w_endX.toFixed(2)} kN/m.`;
+      formulaLatex = '\\Delta V = -\\frac{1}{2} \\cdot b \\cdot h';
+      calcLatex = `\\Delta V = -\\frac{1}{2} \\cdot ${dx.toFixed(2)}\\text{m} \\cdot ${wMax.toFixed(2)}\\text{kN/m} = -${Math.abs(activeStep.loadArea || 0).toFixed(3)}\\text{ kN}`;
+    } else {
+      step1Desc = `External distributed load is a trapezoidal UVL varying from ${w_startX.toFixed(2)} kN/m to ${w_endX.toFixed(2)} kN/m.`;
+      formulaLatex = '\\Delta V = -\\frac{w_1 + w_2}{2} \\cdot L';
+      calcLatex = `\\Delta V = -\\frac{${w_startX.toFixed(2)} + ${w_endX.toFixed(2)}}{2} \\cdot ${dx.toFixed(2)}\\text{m} = -${Math.abs(activeStep.loadArea || 0).toFixed(3)}\\text{ kN}`;
+    }
+  } else {
+    // UDL
+    const wMag = activeLoad.magnitude ?? 0;
+    step1Desc = `External distributed load is a uniform load (UDL) of w = ${wMag.toFixed(2)} kN/m.`;
+    formulaLatex = '\\Delta V = -w \\cdot L';
+    calcLatex = `\\Delta V = -${wMag.toFixed(2)}\\text{kN/m} \\cdot ${dx.toFixed(2)}\\text{m} = -${Math.abs(activeStep.loadArea || 0).toFixed(3)}\\text{ kN}`;
+  }
+
+  const { label } = getSfdDegreeInfo(startX, endX, intervals);
 
   return (
     <TwoColumnToastLayout
       toastPosition={toastPosition}
-      title={`SFD Integration - Segment x in [${activeStep.startX}, ${activeStep.endX}]`}
+      title={`SFD Integration - Segment x in [${startX}, ${endX}]`}
       leftWidth="55%"
       leftContent={diagram}
       rightContent={
@@ -132,12 +178,19 @@ export const renderSfdSegment = (
           <div className="text-[11px] text-muted-foreground bg-muted/15 border border-border/30 rounded-xl p-2.5 space-y-2 select-text font-sans">
             <div>
               <span className="font-bold text-foreground block mb-0.5">1. Check Segment Load:</span>
-              External distributed load is <LatexFormula math={`w = ${w.toFixed(2)}\\text{ kN/m}`} />.
+              {step1Desc}
             </div>
             <ClickReveal at={1}>
               <div className="border-t border-border/25 pt-2">
                 <span className="font-bold text-indigo-500 block mb-0.5 font-mono">2. Area Calculation (Change):</span>
-                <LatexFormula math={`\\Delta V = \\int -w \\, dx = -${Math.abs(activeStep.loadArea || 0).toFixed(3)}\\text{ kN}`} />
+                <div className="space-y-1 mt-1 text-muted-foreground font-medium text-[11px]">
+                  <div>
+                    <span className="text-foreground/80 font-bold">Formula:</span> <LatexFormula math={formulaLatex} />
+                  </div>
+                  <div>
+                    <span className="text-foreground/80 font-bold">Solve:</span> <LatexFormula math={calcLatex} />
+                  </div>
+                </div>
               </div>
             </ClickReveal>
             <ClickReveal at={2}>

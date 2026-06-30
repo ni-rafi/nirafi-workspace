@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'motion/react';
-import { getSvgX, getBaselines } from './diagramConstants';
+import { getSvgX, getBaselines, getSfdCurvePoints } from './diagramConstants';
 import { IBeam, ISolverOutput } from '@/subjects/mechanics-of-solids/cores/sfd-bmd/types';
 
 const getCircleClass = (step: number, currentStep: number, baseClass: string) => {
@@ -151,11 +151,20 @@ export const SfdDiagram: React.FC<SfdDiagramProps> = ({
     const crossingSegment = sfdSteps.find(s => s.type === 'sfd-segment' && (s.vStart || 0) * (s.vEnd || 0) < 0);
     let peakX = 0;
     if (crossingSegment) {
-      const v1 = Math.abs(crossingSegment.vStart || 0);
-      const v2 = Math.abs(crossingSegment.vEnd || 0);
-      const L_seg = (crossingSegment.endX || 0) - (crossingSegment.startX || 0);
-      const x0 = (v1 * L_seg) / (v1 + v2);
-      peakX = (crossingSegment.startX || 0) + x0;
+      const sX = crossingSegment.startX || 0;
+      const eX = crossingSegment.endX || 0;
+      const exactCP = solverResult.criticalPoints.find(
+        cp => cp.x > sX + 1e-3 && cp.x < eX - 1e-3 && cp.isLocalMaxMinM
+      );
+      if (exactCP) {
+        peakX = exactCP.x;
+      } else {
+        const v1 = Math.abs(crossingSegment.vStart || 0);
+        const v2 = Math.abs(crossingSegment.vEnd || 0);
+        const L_seg = eX - sX;
+        const x0 = (v1 * L_seg) / (v1 + v2);
+        peakX = sX + x0;
+      }
     }
 
     // Step 14 is always the start node check at x = 0
@@ -239,14 +248,28 @@ export const SfdDiagram: React.FC<SfdDiagramProps> = ({
     }
 
     if (activeBmdSlide && activeBmdSlide.type === 'bmd-segment' && clickIdx >= 0) {
-      const sX = getSvgX(activeBmdSlide.startX || 0, beam.length);
-      const eX = getSvgX(activeBmdSlide.endX || 0, beam.length);
-      const dx = (activeBmdSlide.endX || 0) - (activeBmdSlide.startX || 0);
+      const startX = activeBmdSlide.startX || 0;
+      const endX = activeBmdSlide.endX || 0;
+      const sX = getSvgX(startX, beam.length);
+      const eX = getSvgX(endX, beam.length);
+      const dx = endX - startX;
       const vStart = activeBmdSlide.vStart || 0;
       const vEnd = activeBmdSlide.vEnd || 0;
 
-      // Draw polygon representation of the shear area
-      const pts = `${sX},${sfdY} ${sX},${sfdY - vStart * sfdScale} ${eX},${sfdY - vEnd * sfdScale} ${eX},${sfdY}`;
+      const interval = solverResult.intervals.find(
+        inv => startX >= inv.startX - 1e-3 && endX <= inv.endX + 1e-3
+      );
+      const isCurved = interval && Math.abs(interval.vCoeffs[0]) > 1e-6;
+
+      let pathD = '';
+      if (isCurved) {
+        const ptsStr = getSfdCurvePoints(startX, endX, sfdY, sfdScale, beam.length, solverResult.intervals);
+        const curveCmds = ptsStr.trim().split(' ').map(pair => `L ${pair.split(',').join(' ')}`).join(' ');
+        pathD = `M ${sX} ${sfdY} ${curveCmds} L ${eX} ${sfdY} Z`;
+      } else {
+        pathD = `M ${sX} ${sfdY} L ${sX} ${sfdY - vStart * sfdScale} L ${eX} ${sfdY - vEnd * sfdScale} L ${eX} ${sfdY} Z`;
+      }
+
       const isPositive = vStart >= -1e-6 && vEnd >= -1e-6;
       const colorClass = "fill-fuchsia-500/20 stroke-fuchsia-500/20";
       const textColorClass = "fill-fuchsia-600 dark:fill-fuchsia-400";
@@ -260,7 +283,7 @@ export const SfdDiagram: React.FC<SfdDiagramProps> = ({
 
       shadeSource = (
         <g>
-          <polygon points={pts} className={`${colorClass} animate-in fade-in duration-300`} />
+          <path d={pathD} className={`${colorClass} animate-in fade-in duration-300`} />
           {clickIdx >= 1 && (
             <text x={textX} y={textY} textAnchor="middle" className={`text-[7px] font-black font-mono ${textColorClass} animate-in fade-in`}>
               V = {Math.abs(vStart || vEnd).toFixed(3)}, L = {dx.toFixed(3)}m
@@ -282,8 +305,12 @@ export const SfdDiagram: React.FC<SfdDiagramProps> = ({
       const vStart = crossingSegment.vStart || 0;
       const vEnd = crossingSegment.vEnd || 0;
       const dx = (crossingSegment.endX || 0) - (crossingSegment.startX || 0);
-      const x0 = (Math.abs(vStart) * dx) / (Math.abs(vStart) + Math.abs(vEnd));
-      const midX = getSvgX((crossingSegment.startX || 0) + x0, beam.length);
+      const startVal = crossingSegment.startX || 0;
+      const exactCP = solverResult.criticalPoints.find(
+        cp => cp.x > startVal + 1e-3 && cp.x < (crossingSegment.endX || 0) - 1e-3 && cp.isLocalMaxMinM
+      );
+      const crossXVal = exactCP ? exactCP.x : startVal + (Math.abs(vStart) * dx) / (Math.abs(vStart) + Math.abs(vEnd));
+      const midX = getSvgX(crossXVal, beam.length);
 
       const ptsPos = `${sX},${sfdY} ${sX},${sfdY - vStart * sfdScale} ${midX},${sfdY}`;
       const ptsNeg = `${midX},${sfdY} ${eX},${sfdY - vEnd * sfdScale} ${eX},${sfdY}`;
@@ -307,9 +334,22 @@ export const SfdDiagram: React.FC<SfdDiagramProps> = ({
     if (step.type === 'sfd-jump') {
       dPath += ` L ${xPos} ${sfdY - (step.vStart || 0) * sfdScale} L ${xPos} ${sfdY - (step.vEnd || 0) * sfdScale}`;
     } else if (step.type === 'sfd-segment') {
-      const sX = getSvgX(step.startX || 0, beam.length);
-      const eX = getSvgX(step.endX || 0, beam.length);
-      dPath += ` L ${sX} ${sfdY - (step.vStart || 0) * sfdScale} L ${eX} ${sfdY - (step.vEnd || 0) * sfdScale}`;
+      const startX = step.startX || 0;
+      const endX = step.endX || 0;
+      const interval = solverResult.intervals.find(
+        inv => startX >= inv.startX - 1e-3 && endX <= inv.endX + 1e-3
+      );
+      const isCurved = interval && Math.abs(interval.vCoeffs[0]) > 1e-6;
+
+      if (isCurved) {
+        const ptsStr = getSfdCurvePoints(startX, endX, sfdY, sfdScale, beam.length, solverResult.intervals);
+        const commands = ptsStr.split(' ').map(pair => `L ${pair.split(',').join(' ')}`).join(' ');
+        dPath += ` ${commands}`;
+      } else {
+        const sX = getSvgX(startX, beam.length);
+        const eX = getSvgX(endX, beam.length);
+        dPath += ` L ${sX} ${sfdY - (step.vStart || 0) * sfdScale} L ${eX} ${sfdY - (step.vEnd || 0) * sfdScale}`;
+      }
     }
   });
   dPath += ` L ${getSvgX(beam.length, beam.length)} ${sfdY}`;
@@ -468,6 +508,14 @@ export const SfdDiagram: React.FC<SfdDiagramProps> = ({
           const yEnd = sfdY - (slide.vEnd || 0) * sfdScale;
           const isZeroCrossing = (slide.vStart || 0) * (slide.vEnd || 0) < 0;
 
+          const interval = solverResult.intervals.find(
+            inv => (slide.startX || 0) >= inv.startX - 1e-3 && (slide.endX || 0) <= inv.endX + 1e-3
+          );
+          const isCurved = interval && Math.abs(interval.vCoeffs[0]) > 1e-6;
+          const ptsStr = isCurved
+            ? getSfdCurvePoints(slide.startX || 0, slide.endX || 0, sfdY, sfdScale, beam.length, solverResult.intervals)
+            : '';
+
           return (
             <g key={idx}>
               {((isCurrent && clickIdx >= 3) || !isCurrent) && (
@@ -485,30 +533,47 @@ export const SfdDiagram: React.FC<SfdDiagramProps> = ({
                 yEnd,
                 `-${Math.abs(slide.loadArea || 0).toFixed(3)} kN`
               )}
-              {!isCurrent ? (
-                <line x1={sX} y1={yStart} x2={eX} y2={yEnd} className="stroke-rose-500" strokeWidth="2" />
-              ) : clickIdx >= 3 ? (
-                <motion.line
-                  x1={sX}
-                  y1={yStart}
-                  x2={eX}
-                  y2={yEnd}
-                  className="stroke-rose-500"
-                  strokeWidth="2.5"
-                  strokeLinecap="round"
-                  initial={{ pathLength: 0 }}
-                  animate={{ pathLength: 1 }}
-                  transition={{ duration: 0.6, ease: "easeOut" }}
-                />
-              ) : null}
+              {isCurved ? (
+                !isCurrent ? (
+                  <polyline points={ptsStr} fill="none" className="stroke-rose-500" strokeWidth="2" />
+                ) : clickIdx >= 3 ? (
+                  <motion.path
+                    d={`M ${ptsStr.trim().split(' ').join(' L ')}`}
+                    fill="none"
+                    className="stroke-rose-500"
+                    strokeWidth="2.5"
+                    initial={{ pathLength: 0 }}
+                    animate={{ pathLength: 1 }}
+                    transition={{ duration: 0.6, ease: "easeOut" }}
+                  />
+                ) : null
+              ) : (
+                !isCurrent ? (
+                  <line x1={sX} y1={yStart} x2={eX} y2={yEnd} className="stroke-rose-500" strokeWidth="2" />
+                ) : clickIdx >= 3 ? (
+                  <motion.line
+                    x1={sX}
+                    y1={yStart}
+                    x2={eX}
+                    y2={yEnd}
+                    className="stroke-rose-500"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    initial={{ pathLength: 0 }}
+                    animate={{ pathLength: 1 }}
+                    transition={{ duration: 0.6, ease: "easeOut" }}
+                  />
+                ) : null
+              )}
 
               {/* Zero-shear point dynamic display */}
               {isZeroCrossing && (displayedStep > stepNum || (isCurrent && clickIdx >= 3) || stepIndex >= 12) && (() => {
-                const v1 = Math.abs(slide.vStart || 0);
-                const v2 = Math.abs(slide.vEnd || 0);
-                const dx = (slide.endX || 0) - (slide.startX || 0);
-                const x0 = (v1 * dx) / (v1 + v2);
-                const crossX = (slide.startX || 0) + x0;
+                const startVal = slide.startX || 0;
+                const endVal = slide.endX || 0;
+                const exactCP = solverResult.criticalPoints.find(
+                  cp => cp.x > startVal + 1e-3 && cp.x < endVal - 1e-3 && cp.isLocalMaxMinM
+                );
+                const crossX = exactCP ? exactCP.x : startVal + (Math.abs(slide.vStart || 0) * (endVal - startVal)) / (Math.abs(slide.vStart || 0) + Math.abs(slide.vEnd || 0));
                 return (
                   <g className="animate-in fade-in" key="crossing">
                     <circle cx={getSvgX(crossX, beam.length)} cy={sfdY} r="2" className="fill-rose-500 animate-pulse" />

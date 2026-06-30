@@ -43,3 +43,27 @@ export const getBmdCurvePoints = (
   }
   return points.trim();
 };
+
+export const getSfdCurvePoints = (
+  xStart: number,
+  xEnd: number,
+  sfdBaseline: number,
+  sfdScale: number,
+  beamLength: number,
+  intervals: IIntervalEquation[]
+): string => {
+  let points = '';
+  const steps = 25;
+  for (let i = 0; i <= steps; i++) {
+    const xVal = xStart + (xEnd - xStart) * (i / steps);
+    const interval = intervals.find(
+      inv => xVal >= inv.startX - 1e-6 && xVal <= inv.endX + 1e-6
+    );
+    const [a, b, c] = interval ? interval.vCoeffs : [0, 0, 0];
+    const v = a * Math.pow(xVal, 2) + b * xVal + c;
+    const svgX = getSvgX(xVal, beamLength);
+    const svgY = sfdBaseline - v * sfdScale;
+    points += `${svgX},${svgY} `;
+  }
+  return points.trim();
+};

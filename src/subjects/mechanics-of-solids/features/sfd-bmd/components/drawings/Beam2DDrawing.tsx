@@ -1,5 +1,6 @@
 import React from 'react';
 import { IBeam } from '@/subjects/mechanics-of-solids/cores/sfd-bmd/types';
+import { UdlLoad, UvlLoad, PointLoad, MomentLoad } from '@/features/civil-drawing/components/loads';
 
 interface Beam2DDrawingProps {
   beam: IBeam;
@@ -136,48 +137,76 @@ export const Beam2DDrawing: React.FC<Beam2DDrawingProps> = ({
         {beam.loads.map((l) => {
           if (l.type === 'point') {
             const xVal = getSvgX(l.position ?? beam.length / 2);
+            const magnitude = l.magnitude ?? 0;
+            const isUp = magnitude < 0;
             return (
-              <g key={l.id}>
-                {/* Arrow */}
-                <path d={`M ${xVal},16 L ${xVal},46 M ${xVal - 4},40 L ${xVal},46 L ${xVal + 4},40`} fill="none" stroke="#ef4444" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-                <text x={xVal - 6} y="26" textAnchor="end" className="text-[9px] font-black fill-rose-500 font-mono">{l.id} = {l.magnitude ?? 0} kN</text>
-              </g>
+              <PointLoad
+                key={l.id}
+                x={xVal}
+                y={isUp ? 60 : 48}
+                length={22}
+                direction={isUp ? 'up' : 'down'}
+                color="#ef4444"
+                label={`${l.id} = ${Math.abs(magnitude)} kN`}
+              />
             );
           } else if (l.type === 'udl') {
             const xStart = getSvgX(l.startPosition ?? 0);
             const xEnd = getSvgX(l.endPosition ?? beam.length);
-            const segmentsCount = 4;
-            const wSegment = (xEnd - xStart) / segmentsCount;
-
+            const width = xEnd - xStart;
             return (
-              <g key={l.id}>
-                {/* UDL Arcs */}
-                <path
-                  d={Array.from({ length: segmentsCount }).map((_, i) => {
-                    const start = xStart + i * wSegment;
-                    const end = start + wSegment;
-                    const ctrlX = start + wSegment / 2;
-                    return `M ${start},46 Q ${ctrlX},32 ${end},46`;
-                  }).join(' ')}
-                  fill="none"
-                  stroke="#10b981"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                />
-                {/* UDL Down Arrows */}
-                {Array.from({ length: segmentsCount * 2 + 1 }).map((_, i) => {
-                  const xArrow = xStart + (i * wSegment) / 2;
-                  return (
-                    <g key={i} className="stroke-emerald-500" strokeWidth="1">
-                      <line x1={xArrow} y1="41" x2={xArrow} y2="47" />
-                      <path d={`M ${xArrow - 2.5},44 L ${xArrow},47 L ${xArrow + 2.5},44`} fill="none" strokeLinejoin="round" />
-                    </g>
-                  );
-                })}
-                <text x={(xStart + xEnd) / 2} y="26" textAnchor="middle" className="text-[9.5px] font-black fill-emerald-600 dark:fill-emerald-400 font-mono">
-                  {l.id} = {l.magnitude ?? 0} kN/m
-                </text>
-              </g>
+              <UdlLoad
+                key={l.id}
+                x={xStart}
+                y={48}
+                width={width}
+                height={16}
+                direction={(l.magnitude ?? 0) < 0 ? 'up' : 'down'}
+                color="#f59e0b"
+                label={`${l.id} = ${l.magnitude} kN/m`}
+              />
+            );
+          } else if (l.type === 'uvl') {
+            const xStart = getSvgX(l.startPosition ?? 0);
+            const xEnd = getSvgX(l.endPosition ?? beam.length);
+            const width = xEnd - xStart;
+            const maxMag = Math.max(Math.abs(l.startMagnitude ?? 0), Math.abs(l.endMagnitude ?? 0));
+            const maxScaleHeight = 20;
+            const startHeight = maxMag > 0 ? (Math.abs(l.startMagnitude ?? 0) / maxMag) * maxScaleHeight : 0;
+            const endHeight = maxMag > 0 ? (Math.abs(l.endMagnitude ?? 0) / maxMag) * maxScaleHeight : 0;
+            
+            return (
+              <UvlLoad
+                key={l.id}
+                x={xStart}
+                y={48}
+                width={width}
+                startHeight={startHeight}
+                endHeight={endHeight}
+                direction={(l.startMagnitude ?? 0) < 0 ? 'up' : 'down'}
+                color="#f59e0b"
+                fill="rgba(245, 158, 11, 0.05)"
+                startLabel={`${l.id}_L = ${l.startMagnitude} kN/m`}
+                endLabel={`${l.id}_R = ${l.endMagnitude} kN/m`}
+              />
+            );
+          } else if (l.type === 'moment') {
+            const xVal = getSvgX(l.position ?? 0);
+            const magnitude = l.magnitude ?? 0;
+            const isCcw = magnitude < 0;
+            const variant = isCcw 
+              ? (xVal > getSvgX(beam.length / 2) ? 'ccw-left' : 'ccw-right')
+              : (xVal > getSvgX(beam.length / 2) ? 'cw-left' : 'cw-right');
+            return (
+              <MomentLoad
+                key={l.id}
+                cx={xVal}
+                cy={54}
+                radius={12}
+                variant={variant}
+                color="#8b5cf6"
+                label={`${l.id} = ${Math.abs(magnitude)} kNm`}
+              />
             );
           }
           return null;

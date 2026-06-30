@@ -85,7 +85,7 @@ export const SlideTable: React.FC<SlideTableProps> = ({
     return isColVisible(idx) ? idx : acc;
   }, -1);
 
-  const getColClasses = (colIdx: number): string => {
+  const getHeaderColClasses = (colIdx: number): string => {
     if (isBlog) return 'p-3';
     const visible = isColVisible(colIdx);
     
@@ -94,6 +94,22 @@ export const SlideTable: React.FC<SlideTableProps> = ({
       padding = 'py-1 px-2 text-[10px]';
     } else if (dense === 'relaxed') {
       padding = 'py-1.5 px-3 text-[11px]';
+    }
+
+    return visible
+      ? `${padding} opacity-100 max-w-[300px] transition-all duration-500 ease-in-out`
+      : 'p-0 opacity-0 max-w-0 border-r-0 border-l-0 pointer-events-none overflow-hidden whitespace-nowrap transition-all duration-500 ease-in-out';
+  };
+
+  const getBodyColClasses = (colIdx: number): string => {
+    if (isBlog) return 'p-3';
+    const visible = isColVisible(colIdx);
+    
+    let padding = 'py-5 px-3';
+    if (dense === true || dense === 'tight') {
+      padding = 'py-2 px-2 text-[10px]';
+    } else if (dense === 'relaxed') {
+      padding = 'py-4.5 px-3 text-[11px]';
     }
 
     return visible
@@ -129,7 +145,7 @@ export const SlideTable: React.FC<SlideTableProps> = ({
               const align = typeof h === 'string' ? 'left' : (h.align || 'left');
               const alignClass = align === 'right' ? 'text-right' : (align === 'center' ? 'text-center' : 'text-left');
               const borderClass = bordered && visible && idx < lastVisibleColIdx ? 'border-r border-border/80' : 'border-r-0';
-              const animClass = getColClasses(idx);
+              const animClass = getHeaderColClasses(idx);
               const isFirstVisible = idx === firstVisibleColIdx;
               const isLastVisible = idx === lastVisibleColIdx;
               const cornerClass = !caption ? (isFirstVisible ? 'rounded-tl-xl' : (isLastVisible ? 'rounded-tr-xl' : '')) : '';
@@ -155,7 +171,7 @@ export const SlideTable: React.FC<SlideTableProps> = ({
                   const h = headers[cellIdx];
                   const align = !h || typeof h === 'string' ? 'left' : (h.align || 'left');
                   const alignClass = align === 'right' ? 'text-right' : (align === 'center' ? 'text-center' : 'text-left');
-
+ 
                   const isMono = typeof cell === 'string' && (
                     cell.match(/^[\d\.\$\-\+\,\%\/]+$/) ||
                     cell.includes('m³') ||
@@ -164,7 +180,7 @@ export const SlideTable: React.FC<SlideTableProps> = ({
                   );
                   const cellFontClass = isMono ? 'font-mono' : '';
                   const cellBorderClass = bordered && visible && cellIdx < lastVisibleColIdx ? 'border-r border-border/80' : 'border-r-0';
-                  const animClass = getColClasses(cellIdx);
+                  const animClass = getBodyColClasses(cellIdx);
                   const widthStyle = h && typeof h !== 'string' && h.width ? { width: h.width } : undefined;
                   return (
                     <td key={cellIdx} className={`${alignClass} ${cellFontClass} ${cellBorderClass} ${animClass}`} style={widthStyle}>

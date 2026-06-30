@@ -113,12 +113,22 @@ export const renderDynamicStep = (stepIndex: number, params: StepParams): React.
   let peakX = 0;
   let peakM = 0;
   if (crossingSegment) {
-    const v1 = Math.abs(crossingSegment.vStart || 0);
-    const v2 = Math.abs(crossingSegment.vEnd || 0);
-    const L_seg = (crossingSegment.endX || 0) - (crossingSegment.startX || 0);
-    const x0 = (v1 * L_seg) / (v1 + v2);
-    peakX = (crossingSegment.startX || 0) + x0;
-    peakM = solverResult.criticalPoints.find(cp => Math.abs(cp.x - peakX) < 1e-2)?.m || 0;
+    const sX = crossingSegment.startX || 0;
+    const eX = crossingSegment.endX || 0;
+    const exactCP = solverResult.criticalPoints.find(
+      cp => cp.x > sX + 1e-3 && cp.x < eX - 1e-3 && cp.isLocalMaxMinM
+    );
+    if (exactCP) {
+      peakX = exactCP.x;
+      peakM = exactCP.m;
+    } else {
+      const v1 = Math.abs(crossingSegment.vStart || 0);
+      const v2 = Math.abs(crossingSegment.vEnd || 0);
+      const L_seg = eX - sX;
+      const x0 = (v1 * L_seg) / (v1 + v2);
+      peakX = sX + x0;
+      peakM = solverResult.criticalPoints.find(cp => Math.abs(cp.x - peakX) < 1e-2)?.m || 0;
+    }
   }
 
   bmdSteps.forEach((step, idx) => {
@@ -257,7 +267,7 @@ export const renderDynamicStep = (stepIndex: number, params: StepParams): React.
       return renderSfdJump(activeSfdSlide, toastPos, diagram, clickIdx);
     }
     if (activeSfdSlide.type === 'sfd-segment') {
-      return renderSfdSegment(activeSfdSlide, toastPos, diagram, clickIdx, solverResult.intervals);
+      return renderSfdSegment(activeSfdSlide, toastPos, diagram, clickIdx, solverResult.intervals, beam);
     }
     if (activeSfdSlide.type === 'sfd-node-check') {
       return renderSfdNodeCheck(activeSfdSlide, toastPos, diagram);
@@ -268,11 +278,24 @@ export const renderDynamicStep = (stepIndex: number, params: StepParams): React.
   if (stepIndex >= 12 && stepIndex <= 15) {
     if (!crossingSegment) return null;
 
+    const sX = crossingSegment.startX || 0;
+    const eX = crossingSegment.endX || 0;
+    const exactCP = solverResult.criticalPoints.find(
+      cp => cp.x > sX + 1e-3 && cp.x < eX - 1e-3 && cp.isLocalMaxMinM
+    );
     const v1 = Math.abs(crossingSegment.vStart || 0);
     const v2 = Math.abs(crossingSegment.vEnd || 0);
-    const L_seg = (crossingSegment.endX || 0) - (crossingSegment.startX || 0);
-    const x0 = (v1 * L_seg) / (v1 + v2);
-    const totalX = (crossingSegment.startX || 0) + x0;
+    const L_seg = eX - sX;
+
+    let totalX = 0;
+    let x0 = 0;
+    if (exactCP) {
+      totalX = exactCP.x;
+      x0 = totalX - sX;
+    } else {
+      x0 = (v1 * L_seg) / (v1 + v2);
+      totalX = sX + x0;
+    }
 
     const crossingInterval = solverResult.intervals.find(
       inv => (crossingSegment.startX || 0) >= inv.startX - 1e-3 && (crossingSegment.endX || 0) <= inv.endX + 1e-3
@@ -281,7 +304,7 @@ export const renderDynamicStep = (stepIndex: number, params: StepParams): React.
     const startX = crossingSegment.startX || 0;
 
     if (stepIndex === 12) {
-      return renderZeroShearBoundary(diagram);
+      return renderZeroShearBoundary(diagram, beam, solverResult);
     }
     if (stepIndex === 13) {
       return renderSectionMethodSolver(v1, w, startX, totalX);
@@ -297,11 +320,24 @@ export const renderDynamicStep = (stepIndex: number, params: StepParams): React.
   // 6. Pedagogical Slides
   if (stepIndex === 23) {
     if (!crossingSegment) return null;
+    const sX = crossingSegment.startX || 0;
+    const eX = crossingSegment.endX || 0;
+    const exactCP = solverResult.criticalPoints.find(
+      cp => cp.x > sX + 1e-3 && cp.x < eX - 1e-3 && cp.isLocalMaxMinM
+    );
     const v1 = Math.abs(crossingSegment.vStart || 0);
     const v2 = Math.abs(crossingSegment.vEnd || 0);
-    const L_seg = (crossingSegment.endX || 0) - (crossingSegment.startX || 0);
-    const x0 = (v1 * L_seg) / (v1 + v2);
-    const totalX = (crossingSegment.startX || 0) + x0;
+    const L_seg = eX - sX;
+
+    let totalX = 0;
+    let x0 = 0;
+    if (exactCP) {
+      totalX = exactCP.x;
+      x0 = totalX - sX;
+    } else {
+      x0 = (v1 * L_seg) / (v1 + v2);
+      totalX = sX + x0;
+    }
     return renderPedagogicalApplication(v1, totalX, diagram);
   }
   if (stepIndex === 24) {
