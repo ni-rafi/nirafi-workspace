@@ -9,5 +9,10 @@ export const sessionMetadata: SessionMetadata = {
       title: 'Shear Force & Bending Moment Diagrams',
       ccId: 'sfd-bmd',
     },
+    {
+      id: 'bending-shear-stress',
+      title: 'Bending & Shear Stress in Beams',
+      ccId: 'bending-shear-stress',
+    },
   ],
 };

@@ -11,7 +11,11 @@ export const QUIZ_METADATA = [
   { id: 'mos_2024_lec2_q4', header: 'Lec 2 Checkpoint 4 (Zero Shear)' },
   { id: 'mos_2024_lec3_q1', header: 'Lec 3 Checkpoint 1 (Calculus Degrees)' },
   { id: 'mos_2024_lec3_q2', header: 'Lec 3 Checkpoint 2 (Moment Accumulation)' },
-  { id: 'mos_2024_lec3_q3', header: 'Lec 3 Checkpoint 3 (Zero-Shear Location)' }
+  { id: 'mos_2024_lec3_q3', header: 'Lec 3 Checkpoint 3 (Zero-Shear Location)' },
+  { id: 'mos_2024_lec6_q1', header: 'Lec 6 Checkpoint 1 (Bending Stress Intuition)' },
+  { id: 'mos_2024_lec6_q2', header: 'Lec 6 Checkpoint 2 (Bending Theory Assumptions)' },
+  { id: 'mos_2024_lec6_q3', header: 'Lec 6 Checkpoint 3 (Bending Stress in Symmetric Sections)' },
+  { id: 'mos_2024_lec6_q4', header: 'Lec 6 Checkpoint 4 (Bending Stress in Advanced Sections)' }
 ];
 
 export const QUIZ_ANSWERS: Record<
@@ -112,6 +116,45 @@ export const QUIZ_ANSWERS: Record<
       const d = parameterResolver.getLastDigit(reg);
       const V1 = 15.0 + d * 0.5;
       return ((7 * V1) / (V1 + 7)).toFixed(3);
+    }
+  },
+  mos_2024_lec6_q1: 'In positive bending (sagging), top fibers undergo compression and bottom fibers undergo tension.',
+  mos_2024_lec6_q2: 'Plane sections remain plane after bending (Euler-Bernoulli hypothesis).',
+  mos_2024_lec6_q3: {
+    formula: 'sigma_max = 1.5 * M MPa, where M = 10.0 + [last digit] * 1.0 kNm',
+    digitsRequired: 1,
+    resolve: (reg) => {
+      const digits = reg.replace(/\D/g, '');
+      if (digits.length < 1) return 'M = 10.0 + [last digit] * 1.0 kNm';
+      const d = parameterResolver.getLastDigit(reg);
+      const M = 10.0 + d * 1.0;
+      return (1.5 * M).toFixed(3);
+    }
+  },
+  mos_2024_lec6_q4: {
+    formula: 'sigma_max = M * y_max / I MPa, where M = 20.0 + [last digit] * 1.0 kNm and bf = 120 + [last digit] * 5 mm',
+    digitsRequired: 1,
+    resolve: (reg) => {
+      const digits = reg.replace(/\D/g, '');
+      if (digits.length < 1) return 'M = 20.0 + [last digit] * 1.0 kNm, bf = 120 + [last digit] * 5 mm';
+      const d = parameterResolver.getLastDigit(reg);
+      const bf = 120 + d * 5;
+      const tf = 20;
+      const hw = 100;
+      const tw = 20;
+      const Af = bf * tf;
+      const Aw = hw * tw;
+      const A = Af + Aw;
+      const ybar = (Af * 10 + Aw * 70) / A;
+      const If = (bf * Math.pow(tf, 3)) / 12 + Af * Math.pow(ybar - 10, 2);
+      const Iw = (tw * Math.pow(hw, 3)) / 12 + Aw * Math.pow(ybar - 70, 2);
+      const I = If + Iw;
+      const M = (20 + d) * 1e6; // Nmm
+      const ytop = ybar;
+      const ybot = 120 - ybar;
+      const ymax = Math.max(ytop, ybot);
+      const sigma = (M * ymax) / I;
+      return sigma.toFixed(3);
     }
   }
 };
