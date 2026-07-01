@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useUserContext } from '@/context';
 import { GraduationCap, Lock, ArrowRight, AlertCircle, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -12,15 +13,16 @@ const GoogleIcon = () => (
 );
 
 export const RegNoGate: React.FC = () => {
+  const navigate = useNavigate();
   const {
     signInWithGoogle,
-    continueAsGuest,
     needsProfileSetup,
     googleUser,
     completeProfileSetup,
     logout,
     error,
-    clearError
+    clearError,
+    isLoggedIn
   } = useUserContext();
 
   const [roll, setRoll] = useState('');
@@ -38,6 +40,13 @@ export const RegNoGate: React.FC = () => {
   const showRollError = rollTouched && !isRollValid;
   const showSessionError = sessionTouched && !isSessionValid;
 
+  // If the user is fully logged in (not guest, and profile setup complete), redirect to dashboard
+  useEffect(() => {
+    if (isLoggedIn && !needsProfileSetup) {
+      navigate('/', { replace: true });
+    }
+  }, [isLoggedIn, needsProfileSetup, navigate]);
+
   const handleGoogleLogin = async () => {
     clearError();
     setValidationError(null);
@@ -48,14 +57,9 @@ export const RegNoGate: React.FC = () => {
     }
   };
 
-  const handleGuestLogin = async () => {
-    clearError();
-    setValidationError(null);
-    setIsSubmitting(true);
-    const success = await continueAsGuest('Guest Student', '9999999999', '2016-17');
-    if (!success) {
-      setIsSubmitting(false);
-    }
+  const handleCancel = () => {
+    logout();
+    navigate('/', { replace: true });
   };
 
   const handleProfileSubmit = async (e: React.FormEvent) => {
@@ -207,7 +211,7 @@ export const RegNoGate: React.FC = () => {
                 variant="ghost"
                 className="w-full font-semibold text-muted-foreground hover:text-foreground flex items-center justify-center gap-1.5"
                 disabled={isSubmitting}
-                onClick={logout}
+                onClick={handleCancel}
               >
                 <LogOut className="h-4 w-4" />
                 Cancel & Sign Out
@@ -252,25 +256,6 @@ export const RegNoGate: React.FC = () => {
                 Sign In with Google
               </Button>
 
-              <div className="relative flex items-center justify-center py-2">
-                <div className="absolute inset-0 flex items-center">
-                  <span className="w-full border-t border-muted-foreground/10" />
-                </div>
-                <span className="relative bg-card px-3 text-[10px] uppercase font-semibold text-muted-foreground/60 tracking-wider">
-                  or
-                </span>
-              </div>
-
-              {/* Guest button */}
-              <Button
-                type="button"
-                variant="outline"
-                className="w-full font-semibold py-5"
-                disabled={isSubmitting}
-                onClick={handleGuestLogin}
-              >
-                Continue as Guest (Offline)
-              </Button>
             </div>
           </div>
         )}

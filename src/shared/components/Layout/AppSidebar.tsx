@@ -246,9 +246,24 @@ export const AppSidebar: React.FC = () => {
             </DropdownMenuContent>
           </DropdownMenu>
         ) : (
-          <div className="text-[10px] text-muted-foreground text-center py-2 group-data-[collapsible=icon]:hidden">
-            Session unverified
-          </div>
+          <SidebarMenu>
+            <SidebarMenuItem className="p-0.5">
+              <SidebarMenuButton
+                asChild
+                size="lg"
+                className="w-full justify-start gap-2 bg-primary/5 hover:bg-primary/10 border border-primary/20 text-primary hover:text-primary font-semibold transition-all cursor-pointer group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:p-0"
+              >
+                <Link to="/login" onClick={() => setOpenMobile(false)}>
+                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/15 text-primary font-bold text-xs shrink-0 select-none">
+                    <User className="h-4 w-4" />
+                  </div>
+                  <span className="text-xs group-data-[collapsible=icon]:hidden">
+                    Sign In
+                  </span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
         )}
       </SidebarFooter>
     </Sidebar>

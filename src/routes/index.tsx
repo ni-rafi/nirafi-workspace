@@ -77,7 +77,7 @@ const AdminRouteGuard: React.FC<{ children: React.ReactNode }> = ({ children }) 
  * AppRoutes renders the page-level route map using React Router.
  */
 export const AppRoutes: React.FC = () => {
-  const { isLoggedIn, isLoading } = useUserContext();
+  const { needsProfileSetup, isLoading } = useUserContext();
 
   if (isLoading) {
     return (
@@ -93,7 +93,7 @@ export const AppRoutes: React.FC = () => {
   return (
     <ErrorBoundary variant="page">
       <React.Suspense fallback={<PageLoader />}>
-        {!isLoggedIn ? (
+        {needsProfileSetup ? (
           <RegNoGate />
         ) : (
           <Routes>
@@ -129,6 +129,12 @@ export const AppRoutes: React.FC = () => {
                   <ShapeBuilderPlayground />
                 </AdminRouteGuard>
               }
+            />
+
+            {/* Standalone Login Page */}
+            <Route
+              path={ROUTE_PATHS.LOGIN}
+              element={<RegNoGate />}
             />
 
             {/* PageLayout wraps all authenticated routes with app sidebar and headers */}

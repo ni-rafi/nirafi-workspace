@@ -103,11 +103,11 @@ export const QuizCardOrchestrator: React.FC<QuizCardOrchestratorProps> = ({
 
   const isStealthHidden = status === 'hidden' && visibilityMode === 'stealth';
 
-  if (isStealthHidden && (isPrintMode || !isAdmin || userProfile?.isGuest)) {
+  if (isStealthHidden && (isPrintMode || !isAdmin || !userProfile || userProfile.isGuest)) {
     return null;
   }
 
-  if (userProfile?.isGuest) {
+  if (!userProfile || userProfile.isGuest) {
     return (
       <>
         <div className="print:hidden w-full flex justify-center">

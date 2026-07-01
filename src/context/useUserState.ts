@@ -3,7 +3,6 @@ import { getAuth } from 'firebase/auth';
 import { useFirebase } from './FirebaseContext';
 import { validateRegistration, validateSession, normalizeRegistration, normalizeSession } from '@/cores/user/userValidation';
 import type { UserPayload, ThemePreferences } from '@/services/firebase/IFirebaseService';
-import { GUEST_UID } from '@/services/firebase/IFirebaseService';
 import { FirebaseClaimsSchema } from '@/services/firebase/firebase.schemas';
 
 const STORAGE_KEY_ROLL = 'cee_lectures_roll';
@@ -122,36 +121,13 @@ export const useUserState = () => {
           if (isMounted) setIsLoading(false);
         }
       } else {
-        const storedRoll = localStorage.getItem(STORAGE_KEY_ROLL);
-        const storedSession = localStorage.getItem(STORAGE_KEY_SESSION);
-
-        if (storedRoll === '9999999999' && storedSession && validateSession(storedSession)) {
-          const cachedProfile = localStorage.getItem('offline_student_profile');
-          const profile = cachedProfile ? JSON.parse(cachedProfile) : {
-            id: GUEST_UID,
-            name: 'Guest Student',
-            registration: '9999999999',
-            session: storedSession,
-            role: 'student',
-            isGuest: true,
-          };
-
-          setUid(GUEST_UID);
-          setUserProfile(profile);
-          setRollNumber('9999999999');
-          setSession(storedSession);
-          setIsLoggedIn(true);
-          setNeedsProfileSetup(false);
-          setGoogleUser(null);
-        } else {
-          setUid(null);
-          setUserProfile(null);
-          setRollNumber(null);
-          setSession(null);
-          setIsLoggedIn(false);
-          setNeedsProfileSetup(false);
-          setGoogleUser(null);
-        }
+        setUid(null);
+        setUserProfile(null);
+        setRollNumber(null);
+        setSession(null);
+        setIsLoggedIn(false);
+        setNeedsProfileSetup(false);
+        setGoogleUser(null);
         if (isMounted) setIsLoading(false);
       }
     });
@@ -286,58 +262,11 @@ export const useUserState = () => {
   );
 
   const continueAsGuest = useCallback(
-    async (name: string, roll: string, sessionVal: string, email?: string): Promise<boolean> => {
-      setError(null);
-      setIsLoading(true);
-
-      const isValidRoll = validateRegistration(roll);
-      const isValidSession = validateSession(sessionVal);
-
-      if (!isValidRoll) {
-        setError('Registration number must be exactly 10 digits.');
-        setIsLoading(false);
-        return false;
-      }
-
-      if (!isValidSession) {
-        setError('Invalid academic session. Standard format is YYYY-YY (e.g., 2016-17).');
-        setIsLoading(false);
-        return false;
-      }
-
-      const normalizedRoll = normalizeRegistration(roll);
-      const normalizedSession = normalizeSession(sessionVal);
-
-      try {
-        const guestProfile = await firebaseService.setUserProfile(GUEST_UID, {
-          name: name.trim() || 'Guest Student',
-          registration: normalizedRoll,
-          session: normalizedSession,
-          email: email?.trim() || null,
-          role: 'student',
-          isGuest: true,
-        });
-
-        localStorage.setItem(STORAGE_KEY_ROLL, normalizedRoll);
-        localStorage.setItem(STORAGE_KEY_SESSION, normalizedSession);
-
-        setRollNumber(normalizedRoll);
-        setSession(normalizedSession);
-        setUid(GUEST_UID);
-        setUserProfile(guestProfile);
-        setIsLoggedIn(true);
-        setNeedsProfileSetup(false);
-        setGoogleUser(null);
-        setIsLoading(false);
-        return true;
-      } catch (err: unknown) {
-        console.error('[UserProvider] Guest setup failed:', err);
-        setError('Guest login failed.');
-        setIsLoading(false);
-        return false;
-      }
+    async (): Promise<boolean> => {
+      console.warn('[UserProvider] continueAsGuest is deprecated. The workspace defaults to public guest access.');
+      return true;
     },
-    [firebaseService]
+    []
   );
 
   const logout = useCallback(() => {
