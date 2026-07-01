@@ -10,8 +10,13 @@ export const sessionMetadata: SessionMetadata = {
       ccId: 'sfd-bmd',
     },
     {
-      id: 'bending-shear-stress',
-      title: 'Bending & Shear Stress in Beams',
+      id: 'bending-stress',
+      title: 'Bending Stress',
+      ccId: 'bending-shear-stress',
+    },
+    {
+      id: 'shearing-stress',
+      title: 'Shearing Stress',
       ccId: 'bending-shear-stress',
     },
   ],

@@ -15,7 +15,11 @@ export const QUIZ_METADATA = [
   { id: 'mos_2024_lec6_q1', header: 'Lec 6 Checkpoint 1 (Bending Stress Intuition)' },
   { id: 'mos_2024_lec6_q2', header: 'Lec 6 Checkpoint 2 (Bending Theory Assumptions)' },
   { id: 'mos_2024_lec6_q3', header: 'Lec 6 Checkpoint 3 (Bending Stress in Symmetric Sections)' },
-  { id: 'mos_2024_lec6_q4', header: 'Lec 6 Checkpoint 4 (Bending Stress in Advanced Sections)' }
+  { id: 'mos_2024_lec6_q4', header: 'Lec 6 Checkpoint 4 (Bending Stress in Advanced Sections)' },
+  { id: 'mos_2024_lec9_q1', header: 'Lec 9 Checkpoint 1 (Complementary Shear)' },
+  { id: 'mos_2024_lec9_q2', header: 'Lec 9 Checkpoint 2 (Rectangular Shear)' },
+  { id: 'mos_2024_lec10_q1', header: 'Lec 10 Checkpoint 1 (Stress Discontinuity)' },
+  { id: 'mos_2024_lec10_q2', header: 'Lec 10 Checkpoint 2 (Fastener Spacing)' }
 ];
 
 export const QUIZ_ANSWERS: Record<
@@ -155,6 +159,34 @@ export const QUIZ_ANSWERS: Record<
       const ymax = Math.max(ytop, ybot);
       const sigma = (M * ymax) / I;
       return sigma.toFixed(3);
+    }
+  },
+  mos_2024_lec9_q1: 'Shear stress on any plane is always accompanied by an equal shear stress on a perpendicular plane (complementary shear).',
+  mos_2024_lec9_q2: {
+    formula: 'tau_max = 1.5 * V / A MPa, where V = 50.0 + [last digit] * 2.0 kN, b = 100 mm, h = 300 mm',
+    digitsRequired: 1,
+    resolve: (reg) => {
+      const digits = reg.replace(/\D/g, '');
+      if (digits.length < 1) return 'V = 50.0 + [last digit] * 2.0 kN';
+      const d = parameterResolver.getLastDigit(reg);
+      const V = 50.0 + d * 2.0;
+      return (0.05 * V).toFixed(3);
+    }
+  },
+  mos_2024_lec10_q1: 'A sudden change in beam width (b) causes a step discontinuity in shear stress, making the stress inversely proportional to width.',
+  mos_2024_lec10_q2: {
+    formula: 's = F_nail / q inches, where V = 800.0 + [last digit] * 50.0 lbs, F_nail = 150 lbs, bf = 6 in, tf = 2 in, bw = 2 in, hw = 8 in',
+    digitsRequired: 1,
+    resolve: (reg) => {
+      const digits = reg.replace(/\D/g, '');
+      if (digits.length < 1) return 'V = 800.0 + [last digit] * 50.0 lbs';
+      const d = parameterResolver.getLastDigit(reg);
+      const V = 800.0 + d * 50.0;
+      // Q = 12 * 2.857 = 34.28
+      // I = 260.75
+      // q = V * Q / I = V * 0.13147
+      // s = 150 / q = 1140.9 / V
+      return (1140.9 / V).toFixed(3);
     }
   }
 };

@@ -8,5 +8,6 @@ export const metadata: Lecture = {
   durationMins: 90,
   locked: false,
   tags: ['bending-stress', 'flexure-formula', 'section-modulus', 'mechanics-of-solids'],
-  topicId: 'bending-shear-stress',
+  lectureNumber: 6,
+  topicId: 'bending-stress',
 };
