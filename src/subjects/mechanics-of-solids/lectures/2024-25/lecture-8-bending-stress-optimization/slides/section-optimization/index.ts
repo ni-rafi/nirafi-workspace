@@ -7,6 +7,11 @@ import { Problem02CastIronSlide } from './Problem02CastIronSlide';
 import { Step1CentroidSlide } from './Step1CentroidSlide';
 import { Step2InertiaSlide } from './Step2InertiaSlide';
 import { Checkpoint3Slide } from './Checkpoint3Slide';
+import { Problem03DividerSlide } from './Problem03DividerSlide';
+import { Problem03StatementSlide } from './Problem03StatementSlide';
+import { Step1StressOptimizationSlide } from './Step1StressOptimizationSlide';
+import { Step2CalculusPeakSlide } from './Step2CalculusPeakSlide';
+import { Checkpoint4Slide } from './Checkpoint4Slide';
 import { HomeworkSlide } from './HomeworkSlide';
 import { OutroSlide } from './OutroSlide';
 
@@ -20,8 +25,13 @@ export const slides = {
   7: Step1CentroidSlide,
   8: Step2InertiaSlide,
   9: Checkpoint3Slide,
-  10: HomeworkSlide,
-  11: OutroSlide,
+  10: Problem03DividerSlide,
+  11: Problem03StatementSlide,
+  12: Step1StressOptimizationSlide,
+  13: Step2CalculusPeakSlide,
+  14: Checkpoint4Slide,
+  15: HomeworkSlide,
+  16: OutroSlide,
 };
 
 export const sectionMetadata = {
@@ -34,6 +44,11 @@ export const sectionMetadata = {
   7: { title: 'Step 1: Locating the Asymmetric Neutral Axis', type: 'Concept Details', section: 'Sizing Optimization' },
   8: { title: 'Step 2: Capacity Evaluation under Dual Limits', type: 'Concept Details', section: 'Sizing Optimization' },
   9: { title: 'Checkpoint 3: Asymmetric Flanged Load Capacity', type: 'Checkpoint Quiz', section: 'Sizing Optimization', quizId: 'mos_2024_lec8_q3' },
-  10: { title: 'Independent Homework Assignment & Guidelines', type: 'Concept Details', section: 'Summary & Outro' },
-  11: { title: 'Outro / Q&A Slide', type: 'Thank You Slide', section: 'Summary & Outro' },
+  10: { title: 'Problem 03 Divider', type: 'Section Divider', section: 'Sizing Optimization' },
+  11: { title: 'Problem 03 Tapered Cantilever Optimization', type: 'Concept Details', section: 'Sizing Optimization' },
+  12: { title: 'Step 1: Stress-x Equation Setup', type: 'Concept Details', section: 'Sizing Optimization' },
+  13: { title: 'Step 2: Calculus Sizing Optimization', type: 'Concept Details', section: 'Sizing Optimization' },
+  14: { title: 'Checkpoint 4: Tapered Beam Peak Stress Location', type: 'Checkpoint Quiz', section: 'Sizing Optimization', quizId: 'mos_2024_lec8_q4' },
+  15: { title: 'Independent Homework Assignment & Guidelines', type: 'Concept Details', section: 'Summary & Outro' },
+  16: { title: 'Outro / Q&A Slide', type: 'Thank You Slide', section: 'Summary & Outro' },
 };

@@ -185,6 +185,23 @@ export const QUIZ_ANSWERS: Record<
       return (sigma * 255.2 / 175).toFixed(3);
     }
   },
+  mos_2024_lec7_q5: {
+    formula: 'increase (%) = ((Z_comp / 1e6) - 1) * 100, where tp = 15.0 + [last digit]*1.0 mm',
+    digitsRequired: 1,
+    resolve: (reg) => {
+      const digits = reg.replace(/\D/g, '');
+      if (digits.length < 1) return 'tp = 15.0 + [last digit]*1.0 mm';
+      const d = parameterResolver.getLastDigit(reg);
+      const tp = 15.0 + d * 1.0;
+      const ymax = 120 + tp;
+      const I_plate_own = (200 * Math.pow(tp, 3)) / 12;
+      const I_plate_transfer = 200 * tp * Math.pow(120 + tp / 2, 2);
+      const I_comp = 120e6 + 2 * (I_plate_own + I_plate_transfer);
+      const Z_comp = I_comp / ymax;
+      const pct = (Z_comp / 1.0e6 - 1.0) * 100.0;
+      return pct.toFixed(3);
+    }
+  },
   mos_2024_lec8_q1: 'm³ (or mm³)',
   mos_2024_lec8_q2: 'A deep rectangular section (depth > width)',
   mos_2024_lec8_q3: {
@@ -200,6 +217,17 @@ export const QUIZ_ANSWERS: Record<
       const MT = sT * (112.2 / 87.11);
       const M_allow = Math.min(MC, MT);
       return (M_allow / 4.5).toFixed(3);
+    }
+  },
+  mos_2024_lec8_q4: {
+    formula: 'x = h0 / 0.1 mm, where h0 = 150.0 + [last digit]*10.0 mm',
+    digitsRequired: 1,
+    resolve: (reg) => {
+      const digits = reg.replace(/\D/g, '');
+      if (digits.length < 1) return 'h0 = 150.0 + [last digit]*10.0 mm';
+      const d = parameterResolver.getLastDigit(reg);
+      const h0 = 150.0 + d * 10.0;
+      return (h0 / 0.1).toFixed(3);
     }
   },
   mos_2024_lec9_q1: 'Shear stress on any plane is always accompanied by an equal shear stress on a perpendicular plane (complementary shear).',
