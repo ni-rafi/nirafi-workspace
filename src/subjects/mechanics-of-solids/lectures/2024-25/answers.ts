@@ -161,6 +161,47 @@ export const QUIZ_ANSWERS: Record<
       return sigma.toFixed(3);
     }
   },
+  mos_2024_lec7_q1: 'I = I_c + A * d^2',
+  mos_2024_lec7_q2: 'w * L^2 / 8',
+  mos_2024_lec7_q3: {
+    formula: 'h = 250 * sqrt(w / 7) mm, where w = 4.0 + [last digit] * 0.2 kN/m',
+    digitsRequired: 1,
+    resolve: (reg) => {
+      const digits = reg.replace(/\D/g, '');
+      if (digits.length < 1) return 'w = 4.0 + [last digit] * 0.2 kN/m';
+      const d = parameterResolver.getLastDigit(reg);
+      const w = 4.0 + d * 0.2;
+      return (250 * Math.sqrt(w / 7)).toFixed(3);
+    }
+  },
+  mos_2024_lec7_q4: {
+    formula: 'M = sigma * I / y_C kNm, where sigma = 40 + [last digit] * 1.0 MPa',
+    digitsRequired: 1,
+    resolve: (reg) => {
+      const digits = reg.replace(/\D/g, '');
+      if (digits.length < 1) return 'sigma = 40 + [last digit] * 1.0 MPa';
+      const d = parameterResolver.getLastDigit(reg);
+      const sigma = 40 + d * 1.0;
+      return (sigma * 255.2 / 175).toFixed(3);
+    }
+  },
+  mos_2024_lec8_q1: 'm³ (or mm³)',
+  mos_2024_lec8_q2: 'A deep rectangular section (depth > width)',
+  mos_2024_lec8_q3: {
+    formula: 'w = M_allow / 4.5 kN/m, where allowable tension = 30 + [last digit]*0.5 MPa and compression = 90 + [last digit]*1.5 MPa',
+    digitsRequired: 1,
+    resolve: (reg) => {
+      const digits = reg.replace(/\D/g, '');
+      if (digits.length < 1) return 'tension = 30 + [last digit]*0.5 MPa, compression = 90 + [last digit]*1.5 MPa';
+      const d = parameterResolver.getLastDigit(reg);
+      const sT = 30 + d * 0.5;
+      const sC = 90 + d * 1.5;
+      const MC = sC * (112.2 / 172.89);
+      const MT = sT * (112.2 / 87.11);
+      const M_allow = Math.min(MC, MT);
+      return (M_allow / 4.5).toFixed(3);
+    }
+  },
   mos_2024_lec9_q1: 'Shear stress on any plane is always accompanied by an equal shear stress on a perpendicular plane (complementary shear).',
   mos_2024_lec9_q2: {
     formula: 'tau_max = 1.5 * V / A MPa, where V = 50.0 + [last digit] * 2.0 kN, b = 100 mm, h = 300 mm',

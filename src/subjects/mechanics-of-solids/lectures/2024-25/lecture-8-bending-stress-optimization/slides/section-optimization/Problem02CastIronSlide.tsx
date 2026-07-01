@@ -1,0 +1,45 @@
+import React from 'react';
+import { TwoColumnLayout } from '@/shared/layouts/TwoColumnLayout';
+import { SlideParagraph, SlideBullet } from '@/features/presentation/components/elements';
+import { HelpCircle } from 'lucide-react';
+
+export const Problem02CastIronSlide: React.FC = () => {
+  return (
+    <TwoColumnLayout
+      title="Problem 02: Asymmetric limits"
+      leftWidth="55%"
+      leftContent={
+        <div className="flex flex-col h-full justify-between gap-4 text-left select-text">
+          <div>
+            <div className="flex items-center space-x-1.5 text-indigo-500 font-bold text-[10px] uppercase mb-1">
+              <HelpCircle className="h-4.5 w-4.5" />
+              <span>Cast Iron Beam Design</span>
+            </div>
+            <SlideParagraph variant="plain" className="text-xs text-foreground font-semibold leading-relaxed">
+              {"A cast iron beam section is an I-section with top flange 80x20mm, bottom flange 160x40mm and web 20x200mm. If the tensile stress is not to exceed 30 MPa and compressive stress 90 MPa, find the maximum uniformly distributed load the beam can carry over a simply supported span of 6m."}
+            </SlideParagraph>
+          </div>
+          <div className="space-y-1.5 my-1.5">
+            <span className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest block mb-0.5">Key parameters</span>
+            <SlideBullet text="Symmetric span L = 6m simply supported." />
+            <SlideBullet text="Unsymmetric I-section creates different fiber distances y_top and y_bottom." />
+            <SlideBullet text="Cast Iron has asymmetric limits: σ_t ≤ 30 MPa, σ_c ≤ 90 MPa." />
+          </div>
+        </div>
+      }
+      rightContent={
+        <div className="bg-muted/30 border border-border/50 rounded-xl p-4 flex flex-col items-center justify-center h-full min-h-[250px] w-full text-[10px] text-muted-foreground leading-relaxed">
+          <div className="p-4 bg-slate-900 border border-border/40 rounded-xl w-full text-left space-y-2 font-mono">
+            <h4 className="text-indigo-400 font-bold uppercase text-[9px]">Challenge Context</h4>
+            <p>Because the bottom flange is heavy, the centroid NA shifts downwards.</p>
+            <p>Under positive bending (sagging):</p>
+            <p className="text-amber-400 font-bold">• Bottom fibers: Tension (σ_t limit)</p>
+            <p className="text-amber-400 font-bold">• Top fibers: Compression (σ_c limit)</p>
+          </div>
+        </div>
+      }
+    />
+  );
+};
+
+export default Problem02CastIronSlide;
