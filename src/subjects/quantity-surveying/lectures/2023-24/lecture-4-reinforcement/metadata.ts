@@ -9,4 +9,5 @@ export const metadata: Lecture = {
   locked: false,
   tags: ['rebar', 'bbs', 'clear-cover', 'steel-estimation', 'couplers', 'pwd-discrepancies'],
   lectureNumber: 4,
+  topicId: 'reinforcement',
 };

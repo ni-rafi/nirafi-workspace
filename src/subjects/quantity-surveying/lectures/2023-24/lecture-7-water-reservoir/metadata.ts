@@ -9,6 +9,7 @@ export const metadata: Lecture = {
   locked: false,
   tags: ['water-reservoir', 'septic-tank', 'soak-pit', 'void-ratio', 'waterproofing', 'stepped-masonry', 'eco-stp', 'well-curb'],
   lectureNumber: 7,
+  topicId: 'reservoir',
   quizzes: {
     qs_2023_lec7_q1: 'stealth',
     qs_2023_lec7_q2: 'stealth'

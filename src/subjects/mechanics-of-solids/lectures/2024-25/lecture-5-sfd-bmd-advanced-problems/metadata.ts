@@ -9,4 +9,5 @@ export const metadata: Lecture = {
   locked: false,
   tags: ['sfd-bmd', 'internal-hinge', 'trapezoidal-load', 'multi-span-beam', 'mechanics-of-solids'],
   lectureNumber: 5,
+  topicId: 'sfd-bmd',
 };

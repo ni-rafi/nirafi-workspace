@@ -169,10 +169,10 @@ export const AppSidebar: React.FC = () => {
                     return (
                       <SidebarMenuItem key={sub.id}>
                         <SidebarMenuButton asChild className="hover:bg-accent text-xs">
-                          <a href={`/#subject-${sub.id}`}>
+                          <Link to={`/${sub.id}`}>
                             <SubjectIcon className="h-4 w-4 shrink-0" />
                             <span className="truncate">{sub.courseTitle}</span>
-                          </a>
+                          </Link>
                         </SidebarMenuButton>
                       </SidebarMenuItem>
                     );

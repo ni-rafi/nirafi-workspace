@@ -9,6 +9,7 @@ export const metadata: Lecture = {
   locked: false,
   tags: ['budgeting', 'billing', 'ipc', 'nbr-taxes', 'measurement-book', 'sessional-viva'],
   lectureNumber: 10,
+  topicId: 'budgeting',
   quizzes: {
     qs_2023_lec10_q1: 'stealth',
     qs_2023_lec10_q2: 'stealth',

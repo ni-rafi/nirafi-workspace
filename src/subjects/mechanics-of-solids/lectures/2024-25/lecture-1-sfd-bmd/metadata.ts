@@ -9,4 +9,5 @@ export const metadata: Lecture = {
   locked: false,
   tags: ['sfd-bmd', 'internal-forces', 'section-method', 'mechanics-of-solids'],
   lectureNumber: 1,
+  topicId: 'sfd-bmd',
 };

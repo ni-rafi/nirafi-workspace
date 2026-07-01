@@ -1,26 +1,45 @@
-// ─────────────────────────────────────────────────────────────────────────────
-// Lecture Registry — single source of truth for the portal
-// Automatically aggregated via Vite eager globbing.
-// ─────────────────────────────────────────────────────────────────────────────
-
 export interface Lecture {
-  id: string;
+  id: string; // matches subfolder name
   title: string;
   description: string;
-  slideNo: number;       // Slidev slide number where this lecture starts
+  slideNo: number;
   durationMins: number;
-  locked: boolean;
-  tags: string[];
-  quizzes?: Record<string, 'stealth' | 'placeholder'>;
-  lectureNumber?: string | number;
+  components?: string[]; // e.g. ["interactive-charts", "quiz-wizards", "rebar-calculators"]
+  lectureNumber?: number | string; // dynamically set per topic
+  topicId?: string; // Links this lecture to a topic / course content chapter
+  locked?: boolean;
+  hidden?: boolean;
+  tags?: string[];
+  quizzes?: Record<string, string>;
+}
+
+export interface CourseContentChapter {
+  id: string;
+  serial: number;
+  title: string;
+  description: string;
+}
+
+export interface SessionTopic {
+  id: string;
+  title: string;
+  ccId: string;          // References CourseContentChapter.id
+  teacherId?: string;    // References presenter key
+}
+
+export interface TopicGroup {
+  topic: SessionTopic;
+  lectures: Lecture[];
 }
 
 export interface Session {
   id: string;
   label: string;        // e.g. "Session 2026–27"
   lectures: Lecture[];
+  topics?: TopicGroup[];
   usnCode?: string;
   session?: string;
+  courseContent?: CourseContentChapter[];
 }
 
 export interface Course {
@@ -47,11 +66,15 @@ export interface SubjectMetadata {
 export interface SessionMetadata {
   usnCode: string;
   session: string;
+  topics?: SessionTopic[];
 }
 
-// Eagerly import all subject metadata
-const subjectMetadataModules = import.meta.glob<{ subjectMetadata: SubjectMetadata }>(
-  '/src/subjects/*/subjectMetadata.ts',
+// Eagerly import all session-specific course contents
+const courseContentModules = import.meta.glob<{
+  subjectMetadata: SubjectMetadata;
+  COURSE_CONTENT: CourseContentChapter[];
+}>(
+  '/src/subjects/*/lectures/*/courseContent.ts',
   { eager: true }
 );
 
@@ -88,30 +111,45 @@ const SUBJECT_DECORATIONS: Record<string, { description: string; iconEmoji: stri
 
 const COURSE_SHELLS: Record<string, Course> = {};
 
-// 1. Populate COURSE_SHELLS using subjectMetadata.ts
-Object.entries(subjectMetadataModules).forEach(([path, module]) => {
-  const match = path.match(/\/subjects\/([^/]+)\/subjectMetadata\.ts$/);
-  if (!match) return;
-  const subjectId = match[1];
-  if (!subjectId) return;
-  const metadata = module.subjectMetadata;
-  const decorations = SUBJECT_DECORATIONS[subjectId] || {
-    description: '',
-    iconEmoji: '📚',
-    color: '#6b7280',
-  };
+// Helper maps to store syllabus data per subject and session
+const sessionCourseContents: Record<string, Record<string, CourseContentChapter[]>> = {};
 
+// 1. Initialize COURSE_SHELLS using SUBJECT_DECORATIONS
+Object.entries(SUBJECT_DECORATIONS).forEach(([subjectId, decorations]) => {
   COURSE_SHELLS[subjectId] = {
     id: subjectId,
-    courseTitle: metadata.courseTitle,
-    courseCode: metadata.courseCode,
+    courseTitle: '',
+    courseCode: '',
     description: decorations.description,
     iconEmoji: decorations.iconEmoji,
     color: decorations.color,
-    yearSemester: metadata.yearSemester,
-    creditHours: metadata.creditHours,
     sessions: [],
   };
+});
+
+// Populate metadata from courseContent files
+Object.entries(courseContentModules).forEach(([path, module]) => {
+  const match = path.match(/\/subjects\/([^/]+)\/lectures\/([^/]+)\/courseContent\.ts$/);
+  if (!match) return;
+  const subjectId = match[1];
+  const sessionId = match[2];
+  if (!subjectId || !sessionId) return;
+
+  const metadata = module.subjectMetadata;
+  const courseContent = module.COURSE_CONTENT;
+
+  if (!sessionCourseContents[subjectId]) {
+    sessionCourseContents[subjectId] = {};
+  }
+  sessionCourseContents[subjectId][sessionId] = courseContent;
+
+  const shell = COURSE_SHELLS[subjectId];
+  if (shell) {
+    shell.courseTitle = metadata.courseTitle;
+    shell.courseCode = metadata.courseCode;
+    shell.yearSemester = metadata.yearSemester;
+    shell.creditHours = metadata.creditHours;
+  }
 });
 
 // Helper to find session metadata
@@ -134,48 +172,155 @@ Object.entries(metadataModules).forEach(([path, module]) => {
   if (!course) return;
 
   // Find or create session
-  let session = course.sessions.find((s: Session) => s.id === sessionId);
+  let session = course.sessions.find((s) => s.id === sessionId);
   if (!session) {
     const sessionMeta = findSessionMetadata(subjectId, sessionId);
-    const yearMatch = sessionId.match(/\d{4}/);
-    const year = yearMatch ? yearMatch[0] : '';
-    const nextYearShort = year ? String(Number(year) - 2000 + 1) : '';
-    
+    const courseContent = sessionCourseContents[subjectId]?.[sessionId] || [];
+
     session = {
       id: sessionId,
-      label: sessionMeta ? `Session ${sessionMeta.session}` : `Session ${year}–${nextYearShort}`,
+      label: sessionMeta ? sessionMeta.session : `Session ${sessionId}`,
       usnCode: sessionMeta?.usnCode,
       session: sessionMeta?.session,
       lectures: [],
+      courseContent: courseContent,
     };
     course.sessions.push(session);
   }
 
-  // Push the lecture metadata
-  session.lectures.push(module.metadata);
+  // Clone module metadata config to prevent shared mutations
+  const lectureConfig = { ...module.metadata };
+  session.lectures.push(lectureConfig);
 });
 
-// Sort lectures by lectureNumber (Outline first, then numeric ascending), falling back to slideNo
+// 3. Post-process sessions to group lectures by topic and sequential index
 Object.values(COURSE_SHELLS).forEach((course) => {
   course.sessions.forEach((session) => {
-    session.lectures.sort((a, b) => {
-      const getSortValue = (lecture: Lecture): number => {
-        const num = lecture.lectureNumber;
-        if (num === undefined || num === null) return Infinity;
-        if (typeof num === 'number') return num;
-        if (typeof num === 'string') {
-          if (num.toLowerCase() === 'outline') return 0;
-          const parsed = parseFloat(num);
-          return isNaN(parsed) ? Infinity : parsed;
-        }
-        return Infinity;
-      };
+    const sessionMeta = findSessionMetadata(course.id, session.id);
+    const sessionTopics = sessionMeta?.topics || [];
 
-      const valA = getSortValue(a);
-      const valB = getSortValue(b);
-      if (valA !== valB) return valA - valB;
-      return a.slideNo - b.slideNo;
+    const groups: Record<string, Lecture[]> = {};
+    const overviewLectures: Lecture[] = [];
+    const fallbackLectures: Lecture[] = [];
+
+    session.lectures.forEach((lecture) => {
+      if (lecture.lectureNumber === 'Outline' || lecture.id === 'course-outline') {
+        overviewLectures.push(lecture);
+      } else if (lecture.topicId) {
+        const tId = lecture.topicId;
+        let grp = groups[tId];
+        if (!grp) {
+          grp = [];
+          groups[tId] = grp;
+        }
+        grp.push(lecture);
+      } else {
+        fallbackLectures.push(lecture);
+      }
     });
+
+    // Sort helper for lectures
+    const sortLectures = (list: Lecture[]) => {
+      list.sort((a, b) => {
+        const getSortValue = (lecture: Lecture): number => {
+          const num = lecture.lectureNumber;
+          if (num === undefined || num === null) return Infinity;
+          if (typeof num === 'number') return num;
+          if (typeof num === 'string') {
+            const parsed = parseFloat(num);
+            return isNaN(parsed) ? Infinity : parsed;
+          }
+          return Infinity;
+        };
+        const valA = getSortValue(a);
+        const valB = getSortValue(b);
+        if (valA !== valB) return valA - valB;
+        return a.slideNo - b.slideNo;
+      });
+    };
+
+    // Sort overview lectures (Outline)
+    overviewLectures.sort((a, b) => a.slideNo - b.slideNo);
+
+    // Number lectures sequentially starting from 1 inside each topic group
+    Object.keys(groups).forEach((topicId) => {
+      const list = groups[topicId];
+      if (list) {
+        sortLectures(list);
+        list.forEach((lecture, idx) => {
+          lecture.lectureNumber = idx + 1; // 1-based sequential number per topic!
+        });
+      }
+    });
+
+    // Sort fallback lectures if any
+    if (fallbackLectures.length > 0) {
+      sortLectures(fallbackLectures);
+      fallbackLectures.forEach((lecture, idx) => {
+        if (typeof lecture.lectureNumber !== 'number') {
+          lecture.lectureNumber = idx + 1;
+        }
+      });
+    }
+
+    const topicGroups: TopicGroup[] = [];
+
+    // 1. Overview topic (Syllabus outline)
+    if (overviewLectures.length > 0) {
+      topicGroups.push({
+        topic: {
+          id: 'overview',
+          title: 'Course Overview & Syllabus',
+          ccId: '',
+        },
+        lectures: overviewLectures,
+      });
+    }
+
+    // 2. Session defined topics in sequence
+    sessionTopics.forEach((sTopic) => {
+      const lectures = groups[sTopic.id] || [];
+      topicGroups.push({
+        topic: sTopic,
+        lectures: lectures,
+      });
+    });
+
+    // 3. Other topic groups defined in lectures but not listed in sessionMetadata
+    Object.keys(groups).forEach((topicId) => {
+      if (!sessionTopics.some((t) => t.id === topicId)) {
+        const matchedCC = session.courseContent?.find((cc) => cc.id === topicId);
+        topicGroups.push({
+          topic: {
+            id: topicId,
+            title: matchedCC ? matchedCC.title : `Topic: ${topicId}`,
+            ccId: matchedCC ? matchedCC.id : '',
+          },
+          lectures: groups[topicId] || [],
+        });
+      }
+    });
+
+    // 4. Fallback / unclassified general lectures
+    if (fallbackLectures.length > 0) {
+      topicGroups.push({
+        topic: {
+          id: 'general',
+          title: 'General Lectures',
+          ccId: '',
+        },
+        lectures: fallbackLectures,
+      });
+    }
+
+    session.topics = topicGroups;
+
+    // Flatten back into sorted lectures array so other slide navigations continue to work
+    const sortedLectures: Lecture[] = [];
+    topicGroups.forEach((group) => {
+      sortedLectures.push(...group.lectures);
+    });
+    session.lectures = sortedLectures;
   });
 });
 

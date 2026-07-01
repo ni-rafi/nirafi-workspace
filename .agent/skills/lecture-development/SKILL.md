@@ -29,7 +29,7 @@ To maintain clean slide definitions and support multi-mode publishing (Slide, Sc
 
 ## 1. Directory Topology
 
-All sessional academic presentation files must conform to the project structure to maintain strict isolation of domains.
+All sessional academic presentation files must conform to the project structure to maintain strict isolation of domains and session-specific syllabus alignment.
 
 ### 1.1 Global Directories
 * **`src/cores/`**: Global utility libraries and services (e.g., logger, profiles, authentication). No calculation engines or UI.
@@ -43,15 +43,18 @@ Each academic subject resides under `src/subjects/{subjectName}/` as an isolated
 src/subjects/{subjectName}/
 ├── cores/         # Subject math: calculations, solvers, physics engines (pure TS)
 ├── features/      # Subject UI: interactive builders, charts, custom hooks/contexts
-└── lectures/      # Subject slides: session-XXXX/lecture-Name/lecture.tsx
+└── lectures/      # Subject sessional slides and configs (session-specific)
 ```
 
 #### Subject Structure Rules:
-1. **`cores/`**: framework-agnostic mathematical engines. Must contain unit tests in `__tests__/`.
+1. **`cores/`**: Framework-agnostic mathematical engines. Must contain unit tests in `__tests__/`.
 2. **`features/`**: Reusable interactive widgets, components, and state controllers (custom hooks/contexts) for this subject.
-3. **`lectures/`**: Slide decks (organized by session year). For a given lecture, slide files must be structured into per-section subdirectories rather than a single flat file or large shared files:
-   - **Section Folders**: Organize slides into subdirectories named after the lecture topic: `slides/section-{section-name}/` (e.g. `slides/section-sign-conventions/`).
-   - **Filename Standard**: Individual slide components must be named after their topic (e.g. `ShearSignConvention.tsx`). Do NOT prefix filenames with slide numbers (like `Slide12_Shear.tsx`) to avoid renaming churn when slide orders shift.
+3. **`lectures/`**: Organized by academic sessions (e.g., `lectures/2023-24/`). All slides, outlines, and syllabus definitions are isolated inside their respective session directory:
+   - **`courseContent.ts`**: Located under the session folder. Declares sessional outcomes, rationale, references, and Syllabus Chapters (CCs).
+   - **`sessionMetadata.ts`**: Declares session-specific details and the sequence of topic categories, mapping each topic to its matching CC chapter (`ccId`).
+   - **`course-outline/`**: The sessional introduction deck (Lecture 0) containing weekly schedules, legends, and outline slides. References slide must be placed as **Slide 2**.
+   - **Section Folders**: Inside each lecture, slide files must be structured into per-topic section subdirectories (e.g., `slides/section-sign-conventions/`).
+   - **Filename Standard**: Individual slide components must be named after their topic (e.g., `ShearSignConvention.tsx`). Do NOT prefix filenames with slide numbers (like `Slide12_Shear.tsx`) to avoid renaming churn.
    - **Section Barrel (`index.ts`)**: Each section subdirectory must contain an `index.ts` file that imports the topic-named components and exports them mapped locally via 1-based sequential integers:
      ```typescript
      export const slides = {
@@ -63,9 +66,8 @@ src/subjects/{subjectName}/
        2: { title: 'Concept', type: 'Concept Details', section: 'My Section' },
      };
      ```
-   - **Section Metadata**: Co-locate metadata in each section barrel under a `sectionMetadata` export, which matches the local slide indices (starting at 1) defined in that barrel.
-   - **Section Drawings**: Section-specific, non-reusable SVGs or figures must reside in a `drawings/` subfolder directly inside that section's directory (e.g., `section-method-of-sections/drawings/PiecewiseIntervalDiagram.tsx`) rather than the subject-wide drawings directory.
-   - **Orchestration**: The root `lecture.tsx` file imports the section modules and uses the `serializeSections()` utility from `@/features/presentation/utils/serializeSections` to combine and automatically map them to globally sequential slides and slideMetadata.
+   - **Section Drawings**: Section-specific drawings must reside in a `drawings/` subfolder directly inside that section's directory rather than the subject-wide drawings directory.
+   - **Orchestration**: The root `lecture.tsx` file imports the section modules and uses `serializeSections()` from `@/features/presentation/utils/serializeSections` to combine and automatically map them to globally sequential slides and metadata.
      ```typescript
      import { serializeSections } from '@/features/presentation/utils/serializeSections';
      import * as intro from './slides/section-intro';
@@ -84,10 +86,10 @@ To add a new lecture slide deck and compile it dynamically into the portal regis
 
 ### Step-by-Step Workflow
 1. **Create the Lecture Directory**:
-   `src/subjects/{subjectId}/lectures/session-{year}/lecture-{index}-{name}/`
+   `src/subjects/{subjectId}/lectures/session-{year}/lecture-{name}/`
 
 2. **Define Portal Metadata**:
-   Create a `metadata.ts` file in the new lecture directory:
+   Create a `metadata.ts` file in the new lecture directory. Specify the `topicId` that corresponds to a topic defined in `sessionMetadata.ts` so the registry compiles and places the lecture under its correct category:
    ```typescript
    import type { Lecture } from '@/config/lectures';
 
@@ -99,29 +101,24 @@ To add a new lecture slide deck and compile it dynamically into the portal regis
      durationMins: 45,        // Estimated duration
      locked: false,           // Lock state for student view
      tags: ['tag1', 'tag2'],
+     topicId: 'my-topic-id',  // Links lecture to sessional topic
    };
    ```
 
-3. **Implement Slide Deck**:
-   Create a `lecture.tsx` file in the new directory. It must assemble the slide deck from section folders using the `serializeSections` helper:
-   ```typescript
-   import { serializeSections } from '@/features/presentation/utils/serializeSections';
-   import * as intro from './slides/section-intro';
-   import * as details from './slides/section-details';
+3. **Topic-Wise Sequential Numbering**:
+   Do NOT hardcode the `lectureNumber` inside the metadata file (except for `'Outline'` on the course outline deck). The registry dynamically assigns 1-based sequential integers (e.g., `1`, `2`, `3`) to all lectures grouped under the same topic, starting at 1 per topic category.
 
-   const serialized = serializeSections([intro, details]);
-   export const slides = serialized.slides;
-   export const slideMetadata = serialized.slideMetadata;
-   ```
+4. **Implement Slide Deck**:
+   Create a `lecture.tsx` file in the new directory. It must assemble the slide deck from section folders using the `serializeSections` helper.
 
-4. **Verify Dynamic Discovery**:
+5. **Verify Dynamic Discovery**:
    - Save files. Vite automatically compiles the new metadata into `SUBJECTS` at build time.
    - Run typecheck and schema tests:
      ```bash
-      npm run typecheck
-      npm run lint
-      npm run test
-      ```
+     npm run typecheck
+     npm run lint
+     npm run test
+     ```
 
 ---
 

@@ -4,63 +4,28 @@ import { SlideSchemaEngine } from '@/features/presentation/components/slides/Sli
 import { SlideProps } from '@/features/presentation/components/slides/SlideRenderer';
 import presenterData from '@/config/presenter.json';
 import strategyData from '@/config/cee-tl-assessment-strategy-v1.json';
+import { subjectMetadata, outcomes, rationale, COURSE_CONTENT, references } from '../courseContent';
+
+const { tlLegends, assessmentLegends } = strategyData;
 
 const metadata = {
-  courseCode: 'CEE 0541 1233',
-  courseTitle: 'Engineering Mechanics II',
+  courseCode: subjectMetadata.courseCode,
+  courseTitle: subjectMetadata.courseTitle,
   credit: '02',
   category: 'Core',
   courseType: 'Theory',
-  yearSemester: '1st Year / 2nd Semester',
+  yearSemester: subjectMetadata.yearSemester,
   teacher: presenterData,
   session: '2024-25',
   usn: '2024-2',
 };
 
-const outcomes = [
-  { id: 1, description: 'Explain basic friction concepts and solve problems on wedges, belts, and bearings using these concepts.' },
-  { id: 2, description: 'Interpret parabolic cable and catenary and calculate force on a cable support system.' },
-  { id: 3, description: 'Identify basic concepts of kinematics and calculate displacement, velocity and acceleration of a particle and rigid body in motion.' },
-  { id: 4, description: 'Apply different principles of kinetics to solve related problems.' },
-];
+const contents = COURSE_CONTENT.map((cc) => ({
+  id: cc.serial,
+  title: cc.title,
+  description: cc.description,
+}));
 
-const rationale = "This course introduces the relevant physical properties and fundamental laws governing materials and structures' behavior, and students will learn how to solve various problems of interest to civil and environmental engineers. In this course, the emphasis is on the physical understanding of why a material or structure behaves the way it does in the engineering design of materials and structures.";
-
-const contents = [
-  { id: 1, title: 'Fundamentals of Friction', description: 'This chapter presents frictional force, limiting frictional force, coefficient of kinetic friction, laws of friction, angle of friction, belt friction, and pivot friction.' },
-  { id: 2, title: 'Flexible Cord', description: 'This chapter presents the parabolic chord, the length of the parabolic curve, the catenary.' },
-  { id: 3, title: 'Plane Motion', description: 'Review of Displacement, Velocity, Acceleration, Constant Acceleration-Rectilinear Motion, Variable Acceleration, Angular Velocity, Relation Between Angular And Linear Speeds, Angular Acceleration, Constant Angular Acceleration, Curvilinear Motion, Tangential And Normal Accelerations.' },
-  { id: 4, title: 'Fundamentals of Relative Motion', description: 'This chapter presents relative displacement, relative velocity, and relative motion of points in a rigid body.' },
-  { id: 5, title: 'Force System for Rectilinear Motion', description: 'Introduction, Newton’s Laws of Motion, Component Forces and Accelerations, Motion on an Inclined Planes, Motion of Connected Bodies, Motion of Center of Gravity of a Rigid Body, Location of the Resultant – Body in Rectilinear Translation, Inertia Force, Methods of Solving Problems.' },
-  { id: 6, title: 'Work, Kinetic Energy and Power', description: 'Work, Work of a System of Forces Acting on a Rigid Body, Principle of Work and Kinetic Energy, Kinetic Energy of a Rigid Body in Translation, Potential Energy, Work of a Couple, Kinetic Energy of a Rotating Body, Bodies in Plane Motion, Frictional Force in Plane Rolling, Power, Efficiency.' },
-  { id: 7, title: 'Fundamentals of Impulse and Momentum', description: 'This chapter presents impulse and momentum, principle of impulse and momentum, angular impulse and angular momentum, linear momentum and conservation of linear momentum.' },
-];
-
-const { tlLegends, assessmentLegends } = strategyData;
-
-const references = [
-  {
-    id: 1,
-    title: 'Vector Mechanics for Engineers: Statics and Dynamics',
-    author: 'Ferdinand P. Beer, E. Russell Johnston Jr., Phillip J. Cornwell, David F. Mazurek',
-    edition: '12th Edition',
-    publisher: 'McGraw-Hill Education',
-  },
-  {
-    id: 2,
-    title: 'Engineering Mechanics: Statics & Dynamics',
-    author: 'Russell C. Hibbeler',
-    edition: '14th Edition',
-    publisher: 'Pearson',
-  },
-  {
-    id: 3,
-    title: 'Engineering Mechanics: Dynamics',
-    author: 'J. L. Meriam, L. G. Kraige, J. N. Bolton',
-    edition: '8th Edition',
-    publisher: 'Wiley',
-  },
-];
 
 const schedule = [
   { week: 1, topic: 'Introduction to CEE 0541 1233', contentCode: '---', coCovered: '---', tlStrategy: ['TL 01'], assessmentStrategy: ['---'] },
@@ -96,6 +61,19 @@ export const courseOutlineData: SlideSchema[] = [
   },
   {
     id: 2,
+    section: 'References',
+    metadata: { title: 'Reference Books', type: 'Course Materials' },
+    layout: 'fullwidth',
+    props: {
+      title: 'Reference Books & Course Materials',
+      element: {
+        type: 'reference-books-list',
+        data: { references },
+      },
+    },
+  },
+  {
+    id: 3,
     section: 'Rationale',
     metadata: { title: 'Course Rationale', type: 'Syllabus Overview' },
     layout: 'fullwidth',
@@ -112,7 +90,7 @@ export const courseOutlineData: SlideSchema[] = [
     },
   },
   {
-    id: 3,
+    id: 4,
     section: 'Course Outcomes',
     metadata: { title: 'Course Outcomes', type: 'Syllabus Breakdown' },
     layout: 'twocolumn',
@@ -134,7 +112,7 @@ export const courseOutlineData: SlideSchema[] = [
     },
   },
   {
-    id: 4,
+    id: 5,
     section: 'Course Contents',
     metadata: { title: 'Course Content Structure', type: 'Syllabus Breakdown' },
     layout: 'click-synced-tabs',
@@ -153,7 +131,7 @@ export const courseOutlineData: SlideSchema[] = [
     },
   },
   {
-    id: 5,
+    id: 6,
     section: 'Schedule Part 1',
     metadata: { title: 'Schedule Weeks 1-7', type: 'Weekly Outline' },
     layout: 'fullwidth',
@@ -167,7 +145,7 @@ export const courseOutlineData: SlideSchema[] = [
     },
   },
   {
-    id: 6,
+    id: 7,
     section: 'Schedule Part 2',
     metadata: { title: 'Schedule Weeks 8-14', type: 'Weekly Outline' },
     layout: 'fullwidth',
@@ -181,7 +159,7 @@ export const courseOutlineData: SlideSchema[] = [
     },
   },
   {
-    id: 7,
+    id: 8,
     section: 'Legends',
     metadata: { title: 'Teaching & Assessment', type: 'Strategies index' },
     layout: 'fullwidth',
@@ -190,19 +168,6 @@ export const courseOutlineData: SlideSchema[] = [
       element: {
         type: 'reference-legends',
         data: { leftLegends: tlLegends, rightLegends: assessmentLegends },
-      },
-    },
-  },
-  {
-    id: 8,
-    section: 'References',
-    metadata: { title: 'Reference Books', type: 'Course Materials' },
-    layout: 'fullwidth',
-    props: {
-      title: 'Reference Books & Course Materials',
-      element: {
-        type: 'reference-books-list',
-        data: { references },
       },
     },
   },

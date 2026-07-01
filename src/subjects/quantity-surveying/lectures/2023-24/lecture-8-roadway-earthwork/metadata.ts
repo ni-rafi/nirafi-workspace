@@ -9,6 +9,7 @@ export const metadata: Lecture = {
   locked: false,
   tags: ['roadway', 'earthwork', 'lead-lift', 'bulking-shrinkage', 'pwd-rates'],
   lectureNumber: 8,
+  topicId: 'roadway-earth',
   quizzes: {
     qs_2023_lec8_q1: 'stealth',
     qs_2023_lec8_q2: 'stealth',

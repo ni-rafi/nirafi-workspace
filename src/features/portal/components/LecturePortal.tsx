@@ -1,20 +1,13 @@
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useUserContext, useLectureStatus } from '@/context';
-import { Sparkles, LayoutDashboard, Calculator } from 'lucide-react';
+import { Sparkles, BookOpen } from 'lucide-react';
 import { SUBJECTS } from '@/config/lectures';
-import {
-  Accordion,
-  AccordionItem,
-  AccordionTrigger,
-  AccordionContent,
-} from '@/components/ui/accordion';
-import LectureCard from './LectureCard';
-import { ErrorBoundary } from '@/shared/components';
 
 /**
- * LecturePortal renders the main student dashboard listing registered subjects,
- * academic sessions, and individual lecture decks.
+ * LecturePortal renders the main student dashboard listing registered subjects
+ * as minimal, beautiful course cards. Selecting a card navigates the student
+ * to the dedicated subject portal.
  */
 export const LecturePortal: React.FC = () => {
   const location = useLocation();
@@ -27,7 +20,6 @@ export const LecturePortal: React.FC = () => {
   React.useEffect(() => {
     if (location.state && (location.state as { alertMessage?: string }).alertMessage) {
       setAlertMessage((location.state as { alertMessage: string }).alertMessage);
-      // Clear location state so alert doesn't persist on refresh
       window.history.replaceState({}, document.title);
     }
   }, [location]);
@@ -66,6 +58,7 @@ export const LecturePortal: React.FC = () => {
           </button>
         </div>
       )}
+
       {/* Welcome Banner */}
       <div className="relative overflow-hidden rounded-2xl border bg-card p-6 shadow-xs sm:p-8">
         <div className="absolute top-0 right-0 h-40 w-40 rounded-full bg-primary/5 blur-3xl" />
@@ -83,123 +76,66 @@ export const LecturePortal: React.FC = () => {
         </div>
       </div>
 
-      {/* Subjects Catalog */}
-      <div className="flex flex-col gap-10">
-        {SUBJECTS.filter((subject) => {
-          if (isAdmin) return true;
-          return subject.sessions.some((session) =>
-            session.lectures.some((lecture) => !isLectureHidden(subject.id, session.id, lecture.id))
-          );
-        }).map((subject) => (
-          <section
-            key={subject.id}
-            id={`subject-${subject.id}`}
-            className="scroll-mt-20 flex flex-col gap-4"
-          >
-            {/* Subject Info Header Banner */}
-            <div className="relative overflow-hidden rounded-lg border bg-linear-to-r from-card to-muted/20 p-5 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      {/* Course Catalog Grid */}
+      <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-1">
+          <h2 className="text-lg font-bold tracking-tight text-foreground flex items-center gap-2">
+            <BookOpen className="h-5 w-5 text-primary" />
+            <span>Course Catalog</span>
+          </h2>
+          <p className="text-xs text-muted-foreground">
+            Select a subject to view its academic sessions, topic outlines, and interactive lecture decks.
+          </p>
+        </div>
+
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {SUBJECTS.filter((subject) => {
+            if (isAdmin) return true;
+            return subject.sessions.some((session) =>
+              session.lectures.some((lecture) => !isLectureHidden(subject.id, session.id, lecture.id))
+            );
+          }).map((subject) => {
+            const totalSessions = subject.sessions.length;
+            const totalLectures = subject.sessions.reduce((acc, s) => acc + s.lectures.length, 0);
+
+            return (
               <div
-                className="absolute left-0 top-0 bottom-0 w-1.5"
-                style={{ backgroundColor: subject.color }}
-              />
-              <div className="flex items-start gap-4">
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-background border shadow-xs text-2xl" role="img" aria-label={subject.courseTitle}>
-                  {subject.iconEmoji}
+                key={subject.id}
+                onClick={() => navigate(`/${subject.id}`)}
+                className="group relative flex flex-col gap-4 overflow-hidden rounded-2xl border bg-card p-6 shadow-xs transition-all duration-300 hover:-translate-y-1 hover:shadow-md hover:border-primary/30 cursor-pointer"
+              >
+                {/* Visual accent line */}
+                <div
+                  className="absolute left-0 top-0 bottom-0 w-1.5 transition-all duration-300 group-hover:w-2"
+                  style={{ backgroundColor: subject.color }}
+                />
+
+                <div className="flex items-center justify-between">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-background border shadow-xs text-2xl transition-transform duration-300 group-hover:scale-105">
+                    {subject.iconEmoji}
+                  </div>
+                  <span className="inline-flex items-center rounded-md px-2.5 py-0.5 text-xs font-bold font-mono tracking-wider border bg-primary/5 text-primary uppercase">
+                    {subject.courseCode}
+                  </span>
                 </div>
-                <div className="flex flex-col gap-0.5">
-                  <h2 className="text-md font-bold tracking-tight text-foreground">
+
+                <div className="flex flex-col gap-1.5 flex-1">
+                  <h3 className="text-base font-bold text-foreground transition-colors group-hover:text-primary leading-tight">
                     {subject.courseTitle}
-                  </h2>
-                  <p className="text-xs text-muted-foreground max-w-xl">
+                  </h3>
+                  <p className="text-xs text-muted-foreground line-clamp-3 leading-relaxed">
                     {subject.description}
                   </p>
                 </div>
-              </div>
-              <div className="flex items-center gap-3 shrink-0">
-                {subject.id === 'quantity-surveying' && (
-                  <button
-                    onClick={() => navigate('/quantity-surveying/calculators')}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold bg-primary/10 hover:bg-primary/20 text-primary border border-primary/20 rounded-md cursor-pointer transition-all duration-200"
-                  >
-                    <Calculator className="h-3.5 w-3.5" />
-                    <span>Launch Calculators</span>
-                  </button>
-                )}
-                <span className="inline-flex items-center rounded-md px-2.5 py-1 text-xs font-bold font-mono tracking-wider border bg-primary/10 text-primary uppercase">
-                  {subject.courseCode}
-                </span>
-              </div>
-            </div>
 
-            {/* Sessions Accordion List */}
-            <Accordion
-              type="multiple"
-              defaultValue={subject.sessions.map((s) => s.id)}
-              className="w-full gap-3 flex flex-col"
-            >
-              {subject.sessions.filter((session) => {
-                if (isAdmin) return true;
-                return session.lectures.some((lecture) => !isLectureHidden(subject.id, session.id, lecture.id));
-              }).map((session) => (
-                <AccordionItem
-                  key={session.id}
-                  value={session.id}
-                  className="border rounded-lg bg-card overflow-hidden"
-                >
-                  <AccordionTrigger className="px-5 py-3 hover:no-underline bg-muted/10 hover:bg-muted/20 transition-colors flex items-center justify-between">
-                    <span className="text-xs font-bold uppercase tracking-wider text-foreground">
-                      {session.label}
-                    </span>
-                  </AccordionTrigger>
-                  <AccordionContent className="px-5 pt-5 pb-5 flex flex-col gap-4">
-                    {isAdmin && (
-                      <div className="flex items-center justify-between border-b pb-3 mb-1 select-none">
-                        <div className="flex flex-col gap-0.5">
-                          <span className="text-xs font-bold text-foreground">
-                            Session Administration
-                          </span>
-                          <span className="text-[10px] text-muted-foreground">
-                            Manage access locks and view aggregated student quiz performance.
-                          </span>
-                        </div>
-                        <button
-                          onClick={() => navigate(`/${subject.id}/${session.id}/admin`)}
-                          className="inline-flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-bold bg-primary/10 hover:bg-primary/20 text-primary border border-primary/20 rounded-md cursor-pointer transition-all duration-200"
-                        >
-                          <LayoutDashboard className="h-3.5 w-3.5" />
-                          <span>Admin Scoreboard</span>
-                        </button>
-                      </div>
-                    )}
-                    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                       {session.lectures.filter((lecture) => {
-                        if (isAdmin) return true;
-                        return !isLectureHidden(subject.id, session.id, lecture.id);
-                       }).map((lecture) => {
-                        const deckUrl = `/${subject.id}/${session.id}/${lecture.id}`;
-                        return (
-                          <ErrorBoundary
-                            key={lecture.id}
-                            variant="card"
-                            contextTitle={typeof lecture.lectureNumber === 'number' ? `Lecture ${lecture.lectureNumber}: ${lecture.title}` : lecture.title}
-                          >
-                            <LectureCard
-                              lecture={lecture}
-                              deckUrl={deckUrl}
-                              subjectColor={subject.color}
-                              subjectId={subject.id}
-                              sessionId={session.id}
-                            />
-                          </ErrorBoundary>
-                        );
-                      })}
-                    </div>
-                  </AccordionContent>
-                </AccordionItem>
-              ))}
-            </Accordion>
-          </section>
-        ))}
+                <div className="flex items-center justify-between border-t pt-4 mt-2 text-[10px] font-bold text-muted-foreground uppercase font-mono tracking-wider">
+                  <span>{totalSessions} {totalSessions === 1 ? 'Session' : 'Sessions'}</span>
+                  <span>{totalLectures} {totalLectures === 1 ? 'Lecture' : 'Lectures'}</span>
+                </div>
+              </div>
+            );
+          })}
+        </div>
       </div>
     </div>
   );

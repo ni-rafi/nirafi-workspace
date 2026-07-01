@@ -21,5 +21,6 @@ export const metadata: Lecture = {
     'rainwater-downpipes',
   ],
   lectureNumber: 6,
+  topicId: 'plumbing',
 };
 

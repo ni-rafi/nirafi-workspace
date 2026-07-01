@@ -4,52 +4,28 @@ import { SlideSchemaEngine } from '@/features/presentation/components/slides/Sli
 import { SlideProps } from '@/features/presentation/components/slides/SlideRenderer';
 import presenterData from '@/config/presenter.json';
 import strategyData from '@/config/cee-tl-assessment-strategy-v1.json';
+import { subjectMetadata, outcomes, rationale, COURSE_CONTENT, references } from '../courseContent';
 
 const { tlLegends, assessmentLegends } = strategyData;
 
 const metadata = {
-  courseCode: 'CEE 0731 2224',
-  courseTitle: 'Quantity Surveying',
+  courseCode: subjectMetadata.courseCode,
+  courseTitle: subjectMetadata.courseTitle,
   credit: '1.0',
   category: 'Sessional',
   courseType: 'Practice/Lab',
-  yearSemester: '2nd Year / 2nd Semester',
+  yearSemester: subjectMetadata.yearSemester,
   teacher: presenterData,
   session: '2023-24',
   usn: '2025-2',
 };
 
-const outcomes = [
-  { id: 1, description: 'Demonstrate skills for the budget preparation of a project' },
-  { id: 2, description: 'Prepare the bill of quantity for different work packages of a project' },
-  { id: 3, description: 'Evaluate the contractor’s progress payment.' },
-];
+const contents = COURSE_CONTENT.map((cc) => ({
+  id: cc.serial,
+  title: cc.title,
+  description: cc.description,
+}));
 
-const rationale = "This course will familiarize the students with the quantity take-off or bill of quantity (BoQ) of different materials, equipment, and resources for a civil engineering project. This knowledge is essential for the budget preparation, material/resource scheduling, and time and cost management of any civil structure and infrastructure projects.";
-
-const contents = [
-  { id: 1, title: 'Fundamentals of Quantity Surveying', description: 'Basic theories and concepts of quantity surveying, different tools and techniques of estimation, and introduction of the relevant documents required to prepare estimation for a project.' },
-  { id: 2, title: 'Estimation of the building structure', description: 'Measurement of materials and works, types of estimates, conceptual and detail estimates of a two-storied building. Estimation of quantities of steel & RCC elements of a multi-storied residential building. Estimation of plumbing and drainage (pipes, fittings, and fixtures) system of a building, water reservoir, and septic tank. Detail estimation of a one-story steel structure.' },
-  { id: 3, title: 'Estimation of roadway', description: 'Computation of earth cutting and filling using various methods, basic estimation of materials required for the rigid and flexible pavements.' },
-  { id: 4, title: 'Estimation of a retaining wall and a culvert', description: 'Introduction to various types of retaining walls and culverts. Estimation of materials required to construct a retaining wall and a culvert.' },
-];
-
-const references = [
-  {
-    id: 1,
-    title: 'Estimating and Costing in Civil Engineering: Theory and Practice',
-    author: 'B.N. Dutta',
-    edition: '28th Edition',
-    publisher: 'UBS Publishers Distributors',
-  },
-  {
-    id: 2,
-    title: 'Quantity Surveying: For Building and Civil Engineering Works',
-    author: 'P.L. Bhasin',
-    edition: '3rd Edition',
-    publisher: 'S. Chand & Company',
-  },
-];
 
 const schedule = [
   { week: 1, topic: 'Fundamentals of Quantity Surveying', contentCode: '1', coCovered: '1, 2', tlStrategy: ['TL 01', 'TL 06'], assessmentStrategy: ['CA 03', 'CA 04', 'SA 01', 'SA 02'] },
@@ -83,6 +59,19 @@ export const courseOutlineData: SlideSchema[] = [
   },
   {
     id: 2,
+    section: 'References',
+    metadata: { title: 'Reference Books', type: 'Course Materials' },
+    layout: 'fullwidth',
+    props: {
+      title: 'Reference Books & Course Materials',
+      element: {
+        type: 'reference-books-list',
+        data: { references },
+      },
+    },
+  },
+  {
+    id: 3,
     section: 'Rationale',
     metadata: { title: 'Course Rationale', type: 'Syllabus Overview' },
     layout: 'fullwidth',
@@ -99,7 +88,7 @@ export const courseOutlineData: SlideSchema[] = [
     },
   },
   {
-    id: 3,
+    id: 4,
     section: 'Course Outcomes',
     metadata: { title: 'Course Outcomes', type: 'Syllabus Breakdown' },
     layout: 'twocolumn',
@@ -121,7 +110,7 @@ export const courseOutlineData: SlideSchema[] = [
     },
   },
   {
-    id: 4,
+    id: 5,
     section: 'Course Contents',
     metadata: { title: 'Course Content Structure', type: 'Syllabus Breakdown' },
     layout: 'click-synced-tabs',
@@ -140,7 +129,7 @@ export const courseOutlineData: SlideSchema[] = [
     },
   },
   {
-    id: 5,
+    id: 6,
     section: 'Schedule Part 1',
     metadata: { title: 'Schedule Weeks 1-7', type: 'Weekly Outline' },
     layout: 'fullwidth',
@@ -154,7 +143,7 @@ export const courseOutlineData: SlideSchema[] = [
     },
   },
   {
-    id: 6,
+    id: 7,
     section: 'Schedule Part 2',
     metadata: { title: 'Schedule Weeks 8-12', type: 'Weekly Outline' },
     layout: 'fullwidth',
@@ -168,7 +157,7 @@ export const courseOutlineData: SlideSchema[] = [
     },
   },
   {
-    id: 7,
+    id: 8,
     section: 'Legends',
     metadata: { title: 'Teaching & Assessment', type: 'Strategies index' },
     layout: 'fullwidth',
@@ -177,19 +166,6 @@ export const courseOutlineData: SlideSchema[] = [
       element: {
         type: 'reference-legends',
         data: { leftLegends: tlLegends, rightLegends: assessmentLegends },
-      },
-    },
-  },
-  {
-    id: 8,
-    section: 'References',
-    metadata: { title: 'Reference Books', type: 'Course Materials' },
-    layout: 'fullwidth',
-    props: {
-      title: 'Reference Books & Course Materials',
-      element: {
-        type: 'reference-books-list',
-        data: { references },
       },
     },
   },

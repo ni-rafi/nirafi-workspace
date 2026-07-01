@@ -212,7 +212,106 @@ const Slide7: React.FC = () => (
 
 ---
 
-## 7. ThankYouLayout (Closing Slide)
+## 7. ReferencesLayout (Syllabus Readings & Bibliography)
+
+Specifies course materials, sessional readings, or recommended bibliography sections. Typically placed as **Slide 2** of sessional slide decks.
+
+### Props Interface
+```typescript
+interface ReferenceBook {
+  title: string;
+  authors: string;
+  edition?: string;
+  sections: string[];
+}
+
+interface ReferencesLayoutProps {
+  title?: string;
+  references: ReferenceBook[];
+  instruction?: string;
+  footer?: React.ReactNode;
+}
+```
+
+### Usage Example
+```tsx
+import { ReferencesLayout, type ReferenceBook } from '@/shared/layouts/ReferencesLayout';
+
+const referencesList: ReferenceBook[] = [
+  {
+    title: 'Estimating and Costing in Civil Engineering',
+    edition: '28th Edition',
+    authors: 'B.N. Dutta',
+    sections: ['Chapter 2: Methods of Estimation', 'Chapter 5: Detailed Estimate of Building'],
+  },
+];
+
+const Slide2: React.FC = () => (
+  <ReferencesLayout
+    title="Reference Books & Syllabus Details"
+    references={referencesList}
+    instruction="Go through these sections for a better understanding."
+  />
+);
+```
+
+---
+
+## 8. LectureSummaryLayout (Takeaways & Course Outcome Alignment)
+
+Placed directly before the final closing slide. Displays a vertical sessional summary alongside Course Outcome (CO) mappings.
+
+### Props Interface
+```typescript
+interface SummaryItem {
+  title: string;
+  description: string | React.ReactNode;
+  icon?: React.ReactNode;
+}
+
+interface SummaryOutcome {
+  coCode: string;
+  title: string;
+  description: string;
+  assessmentMetric: string;
+}
+
+interface LectureSummaryLayoutProps {
+  title?: string;
+  summaryTitle?: string;
+  summaryItems: SummaryItem[];
+  outcome: SummaryOutcome;
+  footer?: React.ReactNode;
+}
+```
+
+### Usage Example
+```tsx
+import { LectureSummaryLayout, type SummaryItem, type SummaryOutcome } from '@/shared/layouts/LectureSummaryLayout';
+
+const summaryItemsList: SummaryItem[] = [
+  { title: 'BoQ Calculations', description: 'Calculated excavation, sub-grade, base, and pavement work BoQ.' },
+];
+
+const coMapping: SummaryOutcome = {
+  coCode: 'CO2 MAPPED',
+  title: 'Prepare Bill of Quantities',
+  description: 'Prepare the bill of quantity for different work packages of a project.',
+  assessmentMetric: 'Your sessional portfolio submission will evaluate BoQ precision.',
+};
+
+const SummarySlide: React.FC = () => (
+  <LectureSummaryLayout
+    title="Session Summary"
+    summaryItems={summaryItemsList}
+    outcome={coMapping}
+  />
+);
+```
+
+---
+
+## 9. ThankYouLayout (Closing Slide)
 
 Renders the standard closing/acknowledgment screen with a stylized call-to-action for questions.
 

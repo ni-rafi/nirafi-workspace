@@ -18,4 +18,5 @@ export const metadata: Lecture = {
     'painting'
   ],
   lectureNumber: 5,
+  topicId: 'steel-element',
 };

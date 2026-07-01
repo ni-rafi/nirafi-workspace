@@ -4,56 +4,28 @@ import { SlideSchemaEngine } from '@/features/presentation/components/slides/Sli
 import { SlideProps } from '@/features/presentation/components/slides/SlideRenderer';
 import presenterData from '@/config/presenter.json';
 import strategyData from '@/config/cee-tl-assessment-strategy-v1.json';
+import { subjectMetadata, outcomes, rationale, COURSE_CONTENT, references } from '../courseContent';
 
 const { tlLegends, assessmentLegends } = strategyData;
 
 const metadata = {
-  courseCode: 'CEE 0732 2131',
-  courseTitle: 'Mechanics of Solids I',
+  courseCode: subjectMetadata.courseCode,
+  courseTitle: subjectMetadata.courseTitle,
   credit: '02',
   category: 'Core',
   courseType: 'Theory',
-  yearSemester: '2nd Year / 1st Semester',
+  yearSemester: subjectMetadata.yearSemester,
   teacher: presenterData,
   session: '2024-25',
   usn: '2026-1',
 };
 
-const outcomes = [
-  { id: 1, description: 'Describe the basics of stress and strain, and explain stress-strain diagram for brittle and ductile materials.' },
-  { id: 2, description: 'Calculate stresses and strains in a structural component due to axial load and determine the stresses in thin and thick-walled cylinders and spheres.' },
-  { id: 3, description: 'Identify different types of Riveted and Welded connections and calculate stresses on connections and plates.' },
-  { id: 4, description: 'Determine the shear force and bending moment for determinate beams.' },
-  { id: 5, description: 'Determine the shear stress and bending stress of determinate beams of different shapes.' },
-];
+const contents = COURSE_CONTENT.map((cc) => ({
+  id: cc.serial,
+  title: cc.title,
+  description: cc.description,
+}));
 
-const rationale = "This course will introduce students to the fundamentals of stress and strain, as well as their applications. Different types of joints, such as riveted joints and welded joints, and their failure mechanisms will be discussed in this course. It also teaches them how to calculate and draw the axial force, shear force, bending moment, and qualitative deflection diagram, as well as shear and bending stresses, in various shapes of determinate beams. This knowledge is essential to solving structural engineering problems.";
-
-const contents = [
-  { id: 1, title: 'Stress analysis of axially loaded members', description: 'Introduction, Analysis of internal forces, Simple stress, Shearing stress, Bearing stress.' },
-  { id: 2, title: 'Strain analysis of axially loaded members', description: 'Simple strain, Stress-strain diagram, Hooke\'s law, Strain analysis of statically indeterminate members, Poisson\'s ratio: Biaxial and triaxial deformations.' },
-  { id: 3, title: 'Stresses in thin and thick-walled cylinders and spheres', description: 'Stresses calculation in thin and thick-walled cylinders and spheres.' },
-  { id: 4, title: 'Riveted and Welded Connections', description: 'Rivet, Types of riveted joints, Failure of the riveted joints, Introduction to welded connections.' },
-  { id: 5, title: 'Axial force, Shear force, bending moment and qualitative deflection diagrams', description: 'Definition, Shear force and bending moment for determinate beams.' },
-  { id: 6, title: 'Bending stress and shear stress in beams', description: 'Definition, Shear stress and bending stress for determinate beams of different shapes.' },
-];
-
-const references = [
-  {
-    id: 1,
-    title: 'Strength of Materials',
-    author: 'Ferdinand L. Singer & Andrew Pytel',
-    edition: '4th Edition',
-    publisher: 'Harper & Row / UBS Publishers',
-  },
-  {
-    id: 2,
-    title: 'Mechanics of Materials',
-    author: 'R.C. Hibbeler',
-    edition: '10th Edition',
-    publisher: 'Pearson',
-  },
-];
 
 const schedule = [
   { week: 1, topic: 'Introduction, Review of Statics (FBDs, Equilibrium, Reactions, Centroid, Moment of Inertia)', contentCode: '---', coCovered: '---', tlStrategy: ['TL 01'], assessmentStrategy: ['---'] },
@@ -89,6 +61,19 @@ export const courseOutlineData: SlideSchema[] = [
   },
   {
     id: 2,
+    section: 'References',
+    metadata: { title: 'Reference Books', type: 'Course Materials' },
+    layout: 'fullwidth',
+    props: {
+      title: 'Reference Books & Course Materials',
+      element: {
+        type: 'reference-books-list',
+        data: { references },
+      },
+    },
+  },
+  {
+    id: 3,
     section: 'Rationale',
     metadata: { title: 'Course Rationale', type: 'Syllabus Overview' },
     layout: 'fullwidth',
@@ -103,7 +88,7 @@ export const courseOutlineData: SlideSchema[] = [
     },
   },
   {
-    id: 3,
+    id: 4,
     section: 'Course Outcomes',
     metadata: { title: 'Course Outcomes', type: 'Syllabus Breakdown' },
     layout: 'twocolumn',
@@ -130,7 +115,7 @@ export const courseOutlineData: SlideSchema[] = [
     },
   },
   {
-    id: 4,
+    id: 5,
     section: 'Course Contents',
     metadata: { title: 'Course Content Structure', type: 'Syllabus Breakdown' },
     layout: 'click-synced-tabs',
@@ -149,7 +134,7 @@ export const courseOutlineData: SlideSchema[] = [
     },
   },
   {
-    id: 5,
+    id: 6,
     section: 'Schedule Part 1',
     metadata: { title: 'Schedule Weeks 1-7', type: 'Weekly Outline' },
     layout: 'fullwidth',
@@ -163,7 +148,7 @@ export const courseOutlineData: SlideSchema[] = [
     },
   },
   {
-    id: 6,
+    id: 7,
     section: 'Schedule Part 2',
     metadata: { title: 'Schedule Weeks 8-14', type: 'Weekly Outline' },
     layout: 'fullwidth',
@@ -177,7 +162,7 @@ export const courseOutlineData: SlideSchema[] = [
     },
   },
   {
-    id: 7,
+    id: 8,
     section: 'Legends',
     metadata: { title: 'Teaching & Assessment', type: 'Strategies Index' },
     layout: 'fullwidth',
@@ -186,19 +171,6 @@ export const courseOutlineData: SlideSchema[] = [
       element: {
         type: 'reference-legends',
         data: { leftLegends: tlLegends, rightLegends: assessmentLegends },
-      },
-    },
-  },
-  {
-    id: 8,
-    section: 'References',
-    metadata: { title: 'Reference Books', type: 'Course Materials' },
-    layout: 'fullwidth',
-    props: {
-      title: 'Reference Books & Course Materials',
-      element: {
-        type: 'reference-books-list',
-        data: { references },
       },
     },
   },

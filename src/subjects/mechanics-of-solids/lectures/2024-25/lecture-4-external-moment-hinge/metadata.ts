@@ -9,4 +9,5 @@ export const metadata: Lecture = {
   locked: false,
   tags: ['sfd-bmd', 'external-moment', 'inclined-force', 'internal-hinge', 'elastic-curve', 'load-diagram', 'mechanics-of-solids'],
   lectureNumber: 4,
+  topicId: 'sfd-bmd',
 };

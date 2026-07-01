@@ -9,4 +9,5 @@ export const metadata: Lecture = {
   locked: false,
   tags: ['introduction', 'pwd', 'measurement', 'quantity-surveying'],
   lectureNumber: 1,
+  topicId: 'intro',
 };

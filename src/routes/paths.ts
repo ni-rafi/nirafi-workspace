@@ -1,6 +1,7 @@
 export const ROUTE_PATHS = {
   PORTAL: '/',
   PORTAL_LEGACY: '/1',
+  SUBJECT_PORTAL: '/:subjectId',
   SLIDE_NESTED: '/:subjectId/:sessionId/:lectureId/:slideNo',
   LECTURE_VIEW: '/:subjectId/:sessionId/:lectureId',
   BLOG_VIEW: '/:subjectId/:sessionId/:lectureId/blog',

@@ -9,6 +9,7 @@ export const metadata: Lecture = {
   locked: false,
   tags: ['pavement', 'retaining-wall', 'culvert', 'bitumen', 'water-bound-macadam'],
   lectureNumber: 9,
+  topicId: 'roadway',
   quizzes: {
     qs_2023_lec9_q1: 'stealth',
     qs_2023_lec9_q2: 'stealth',

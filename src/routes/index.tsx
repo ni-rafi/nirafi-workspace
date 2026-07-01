@@ -6,6 +6,7 @@ import { PageLayout } from '@/shared/components/Layout/PageLayout';
 import { ErrorBoundary } from '@/shared/components';
 // Lazy load page components to enable code splitting and reduce initial bundle size
 const LecturePortal = React.lazy(() => import('@/features/portal'));
+const SubjectPortal = React.lazy(() => import('@/features/portal/components/SubjectPortal'));
 const SlideViewer = React.lazy(() => import('@/features/presentation/components/core/SlideViewer'));
 const RegNoGate = React.lazy(() => import('@/features/gate/components/RegNoGate'));
 const AdminClassDashboard = React.lazy(() => import('@/features/portal/components/AdminClassDashboard'));
@@ -141,6 +142,7 @@ export const AppRoutes: React.FC = () => {
             <Route element={<PageLayout />}>
               {/* Main Lecture Portal Dashboard */}
               <Route path={ROUTE_PATHS.PORTAL} element={<LecturePortal />} />
+              <Route path={ROUTE_PATHS.SUBJECT_PORTAL} element={<SubjectPortal />} />
               <Route path={ROUTE_PATHS.ADMIN_DASHBOARD} element={<AdminClassDashboard />} />
               <Route path={ROUTE_PATHS.PORTAL_LEGACY} element={<Navigate to={ROUTE_PATHS.PORTAL} replace />} />
               <Route path={ROUTE_PATHS.SLIDE_FLAT} element={<FlatSlideRedirect />} />

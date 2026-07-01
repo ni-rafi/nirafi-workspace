@@ -99,7 +99,7 @@ export const LectureStatusProvider: React.FC<LectureStatusProviderProps> = ({ ch
               }
             } else {
               // Fallback to static configuration if no database override exists
-              locksMap[lockKey] = lecture.locked;
+              locksMap[lockKey] = lecture.locked ?? false;
               hiddensMap[lockKey] = false;
             }
           }
@@ -129,7 +129,7 @@ export const LectureStatusProvider: React.FC<LectureStatusProviderProps> = ({ ch
       const subject = SUBJECTS.find((s) => s.id === subjectId);
       const session = subject?.sessions.find((sess) => sess.id === sessionId);
       const lecture = session?.lectures.find((lec) => lec.id === lectureId);
-      return lecture ? lecture.locked : true;
+      return lecture ? (lecture.locked ?? false) : true;
     },
     [verifiedLocks]
   );

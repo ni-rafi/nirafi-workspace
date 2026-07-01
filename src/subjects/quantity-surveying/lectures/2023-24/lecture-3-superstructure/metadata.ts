@@ -9,4 +9,5 @@ export const metadata: Lecture = {
   locked: false,
   tags: ['superstructure', 'concrete-columns', 'beams-slabs', 'dpc-omissions', 'brick-masonry', 'opening-deductions', 'finishing-plaster'],
   lectureNumber: 3,
+  topicId: 'superstructure',
 };

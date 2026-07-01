@@ -9,4 +9,5 @@ export const metadata: Lecture = {
   locked: false,
   tags: ['sfd-bmd', 'mechanics-of-solids', 'equations', 'shapes'],
   lectureNumber: 2,
+  topicId: 'sfd-bmd',
 };
