@@ -1,21 +1,13 @@
 import React from 'react';
 import { FullWidthLayout } from '@/shared/layouts/FullWidthLayout';
-import { LatexFormula, SlideParagraph, SlideBullet } from '@/features/presentation/components/elements';
+import { LatexFormula, SlideBullet } from '@/features/presentation/components/elements';
 
 export const IntegralsAndRelations: React.FC = () => {
   return (
     <FullWidthLayout
       title={<span>Differential Relationships: Loading, Shear, & Moment</span>}
     >
-      <div className="w-full h-full flex flex-col justify-between gap-4 p-4 text-left select-text">
-        <div>
-          <span className="text-[10px] font-bold text-indigo-500 uppercase tracking-widest block mb-0.5">Calculus Core</span>
-          <h2 className="text-lg font-bold text-foreground">Mathematical Differential Connections</h2>
-          <SlideParagraph variant="plain" className="text-[11px] text-muted-foreground leading-normal">
-            Verify how derivatives and integrals dictate diagram slope profiles and magnitude step changes.
-          </SlideParagraph>
-        </div>
-
+      <div className="w-full h-full flex flex-col justify-start gap-4 p-4 text-left select-text">
         <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4 items-stretch mt-1">
           {/* Left Card: Slopes & Derivatives */}
           <div className="p-3 border border-border/40 bg-muted/10 rounded-xl flex flex-col justify-start gap-2">

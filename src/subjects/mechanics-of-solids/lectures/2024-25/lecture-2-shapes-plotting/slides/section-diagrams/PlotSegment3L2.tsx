@@ -114,7 +114,7 @@ export const PlotSegment3L2: React.FC = () => {
         </div>
 
         {/* Right Column: Explanations */}
-        <div className="lg:col-span-5 flex flex-col justify-between gap-3 text-left">
+        <div className="lg:col-span-5 flex flex-col justify-between gap-2 text-left">
           <div>
             <span className="text-[10px] font-bold text-indigo-500 uppercase tracking-widest block mb-0.5">Plotting Workbook</span>
             <h3 className="text-base font-bold text-foreground">Segment 3 (12 to 17 m)</h3>
@@ -123,11 +123,11 @@ export const PlotSegment3L2: React.FC = () => {
             </span>
           </div>
 
-          <div className="space-y-2.5 flex-1 flex flex-col justify-center">
+          <div className="space-y-1.5 flex-1 flex flex-col justify-center">
             {/* Shear Card */}
-            <InteractiveCard className="p-3 border-l-4 border-l-rose-500 bg-rose-50/20 dark:bg-rose-950/5 space-y-1">
+            <InteractiveCard spacing="space-y-1" className="py-1.5 px-2.5 border-l-4 border-l-rose-500 bg-rose-50/20 dark:bg-rose-950/5">
               <span className="text-[8px] font-bold text-rose-500 uppercase tracking-wider block">1. SFD Plotting (Shear)</span>
-              <div className="text-xs font-mono font-bold text-foreground">
+              <div className="text-xs font-mono font-bold text-foreground overflow-x-auto max-w-full scrollbar-none">
                 <LatexFormula math="V(x) = -6.675\text{ kN}" />
               </div>
               <ClickReveal at={1}>
@@ -136,16 +136,16 @@ export const PlotSegment3L2: React.FC = () => {
                 </p>
               </ClickReveal>
               <ClickReveal at={2}>
-                <div className="text-[10px] font-mono text-rose-600 dark:text-rose-400 font-semibold pt-1 border-t border-rose-500/10">
+                <div className="text-[10px] font-mono text-rose-600 dark:text-rose-400 font-semibold pt-1 border-t border-rose-500/10 overflow-x-auto max-w-full scrollbar-none">
                   <LatexFormula math="V(12) = -6.68\text{ kN}, \quad V(17) = -6.68\text{ kN}" />
                 </div>
               </ClickReveal>
             </InteractiveCard>
 
             {/* Moment Card */}
-            <InteractiveCard className="p-3 border-l-4 border-l-indigo-500 bg-indigo-50/20 dark:bg-indigo-950/5 space-y-1">
+            <InteractiveCard spacing="space-y-1" className="py-1.5 px-2.5 border-l-4 border-l-indigo-500 bg-indigo-50/20 dark:bg-indigo-950/5">
               <span className="text-[8px] font-bold text-indigo-500 uppercase tracking-wider block">2. BMD Plotting (Moment)</span>
-              <div className="text-xs font-mono font-bold text-foreground">
+              <div className="text-xs font-mono font-bold text-foreground overflow-x-auto max-w-full scrollbar-none">
                 <LatexFormula math="M(x) = 98.425 - 6.675(x - 12)\text{ kNm}" />
               </div>
               <ClickReveal at={1}>
@@ -154,7 +154,7 @@ export const PlotSegment3L2: React.FC = () => {
                 </p>
               </ClickReveal>
               <ClickReveal at={2}>
-                <div className="text-[10px] font-mono text-indigo-600 dark:text-indigo-400 font-semibold pt-1 border-t border-indigo-500/10">
+                <div className="text-[10px] font-mono text-indigo-600 dark:text-indigo-400 font-semibold pt-1 border-t border-indigo-500/10 overflow-x-auto max-w-full scrollbar-none">
                   <LatexFormula math="M(12) = +98.43\text{ kNm}, \quad M(17) = +65.05\text{ kNm}" />
                 </div>
               </ClickReveal>

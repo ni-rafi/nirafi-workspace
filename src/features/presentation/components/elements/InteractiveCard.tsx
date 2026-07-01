@@ -6,6 +6,7 @@ interface InteractiveCardProps {
   children: React.ReactNode;
   variant?: 'default' | 'plain';
   className?: string;
+  spacing?: string;
 }
 
 export const InteractiveCard: React.FC<InteractiveCardProps> = ({
@@ -13,6 +14,7 @@ export const InteractiveCard: React.FC<InteractiveCardProps> = ({
   children,
   variant = 'default',
   className = '',
+  spacing = 'space-y-4',
 }) => {
   const presentation = useContext(PresentationContext);
   const isBlog = presentation?.viewMode === 'blog';
@@ -37,7 +39,7 @@ export const InteractiveCard: React.FC<InteractiveCardProps> = ({
           {title}
         </div>
       )}
-      <div className="space-y-4">{children}</div>
+      <div className={spacing}>{children}</div>
     </div>
   );
 };

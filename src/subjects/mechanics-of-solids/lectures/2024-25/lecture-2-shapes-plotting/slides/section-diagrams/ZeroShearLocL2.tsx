@@ -46,7 +46,7 @@ export const ZeroShearLocL2: React.FC = () => {
         </div>
 
         {/* Right Column: Key Explanations */}
-        <div className="lg:col-span-5 flex flex-col justify-between gap-3 text-left">
+        <div className="lg:col-span-5 flex flex-col justify-start gap-4 text-left">
           <div>
             <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest block mb-0.5">Calculus Solver</span>
             <h4 className="text-sm font-bold text-foreground">Solving the Linear Domain</h4>
@@ -67,10 +67,6 @@ export const ZeroShearLocL2: React.FC = () => {
                 <span>So the shear crosses zero at a global position of <LatexFormula math="x = 9.775\text{ m}" />.</span>
               </SlideBullet>
             </div>
-          </div>
-
-          <div className="bg-indigo-500/[0.02] border border-indigo-500/10 p-2.5 rounded-xl text-[9.5px] leading-normal font-mono text-center">
-            Next: Calculating maximum moment & plotting the final diagrams
           </div>
         </div>
       </div>
