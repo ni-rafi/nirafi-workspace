@@ -28,7 +28,7 @@ export const Header: React.FC = () => {
     slideNo?: string;
   }>();
 
-  const { userProfile, logout, isAdmin } = useUserContext();
+  const { userProfile, logout, isAdmin, setLoginModalOpen } = useUserContext();
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -148,13 +148,11 @@ export const Header: React.FC = () => {
           <Button
             variant="outline"
             size="sm"
-            asChild
+            onClick={() => setLoginModalOpen(true)}
             className="h-8 gap-1.5 px-3 font-semibold text-xs border-border/60 hover:bg-accent cursor-pointer"
           >
-            <Link to="/login">
-              <User className="h-3.5 w-3.5" />
-              <span className="hidden sm:inline">Sign In</span>
-            </Link>
+            <User className="h-3.5 w-3.5" />
+            <span className="hidden sm:inline">Sign In</span>
           </Button>
         )}
       </div>

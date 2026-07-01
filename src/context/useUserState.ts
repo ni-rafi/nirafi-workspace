@@ -27,6 +27,7 @@ export const useUserState = () => {
   const [error, setError] = useState<string | null>(null);
   const [needsProfileSetup, setNeedsProfileSetup] = useState<boolean>(false);
   const [googleUser, setGoogleUser] = useState<{ uid: string; email: string | null; name: string | null } | null>(null);
+  const [isLoginModalOpen, setLoginModalOpen] = useState<boolean>(false);
 
   useEffect(() => {
     let isMounted = true;
@@ -105,6 +106,7 @@ export const useUserState = () => {
             setIsLoggedIn(true);
             setNeedsProfileSetup(false);
             setGoogleUser(null);
+            setLoginModalOpen(false);
           } else {
             setGoogleUser({
               uid: firebaseUser.uid,
@@ -250,6 +252,7 @@ export const useUserState = () => {
         setNeedsProfileSetup(false);
         setGoogleUser(null);
         setIsLoading(false);
+        setLoginModalOpen(false);
         return true;
       } catch (err: unknown) {
         console.error('[UserProvider] Profile setup failed:', err);
@@ -350,5 +353,7 @@ export const useUserState = () => {
     logout,
     clearError,
     updateThemePreferences,
+    isLoginModalOpen,
+    setLoginModalOpen,
   };
 };

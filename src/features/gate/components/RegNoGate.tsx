@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUserContext } from '@/context';
-import { GraduationCap, Lock, ArrowRight, AlertCircle, LogOut } from 'lucide-react';
+import { GraduationCap, Lock, ArrowRight, AlertCircle, LogOut, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { validateRegistration, validateSession } from '@/cores/user/userValidation';
@@ -12,7 +12,12 @@ const GoogleIcon = () => (
   </svg>
 );
 
-export const RegNoGate: React.FC = () => {
+interface RegNoGateProps {
+  isModal?: boolean;
+  onClose?: () => void;
+}
+
+export const RegNoGate: React.FC<RegNoGateProps> = ({ isModal = false, onClose }) => {
   const navigate = useNavigate();
   const {
     signInWithGoogle,
@@ -59,7 +64,11 @@ export const RegNoGate: React.FC = () => {
 
   const handleCancel = () => {
     logout();
-    navigate('/', { replace: true });
+    if (onClose) {
+      onClose();
+    } else {
+      navigate('/', { replace: true });
+    }
   };
 
   const handleProfileSubmit = async (e: React.FormEvent) => {
@@ -90,9 +99,28 @@ export const RegNoGate: React.FC = () => {
     }
   };
 
+  const modalWrapperClass = isModal
+    ? "fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm p-4 overflow-y-auto animate-in fade-in duration-200"
+    : "flex min-h-screen w-full items-center justify-center bg-radial from-background via-muted/50 to-muted px-4 py-12";
+
+  const handleBackdropClick = (e: React.MouseEvent) => {
+    if (e.target === e.currentTarget && !needsProfileSetup && onClose) {
+      onClose();
+    }
+  };
+
   return (
-    <div className="flex min-h-screen w-full items-center justify-center bg-radial from-background via-muted/50 to-muted px-4 py-12">
-      <div className="w-full max-w-md overflow-hidden rounded-2xl border bg-card text-card-foreground shadow-2xl transition-all duration-300 hover:shadow-primary/5">
+    <div className={modalWrapperClass} onClick={handleBackdropClick}>
+      <div className="relative w-full max-w-md overflow-hidden rounded-2xl border bg-card text-card-foreground shadow-2xl transition-all duration-300 hover:shadow-primary/5" onClick={(e) => e.stopPropagation()}>
+        {isModal && !needsProfileSetup && onClose && (
+          <button
+            onClick={onClose}
+            className="absolute top-4 right-4 rounded-full p-1.5 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer z-20"
+            aria-label="Close modal"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        )}
         {/* Top Branding Banner */}
         <div className="relative bg-primary px-6 py-8 text-center text-primary-foreground">
           <div className="absolute inset-0 bg-linear-to-b from-primary/10 to-primary/40" />

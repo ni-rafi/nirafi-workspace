@@ -18,6 +18,8 @@ export interface UserContextType {
   logout: () => void;
   clearError: () => void;
   updateThemePreferences: (key: string, preferences: ThemePreferences | null) => Promise<void>;
+  isLoginModalOpen: boolean;
+  setLoginModalOpen: (open: boolean) => void;
 }
 
 export const UserContext = createContext<UserContextType | null>(null);

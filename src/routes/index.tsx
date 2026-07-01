@@ -78,7 +78,7 @@ const AdminRouteGuard: React.FC<{ children: React.ReactNode }> = ({ children }) 
  * AppRoutes renders the page-level route map using React Router.
  */
 export const AppRoutes: React.FC = () => {
-  const { needsProfileSetup, isLoading } = useUserContext();
+  const { needsProfileSetup, isLoading, isLoginModalOpen, setLoginModalOpen } = useUserContext();
 
   if (isLoading) {
     return (
@@ -97,65 +97,64 @@ export const AppRoutes: React.FC = () => {
         {needsProfileSetup ? (
           <RegNoGate />
         ) : (
-          <Routes>
-            {/* Immersive Slide Deck Viewer outside of dashboard layout */}
-            <Route
-              path={ROUTE_PATHS.SLIDE_NESTED}
-              element={
-                <LectureRouteGuard>
-                  <SlideViewer />
-                </LectureRouteGuard>
-              }
-            />
-            <Route
-              path={ROUTE_PATHS.LECTURE_VIEW}
-              element={
-                <LectureRouteGuard>
-                  <SlideViewer />
-                </LectureRouteGuard>
-              }
-            />
-            <Route
-              path={ROUTE_PATHS.BLOG_VIEW}
-              element={
-                <LectureRouteGuard>
-                  <SlideViewer />
-                </LectureRouteGuard>
-              }
-            />
-            <Route
-              path={ROUTE_PATHS.SHAPES_PLAYGROUND}
-              element={
-                <AdminRouteGuard>
-                  <ShapeBuilderPlayground />
-                </AdminRouteGuard>
-              }
-            />
+          <>
+            <Routes>
+              {/* Immersive Slide Deck Viewer outside of dashboard layout */}
+              <Route
+                path={ROUTE_PATHS.SLIDE_NESTED}
+                element={
+                  <LectureRouteGuard>
+                    <SlideViewer />
+                  </LectureRouteGuard>
+                }
+              />
+              <Route
+                path={ROUTE_PATHS.LECTURE_VIEW}
+                element={
+                  <LectureRouteGuard>
+                    <SlideViewer />
+                  </LectureRouteGuard>
+                }
+              />
+              <Route
+                path={ROUTE_PATHS.BLOG_VIEW}
+                element={
+                  <LectureRouteGuard>
+                    <SlideViewer />
+                  </LectureRouteGuard>
+                }
+              />
+              <Route
+                path={ROUTE_PATHS.SHAPES_PLAYGROUND}
+                element={
+                  <AdminRouteGuard>
+                    <ShapeBuilderPlayground />
+                  </AdminRouteGuard>
+                }
+              />
 
-            {/* Standalone Login Page */}
-            <Route
-              path={ROUTE_PATHS.LOGIN}
-              element={<RegNoGate />}
-            />
+              {/* PageLayout wraps all authenticated routes with app sidebar and headers */}
+              <Route element={<PageLayout />}>
+                {/* Main Lecture Portal Dashboard */}
+                <Route path={ROUTE_PATHS.PORTAL} element={<LecturePortal />} />
+                <Route path={ROUTE_PATHS.SUBJECT_PORTAL} element={<SubjectPortal />} />
+                <Route path={ROUTE_PATHS.ADMIN_DASHBOARD} element={<AdminClassDashboard />} />
+                <Route path={ROUTE_PATHS.PORTAL_LEGACY} element={<Navigate to={ROUTE_PATHS.PORTAL} replace />} />
+                <Route path={ROUTE_PATHS.SLIDE_FLAT} element={<FlatSlideRedirect />} />
+                <Route path={ROUTE_PATHS.DOCS} element={<SlideCustomizationDocs />} />
+                <Route path={ROUTE_PATHS.SOLVER_SFD_BMD} element={<SFDBMDSolverPage />} />
+                <Route path={ROUTE_PATHS.SOLVER_INFLUENCE_LINES} element={<InfluenceLinesPage />} />
+                <Route path={ROUTE_PATHS.SOLVER_FRAME} element={<FrameSolverPage />} />
+                <Route path={ROUTE_PATHS.SOLVER_QS_CALCULATORS} element={<QSCalculatorsPage />} />
 
-            {/* PageLayout wraps all authenticated routes with app sidebar and headers */}
-            <Route element={<PageLayout />}>
-              {/* Main Lecture Portal Dashboard */}
-              <Route path={ROUTE_PATHS.PORTAL} element={<LecturePortal />} />
-              <Route path={ROUTE_PATHS.SUBJECT_PORTAL} element={<SubjectPortal />} />
-              <Route path={ROUTE_PATHS.ADMIN_DASHBOARD} element={<AdminClassDashboard />} />
-              <Route path={ROUTE_PATHS.PORTAL_LEGACY} element={<Navigate to={ROUTE_PATHS.PORTAL} replace />} />
-              <Route path={ROUTE_PATHS.SLIDE_FLAT} element={<FlatSlideRedirect />} />
-              <Route path={ROUTE_PATHS.DOCS} element={<SlideCustomizationDocs />} />
-              <Route path={ROUTE_PATHS.SOLVER_SFD_BMD} element={<SFDBMDSolverPage />} />
-              <Route path={ROUTE_PATHS.SOLVER_INFLUENCE_LINES} element={<InfluenceLinesPage />} />
-              <Route path={ROUTE_PATHS.SOLVER_FRAME} element={<FrameSolverPage />} />
-              <Route path={ROUTE_PATHS.SOLVER_QS_CALCULATORS} element={<QSCalculatorsPage />} />
-
-              {/* Global Fallback Redirect to Dashboard */}
-              <Route path="*" element={<Navigate to={ROUTE_PATHS.PORTAL} replace />} />
-            </Route>
-          </Routes>
+                {/* Global Fallback Redirect to Dashboard */}
+                <Route path="*" element={<Navigate to={ROUTE_PATHS.PORTAL} replace />} />
+              </Route>
+            </Routes>
+            {isLoginModalOpen && (
+              <RegNoGate isModal onClose={() => setLoginModalOpen(false)} />
+            )}
+          </>
         )}
       </React.Suspense>
     </ErrorBoundary>

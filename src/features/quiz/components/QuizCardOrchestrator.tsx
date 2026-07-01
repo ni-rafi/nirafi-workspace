@@ -5,6 +5,7 @@ import { getQuizVisibilityMode } from '@/features/presentation/components/slides
 import { StudentQuizView } from './StudentQuizView';
 import { AdminQuizView } from './AdminQuizView';
 import { useUserContext } from '@/context';
+import { Button } from '@/components/ui/button';
 
 export type QuizType = 'numeric-input' | 'multiple-choice';
 
@@ -27,7 +28,7 @@ export const QuizCardOrchestrator: React.FC<QuizCardOrchestratorProps> = ({
   defaultDuration = 300,
   defaultBuffer = 20,
 }) => {
-  const { userProfile } = useUserContext();
+  const { userProfile, setLoginModalOpen } = useUserContext();
 
   const normalizedQuestions = questions || [
     {
@@ -119,9 +120,15 @@ export const QuizCardOrchestrator: React.FC<QuizCardOrchestratorProps> = ({
             </div>
             <div className="py-6 px-4 flex flex-col items-center gap-3">
               <h3 className="text-base font-bold text-foreground">Interactive Quiz</h3>
-              <p className="text-xs text-muted-foreground max-w-xs">
+              <p className="text-xs text-muted-foreground max-w-xs mb-2">
                 Interactive Quiz: Only available to signed-in students. Sign in with Google to participate.
               </p>
+              <Button
+                onClick={() => setLoginModalOpen(true)}
+                className="font-semibold text-xs py-1.5 px-4 cursor-pointer"
+              >
+                Sign In
+              </Button>
             </div>
           </div>
         </div>
