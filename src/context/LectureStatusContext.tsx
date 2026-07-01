@@ -98,9 +98,9 @@ export const LectureStatusProvider: React.FC<LectureStatusProviderProps> = ({ ch
                 hiddensMap[lockKey] = true;
               }
             } else {
-              // Fallback to static configuration if no database override exists
-              locksMap[lockKey] = lecture.locked ?? false;
-              hiddensMap[lockKey] = false;
+              // Fallback to locked and hidden by default if no database override exists
+              locksMap[lockKey] = true;
+              hiddensMap[lockKey] = true;
             }
           }
         }
@@ -124,12 +124,7 @@ export const LectureStatusProvider: React.FC<LectureStatusProviderProps> = ({ ch
       if (verifiedLocks[lockKey] !== undefined) {
         return verifiedLocks[lockKey];
       }
-      
-      // Fallback to static configuration if verified state is still loading
-      const subject = SUBJECTS.find((s) => s.id === subjectId);
-      const session = subject?.sessions.find((sess) => sess.id === sessionId);
-      const lecture = session?.lectures.find((lec) => lec.id === lectureId);
-      return lecture ? (lecture.locked ?? false) : true;
+      return true; // Safe fallback: locked by default while loading
     },
     [verifiedLocks]
   );
@@ -140,7 +135,7 @@ export const LectureStatusProvider: React.FC<LectureStatusProviderProps> = ({ ch
       if (verifiedHiddens[lockKey] !== undefined) {
         return verifiedHiddens[lockKey];
       }
-      return false; // Visible by default if not loaded
+      return true; // Safe fallback: hidden by default while loading
     },
     [verifiedHiddens]
   );
