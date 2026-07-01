@@ -128,6 +128,7 @@ export const SlideSchemaEngine: React.FC<SlideSchemaEngineProps> = ({
           leftWidth={props.leftWidth}
           bgVariant={props.bgVariant === 'cover' ? undefined : props.bgVariant}
           items={mappedItems}
+          dense={props.dense}
         />
       );
     }

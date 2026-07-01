@@ -185,6 +185,7 @@ export const InteractiveScheduleTable: React.FC<InteractiveScheduleTableProps> =
           striped
           bordered
           hoverable
+          dense="tight"
         />
       </div>
     </div>

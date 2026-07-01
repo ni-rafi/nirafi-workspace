@@ -124,6 +124,7 @@ export const courseOutlineData: SlideSchema[] = [
       leftTitle: 'Syllabus Chapters (CCs)',
       rightTitle: 'Chapter Detailed Overview',
       leftWidth: '42%',
+      dense: true,
       items: contents.map((c) => ({
         title: c.title,
         description: `Chapter ${c.id} outline and objectives.`,
@@ -135,7 +136,7 @@ export const courseOutlineData: SlideSchema[] = [
   },
   {
     id: 6,
-    section: 'Schedule Part 1',
+    section: 'Weekly Outline',
     metadata: { title: 'Schedule Weeks 1-7', type: 'Weekly Outline' },
     layout: 'fullwidth',
     props: {
@@ -149,7 +150,7 @@ export const courseOutlineData: SlideSchema[] = [
   },
   {
     id: 7,
-    section: 'Schedule Part 2',
+    section: 'Weekly Outline',
     metadata: { title: 'Schedule Weeks 8-14', type: 'Weekly Outline' },
     layout: 'fullwidth',
     props: {

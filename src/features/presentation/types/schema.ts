@@ -237,5 +237,6 @@ export interface SlideSchema {
     session?: string;
     topicNumber?: string;
     lectureNumber?: string | number;
+    dense?: boolean;
   };
 }

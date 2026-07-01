@@ -29,6 +29,7 @@ interface ClickSyncedTabsProps {
   leftWidth?: string;
   bgVariant?: 'default' | 'calculation' | 'gallery';
   clickToTabMap?: number[];
+  dense?: boolean;
 }
 
 /** Automatic per-tab color palette — cycles by index when the slide omits tintClass / badgeColor. */
@@ -67,6 +68,7 @@ export const ClickSyncedTabs: React.FC<ClickSyncedTabsProps> = ({
   leftWidth = '55%',
   bgVariant = 'default',
   clickToTabMap,
+  dense = false,
 }) => {
   const clickContext = useClickStepsContext();
   const { currentClick, setClick } = clickContext;
@@ -196,7 +198,7 @@ export const ClickSyncedTabs: React.FC<ClickSyncedTabsProps> = ({
               {leftTitle}
             </span>
           )}
-          <div className="flex flex-col gap-2">
+          <div className={`flex flex-col ${dense ? 'gap-1.5' : 'gap-2'}`}>
             {items.map((item, idx) => {
               const isActive = activeIndex === idx;
               const auto = AUTO_COLORS[idx % AUTO_COLORS.length]!;
@@ -206,7 +208,7 @@ export const ClickSyncedTabs: React.FC<ClickSyncedTabsProps> = ({
                 <div
                   key={idx}
                   onClick={() => handleItemClick(idx)}
-                  className={`p-2.5 rounded-lg border transition-all duration-300 cursor-pointer ${
+                  className={`${dense ? 'p-1.5' : 'p-2.5'} rounded-lg border transition-all duration-300 cursor-pointer ${
                     isActive
                       ? 'bg-accent text-accent-foreground border-primary shadow-sm translate-x-1'
                       : `${resolvedTintClass} text-card-foreground hover:bg-accent/40 opacity-80 hover:opacity-100`
@@ -222,7 +224,7 @@ export const ClickSyncedTabs: React.FC<ClickSyncedTabsProps> = ({
                   )}
 
                   <div className="flex justify-between items-center mb-0.5">
-                    <h4 className={`text-xs font-bold ${isActive ? 'text-primary' : 'text-foreground'}`}>
+                    <h4 className={`text-xs font-bold ${isActive ? 'text-primary' : 'text-foreground'} ${dense ? 'text-[11px]' : ''}`}>
                       {item.title}
                     </h4>
                     {item.badge && (
@@ -233,7 +235,7 @@ export const ClickSyncedTabs: React.FC<ClickSyncedTabsProps> = ({
                       />
                     )}
                   </div>
-                  <p className="text-[11px] text-muted-foreground leading-normal">
+                  <p className={`${dense ? 'text-[10px] leading-tight' : 'text-[11px] leading-normal'} text-muted-foreground`}>
                     {item.description}
                   </p>
                 </div>
@@ -249,7 +251,7 @@ export const ClickSyncedTabs: React.FC<ClickSyncedTabsProps> = ({
               {rightTitle}
             </span>
           )}
-          <div className="flex-1 flex items-center justify-center border border-border/50 rounded-lg p-4 bg-muted/30 min-h-[220px]">
+          <div className={`flex-1 flex items-center justify-center border border-border/50 rounded-lg bg-muted/30 ${dense ? 'p-3 min-h-[160px]' : 'p-4 min-h-[220px]'}`}>
             {items[activeIndex ?? 0]?.rightContent || null}
           </div>
         </div>

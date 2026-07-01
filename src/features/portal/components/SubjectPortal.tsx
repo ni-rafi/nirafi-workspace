@@ -260,7 +260,7 @@ export const SubjectPortal: React.FC = () => {
                           className="absolute left-0 top-0 bottom-0 w-1"
                           style={{ backgroundColor: subject.color }}
                         />
-                        <h3 className="text-xs font-bold text-foreground tracking-tight pl-1 select-text">
+                        <h3 className="text-sm font-bold text-foreground tracking-tight pl-1 select-text">
                           {group.topic.title}
                         </h3>
                         {matchedCC && (
@@ -275,8 +275,8 @@ export const SubjectPortal: React.FC = () => {
                         )}
                       </div>
 
-                      {/* Lecture Cards Grid (Wider 4-column layout on large screens) */}
-                      <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+                      {/* Lecture Cards Grid (3-column layout on large screens) */}
+                      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                         {group.lectures
                           .filter((lecture) => {
                             if (isAdmin) return true;
