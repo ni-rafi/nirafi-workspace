@@ -8,7 +8,7 @@ export const Problem05StatementSlide: React.FC = () => {
       title="Problem 05: Cover-Plate Retrofitting"
       leftWidth="55%"
       leftContent={
-        <div className="flex flex-col h-full justify-between gap-4 text-left select-text">
+        <div className="flex flex-col gap-4 text-left select-text">
           <SlideList
             title="Diagnostic Reinforcement Challenge"
             description={

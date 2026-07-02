@@ -105,7 +105,7 @@ export const AsymmetricMaterialLimitSolver: React.FC = () => {
 
                 {/* NA line */}
                 <line x1={15} y1={90 - ybar * 0.5} x2={145} y2={90 - ybar * 0.5} stroke="var(--destructive)" strokeWidth={1.2} strokeDasharray="3,1" opacity={0.7} />
-                <text x={148} y={90 - ybar * 0.5 + 3} className="fill-destructive text-[7px] font-bold">N.A.</text>
+                <text x={144} y={90 - ybar * 0.5 + 4} className="fill-destructive text-[11px] font-bold">N.A.</text>
               </g>
             </svg>
           </ExpandableDrawing>

@@ -9,7 +9,7 @@ export const Problem01StatementSlide: React.FC = () => {
       title="Problem 01: Statement & Inputs"
       leftWidth="55%"
       leftContent={
-        <div className="flex flex-col h-full justify-between gap-4 text-left select-text">
+        <div className="flex flex-col gap-4 text-left select-text">
           <SlideList
             title="Problem Prompt"
             description="A rectangular beam 60 mm wide and 150 mm deep is simply supported over a span of 4 metres. If the beam is subjected to a uniformly distributed load of 4.5 kN/m, find the maximum bending stress induced in the beam and sketch the bending stress distribution."

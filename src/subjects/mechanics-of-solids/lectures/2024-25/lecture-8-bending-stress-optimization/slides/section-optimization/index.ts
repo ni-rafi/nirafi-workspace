@@ -12,6 +12,7 @@ import { Problem03StatementSlide } from './Problem03StatementSlide';
 import { Problem03SolverSlide } from './Problem03SolverSlide';
 import { Problem03SandboxSlide } from './Problem03SandboxSlide';
 import { Checkpoint4Slide } from './Checkpoint4Slide';
+import { LectureSummarySlide } from './LectureSummarySlide';
 import { HomeworkSlide } from './HomeworkSlide';
 import { OutroSlide } from './OutroSlide';
 
@@ -30,8 +31,9 @@ export const slides = {
   12: Problem03SolverSlide,
   13: Problem03SandboxSlide,
   14: Checkpoint4Slide,
-  15: HomeworkSlide,
-  16: OutroSlide,
+  15: LectureSummarySlide,
+  16: HomeworkSlide,
+  17: OutroSlide,
 };
 
 export const sectionMetadata = {
@@ -49,6 +51,7 @@ export const sectionMetadata = {
   12: { title: 'Step-by-Step Taper Sizing & Calculus Optimization', type: 'Concept Details', section: 'Sizing Optimization' },
   13: { title: 'Tapered Cantilever Optimization Sandbox', type: 'Interactive Sandbox', section: 'Sizing Optimization' },
   14: { title: 'Checkpoint 4: Tapered Beam Peak Stress Location', type: 'Checkpoint Quiz', section: 'Sizing Optimization', quizId: 'mos_2024_lec8_q4' },
-  15: { title: 'Independent Homework Assignment & Guidelines', type: 'Concept Details', section: 'Summary & Outro' },
-  16: { title: 'Outro / Q&A Slide', type: 'Thank You Slide', section: 'Summary & Outro' },
+  15: { title: 'Lecture Takeaways & Course Outcomes', type: 'Concept Details', section: 'Summary & Outro' },
+  16: { title: 'Independent Homework Assignment & Guidelines', type: 'Concept Details', section: 'Summary & Outro' },
+  17: { title: 'Outro / Q&A Slide', type: 'Thank You Slide', section: 'Summary & Outro' },
 };

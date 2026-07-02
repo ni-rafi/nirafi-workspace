@@ -5,7 +5,7 @@ import { SlideParagraph, SlideList } from '@/features/presentation/components/el
 export const AssumptionsSlide: React.FC = () => {
   return (
     <FullWidthLayout title="Assumptions in Simple Bending">
-      <div className="flex flex-col h-full justify-between gap-4 text-left select-text max-w-3xl mx-auto py-2">
+      <div className="flex flex-col gap-4 text-left select-text max-w-3xl mx-auto py-2">
         <SlideParagraph variant="plain" className="text-xs text-muted-foreground">
           To derive the analytical mathematical model for bending stresses, we assume the following:
         </SlideParagraph>

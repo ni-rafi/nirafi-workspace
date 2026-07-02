@@ -1,7 +1,6 @@
 import React from 'react';
 import { FullWidthLayout } from '@/shared/layouts/FullWidthLayout';
 import { SlideParagraph, SlideList, LatexFormula } from '@/features/presentation/components/elements';
-import { Compass } from 'lucide-react';
 
 export const PrerequisitesSlide: React.FC = () => {
   const prerequisites = [
@@ -13,19 +12,13 @@ export const PrerequisitesSlide: React.FC = () => {
 
   return (
     <FullWidthLayout title="Prerequisite Knowledge">
-      <div className="flex flex-col h-full justify-between gap-4 text-left select-text max-w-2xl mx-auto py-2">
-        <div>
-          <div className="flex items-center space-x-1.5 text-indigo-500 font-bold text-xs uppercase mb-1">
-            <Compass className="h-4.5 w-4.5" />
-            <span>Foundational Competencies</span>
-          </div>
-          <SlideParagraph variant="plain" className="text-xs text-muted-foreground">
-            Students are expected to be familiar with the following concepts before proceeding:
-          </SlideParagraph>
-        </div>
-        <div className="flex-1 my-2">
-          <SlideList revealMode="each-click" items={prerequisites} />
-        </div>
+      <div className="flex flex-col gap-4 text-left select-text max-w-2xl mx-auto py-2">
+        <SlideList
+          title="Foundational Competencies"
+          description="Students are expected to be familiar with the following concepts before proceeding:"
+          revealMode="each-click"
+          items={prerequisites}
+        />
         <SlideParagraph variant="info" className="text-[10px] my-1">
           {"Review these concepts if needed to fully grasp the upcoming material."}
         </SlideParagraph>

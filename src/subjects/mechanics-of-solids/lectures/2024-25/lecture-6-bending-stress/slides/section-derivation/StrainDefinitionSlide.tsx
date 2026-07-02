@@ -67,7 +67,7 @@ export const StrainDefinitionSlide: React.FC = () => {
             <ClickReveal at={5} preset="fade">
               <div className="p-4 bg-background border border-border/40 rounded-xl">
                 <span className="text-[9px] font-mono text-muted-foreground block mb-2">Substituting Geometric Outlines:</span>
-                <ClickHighlight at={6} variant="paint" className="block rounded-lg p-1">
+                <ClickHighlight at={6} variant="rect" className="block">
                   <SlideEquation math="\varepsilon = \frac{(R - y) d\theta - R d\theta}{R d\theta}" />
                 </ClickHighlight>
               </div>

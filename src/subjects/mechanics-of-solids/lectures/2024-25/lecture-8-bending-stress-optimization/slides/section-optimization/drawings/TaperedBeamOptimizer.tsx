@@ -91,15 +91,15 @@ export const TaperedBeamOptimizer: React.FC = () => {
               <line x1={padding} y1={svgH - padding} x2={svgW - padding} y2={svgH - padding} stroke="var(--border)" strokeWidth={1} />
               <line x1={padding} y1={padding} x2={padding} y2={svgH - padding} stroke="var(--border)" strokeWidth={1} />
 
-              <text x={svgW - padding} y={svgH - padding + 10} textAnchor="end" className="fill-muted-foreground text-[6px] font-bold">Fixed Wall (x=2.0m)</text>
-              <text x={padding} y={svgH - padding + 10} textAnchor="start" className="fill-muted-foreground text-[6px] font-bold">Free End</text>
+              <text x={svgW - padding} y={svgH - padding + 13} textAnchor="end" className="fill-muted-foreground text-[11px] font-bold">Fixed Wall (x=2.0m)</text>
+              <text x={padding} y={svgH - padding + 13} textAnchor="start" className="fill-muted-foreground text-[11px] font-bold">Free End</text>
 
               {/* Stress Envelope Curve */}
               <path d={pathD} fill="none" stroke="var(--primary)" strokeWidth={1.5} />
 
               {/* Peak Marker dot */}
               <circle cx={toPxX(peakX)} cy={toPxY(peakStress_MPa)} r={3} fill="var(--destructive)" />
-              <text x={toPxX(peakX)} y={toPxY(peakStress_MPa) - 6} textAnchor="middle" className="fill-destructive text-[7px] font-bold font-mono">
+              <text x={toPxX(peakX)} y={toPxY(peakStress_MPa) - 8} textAnchor="middle" className="fill-destructive text-[11px] font-bold font-mono">
                 {xCrit.toFixed(0)} mm
               </text>
             </svg>

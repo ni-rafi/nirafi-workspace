@@ -1,5 +1,5 @@
-import { SlideParagraph, SlideBullet, SlideEquation, LatexFormula, InteractiveCard } from '@/features/presentation/components/elements';
-import { ShieldCheck } from 'lucide-react';
+import React from 'react';
+import { SlideList, SlideEquation, LatexFormula, InteractiveCard } from '@/features/presentation/components/elements';
 import TwoColumnLayout from '@/shared/layouts/TwoColumnLayout';
 
 export const ModulusInterpretationSlide: React.FC = () => {
@@ -8,23 +8,21 @@ export const ModulusInterpretationSlide: React.FC = () => {
       title="Physical Interpretation of Z"
       leftWidth="55%"
       leftContent={
-        <div className="flex flex-col h-full justify-between gap-4 text-left select-text">
-          <div>
-            <div className="flex items-center space-x-1.5 text-indigo-500 font-bold text-[10px] uppercase mb-1">
-              <ShieldCheck className="h-4.5 w-4.5" />
-              <span>Section Strength Indicator</span>
-            </div>
-            <SlideParagraph variant="plain" className="text-xs text-muted-foreground leading-relaxed">
-              {"Section Modulus ("}
-              <LatexFormula math="Z" />
-              {") directly quantifies a beam's flexural capacity independent of external forces."}
-            </SlideParagraph>
-          </div>
-          <div className="space-y-2 my-2">
-            <SlideBullet text={<span>At a constant allowable stress, moment capacity is directly proportional to <LatexFormula math="Z" />: <LatexFormula math="M_{\text{allow}} = \sigma_{\text{allow}} \cdot Z" />.</span>} revealAt={1} />
-            <SlideBullet text={<span>Larger <LatexFormula math="Z" /> represents a stronger beam that can resist larger bending moments.</span>} revealAt={2} />
-            <SlideBullet text={<span><LatexFormula math="Z" /> has dimensions of Length<LatexFormula math="^3" /> (typically expressed in <LatexFormula math="\text{mm}^3" /> or <LatexFormula math="\text{m}^3" />).</span>} revealAt={3} />
-          </div>
+        <div className="flex flex-col gap-4 text-left select-text">
+          <SlideList
+            title="Section Strength Indicator"
+            description={
+              <span>
+                Section Modulus (<LatexFormula math="Z" />) directly quantifies a beam's flexural capacity independent of external forces.
+              </span>
+            }
+            revealMode="each-click"
+            items={[
+              { text: <span>At a constant allowable stress, moment capacity is directly proportional to <LatexFormula math="Z" />: <LatexFormula math="M_{\text{allow}} = \sigma_{\text{allow}} \cdot Z" />.</span>, revealAt: 1 },
+              { text: <span>Larger <LatexFormula math="Z" /> represents a stronger beam that can resist larger bending moments.</span>, revealAt: 2 },
+              { text: <span><LatexFormula math="Z" /> has dimensions of Length³ (typically expressed in <LatexFormula math="\text{mm}^3" /> or <LatexFormula math="\text{m}^3" />).</span>, revealAt: 3 },
+            ]}
+          />
         </div>
       }
       rightContent={
@@ -32,7 +30,7 @@ export const ModulusInterpretationSlide: React.FC = () => {
           <InteractiveCard title="Moment Capacity Formula" className="w-full text-left">
             <div className="space-y-2 text-xs text-foreground font-mono">
               <SlideEquation math="M_{\text{allow}} = \sigma_{\text{allow}} \cdot Z" />
-              <p className="mt-2 text-[9px] leading-relaxed text-muted-foreground">For two beams of equal weight and material, the one with the larger <LatexFormula math="Z" /> carries more load safely!</p>
+              <p className="mt-2 text-[10px] leading-relaxed text-muted-foreground">For two beams of equal weight and material, the one with the larger <LatexFormula math="Z" /> carries more load safely!</p>
             </div>
           </InteractiveCard>
         </div>

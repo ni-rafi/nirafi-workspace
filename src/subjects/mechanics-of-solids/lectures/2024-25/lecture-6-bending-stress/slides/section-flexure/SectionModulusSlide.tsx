@@ -84,7 +84,7 @@ export const SectionModulusSlide: React.FC = () => {
             <ClickReveal at={6} preset="fade">
               <div className="p-4 bg-background border-2 border-primary rounded-xl">
                 <span className="text-[10px] font-bold text-primary block mb-2">Maximum Stress (<LatexFormula math="\sigma_{\max}" />):</span>
-                <ClickHighlight at={7} variant="paint" className="block rounded-lg p-1">
+                <ClickHighlight at={7} variant="rect" className="block">
                   <SlideEquation math="\sigma_{\max} = \frac{M}{Z}" />
                 </ClickHighlight>
               </div>

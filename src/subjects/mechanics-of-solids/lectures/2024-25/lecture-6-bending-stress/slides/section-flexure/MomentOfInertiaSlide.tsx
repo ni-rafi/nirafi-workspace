@@ -78,7 +78,7 @@ export const MomentOfInertiaSlide: React.FC = () => {
             <ClickReveal at={5} preset="fade">
               <div className="p-4 bg-background border border-border/40 rounded-xl">
                 <span className="text-[9px] font-mono text-muted-foreground block mb-2">Substituting <LatexFormula math="I = \int y^2 dA" />:</span>
-                <ClickHighlight at={6} variant="paint" className="block rounded-lg p-1">
+                <ClickHighlight at={6} variant="rect" className="block">
                   <SlideEquation math="M = \frac{E}{R} \cdot I \implies \frac{M}{I} = \frac{E}{R}" />
                 </ClickHighlight>
               </div>

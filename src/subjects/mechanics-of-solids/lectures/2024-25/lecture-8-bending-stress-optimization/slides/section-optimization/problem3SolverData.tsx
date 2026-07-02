@@ -83,7 +83,7 @@ export const getProblem3SolverItems = (currentClick: number): ClickSyncedTabItem
               <li>Depth at peak: <LatexFormula math="h(1.5) = 300\text{ mm}" /></li>
             </ul>
           )}
-          {currentClick >= 4 && (
+          {currentClick >= 5 && (
             <div className="py-1.5 text-center bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 rounded font-bold mt-2 animate-in fade-in duration-300">
               Peak Stress σ_max = 15.0 MPa (Governing stress)
             </div>

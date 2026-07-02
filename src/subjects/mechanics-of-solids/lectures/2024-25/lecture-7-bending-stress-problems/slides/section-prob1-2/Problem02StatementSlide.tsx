@@ -8,7 +8,7 @@ export const Problem02StatementSlide: React.FC = () => {
       title="Problem 02: Design Sizing Statement"
       leftWidth="55%"
       leftContent={
-        <div className="flex flex-col h-full justify-between gap-4 text-left select-text">
+        <div className="flex flex-col gap-4 text-left select-text">
           <SlideList
             title="Design Optimization Problem"
             description="A rectangular beam 60 mm wide is simply supported over a span of 5 metres. If the beam is subjected to a uniformly distributed load of 4 kN/m, find the required depth of the beam if the maximum stress is not to exceed 35 MPa in compression and 45 MPa in tension."

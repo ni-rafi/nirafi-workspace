@@ -9,7 +9,7 @@ export const Problem04StatementSlide: React.FC = () => {
       title="Problem 04: Multi-Span Configuration"
       leftWidth="45%"
       leftContent={
-        <div className="flex flex-col h-full justify-between gap-4 text-left select-text">
+        <div className="flex flex-col gap-4 text-left select-text">
           <SlideList
             title="Complex Loading Demands"
             description="An overhanging beam system is subjected to concentrated point loads and a UDL. To size this beam, we must identify the critical positive (sagging) and negative (hogging) moment peaks."

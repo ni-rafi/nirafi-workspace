@@ -8,7 +8,7 @@ export const GeometrySummarySlide: React.FC = () => {
       title="Consolidated Area Properties Summary"
       leftWidth="50%"
       leftContent={
-        <div className="flex flex-col h-full justify-between gap-4 text-left select-text">
+        <div className="flex flex-col gap-4 text-left select-text">
           <div>
             <div className="flex items-center space-x-1.5 text-indigo-500 font-bold text-[10px] uppercase mb-1">
               <ShieldCheck className="h-4.5 w-4.5" />

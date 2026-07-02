@@ -1,5 +1,5 @@
-import { SlideParagraph, SlideBullet, LatexFormula, InteractiveCard } from '@/features/presentation/components/elements';
-import { HelpCircle } from 'lucide-react';
+import React from 'react';
+import { SlideList, LatexFormula, InteractiveCard } from '@/features/presentation/components/elements';
 import TwoColumnLayout from '@/shared/layouts/TwoColumnLayout';
 
 export const Problem02CastIronSlide: React.FC = () => {
@@ -8,22 +8,17 @@ export const Problem02CastIronSlide: React.FC = () => {
       title="Problem 02: Asymmetric limits"
       leftWidth="55%"
       leftContent={
-        <div className="flex flex-col h-full justify-between gap-4 text-left select-text">
-          <div>
-            <div className="flex items-center space-x-1.5 text-indigo-500 font-bold text-[10px] uppercase mb-1">
-              <HelpCircle className="h-4.5 w-4.5" />
-              <span>Cast Iron Beam Design</span>
-            </div>
-            <SlideParagraph variant="plain" className="text-xs text-foreground font-semibold leading-relaxed">
-              {"A cast iron beam section is an I-section with top flange 80x20mm, bottom flange 160x40mm and web 20x200mm. If the tensile stress is not to exceed 30 MPa and compressive stress 90 MPa, find the maximum uniformly distributed load the beam can carry over a simply supported span of 6m."}
-            </SlideParagraph>
-          </div>
-          <div className="space-y-1.5 my-1.5">
-            <span className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest block mb-0.5">Key parameters</span>
-            <SlideBullet text={<span>Symmetric span <LatexFormula math="L = 6\text{ m}" /> simply supported.</span>} revealAt={1} />
-            <SlideBullet text={<span>Unsymmetric I-section creates different fiber distances <LatexFormula math="y_{\text{top}}" /> and <LatexFormula math="y_{\text{bottom}}" />.</span>} revealAt={2} />
-            <SlideBullet text={<span>Cast Iron has asymmetric limits: <LatexFormula math="\sigma_t \le 30\text{ MPa}" />, <LatexFormula math="\sigma_c \le 90\text{ MPa}" />.</span>} revealAt={3} />
-          </div>
+        <div className="flex flex-col gap-4 text-left select-text">
+          <SlideList
+            title="Cast Iron Beam Design"
+            description="A cast iron beam section is an I-section with top flange 80x20mm, bottom flange 160x40mm and web 20x200mm. If the tensile stress is not to exceed 30 MPa and compressive stress 90 MPa, find the maximum uniformly distributed load the beam can carry over a simply supported span of 6m."
+            revealMode="each-click"
+            items={[
+              { text: <span>Symmetric span <LatexFormula math="L = 6\text{ m}" /> simply supported.</span>, revealAt: 1 },
+              { text: <span>Unsymmetric I-section creates different fiber distances <LatexFormula math="y_{\text{top}}" /> and <LatexFormula math="y_{\text{bottom}}" />.</span>, revealAt: 2 },
+              { text: <span>Cast Iron has asymmetric limits: <LatexFormula math="\sigma_t \le 30\text{ MPa}" />, <LatexFormula math="\sigma_c \le 90\text{ MPa}" />.</span>, revealAt: 3 },
+            ]}
+          />
         </div>
       }
       rightContent={

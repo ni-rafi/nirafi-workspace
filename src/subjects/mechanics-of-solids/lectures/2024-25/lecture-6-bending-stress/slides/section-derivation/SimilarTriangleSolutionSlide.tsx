@@ -79,7 +79,7 @@ export const SimilarTriangleSolutionSlide: React.FC = () => {
             <ClickReveal at={6} preset="fade">
               <div className="p-4 bg-background border border-border/40 rounded-xl">
                 <span className="text-[9px] font-mono text-muted-foreground block mb-2">Final Normal Strain Equation:</span>
-                <ClickHighlight at={7} variant="paint" className="block rounded-lg p-1">
+                <ClickHighlight at={7} variant="rect" className="block">
                   <SlideEquation math="\varepsilon = \frac{y}{R}" />
                 </ClickHighlight>
               </div>

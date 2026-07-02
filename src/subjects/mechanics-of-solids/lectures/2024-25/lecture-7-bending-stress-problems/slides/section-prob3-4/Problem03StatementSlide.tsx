@@ -9,7 +9,7 @@ export const Problem03StatementSlide: React.FC = () => {
       title="Problem 03: Asymmetric I-Section"
       leftWidth="55%"
       leftContent={
-        <div className="flex flex-col h-full justify-between gap-4 text-left select-text">
+        <div className="flex flex-col gap-4 text-left select-text">
           <SlideList
             title="Symmetric Stress Limits"
             description="A rolled steel beam of an unsymmetrical I-section. If the maximum bending stress in the beam section is not to exceed 40 MPa, find the moment which the beam can resist. Extended: Is it possible to carry a greater moment if the section is inverted?"
