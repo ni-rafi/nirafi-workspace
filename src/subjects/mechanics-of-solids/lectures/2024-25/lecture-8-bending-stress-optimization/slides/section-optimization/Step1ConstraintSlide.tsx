@@ -1,7 +1,6 @@
-import React from 'react';
-import { TwoColumnLayout } from '@/shared/layouts/TwoColumnLayout';
-import { SlideParagraph, SlideBullet, SlideEquation } from '@/features/presentation/components/elements';
+import { SlideParagraph, SlideBullet, SlideEquation, LatexFormula, ClickReveal, ClickHighlight, InteractiveCard } from '@/features/presentation/components/elements';
 import { Settings } from 'lucide-react';
+import TwoColumnLayout from '@/shared/layouts/TwoColumnLayout';
 
 export const Step1ConstraintSlide: React.FC = () => {
   return (
@@ -16,27 +15,38 @@ export const Step1ConstraintSlide: React.FC = () => {
               <span>Right-Triangle Geometry</span>
             </div>
             <SlideParagraph variant="plain" className="text-xs text-muted-foreground leading-relaxed">
-              {"Link width b, depth d, and circular diameter D to reduce variables."}
+              {"Link width "}
+              <LatexFormula math="b" />
+              {", depth "}
+              <LatexFormula math="d" />
+              {", and circular diameter "}
+              <LatexFormula math="D" />
+              {" to reduce variables."}
             </SlideParagraph>
           </div>
           <div className="space-y-2 my-2">
-            <SlideBullet text="From Pythagorean theorem on inscribed diagonal: b² + d² = D²." />
-            <SlideBullet text="Isolate depth squared: d² = D² - b²." />
-            <SlideBullet text="Express Section Modulus Z: Z = (b · d²) / 6." />
+            <SlideBullet text={<span>From Pythagorean theorem on inscribed diagonal: <LatexFormula math="b^2 + d^2 = D^2" />.</span>} revealAt={1} />
+            <SlideBullet text={<span>Isolate depth squared: <LatexFormula math="d^2 = D^2 - b^2" />.</span>} revealAt={2} />
+            <SlideBullet text={<span>Express Section Modulus <LatexFormula math="Z" />: <LatexFormula math="Z = \frac{b \cdot d^2}{6}" />.</span>} revealAt={3} />
           </div>
-          <div className="space-y-1 my-1">
-            <SlideEquation math="Z = \frac{b \cdot (D^2 - b^2)}{6}" />
+          <div className="space-y-1 my-1 text-left">
+            <ClickReveal at={4} preset="fade">
+              <ClickHighlight at={5} variant="paint" className="block rounded-lg p-1">
+                <SlideEquation math="Z = \frac{b \cdot (D^2 - b^2)}{6}" />
+              </ClickHighlight>
+            </ClickReveal>
           </div>
         </div>
       }
       rightContent={
         <div className="bg-muted/30 border border-border/50 rounded-xl p-4 flex flex-col items-center justify-center h-full min-h-[250px] w-full text-[10px] font-mono leading-relaxed text-muted-foreground">
-          <div className="p-4 bg-slate-900 border border-border/40 rounded-xl w-full text-left space-y-2.5">
-            <h4 className="text-indigo-400 font-bold uppercase text-[9px] mb-1">Single Variable Equation</h4>
-            <p>By substituting d²:</p>
-            <p className="text-emerald-400 font-bold">Z = 1/6 · (b·D² - b³)</p>
-            <p>Now we have Z as a pure function of width b, ready for single-variable calculus optimization!</p>
-          </div>
+          <InteractiveCard title="Single Variable Equation" className="w-full text-left">
+            <div className="space-y-2 text-xs text-foreground font-mono">
+              <p>By substituting <LatexFormula math="d^2" />:</p>
+              <p className="text-emerald-500 font-bold"><LatexFormula math="Z = \frac{1}{6} (b \cdot D^2 - b^3)" /></p>
+              <p className="text-muted-foreground text-[10px] leading-normal mt-2">Now we have <LatexFormula math="Z" /> as a pure function of width <LatexFormula math="b" />, ready for single-variable calculus optimization!</p>
+            </div>
+          </InteractiveCard>
         </div>
       }
     />

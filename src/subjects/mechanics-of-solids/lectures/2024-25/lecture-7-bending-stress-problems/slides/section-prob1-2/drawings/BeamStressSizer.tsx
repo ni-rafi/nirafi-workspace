@@ -1,6 +1,7 @@
 import React from 'react';
 import { useUrlSyncedState } from '@/features/presentation/hooks/useUrlSyncedState';
 import { ParameterSlider, CalculationOutput, SlideParagraph } from '@/features/presentation/components/elements';
+import { ExpandableDrawing } from '@/shared/components';
 
 export const BeamStressSizer: React.FC = () => {
   const [load, setLoad] = useUrlSyncedState<number>('sz_load', 4.0); // kN/m
@@ -60,32 +61,34 @@ export const BeamStressSizer: React.FC = () => {
         {/* Visual Beam cross section scale preview */}
         <div className="flex flex-col items-center justify-center py-2 border-t border-border/30">
           <span className="text-[8px] text-muted-foreground font-bold uppercase mb-2">Cross-Section Profile</span>
-          <svg viewBox="0 0 120 100" className="w-[120px] h-[90px] overflow-visible">
-            {/* Centering guide */}
-            <line x1={60} y1={5} x2={60} y2={95} stroke="var(--border)" strokeWidth={0.5} strokeDasharray="2,2" />
-            
-            {/* Rectangle scale box */}
-            {/* Map width (b) of 50-100 to pixels 25-50, and depth (h) of 100-250 to pixels 30-75 */}
-            {(() => {
-              const rectW = (width / 100) * 50;
-              const rectH = Math.min(80, (h_req / 250) * 80);
-              return (
-                <rect
-                  x={60 - rectW / 2}
-                  y={50 - rectH / 2}
-                  width={rectW}
-                  height={rectH}
-                  fill="rgba(99, 102, 241, 0.08)"
-                  stroke="var(--foreground)"
-                  strokeWidth={1.2}
-                />
-              );
-            })()}
+          <ExpandableDrawing title="Sized Beam Cross-Section" description="Autoscaled cross-section profile displaying the calculated depth h relative to width b.">
+            <svg viewBox="0 0 120 100" className="w-[120px] h-[80px] overflow-visible">
+              {/* Centering guide */}
+              <line x1={60} y1={5} x2={60} y2={95} stroke="var(--border)" strokeWidth={0.5} strokeDasharray="2,2" />
+              
+              {/* Rectangle scale box */}
+              {/* Map width (b) of 50-100 to pixels 25-50, and depth (h) of 100-250 to pixels 30-75 */}
+              {(() => {
+                const rectW = (width / 100) * 50;
+                const rectH = Math.min(80, (h_req / 250) * 80);
+                return (
+                  <rect
+                    x={60 - rectW / 2}
+                    y={50 - rectH / 2}
+                    width={rectW}
+                    height={rectH}
+                    fill="rgba(99, 102, 241, 0.08)"
+                    stroke="var(--foreground)"
+                    strokeWidth={1.2}
+                  />
+                );
+              })()}
 
-            <text x={60} y={54} textAnchor="middle" className="fill-foreground text-[8px] font-mono font-bold">
-              {width}x{h_req.toFixed(0)}
-            </text>
-          </svg>
+              <text x={60} y={54} textAnchor="middle" className="fill-foreground text-[8px] font-mono font-bold">
+                {width}x{h_req.toFixed(0)}
+              </text>
+            </svg>
+          </ExpandableDrawing>
         </div>
       </div>
     </div>

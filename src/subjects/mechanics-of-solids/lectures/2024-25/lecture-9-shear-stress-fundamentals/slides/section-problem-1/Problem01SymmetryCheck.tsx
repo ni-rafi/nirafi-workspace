@@ -1,12 +1,13 @@
 import React from 'react';
 import { TwoColumnLayout } from '@/shared/layouts/TwoColumnLayout';
-import { SlideParagraph, LatexFormula, CalculationOutput } from '@/features/presentation/components/elements';
+import { SlideParagraph, LatexFormula, CalculationOutput, SlideList } from '@/features/presentation/components/elements';
 import { useUrlSyncedState } from '@/features/presentation/hooks/useUrlSyncedState';
 import { ProfileShapeView } from '@/subjects/mechanics-of-solids/features/stress/components/diagrams/ProfileShapeView';
 import { ShearStressProfileChart } from '@/subjects/mechanics-of-solids/features/stress/components/diagrams/ShearStressProfileChart';
 import { CrossSectionEngine } from '@/subjects/mechanics-of-solids/cores/stress/cross-section.engine';
 import { StressSolverEngine } from '@/subjects/mechanics-of-solids/cores/stress/stress-solver.engine';
 import { StaticalMomentEngine } from '@/subjects/mechanics-of-solids/cores/stress/statical-moment.engine';
+import { ExpandableDrawing } from '@/shared/components';
 import { problem1Config } from '../../problemConfig';
 
 export const Problem01SymmetryCheck: React.FC = () => {
@@ -59,18 +60,20 @@ export const Problem01SymmetryCheck: React.FC = () => {
           </div>
 
           <div className="space-y-2 text-xs text-muted-foreground">
-            <p>
+            <SlideParagraph variant="plain" className="text-xs text-muted-foreground">
               **Properties at y = {inspectY} mm:**
-            </p>
-            <ul className="list-disc pl-4 space-y-1">
-              <li>The sub-area A' can be taken as the bottom block from -75 mm to -150 mm.</li>
-              <li>Bottom block area: A' = {A_prime_mm2.toLocaleString()} mm².</li>
-              <li>Centroid arm from NA: ybar' = -112.5 mm.</li>
-              <li>Statical moment magnitude: |Q| = {Q_mm3.toLocaleString()} mm³.</li>
-            </ul>
-            <p>
+            </SlideParagraph>
+            <SlideList
+              items={[
+                { text: 'The sub-area A\' can be taken as the bottom block from -75 mm to -150 mm.' },
+                { text: `Bottom block area: A' = ${A_prime_mm2.toLocaleString()} mm².` },
+                { text: 'Centroid arm from NA: ybar\' = -112.5 mm.' },
+                { text: `Statical moment magnitude: |Q| = ${Q_mm3.toLocaleString()} mm³.` }
+              ]}
+            />
+            <SlideParagraph variant="plain" className="text-xs text-muted-foreground">
               This yields the identical stress value:
-            </p>
+            </SlideParagraph>
             <div className="py-1 text-center bg-indigo-500/10 rounded-xl border border-indigo-500/30 text-indigo-600 dark:text-indigo-400 font-extrabold text-xs">
               <LatexFormula math={`\\tau = (${(multiplier * 1e6).toFixed(3)} \\times 10^{-6}) \\cdot (${Q_mm3.toFixed(0)}) = ${currentTauMPa.toFixed(2)} \\text{ MPa}`} />
             </div>
@@ -84,27 +87,32 @@ export const Problem01SymmetryCheck: React.FC = () => {
       }
       rightContent={
         <div className="bg-muted/30 border border-border/50 rounded-xl p-4 flex flex-col items-center justify-center h-full min-h-[250px]">
-          <svg viewBox={`0 0 ${svgW} ${svgH}`} className="w-full max-w-[250px] overflow-visible">
-            <ProfileShapeView
-              shape={shape}
-              centroid={ybar_m}
-              toPixelY={toPixelY}
-              inspectY={inspectY}
-              currentWidth={statQ.t * 1000}
-            />
-            <ShearStressProfileChart
-              shape={shape}
-              points={res.points}
-              maxTau={maxTau}
-              toPixelY={toPixelY}
-              H={H_m}
-              ybar={ybar_m}
-              V={V}
-              props={props}
-              pyInspect={pyInspect}
-              currentTau={currentTauMPa}
-            />
-          </svg>
+          <ExpandableDrawing
+            title="Symmetric Shear Stress Check"
+            description="Plot demonstrating identical shear stress values at symmetric points y = -75 mm and y = +75 mm."
+          >
+            <svg viewBox={`0 0 ${svgW} ${svgH}`} className="w-full max-w-[250px] overflow-visible">
+              <ProfileShapeView
+                shape={shape}
+                centroid={ybar_m}
+                toPixelY={toPixelY}
+                inspectY={inspectY}
+                currentWidth={statQ.t * 1000}
+              />
+              <ShearStressProfileChart
+                shape={shape}
+                points={res.points}
+                maxTau={maxTau}
+                toPixelY={toPixelY}
+                H={H_m}
+                ybar={ybar_m}
+                V={V}
+                props={props}
+                pyInspect={pyInspect}
+                currentTau={currentTauMPa}
+              />
+            </svg>
+          </ExpandableDrawing>
         </div>
       }
     />

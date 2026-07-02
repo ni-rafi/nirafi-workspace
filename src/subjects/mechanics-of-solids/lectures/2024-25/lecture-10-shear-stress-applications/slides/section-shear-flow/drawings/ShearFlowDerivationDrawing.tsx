@@ -1,6 +1,11 @@
 import React from 'react';
+import { ExpandableDrawing } from '@/shared/components';
 
-export const ShearFlowDerivationDrawing: React.FC = () => {
+interface ShearFlowDerivationDrawingProps {
+  currentClick?: number;
+}
+
+export const ShearFlowDerivationDrawing: React.FC<ShearFlowDerivationDrawingProps> = ({ currentClick = 0 }) => {
   const width = 360;
   const height = 220;
 
@@ -8,21 +13,20 @@ export const ShearFlowDerivationDrawing: React.FC = () => {
   const centerX = 175;
   const centerY = 110;
   
-  // proj(x, y, z) where:
-  // x is width (transverse left-up, 150 deg)
-  // z is length (longitudinal right-up, 30 deg)
-  // y is vertical (upward positive)
   const proj = (x: number, y: number, z: number) => {
     const sx = centerX + (z - x) * 0.866;
     const sy = centerY + (z + x) * 0.5 - y;
     return `${sx.toFixed(1)},${sy.toFixed(1)}`;
   };
 
-  // Top Flange Block y-offset (exploded slightly upwards to show interface gap)
   const flangeYShift = 20;
 
   return (
-    <div className="flex justify-center border border-border/30 bg-muted/5 rounded-2xl p-4 max-w-[450px] mx-auto w-full shadow-inner">
+    <ExpandableDrawing
+      title="Shear Flow Derivation Block"
+      description="3D exploded isometric beam showing how shearing forces act on the interface between layers over a tracking unit length dx."
+      className="max-w-[450px] mx-auto w-full"
+    >
       <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-full aspect-[1.64] overflow-visible">
         {/* Grids / Ground Plane reference */}
         <path
@@ -33,7 +37,6 @@ export const ShearFlowDerivationDrawing: React.FC = () => {
 
         {/* BOTTOM BLOCK (Web) */}
         <g id="web-block">
-          {/* Back Hidden Face (dashed) */}
           <path
             d={`M ${proj(-15, -45, 0)} L ${proj(-15, 15, 0)}`}
             className="stroke-muted-foreground/30"
@@ -47,45 +50,37 @@ export const ShearFlowDerivationDrawing: React.FC = () => {
             strokeWidth={1}
           />
 
-          {/* Left Side Face */}
           <path
             d={`M ${proj(-15, -45, 0)} L ${proj(-15, -45, 120)} L ${proj(-15, 15, 120)} L ${proj(-15, 15, 0)} Z`}
             className="fill-sky-500/10 stroke-foreground/70"
             strokeWidth={1}
           />
-
-          {/* Bottom Face */}
           <path
             d={`M ${proj(-15, -45, 120)} L ${proj(15, -45, 120)} L ${proj(15, -45, 0)} L ${proj(-15, -45, 0)} Z`}
             className="fill-sky-500/5 stroke-foreground/70"
             strokeWidth={1}
           />
-
-          {/* Right Side Face */}
           <path
             d={`M ${proj(15, -45, 0)} L ${proj(15, -45, 120)} L ${proj(15, 15, 120)} L ${proj(15, 15, 0)} Z`}
             className="fill-sky-500/20 stroke-foreground"
             strokeWidth={1}
           />
-
-          {/* Front Web Face (z = 120) */}
           <path
             d={`M ${proj(-15, -45, 120)} L ${proj(15, -45, 120)} L ${proj(15, 15, 120)} L ${proj(-15, 15, 120)} Z`}
             className="fill-sky-500/15 stroke-foreground"
             strokeWidth={1.2}
           />
 
-          {/* Top Interface Face (where glue/shear acts) */}
+          {/* Top Interface Face (where glue/shear acts) (highlighted at step 1+) */}
           <path
             d={`M ${proj(-15, 15, 0)} L ${proj(15, 15, 0)} L ${proj(15, 15, 120)} L ${proj(-15, 15, 120)} Z`}
-            className="fill-amber-500/10 stroke-amber-500/80 stroke-dasharray-[3,3]"
+            className={`fill-amber-500/10 ${currentClick >= 1 ? 'stroke-amber-500/80 stroke-dasharray-[3,3]' : 'stroke-foreground/20'}`}
             strokeWidth={1.2}
           />
         </g>
 
-        {/* Shear Flow Arrow on Web (acting in +z direction along top face) */}
-        <g id="shear-force-web">
-          {/* Longitudinal Shear Force on web */}
+        {/* Shear Flow Arrow on Web (acting in +z direction along top face) (revealed at step 2+) */}
+        <g id="shear-force-web" opacity={currentClick >= 2 ? 1 : 0.05} className="transition-opacity duration-300">
           <line
             x1={proj(0, 15, 40).split(',')[0]}
             y1={proj(0, 15, 40).split(',')[1]}
@@ -98,15 +93,14 @@ export const ShearFlowDerivationDrawing: React.FC = () => {
           <text
             x={proj(10, 20, 65).split(',')[0]}
             y={proj(10, 20, 65).split(',')[1]}
-            className="fill-red-500 text-[9px] font-mono font-bold"
+            className="fill-red-500 text-[11px] font-mono font-bold"
           >
             F_shear
           </text>
         </g>
 
         {/* EXPLODED INTERFACE GAP INDICATOR */}
-        <g id="interface-connector" opacity={0.6}>
-          {/* Vertical dashed alignment lines between blocks */}
+        <g id="interface-connector" opacity={currentClick >= 1 ? 0.6 : 0.1}>
           <line
             x1={proj(-15, 15, 120).split(',')[0]}
             y1={proj(-15, 15, 120).split(',')[1]}
@@ -138,51 +132,42 @@ export const ShearFlowDerivationDrawing: React.FC = () => {
 
         {/* TOP BLOCK (Flange) - Shifted vertically by flangeYShift */}
         <g id="flange-block">
-          {/* Bottom face of flange (sliding interface under surface) */}
           <path
             d={`M ${proj(-45, 15 + flangeYShift, 0)} L ${proj(45, 15 + flangeYShift, 0)} L ${proj(45, 15 + flangeYShift, 120)} L ${proj(-45, 15 + flangeYShift, 120)} Z`}
             className="fill-indigo-500/5 stroke-foreground/40"
             strokeWidth={0.8}
           />
           
-          {/* Contact width mapping (corresponds to web width b below) */}
           <path
             d={`M ${proj(-15, 15 + flangeYShift, 0)} L ${proj(15, 15 + flangeYShift, 0)} L ${proj(15, 15 + flangeYShift, 120)} L ${proj(-15, 15 + flangeYShift, 120)} Z`}
-            className="fill-amber-500/10 stroke-amber-500/50"
+            className={`fill-amber-500/10 ${currentClick >= 1 ? 'stroke-amber-500/50' : 'stroke-foreground/10'}`}
             strokeWidth={1}
             strokeDasharray="2,1"
           />
 
-          {/* Left Side Face */}
           <path
             d={`M ${proj(-45, 15 + flangeYShift, 0)} L ${proj(-45, 15 + flangeYShift, 120)} L ${proj(-45, 35 + flangeYShift, 120)} L ${proj(-45, 35 + flangeYShift, 0)} Z`}
             className="fill-indigo-500/10 stroke-foreground/70"
             strokeWidth={1}
           />
-
-          {/* Right Side Face */}
           <path
             d={`M ${proj(45, 15 + flangeYShift, 0)} L ${proj(45, 15 + flangeYShift, 120)} L ${proj(45, 35 + flangeYShift, 120)} L ${proj(45, 35 + flangeYShift, 0)} Z`}
             className="fill-indigo-500/25 stroke-foreground"
             strokeWidth={1}
           />
-
-          {/* Front Flange Face (z = 120) */}
           <path
             d={`M ${proj(-45, 15 + flangeYShift, 120)} L ${proj(45, 15 + flangeYShift, 120)} L ${proj(45, 35 + flangeYShift, 120)} L ${proj(-45, 35 + flangeYShift, 120)} Z`}
             className="fill-indigo-500/20 stroke-foreground"
             strokeWidth={1.2}
           />
-
-          {/* Top Face */}
           <path
             d={`M ${proj(-45, 35 + flangeYShift, 0)} L ${proj(45, 35 + flangeYShift, 0)} L ${proj(45, 35 + flangeYShift, 120)} L ${proj(-45, 35 + flangeYShift, 120)} Z`}
             className="fill-indigo-500/15 stroke-foreground"
             strokeWidth={1}
           />
 
-          {/* Longitudinal Shear Force reaction on flange (acting in -z direction) */}
-          <g id="shear-reaction-flange">
+          {/* Longitudinal Shear Force reaction on flange (acting in -z direction) (revealed at step 2+) */}
+          <g id="shear-reaction-flange" opacity={currentClick >= 2 ? 1 : 0.05} className="transition-opacity duration-300">
             <line
               x1={proj(0, 15 + flangeYShift, 80).split(',')[0]}
               y1={proj(0, 15 + flangeYShift, 80).split(',')[1]}
@@ -195,15 +180,14 @@ export const ShearFlowDerivationDrawing: React.FC = () => {
             <text
               x={proj(-22, 10 + flangeYShift, 50).split(',')[0]}
               y={proj(-22, 10 + flangeYShift, 50).split(',')[1]}
-              className="fill-red-500 text-[9px] font-mono font-bold"
+              className="fill-red-500 text-[11px] font-mono font-bold"
             >
               F_shear'
             </text>
           </g>
 
-          {/* Highlighted Delta Z slice (tracking unit length dx = 1 mm) */}
-          <g id="delta-z-slice">
-            {/* Outline band around the flange */}
+          {/* Highlighted Delta Z slice (tracking unit length dx = 1 mm) (revealed at step 3+) */}
+          <g id="delta-z-slice" opacity={currentClick >= 3 ? 1 : 0.05} className="transition-opacity duration-300">
             <path
               d={`M ${proj(-45, 15 + flangeYShift, 50)} L ${proj(45, 15 + flangeYShift, 50)} L ${proj(45, 35 + flangeYShift, 50)} L ${proj(-45, 35 + flangeYShift, 50)} Z`}
               className="fill-none stroke-amber-500/80"
@@ -216,14 +200,12 @@ export const ShearFlowDerivationDrawing: React.FC = () => {
               strokeWidth={1.2}
               strokeDasharray="2,2"
             />
-            {/* Colored side stripe showing unit length dx */}
             <path
               d={`M ${proj(45, 15 + flangeYShift, 50)} L ${proj(45, 15 + flangeYShift, 70)} L ${proj(45, 35 + flangeYShift, 70)} L ${proj(45, 35 + flangeYShift, 50)} Z`}
               className="fill-amber-500/20 stroke-amber-500"
               strokeWidth={1}
             />
             
-            {/* Dimension lines for dx */}
             <line
               x1={proj(50, 15 + flangeYShift, 50).split(',')[0]}
               y1={proj(50, 15 + flangeYShift, 50).split(',')[1]}
@@ -251,7 +233,7 @@ export const ShearFlowDerivationDrawing: React.FC = () => {
             <text
               x={proj(65, 12 + flangeYShift, 60).split(',')[0]}
               y={proj(65, 12 + flangeYShift, 60).split(',')[1]}
-              className="fill-amber-600 dark:fill-amber-400 text-[8px] font-mono font-bold"
+              className="fill-amber-600 dark:fill-amber-400 text-[11px] font-mono font-bold"
               textAnchor="start"
             >
               Δx = 1 mm
@@ -264,7 +246,7 @@ export const ShearFlowDerivationDrawing: React.FC = () => {
           <text
             x={proj(-50, 25 + flangeYShift, 120).split(',')[0]}
             y={proj(-50, 25 + flangeYShift, 120).split(',')[1]}
-            className="fill-indigo-600 dark:fill-indigo-400 text-[9px] font-bold"
+            className="fill-indigo-600 dark:fill-indigo-400 text-[11px] font-bold"
             textAnchor="end"
           >
             Top Flange Block
@@ -272,7 +254,7 @@ export const ShearFlowDerivationDrawing: React.FC = () => {
           <text
             x={proj(-22, -15, 120).split(',')[0]}
             y={proj(-22, -15, 120).split(',')[1]}
-            className="fill-sky-600 dark:fill-sky-400 text-[9px] font-bold"
+            className="fill-sky-600 dark:fill-sky-400 text-[11px] font-bold"
             textAnchor="end"
           >
             Bottom Web Block
@@ -280,14 +262,13 @@ export const ShearFlowDerivationDrawing: React.FC = () => {
           <text
             x={proj(0, 15 + flangeYShift / 2, 0).split(',')[0]}
             y={proj(0, 15 + flangeYShift / 2, 0).split(',')[1]}
-            className="fill-amber-600 dark:fill-amber-400 text-[9px] font-bold"
+            className="fill-amber-600 dark:fill-amber-400 text-[11px] font-bold"
             textAnchor="middle"
           >
             Shearing Interface
           </text>
         </g>
 
-        {/* SVG Markers definitions */}
         <defs>
           <marker
             id="arrow-red"
@@ -302,7 +283,7 @@ export const ShearFlowDerivationDrawing: React.FC = () => {
           </marker>
         </defs>
       </svg>
-    </div>
+    </ExpandableDrawing>
   );
 };
 

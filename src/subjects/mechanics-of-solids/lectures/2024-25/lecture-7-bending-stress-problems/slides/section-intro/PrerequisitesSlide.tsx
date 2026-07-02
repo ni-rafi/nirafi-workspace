@@ -1,7 +1,7 @@
 import React from 'react';
 import { FullWidthLayout } from '@/shared/layouts/FullWidthLayout';
 import { SlideParagraph, SlideList } from '@/features/presentation/components/elements';
-import { Compass, BookOpen } from 'lucide-react';
+import { Compass } from 'lucide-react';
 
 export const PrerequisitesSlide: React.FC = () => {
   const prerequisites = [
@@ -24,12 +24,11 @@ export const PrerequisitesSlide: React.FC = () => {
           </SlideParagraph>
         </div>
         <div className="flex-1 my-2">
-          <SlideList revealMode="none" items={prerequisites} />
+          <SlideList revealMode="each-click" items={prerequisites} />
         </div>
-        <div className="bg-slate-50 dark:bg-muted/10 p-2.5 rounded-xl border border-border/60 text-[10px] text-muted-foreground flex items-center gap-1.5">
-          <BookOpen className="h-3.5 w-3.5 text-indigo-500 shrink-0" />
-          <span>Review these concepts if needed to fully grasp the upcoming material.</span>
-        </div>
+        <SlideParagraph variant="info" className="text-[10px] my-1">
+          {"Review these concepts if needed to fully grasp the upcoming material."}
+        </SlideParagraph>
       </div>
     </FullWidthLayout>
   );

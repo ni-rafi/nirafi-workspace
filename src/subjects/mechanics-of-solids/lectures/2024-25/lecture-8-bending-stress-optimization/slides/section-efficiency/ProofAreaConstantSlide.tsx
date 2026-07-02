@@ -1,7 +1,6 @@
-import React from 'react';
-import { TwoColumnLayout } from '@/shared/layouts/TwoColumnLayout';
-import { SlideParagraph, SlideBullet, SlideEquation } from '@/features/presentation/components/elements';
+import { SlideParagraph, SlideBullet, SlideEquation, LatexFormula, ClickReveal, ClickHighlight, InteractiveCard } from '@/features/presentation/components/elements';
 import { Settings } from 'lucide-react';
+import TwoColumnLayout from '@/shared/layouts/TwoColumnLayout';
 
 export const ProofAreaConstantSlide: React.FC = () => {
   return (
@@ -16,26 +15,37 @@ export const ProofAreaConstantSlide: React.FC = () => {
               <span>Mathematical constraints</span>
             </div>
             <SlideParagraph variant="plain" className="text-xs text-muted-foreground leading-relaxed">
-              {"Formulate the width b of the rectangular section in terms of the square side length a and depth d."}
+              {"Formulate the width "}
+              <LatexFormula math="b" />
+              {" of the rectangular section in terms of the square side length "}
+              <LatexFormula math="a" />
+              {" and depth "}
+              <LatexFormula math="d" />
+              {"."}
             </SlideParagraph>
           </div>
           <div className="space-y-2 my-2">
-            <SlideBullet text="Area of Square = a²" />
-            <SlideBullet text="Area of Rectangle = b · d" />
-            <SlideBullet text="Set Areas equal: a² = b · d" />
+            <SlideBullet text={<span>Area of Square = <LatexFormula math="a^2" /></span>} revealAt={1} />
+            <SlideBullet text={<span>Area of Rectangle = <LatexFormula math="b \cdot d" /></span>} revealAt={2} />
+            <SlideBullet text={<span>Set Areas equal: <LatexFormula math="a^2 = b \cdot d" /></span>} revealAt={3} />
           </div>
-          <div className="space-y-1 my-1">
-            <SlideEquation math="b = \frac{a^2}{d}" />
+          <div className="space-y-1 my-1 text-left">
+            <ClickReveal at={4} preset="fade">
+              <ClickHighlight at={5} variant="paint" className="block rounded-lg p-1">
+                <SlideEquation math="b = \frac{a^2}{d}" />
+              </ClickHighlight>
+            </ClickReveal>
           </div>
         </div>
       }
       rightContent={
         <div className="bg-muted/30 border border-border/50 rounded-xl p-4 flex flex-col items-center justify-center h-full min-h-[250px] w-full text-[10px] font-mono leading-relaxed text-muted-foreground">
-          <div className="p-4 bg-slate-900 border border-border/40 rounded-xl w-full text-left space-y-2">
-            <h4 className="text-indigo-400 font-bold uppercase text-[9px] mb-2">Area Equilibrium</h4>
-            <p className="text-emerald-400 font-bold">A = a² = b · d</p>
-            <p>Width b is inversely proportional to depth d for constant area constraint!</p>
-          </div>
+          <InteractiveCard title="Area Equilibrium" className="w-full text-left">
+            <div className="space-y-2 text-xs text-foreground font-mono">
+              <p className="text-emerald-500 font-bold">A = <LatexFormula math="a^2 = b \cdot d" /></p>
+              <p className="text-muted-foreground text-[10px] leading-normal mt-2">Width <LatexFormula math="b" /> is inversely proportional to depth <LatexFormula math="d" /> for constant area constraint!</p>
+            </div>
+          </InteractiveCard>
         </div>
       }
     />

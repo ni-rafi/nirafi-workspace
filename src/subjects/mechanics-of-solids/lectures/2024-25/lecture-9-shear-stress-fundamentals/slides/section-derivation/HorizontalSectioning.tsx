@@ -1,7 +1,7 @@
 import React from 'react';
 import { TwoColumnLayout } from '@/shared/layouts/TwoColumnLayout';
-import { SlideParagraph, SlideCallout } from '@/features/presentation/components/elements';
-import { ShearDerivationDrawing } from '@/subjects/mechanics-of-solids/features/stress/components/diagrams/ShearDerivationDrawing';
+import { SlideParagraph, SlideCallout, SlideList } from '@/features/presentation/components/elements';
+import { ShearDerivationDrawing } from './drawings/ShearDerivationDrawing';
 
 export const HorizontalSectioning: React.FC = () => {
   return (
@@ -20,16 +20,18 @@ export const HorizontalSectioning: React.FC = () => {
           </div>
 
           <div className="space-y-2 text-xs text-muted-foreground">
-            <p>
+            <SlideParagraph variant="plain" className="text-xs text-muted-foreground">
               This splits our segment vertically:
-            </p>
-            <ul className="list-disc pl-4 space-y-1">
-              <li>An upper sub-block above height y₁ (ranging from y₁ to the top fiber y_max).</li>
-              <li>A lower portion below height y₁.</li>
-            </ul>
-            <p>
+            </SlideParagraph>
+            <SlideList
+              items={[
+                { text: 'An upper sub-block above height y₁ (ranging from y₁ to the top fiber y_max).' },
+                { text: 'A lower portion below height y₁.' }
+              ]}
+            />
+            <SlideParagraph variant="plain" className="text-xs text-muted-foreground">
               We will isolate the **upper block** and evaluate its horizontal equilibrium.
-            </p>
+            </SlideParagraph>
           </div>
 
           <SlideCallout variant="info" className="py-2 px-3 text-[10px]">
@@ -40,9 +42,9 @@ export const HorizontalSectioning: React.FC = () => {
       rightContent={
         <div className="flex flex-col items-center justify-center h-full">
           <ShearDerivationDrawing currentStep={2} />
-          <p className="text-[10.5px] text-muted-foreground mt-2 font-mono">
+          <SlideParagraph variant="plain" className="text-[10.5px] text-muted-foreground mt-2 font-mono">
             Step 2: Splitting Plane at y₁ Above N.A.
-          </p>
+          </SlideParagraph>
         </div>
       }
     />

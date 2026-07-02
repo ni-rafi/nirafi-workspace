@@ -1,6 +1,7 @@
 import React from 'react';
 import { TwoColumnLayout } from '@/shared/layouts/TwoColumnLayout';
 import { SlideParagraph, SlideCallout } from '@/features/presentation/components/elements';
+import { ExpandableDrawing } from '@/shared/components';
 
 export const RotationalDilemma: React.FC = () => {
   return (
@@ -11,7 +12,7 @@ export const RotationalDilemma: React.FC = () => {
         <div className="flex flex-col h-full justify-between gap-3 text-left">
           <div>
             <span className="text-[10px] font-bold text-red-500 uppercase tracking-widest block mb-1">
-              Static Instability Paradox
+              Static Resolution
             </span>
             <SlideParagraph variant="plain" className="text-xs text-muted-foreground">
               If *only* vertical shear stress existed on the element, the vertical forces would form a force couple, inducing a clockwise rotational moment.
@@ -20,15 +21,15 @@ export const RotationalDilemma: React.FC = () => {
 
           <div className="space-y-2">
             <h4 className="text-xs font-bold text-foreground">Equilibrium Violation:</h4>
-            <p className="text-xs text-muted-foreground leading-relaxed">
+            <SlideParagraph variant="plain" className="text-xs text-muted-foreground">
               According to the laws of rigid-body statics, for any body in static equilibrium:
-            </p>
-            <div className="bg-slate-900 p-2 rounded border border-border/40 font-mono text-center text-xs text-red-400">
+            </SlideParagraph>
+            <div className="bg-muted/60 dark:bg-muted/20 p-2 rounded-xl border border-border/40 font-mono text-center text-xs text-red-600 dark:text-red-400">
               ∑ M_z = 0 (No Rotational Spin)
             </div>
-            <p className="text-xs text-muted-foreground">
+            <SlideParagraph variant="plain" className="text-xs text-muted-foreground">
               Since there is no counter-couple to resist this spin, the element block would spin infinitely, violating structural equilibrium.
-            </p>
+            </SlideParagraph>
           </div>
 
           <SlideCallout variant="danger" className="py-2 px-3 text-[10px]">
@@ -38,8 +39,11 @@ export const RotationalDilemma: React.FC = () => {
       }
       rightContent={
         <div className="flex flex-col items-center justify-center h-full">
-          {/* SVG showing spinning tilted element */}
-          <div className="flex justify-center border border-border/30 bg-muted/5 rounded-2xl p-6 max-w-[280px] mx-auto w-full shadow-inner">
+          <ExpandableDrawing
+            title="Rotational Imbalance"
+            description="Stress element diagram showcasing the unbalanced moment couple causing an infinite spinning instability."
+            className="max-w-[280px] mx-auto w-full"
+          >
             <svg viewBox="0 0 160 160" className="w-full h-full aspect-square overflow-visible">
               <g transform="translate(80, 80)">
                 {/* Spin indicator curved arrow */}
@@ -79,10 +83,10 @@ export const RotationalDilemma: React.FC = () => {
                 </text>
               </g>
             </svg>
-          </div>
-          <p className="text-[10.5px] text-muted-foreground mt-2 font-mono">
+          </ExpandableDrawing>
+          <SlideParagraph variant="plain" className="text-[10.5px] text-muted-foreground mt-2 font-mono">
             Rotational Imbalance Violating Statics
-          </p>
+          </SlideParagraph>
         </div>
       }
     />

@@ -7,6 +7,7 @@ import { ShearStressProfileChart } from '@/subjects/mechanics-of-solids/features
 import { CrossSectionEngine } from '@/subjects/mechanics-of-solids/cores/stress/cross-section.engine';
 import { StressSolverEngine } from '@/subjects/mechanics-of-solids/cores/stress/stress-solver.engine';
 import { StaticalMomentEngine } from '@/subjects/mechanics-of-solids/cores/stress/statical-moment.engine';
+import { ExpandableDrawing } from '@/shared/components';
 import { problem2Config } from '../../problemConfig';
 
 export const Problem02Constants: React.FC = () => {
@@ -65,9 +66,9 @@ export const Problem02Constants: React.FC = () => {
               <div className="my-1.5 py-0.5 text-center bg-background rounded border border-border/20 text-[10px]">
                 <LatexFormula math={`I = \\sum (I_i + A_i d_i^2) = ${(I_mm4 / 1e6).toFixed(2)} \\times 10^6 \\text{ mm}^4`} />
               </div>
-              <p className="text-[9.5px] text-muted-foreground">
+              <SlideParagraph variant="plain" className="text-[9.5px] text-muted-foreground">
                 Using parallel-axis theorem: d_1 = 100 mm, d_2 = 25 mm, d_3 = 150 mm.
-              </p>
+              </SlideParagraph>
             </div>
           </div>
 
@@ -79,27 +80,32 @@ export const Problem02Constants: React.FC = () => {
       }
       rightContent={
         <div className="bg-muted/30 border border-border/50 rounded-xl p-4 flex flex-col items-center justify-center h-full min-h-[250px]">
-          <svg viewBox={`0 0 ${svgW} ${svgH}`} className="w-full max-w-[250px] overflow-visible">
-            <ProfileShapeView
-              shape={shape}
-              centroid={ybar_m}
-              toPixelY={toPixelY}
-              inspectY={inspectY}
-              currentWidth={statQ.t * 1000}
-            />
-            <ShearStressProfileChart
-              shape={shape}
-              points={res.points}
-              maxTau={maxTau}
-              toPixelY={toPixelY}
-              H={H_m}
-              ybar={ybar_m}
-              V={V}
-              props={props}
-              pyInspect={pyInspect}
-              currentTau={currentTauMPa}
-            />
-          </svg>
+          <ExpandableDrawing
+            title="Asymmetric Section Properties"
+            description="Profile visualization mapping the neutral axis centroid coordinate for the asymmetric I-beam."
+          >
+            <svg viewBox={`0 0 ${svgW} ${svgH}`} className="w-full max-w-[250px] overflow-visible">
+              <ProfileShapeView
+                shape={shape}
+                centroid={ybar_m}
+                toPixelY={toPixelY}
+                inspectY={inspectY}
+                currentWidth={statQ.t * 1000}
+              />
+              <ShearStressProfileChart
+                shape={shape}
+                points={res.points}
+                maxTau={maxTau}
+                toPixelY={toPixelY}
+                H={H_m}
+                ybar={ybar_m}
+                V={V}
+                props={props}
+                pyInspect={pyInspect}
+                currentTau={currentTauMPa}
+              />
+            </svg>
+          </ExpandableDrawing>
         </div>
       }
     />

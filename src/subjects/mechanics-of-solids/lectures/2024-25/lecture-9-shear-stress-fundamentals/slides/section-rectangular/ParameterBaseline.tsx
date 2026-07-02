@@ -1,7 +1,7 @@
 import React from 'react';
 import { TwoColumnLayout } from '@/shared/layouts/TwoColumnLayout';
-import { SlideParagraph, SlideCallout, LatexFormula } from '@/features/presentation/components/elements';
-import { RectangularShearPlotting } from '@/subjects/mechanics-of-solids/features/stress/components/diagrams/RectangularShearPlotting';
+import { SlideParagraph, SlideCallout, LatexFormula, SlideList } from '@/features/presentation/components/elements';
+import { RectangularShearPlotting } from './drawings/RectangularShearPlotting';
 
 export const ParameterBaseline: React.FC = () => {
   return (
@@ -24,21 +24,33 @@ export const ParameterBaseline: React.FC = () => {
             <div>
               <span className="font-bold text-foreground">1. Moment of Inertia (I):</span>
               <div className="my-1 py-1 text-center bg-background rounded border border-border/20">
-                <LatexFormula math="I = \\frac{b \\cdot h^3}{12}" />
+                <LatexFormula math="I = \frac{b \cdot h^3}{12}" />
               </div>
             </div>
 
             {/* Q parameters */}
             <div>
               <span className="font-bold text-foreground">2. Statical Moment (Q = ybar · A'):</span>
-              <ul className="list-disc pl-4 mt-1 space-y-1 text-muted-foreground">
-                <li>Area above height y:
-                  <LatexFormula math="A' = b \\left( \\frac{h}{2} - y \\right)" />
-                </li>
-                <li>Centroid arm distance from N.A.:
-                  <LatexFormula math="\\bar{y} = y + \\frac{1}{2}\\left( \\frac{h}{2} - y \\right) = \\frac{1}{2}\\left( \\frac{h}{2} + y \\right)" />
-                </li>
-              </ul>
+              <SlideList
+                items={[
+                  {
+                    text: (
+                      <div>
+                        Area above height y:
+                        <LatexFormula math="A' = b \left( \frac{h}{2} - y \right)" />
+                      </div>
+                    )
+                  },
+                  {
+                    text: (
+                      <div>
+                        Centroid arm distance from N.A.:
+                        <LatexFormula math="\bar{y} = y + \frac{1}{2}\left( \frac{h}{2} - y \right) = \frac{1}{2}\left( \frac{h}{2} + y \right)" />
+                      </div>
+                    )
+                  }
+                ]}
+              />
             </div>
           </div>
 
@@ -50,9 +62,9 @@ export const ParameterBaseline: React.FC = () => {
       rightContent={
         <div className="flex flex-col items-center justify-center h-full">
           <RectangularShearPlotting plotStep={1} />
-          <p className="text-[10.5px] text-muted-foreground mt-2 font-mono">
+          <SlideParagraph variant="plain" className="text-[10.5px] text-muted-foreground mt-2 font-mono">
             Isolating Sub-Area parameters
-          </p>
+          </SlideParagraph>
         </div>
       }
     />

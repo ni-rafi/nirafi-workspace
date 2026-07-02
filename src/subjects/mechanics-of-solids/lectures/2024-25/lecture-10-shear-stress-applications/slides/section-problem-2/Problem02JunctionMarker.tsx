@@ -1,13 +1,15 @@
 import React from 'react';
 import { TwoColumnLayout } from '@/shared/layouts/TwoColumnLayout';
-import { SlideParagraph, SlideCallout } from '@/features/presentation/components/elements';
-import { FlangedJunctionExplodedView } from '@/subjects/mechanics-of-solids/features/stress/components/diagrams/FlangedJunctionExplodedView';
+import { SlideParagraph, SlideCallout, SlideList } from '@/features/presentation/components/elements';
+import { useClickStepsContext } from '@/features/presentation/context/ClickStepsContext';
+import { FlangedJunctionExplodedView } from './drawings/FlangedJunctionExplodedView';
 import { problem2Config } from '../../problemConfig';
 
 export const Problem02JunctionMarker: React.FC = () => {
   const { shape } = problem2Config;
   const b_flange = (shape.width ?? 0.1) * 1000;
   const b_web = (shape.thicknessWeb ?? 0.05) * 1000;
+  const { currentClick } = useClickStepsContext();
 
   return (
     <TwoColumnLayout
@@ -26,13 +28,15 @@ export const Problem02JunctionMarker: React.FC = () => {
 
           <div className="space-y-2 text-xs text-muted-foreground">
             <h4 className="font-bold text-foreground">Junction Coordinate (y = +125 mm):</h4>
-            <p>
-              At this exact height level, the material experiences a sudden geometrical change.
-            </p>
-            <ul className="list-disc pl-4 space-y-1">
-              <li>Just above the line (in the flange), the width is wide: b = {b_flange.toFixed(0)} mm.</li>
-              <li>Just below the line (in the web), the width is narrow: b = {b_web.toFixed(0)} mm.</li>
-            </ul>
+            <SlideParagraph variant="plain" className="text-xs text-muted-foreground">
+              At this exact height level, the material experiences a sudden geometrical change:
+            </SlideParagraph>
+            <SlideList
+              items={[
+                { text: `Just above the line (in the flange), the width is wide: b = ${b_flange.toFixed(0)} mm.` },
+                { text: `Just below the line (in the web), the width is narrow: b = ${b_web.toFixed(0)} mm.` }
+              ]}
+            />
           </div>
 
           <SlideCallout variant="warning" className="py-2 px-3 text-[10px]">
@@ -43,7 +47,7 @@ export const Problem02JunctionMarker: React.FC = () => {
       rightContent={
         <div className="bg-muted/30 border border-border/50 rounded-xl p-4 flex flex-col items-center justify-center h-full min-h-[250px]">
           <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest block mb-3">Junction Interface Details</span>
-          <FlangedJunctionExplodedView />
+          <FlangedJunctionExplodedView currentClick={currentClick} />
         </div>
       }
     />

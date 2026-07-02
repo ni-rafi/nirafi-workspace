@@ -68,9 +68,9 @@ export const PunchingShearCaseStudy: React.FC = () => {
               className="w-full h-full object-cover"
             />
           </div>
-          <p className="text-[10px] text-muted-foreground mt-2 leading-relaxed text-left">
+          <SlideParagraph variant="plain" className="text-[10px] text-muted-foreground mt-2 leading-relaxed text-left">
             <strong>Disaster Case Study:</strong> Actual structural punching failure. The flat floor slab has completely dropped, sliding down the columns due to diagonal shearing stresses.
-          </p>
+          </SlideParagraph>
         </div>
       }
     />

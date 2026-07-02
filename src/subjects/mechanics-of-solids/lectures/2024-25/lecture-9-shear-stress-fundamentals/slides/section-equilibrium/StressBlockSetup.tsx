@@ -1,7 +1,8 @@
 import React from 'react';
 import { TwoColumnLayout } from '@/shared/layouts/TwoColumnLayout';
-import { SlideParagraph, SlideCallout } from '@/features/presentation/components/elements';
+import { SlideParagraph, SlideCallout, SlideList } from '@/features/presentation/components/elements';
 import { StressElementBlock } from '@/subjects/mechanics-of-solids/features/stress/components/diagrams/StressElementBlock';
+import { ExpandableDrawing } from '@/shared/components';
 
 export const StressBlockSetup: React.FC = () => {
   const zeroState = { sigmaX: 0, sigmaY: 0, tauXY: 0 };
@@ -23,11 +24,13 @@ export const StressBlockSetup: React.FC = () => {
 
           <div className="space-y-2">
             <h4 className="text-xs font-bold text-foreground">The 2D Stress Element representation:</h4>
-            <ul className="list-disc pl-4 text-xs text-muted-foreground space-y-1">
-              <li>Represents an infinitesimal square particle in a solid.</li>
-              <li>Faces are oriented perpendicular to the coordinate axes.</li>
-              <li>Used to track normal stresses (σ) and shearing stresses (τ) acting on each face.</li>
-            </ul>
+            <SlideList
+              items={[
+                { text: 'Represents an infinitesimal square particle in a solid.' },
+                { text: 'Faces are oriented perpendicular to the coordinate axes.' },
+                { text: 'Used to track normal stresses (σ) and shearing stresses (τ) acting on each face.' }
+              ]}
+            />
           </div>
 
           <SlideCallout variant="info" className="py-2 px-3 text-[10px]">
@@ -37,10 +40,18 @@ export const StressBlockSetup: React.FC = () => {
       }
       rightContent={
         <div className="flex flex-col items-center justify-center h-full">
-          <StressElementBlock state={zeroState} thetaRad={0} />
-          <p className="text-[10.5px] text-muted-foreground mt-2 font-mono">
+          <ExpandableDrawing
+            title="Stress Element Block"
+            description="Representation of an unstressed 2D infinitesimal element block aligned with local coordinate axes."
+            className="max-w-[280px] mx-auto w-full"
+          >
+            <div className="flex items-center justify-center p-2">
+              <StressElementBlock state={zeroState} thetaRad={0} />
+            </div>
+          </ExpandableDrawing>
+          <SlideParagraph variant="plain" className="text-[10.5px] text-muted-foreground mt-2 font-mono">
             Unstressed 2D Element Block
-          </p>
+          </SlideParagraph>
         </div>
       }
     />

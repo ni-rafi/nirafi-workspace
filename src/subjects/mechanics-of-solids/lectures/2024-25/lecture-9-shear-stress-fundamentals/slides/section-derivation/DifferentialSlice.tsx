@@ -1,7 +1,7 @@
 import React from 'react';
 import { TwoColumnLayout } from '@/shared/layouts/TwoColumnLayout';
 import { SlideParagraph, SlideCallout } from '@/features/presentation/components/elements';
-import { ShearDerivationDrawing } from '@/subjects/mechanics-of-solids/features/stress/components/diagrams/ShearDerivationDrawing';
+import { ShearDerivationDrawing } from './drawings/ShearDerivationDrawing';
 
 export const DifferentialSlice: React.FC = () => {
   return (
@@ -20,15 +20,15 @@ export const DifferentialSlice: React.FC = () => {
           </div>
 
           <div className="space-y-2 text-xs text-muted-foreground">
-            <p>
+            <SlideParagraph variant="plain" className="text-xs text-muted-foreground">
               On the left face (plane C), the beam has a bending moment M_C, creating normal bending stresses:
-            </p>
+            </SlideParagraph>
             <div className="font-mono text-center text-foreground py-1 bg-muted/20 border border-border/40 rounded">
               σ_C = M_C * y / I
             </div>
-            <p>
+            <SlideParagraph variant="plain" className="text-xs text-muted-foreground">
               Because the bending moment varies along the beam span (dM/dx ≠ 0), the bending moment on the right face (plane D) is different: M_d = M_C + ΔM.
-            </p>
+            </SlideParagraph>
           </div>
 
           <SlideCallout variant="info" className="py-2 px-3 text-[10px]">
@@ -39,9 +39,9 @@ export const DifferentialSlice: React.FC = () => {
       rightContent={
         <div className="flex flex-col items-center justify-center h-full">
           <ShearDerivationDrawing currentStep={1} />
-          <p className="text-[10.5px] text-muted-foreground mt-2 font-mono">
+          <SlideParagraph variant="plain" className="text-[10.5px] text-muted-foreground mt-2 font-mono">
             Step 1: Infinitesimal Segment dx
-          </p>
+          </SlideParagraph>
         </div>
       }
     />

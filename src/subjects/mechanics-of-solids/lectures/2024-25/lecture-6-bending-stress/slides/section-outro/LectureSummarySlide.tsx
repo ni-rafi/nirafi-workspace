@@ -1,5 +1,5 @@
-import React from 'react';
 import { LectureSummaryLayout, type SummaryItem, type SummaryOutcome } from '@/shared/layouts/LectureSummaryLayout';
+import { LatexFormula } from '@/features/presentation/components/elements';
 import { CheckCircle2 } from 'lucide-react';
 
 export const LectureSummarySlide: React.FC = () => {
@@ -11,12 +11,12 @@ export const LectureSummarySlide: React.FC = () => {
     },
     {
       title: 'The Flexure Formula',
-      description: 'Deriving and applying the core stress equation: σ = (M * y) / I.',
+      description: <span>Deriving and applying the core stress equation: <LatexFormula math="\sigma = \frac{M \cdot y}{I}" />.</span>,
       icon: <CheckCircle2 className="h-4.5 w-4.5 text-indigo-500" />
     },
     {
       title: 'Section Modulus (Z)',
-      description: 'Defining shape efficiency with Z = I / y_max, where max bending stress σ_max = M / Z.',
+      description: <span>Defining shape efficiency with <LatexFormula math="Z = \frac{I}{y_{\max}}" />, where max bending stress <LatexFormula math="\sigma_{\max} = \frac{M}{Z}" />.</span>,
       icon: <CheckCircle2 className="h-4.5 w-4.5 text-indigo-500" />
     },
     {

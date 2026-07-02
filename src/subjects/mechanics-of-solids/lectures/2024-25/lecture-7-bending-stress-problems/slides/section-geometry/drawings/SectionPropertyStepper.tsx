@@ -1,5 +1,6 @@
 import React from 'react';
 import { useUrlSyncedState } from '@/features/presentation/hooks/useUrlSyncedState';
+import { ExpandableDrawing } from '@/shared/components';
 
 export const SectionPropertyStepper: React.FC = () => {
   const [step, setStep] = useUrlSyncedState<number>('geom_step', 1);
@@ -28,11 +29,10 @@ export const SectionPropertyStepper: React.FC = () => {
           <button
             key={st.id}
             onClick={() => setStep(st.id)}
-            className={`flex-1 min-w-[70px] py-1 text-[9px] font-bold rounded transition-all cursor-pointer ${
-              step === st.id
+            className={`flex-1 min-w-[70px] py-1 text-[9px] font-bold rounded transition-all cursor-pointer ${step === st.id
                 ? 'bg-indigo-500 text-white shadow-md'
                 : 'bg-background hover:bg-muted text-muted-foreground'
-            }`}
+              }`}
           >
             Step {st.id}
           </button>
@@ -51,7 +51,7 @@ export const SectionPropertyStepper: React.FC = () => {
             </p>
           </div>
 
-          <div className="font-mono text-[9px] bg-slate-950 p-2.5 rounded-xl border border-border/40 text-muted-foreground space-y-1.5">
+          <div className="font-mono text-[9px] bg-muted/10 p-2.5 rounded-xl border border-border/40 text-muted-foreground space-y-1.5">
             {step === 1 && (
               <>
                 <p className="text-indigo-400 font-bold">Dividing the areas:</p>
@@ -97,73 +97,75 @@ export const SectionPropertyStepper: React.FC = () => {
         </div>
 
         {/* Visual Drawing */}
-        <div className="bg-muted/30 border border-border/50 rounded-xl p-3 flex justify-center items-center h-[220px]">
-          <svg viewBox="0 0 240 320" className="h-full overflow-visible">
-            {/* Top Flange */}
-            <rect
-              x={120 - topFlangeW / 2}
-              y={topFlangeY}
-              width={topFlangeW}
-              height={50}
-              fill={step === 1 ? 'rgba(99, 102, 241, 0.25)' : 'none'}
-              stroke={step >= 1 ? 'var(--foreground)' : 'var(--border)'}
-              strokeWidth={1.5}
-            />
-            {step >= 1 && <text x={120} y={topFlangeY + 28} textAnchor="middle" className="fill-muted-foreground text-[8px] font-bold">1</text>}
+        <div className="flex justify-center items-center h-[220px]">
+          <ExpandableDrawing title="Component Centroids & Neutral Axis" description="Highlights structural subdivisions, centroid locations, Neutral Axis position, and parallel axis transfer offsets.">
+            <svg viewBox="0 0 240 320" className="h-[200px] w-[150px] overflow-visible">
+              {/* Top Flange */}
+              <rect
+                x={120 - topFlangeW / 2}
+                y={topFlangeY}
+                width={topFlangeW}
+                height={50}
+                fill={step === 1 ? 'rgba(99, 102, 241, 0.25)' : 'none'}
+                stroke={step >= 1 ? 'var(--foreground)' : 'var(--border)'}
+                strokeWidth={1.5}
+              />
+              {step >= 1 && <text x={120} y={topFlangeY + 28} textAnchor="middle" className="fill-muted-foreground text-[8px] font-bold">1</text>}
 
-            {/* Web */}
-            <rect
-              x={120 - webW / 2}
-              y={webY}
-              width={webW}
-              height={200}
-              fill={step === 1 ? 'rgba(99, 102, 241, 0.15)' : 'none'}
-              stroke={step >= 1 ? 'var(--foreground)' : 'var(--border)'}
-              strokeWidth={1.5}
-            />
-            {step >= 1 && <text x={120} y={webY + 105} textAnchor="middle" className="fill-muted-foreground text-[8px] font-bold">2</text>}
+              {/* Web */}
+              <rect
+                x={120 - webW / 2}
+                y={webY}
+                width={webW}
+                height={200}
+                fill={step === 1 ? 'rgba(99, 102, 241, 0.15)' : 'none'}
+                stroke={step >= 1 ? 'var(--foreground)' : 'var(--border)'}
+                strokeWidth={1.5}
+              />
+              {step >= 1 && <text x={120} y={webY + 105} textAnchor="middle" className="fill-muted-foreground text-[8px] font-bold">2</text>}
 
-            {/* Bottom Flange */}
-            <rect
-              x={120 - botFlangeW / 2}
-              y={botFlangeY}
-              width={botFlangeW}
-              height={50}
-              fill={step === 1 ? 'rgba(99, 102, 241, 0.25)' : 'none'}
-              stroke={step >= 1 ? 'var(--foreground)' : 'var(--border)'}
-              strokeWidth={1.5}
-            />
-            {step >= 1 && <text x={120} y={botFlangeY + 28} textAnchor="middle" className="fill-muted-foreground text-[8px] font-bold">3</text>}
+              {/* Bottom Flange */}
+              <rect
+                x={120 - botFlangeW / 2}
+                y={botFlangeY}
+                width={botFlangeW}
+                height={50}
+                fill={step === 1 ? 'rgba(99, 102, 241, 0.25)' : 'none'}
+                stroke={step >= 1 ? 'var(--foreground)' : 'var(--border)'}
+                strokeWidth={1.5}
+              />
+              {step >= 1 && <text x={120} y={botFlangeY + 28} textAnchor="middle" className="fill-muted-foreground text-[8px] font-bold">3</text>}
 
-            {/* Component centroids */}
-            {step >= 2 && (
-              <>
-                <circle cx={120} cy={topFlangeY + 25} r={3} fill="var(--primary)" />
-                <circle cx={120} cy={webY + 100} r={3} fill="var(--primary)" />
-                <circle cx={120} cy={botFlangeY + 25} r={3} fill="var(--primary)" />
-              </>
-            )}
+              {/* Component centroids */}
+              {step >= 2 && (
+                <>
+                  <circle cx={120} cy={topFlangeY + 25} r={3} fill="var(--primary)" />
+                  <circle cx={120} cy={webY + 100} r={3} fill="var(--primary)" />
+                  <circle cx={120} cy={botFlangeY + 25} r={3} fill="var(--primary)" />
+                </>
+              )}
 
-            {/* Neutral Axis */}
-            {step >= 3 && (
-              <g>
-                <line x1={10} y1={320 - 125} x2={230} y2={320 - 125} stroke="var(--destructive)" strokeWidth={1.5} strokeDasharray="4,2" />
-                <text x={215} y={320 - 130} className="fill-destructive text-[8px] font-mono font-bold">N.A. (125mm)</text>
-              </g>
-            )}
+              {/* Neutral Axis */}
+              {step >= 3 && (
+                <g>
+                  <line x1={10} y1={320 - 125} x2={230} y2={320 - 125} stroke="var(--destructive)" strokeWidth={1.5} strokeDasharray="4,2" />
+                  <text x={215} y={320 - 130} className="fill-destructive text-[8px] font-mono font-bold">N.A. (125mm)</text>
+                </g>
+              )}
 
-            {/* Offsets (d_i) */}
-            {step === 4 && (
-              <g stroke="var(--primary)" strokeWidth={0.8} opacity={0.8}>
-                {/* d1: from 125 to 275 */}
-                <path d={`M 155 ${320 - 125} L 155 ${320 - 275}`} />
-                <text x={160} y={320 - 200} className="fill-primary text-[7px] font-bold">d1 = 150</text>
-                {/* d3: from 125 to 25 */}
-                <path d={`M 155 ${320 - 125} L 155 ${320 - 25}`} />
-                <text x={160} y={320 - 75} className="fill-primary text-[7px] font-bold">d3 = 100</text>
-              </g>
-            )}
-          </svg>
+              {/* Offsets (d_i) */}
+              {step === 4 && (
+                <g stroke="var(--primary)" strokeWidth={0.8} opacity={0.8}>
+                  {/* d1: from 125 to 275 */}
+                  <path d={`M 155 ${320 - 125} L 155 ${320 - 275}`} />
+                  <text x={160} y={320 - 200} className="fill-primary text-[7px] font-bold">d1 = 150</text>
+                  {/* d3: from 125 to 25 */}
+                  <path d={`M 155 ${320 - 125} L 155 ${320 - 25}`} />
+                  <text x={160} y={320 - 75} className="fill-primary text-[7px] font-bold">d3 = 100</text>
+                </g>
+              )}
+            </svg>
+          </ExpandableDrawing>
         </div>
       </div>
     </div>

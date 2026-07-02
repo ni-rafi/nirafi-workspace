@@ -7,6 +7,7 @@ import { ShearStressProfileChart } from '@/subjects/mechanics-of-solids/features
 import { CrossSectionEngine } from '@/subjects/mechanics-of-solids/cores/stress/cross-section.engine';
 import { StressSolverEngine } from '@/subjects/mechanics-of-solids/cores/stress/stress-solver.engine';
 import { StaticalMomentEngine } from '@/subjects/mechanics-of-solids/cores/stress/statical-moment.engine';
+import { ExpandableDrawing } from '@/shared/components';
 import { problem1Config } from '../../problemConfig';
 
 export const Problem01Constants: React.FC = () => {
@@ -54,9 +55,9 @@ export const Problem01Constants: React.FC = () => {
           </div>
 
           <div className="space-y-2 text-xs text-muted-foreground">
-            <p>
+            <SlideParagraph variant="plain" className="text-xs text-muted-foreground">
               Given: V = {(V / 1000).toFixed(0)} kN, b = {b_mm.toFixed(0)} mm, and I = {(I_mm4 / 1e6).toFixed(1)} × 10⁶ mm⁴.
-            </p>
+            </SlideParagraph>
             <div className="font-mono text-[10px] text-foreground bg-muted/20 p-2 rounded border border-border/40">
               Constant = V / (I * b)
               <br />
@@ -65,13 +66,13 @@ export const Problem01Constants: React.FC = () => {
               = 2.667 × 10⁻⁶ N/mm³ (or MPa/mm³)
             </div>
             <div className="py-1 bg-amber-500/10 rounded border border-amber-500/30 p-2">
-              <p className="text-[10px] text-amber-600 dark:text-amber-400 font-bold leading-normal">
+              <SlideParagraph variant="plain" className="text-[10px] text-amber-600 dark:text-amber-400 font-bold leading-normal">
                 💡 Flexural Shear formula can be written as:
                 <br />
                 <span className="font-mono font-bold text-[11px]">τ = (2.667 × 10⁻⁶) · Q</span>
                 <br />
                 Where Q must be in mm³ to yield stress directly in MPa.
-              </p>
+              </SlideParagraph>
             </div>
           </div>
 
@@ -83,27 +84,32 @@ export const Problem01Constants: React.FC = () => {
       }
       rightContent={
         <div className="bg-muted/30 border border-border/50 rounded-xl p-4 flex flex-col items-center justify-center h-full min-h-[250px]">
-          <svg viewBox={`0 0 ${svgW} ${svgH}`} className="w-full max-w-[250px] overflow-visible">
-            <ProfileShapeView
-              shape={shape}
-              centroid={ybar_m}
-              toPixelY={toPixelY}
-              inspectY={inspectY}
-              currentWidth={statQ.t * 1000}
-            />
-            <ShearStressProfileChart
-              shape={shape}
-              points={res.points}
-              maxTau={maxTau}
-              toPixelY={toPixelY}
-              H={H_m}
-              ybar={ybar_m}
-              V={V}
-              props={props}
-              pyInspect={pyInspect}
-              currentTau={currentTauMPa}
-            />
-          </svg>
+          <ExpandableDrawing
+            title="Constant Multiplier Check"
+            description="Plot showing the rectangular beam stress distribution under 60 kN shear load."
+          >
+            <svg viewBox={`0 0 ${svgW} ${svgH}`} className="w-full max-w-[250px] overflow-visible">
+              <ProfileShapeView
+                shape={shape}
+                centroid={ybar_m}
+                toPixelY={toPixelY}
+                inspectY={inspectY}
+                currentWidth={statQ.t * 1000}
+              />
+              <ShearStressProfileChart
+                shape={shape}
+                points={res.points}
+                maxTau={maxTau}
+                toPixelY={toPixelY}
+                H={H_m}
+                ybar={ybar_m}
+                V={V}
+                props={props}
+                pyInspect={pyInspect}
+                currentTau={currentTauMPa}
+              />
+            </svg>
+          </ExpandableDrawing>
         </div>
       }
     />

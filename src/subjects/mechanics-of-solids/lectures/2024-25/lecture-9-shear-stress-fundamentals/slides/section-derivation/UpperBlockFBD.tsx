@@ -1,7 +1,7 @@
 import React from 'react';
 import { TwoColumnLayout } from '@/shared/layouts/TwoColumnLayout';
-import { SlideParagraph, SlideCallout } from '@/features/presentation/components/elements';
-import { ShearDerivationDrawing } from '@/subjects/mechanics-of-solids/features/stress/components/diagrams/ShearDerivationDrawing';
+import { SlideParagraph, SlideCallout, SlideList } from '@/features/presentation/components/elements';
+import { ShearDerivationDrawing } from './drawings/ShearDerivationDrawing';
 
 export const UpperBlockFBD: React.FC = () => {
   return (
@@ -20,15 +20,17 @@ export const UpperBlockFBD: React.FC = () => {
           </div>
 
           <div className="space-y-2 text-xs text-muted-foreground">
-            <p>
+            <SlideParagraph variant="plain" className="text-xs text-muted-foreground">
               This block has the following boundary faces:
-            </p>
-            <ul className="list-disc pl-4 space-y-1">
-              <li>Left vertical face: pushed by normal stresses σ_C.</li>
-              <li>Right vertical face: pushed by normal stresses σ_d.</li>
-              <li>Top face: free boundary (no stress).</li>
-              <li>Bottom cut plane: horizontal interface at height y₁.</li>
-            </ul>
+            </SlideParagraph>
+            <SlideList
+              items={[
+                { text: 'Left vertical face: pushed by normal stresses σ_C.' },
+                { text: 'Right vertical face: pushed by normal stresses σ_d.' },
+                { text: 'Top face: free boundary (no stress).' },
+                { text: 'Bottom cut plane: horizontal interface at height y₁.' }
+              ]}
+            />
           </div>
 
           <SlideCallout variant="warning" className="py-2 px-3 text-[10px]">
@@ -39,9 +41,9 @@ export const UpperBlockFBD: React.FC = () => {
       rightContent={
         <div className="flex flex-col items-center justify-center h-full">
           <ShearDerivationDrawing currentStep={3} />
-          <p className="text-[10.5px] text-muted-foreground mt-2 font-mono">
+          <SlideParagraph variant="plain" className="text-[10.5px] text-muted-foreground mt-2 font-mono">
             Step 3: Isolated Upper Sub-Block
-          </p>
+          </SlideParagraph>
         </div>
       }
     />

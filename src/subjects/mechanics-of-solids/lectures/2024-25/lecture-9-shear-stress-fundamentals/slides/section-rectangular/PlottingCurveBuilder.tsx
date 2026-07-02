@@ -1,8 +1,8 @@
 import React from 'react';
 import { TwoColumnLayout } from '@/shared/layouts/TwoColumnLayout';
-import { SlideCallout } from '@/features/presentation/components/elements';
+import { SlideCallout, SlideParagraph } from '@/features/presentation/components/elements';
 import { useUrlSyncedState } from '@/features/presentation/hooks/useUrlSyncedState';
-import { RectangularShearPlotting } from '@/subjects/mechanics-of-solids/features/stress/components/diagrams/RectangularShearPlotting';
+import { RectangularShearPlotting } from './drawings/RectangularShearPlotting';
 
 export const PlottingCurveBuilder: React.FC = () => {
   const [plotStep, setPlotStep] = useUrlSyncedState<number>('rectangular_plot_step', 2);
@@ -23,7 +23,7 @@ export const PlottingCurveBuilder: React.FC = () => {
             <span className="text-[10px] font-bold text-indigo-500 uppercase tracking-widest block mb-1">
               Step-by-step curve building
             </span>
-            <div className="flex gap-1.5 mb-3 bg-slate-900 p-1 rounded-lg border border-border/40">
+            <div className="flex gap-1.5 mb-3 bg-muted/80 p-1 rounded-lg border border-border/40">
               {steps.map((st) => (
                 <button
                   key={st.id}
@@ -44,9 +44,9 @@ export const PlottingCurveBuilder: React.FC = () => {
             <h4 className="text-xs font-bold text-foreground mb-1">
               {steps.find(s => s.id === plotStep)?.name}
             </h4>
-            <p className="text-xs text-muted-foreground leading-relaxed">
+            <SlideParagraph variant="plain" className="text-xs text-muted-foreground leading-relaxed">
               {steps.find(s => s.id === plotStep)?.desc}
-            </p>
+            </SlideParagraph>
           </div>
 
           <SlideCallout variant="info" className="py-2 px-3 text-[10px]">

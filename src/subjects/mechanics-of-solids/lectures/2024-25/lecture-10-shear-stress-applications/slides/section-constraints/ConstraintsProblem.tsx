@@ -1,9 +1,10 @@
 import React from 'react';
 import { TwoColumnLayout } from '@/shared/layouts/TwoColumnLayout';
-import { SlideParagraph, LatexFormula, CalculationOutput } from '@/features/presentation/components/elements';
+import { SlideParagraph, LatexFormula, CalculationOutput, SlideList } from '@/features/presentation/components/elements';
 import { CrossSectionEngine } from '@/subjects/mechanics-of-solids/cores/stress/cross-section.engine';
 import { StaticalMomentEngine } from '@/subjects/mechanics-of-solids/cores/stress/statical-moment.engine';
-import { StressBalanceScaleDrawing } from '@/subjects/mechanics-of-solids/features/stress/components/diagrams/StressBalanceScaleDrawing';
+import { useClickStepsContext } from '@/features/presentation/context/ClickStepsContext';
+import { StressBalanceScaleDrawing } from './drawings/StressBalanceScaleDrawing';
 import { problem2Config } from '../../problemConfig';
 
 export const ConstraintsProblem: React.FC = () => {
@@ -23,13 +24,10 @@ export const ConstraintsProblem: React.FC = () => {
   const c_max_mm = Math.max(c_top_mm, c_bot_mm);
   
   // Solve for L using the constraint: σ_max = 4 * τ_max
-  // For cantilever with tip load P: M_max = P * L, V_max = P
-  // σ_max = P * L * c_max / I
-  // τ_max = P * Q_max / (I * t_web)
-  // P * L * c_max / I = 4 * P * Q_max / (I * t_web)
-  // L = 4 * Q_max / (t_web * c_max)
   const L_mm = (4 * Q_max_mm3) / (t_web_mm * c_max_mm);
   const L_m = L_mm / 1000;
+
+  const { currentClick } = useClickStepsContext();
 
   return (
     <TwoColumnLayout
@@ -51,14 +49,16 @@ export const ConstraintsProblem: React.FC = () => {
             <div className="py-1 text-center bg-indigo-500/10 rounded-xl border border-indigo-500/30 text-indigo-600 dark:text-indigo-400 font-extrabold text-xs">
               <LatexFormula math="L = \\frac{4 \\cdot Q_{\\max}}{t_{\\text{web}} \\cdot c_{\\max}}" />
             </div>
-            <p>
-              **Properties used in calculation:**
-            </p>
-            <ul className="list-disc pl-4 space-y-1">
-              <li>Peak Statical Moment: Q_max = {Q_max_mm3.toLocaleString()} mm³</li>
-              <li>Web thickness: t_web = {t_web_mm.toFixed(0)} mm</li>
-              <li>Farthest fiber from N.A.: c_max = {c_max_mm.toFixed(1)} mm (top fiber)</li>
-            </ul>
+            <SlideParagraph variant="plain" className="text-xs text-muted-foreground">
+              Properties used in calculation:
+            </SlideParagraph>
+            <SlideList
+              items={[
+                { text: `Peak Statical Moment: Q_max = ${Q_max_mm3.toLocaleString()} mm³` },
+                { text: `Web thickness: t_web = ${t_web_mm.toFixed(0)} mm` },
+                { text: `Farthest fiber from N.A.: c_max = ${c_max_mm.toFixed(1)} mm (top fiber)` }
+              ]}
+            />
           </div>
 
           <div className="grid grid-cols-2 gap-2">
@@ -70,7 +70,7 @@ export const ConstraintsProblem: React.FC = () => {
       rightContent={
         <div className="bg-muted/30 border border-border/50 rounded-xl p-4 flex flex-col items-center justify-center h-full min-h-[250px]">
           <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest block mb-2">Simultaneous Failure Criterion</span>
-          <StressBalanceScaleDrawing />
+          <StressBalanceScaleDrawing currentClick={currentClick} />
         </div>
       }
     />

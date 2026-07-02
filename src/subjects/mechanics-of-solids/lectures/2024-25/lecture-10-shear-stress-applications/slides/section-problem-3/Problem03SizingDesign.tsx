@@ -1,9 +1,8 @@
 import React from 'react';
 import { TwoColumnLayout } from '@/shared/layouts/TwoColumnLayout';
 import { SlideParagraph, LatexFormula, CalculationOutput } from '@/features/presentation/components/elements';
-import { TimberBeamDesignDrawing } from '@/subjects/mechanics-of-solids/features/stress/components/diagrams/TimberBeamDesignDrawing';
+import { TimberBeamDesignDrawing } from './drawings/TimberBeamDesignDrawing';
 import { SFDBmdService } from '@/subjects/mechanics-of-solids/cores/sfd-bmd/sfdBmdService';
-
 import { problem3Config } from '../../problemConfig';
 
 export const Problem03SizingDesign: React.FC = () => {
@@ -36,27 +35,27 @@ export const Problem03SizingDesign: React.FC = () => {
           </div>
 
           <div className="space-y-2 text-xs text-muted-foreground">
-            <p>
+            <SlideParagraph variant="plain" className="text-xs text-muted-foreground">
               **Set up allowable stress inequality:**
-            </p>
+            </SlideParagraph>
             <div className="font-mono text-center text-foreground py-0.5 bg-muted/20 border border-border/40 rounded">
               τ_max = 1.5 * V_max / (b * h) ≤ τ_allow
             </div>
             
-            <p>
+            <SlideParagraph variant="plain" className="text-xs text-muted-foreground">
               **Substitute values (in N and mm):**
-            </p>
+            </SlideParagraph>
             <div className="font-mono text-[10px] text-foreground bg-muted/20 p-1 rounded border border-border/40">
               1.5 * {V_max_N.toLocaleString()} / (b * {h_mm}) ≤ {tau_allow.toFixed(1)} N/mm²
               <br />
               {(1.5 * V_max_N).toLocaleString()} / ({h_mm} * b) ≤ {tau_allow.toFixed(1)}  ⇒  {(1.5 * V_max_N / h_mm).toFixed(1)} / b ≤ {tau_allow.toFixed(1)}
             </div>
 
-            <p>
+            <SlideParagraph variant="plain" className="text-xs text-muted-foreground">
               **Solve for minimum required width b:**
-            </p>
+            </SlideParagraph>
             <div className="py-2 text-center bg-emerald-500/10 rounded-xl border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 font-extrabold text-xs">
-              <LatexFormula math={`b \\\\ge ${b_min.toFixed(2)} \\\\text{ mm}`} />
+              <LatexFormula math={`b \\ge ${b_min.toFixed(2)} \\text{ mm}`} />
             </div>
           </div>
 
@@ -69,7 +68,7 @@ export const Problem03SizingDesign: React.FC = () => {
       rightContent={
         <div className="bg-muted/30 border border-border/50 rounded-xl p-4 flex flex-col items-center justify-center h-full min-h-[250px]">
           <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest block mb-2">Beam Span and Cross Section</span>
-          <TimberBeamDesignDrawing />
+          <TimberBeamDesignDrawing currentClick={3} />
         </div>
       }
     />

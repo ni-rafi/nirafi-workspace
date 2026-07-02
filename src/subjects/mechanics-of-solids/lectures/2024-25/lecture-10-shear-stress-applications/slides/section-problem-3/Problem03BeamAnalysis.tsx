@@ -1,9 +1,8 @@
 import React from 'react';
 import { TwoColumnLayout } from '@/shared/layouts/TwoColumnLayout';
 import { SlideParagraph, LatexFormula, CalculationOutput } from '@/features/presentation/components/elements';
-import { TimberBeamDesignDrawing } from '@/subjects/mechanics-of-solids/features/stress/components/diagrams/TimberBeamDesignDrawing';
+import { TimberBeamDesignDrawing } from './drawings/TimberBeamDesignDrawing';
 import { SFDBmdService } from '@/subjects/mechanics-of-solids/cores/sfd-bmd/sfdBmdService';
-
 import { problem3Config } from '../../problemConfig';
 
 export const Problem03BeamAnalysis: React.FC = () => {
@@ -34,17 +33,17 @@ export const Problem03BeamAnalysis: React.FC = () => {
           </div>
 
           <div className="space-y-2 text-xs text-muted-foreground">
-            <p>
+            <SlideParagraph variant="plain" className="text-xs text-muted-foreground">
               For a simply supported span under uniform load w, the reactions at each support are equal:
-            </p>
+            </SlideParagraph>
             <div className="font-mono text-center text-foreground py-0.5 bg-muted/20 border border-border/40 rounded">
               R_A = R_B = w * L / 2
             </div>
-            <p>
+            <SlideParagraph variant="plain" className="text-xs text-muted-foreground">
               The maximum shear force occurs at the reaction supports:
-            </p>
+            </SlideParagraph>
             <div className="py-2 text-center bg-indigo-500/10 rounded-xl border border-indigo-500/30 text-indigo-600 dark:text-indigo-400 font-extrabold text-xs">
-              <LatexFormula math={`V_{\\\\max} = \\\\frac{10 \\\\text{ kN/m} \\\\cdot 3 \\\\text{ m}}{2} = ${maxReactionRy.toFixed(1)} \\\\text{ kN} = ${V_max_N.toLocaleString()} \\\\text{ N}`} />
+              <LatexFormula math={`V_{\\max} = \\frac{10 \\text{ kN/m} \\cdot 3 \\text{ m}}{2} = ${maxReactionRy.toFixed(1)} \\text{ kN} = ${V_max_N.toLocaleString()} \\text{ N}`} />
             </div>
           </div>
 
@@ -57,7 +56,7 @@ export const Problem03BeamAnalysis: React.FC = () => {
       rightContent={
         <div className="bg-muted/30 border border-border/50 rounded-xl p-4 flex flex-col items-center justify-center h-full min-h-[250px]">
           <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest block mb-2">Beam Span and Cross Section</span>
-          <TimberBeamDesignDrawing />
+          <TimberBeamDesignDrawing currentClick={1} />
         </div>
       }
     />

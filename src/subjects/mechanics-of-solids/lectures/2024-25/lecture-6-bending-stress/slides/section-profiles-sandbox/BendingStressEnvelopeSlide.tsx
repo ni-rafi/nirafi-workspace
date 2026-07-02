@@ -1,7 +1,8 @@
 import React from 'react';
 import { TwoColumnLayout } from '@/shared/layouts/TwoColumnLayout';
 import { useUrlSyncedState } from '@/features/presentation/hooks/useUrlSyncedState';
-import { ParameterSlider, CalculationOutput, SlideParagraph } from '@/features/presentation/components/elements';
+import { ParameterSlider, CalculationOutput, SlideParagraph, LatexFormula } from '@/features/presentation/components/elements';
+import { ExpandableDrawing } from '@/shared/components';
 
 export const BendingStressEnvelopeSlide: React.FC = () => {
   const [load, setLoad] = useUrlSyncedState<number>('env_load', 30); // in kN
@@ -71,7 +72,16 @@ export const BendingStressEnvelopeSlide: React.FC = () => {
           <div>
             <span className="text-[9px] font-bold text-indigo-500 uppercase tracking-widest block mb-1">Envelope Controls</span>
             <SlideParagraph variant="plain" className="text-[10px] text-muted-foreground leading-normal">
-              Observe how the bending stress changes along the span length as the concentrated load moves.
+              {"Observe how the bending stress changes along the span length as the concentrated load moves."}
+            </SlideParagraph>
+            <SlideParagraph variant="plain" className="text-[10px] text-muted-foreground leading-normal mt-1">
+              {"Since bending stress "}
+              <LatexFormula math="\sigma = \frac{M \cdot y}{I}" />
+              {", and "}
+              <LatexFormula math="M/I" />
+              {" is constant for a given section, stress varies linearly with the distance "}
+              <LatexFormula math="y" />
+              {" from the neutral axis."}
             </SlideParagraph>
           </div>
 
@@ -90,35 +100,34 @@ export const BendingStressEnvelopeSlide: React.FC = () => {
       }
       rightContent={
         <div className="bg-muted/30 border border-border/50 rounded-xl p-4 flex flex-col items-center justify-center h-full min-h-[260px] w-full">
-          <span className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest block mb-4">Bending Stress Envelope along Beam</span>
-          
-          <svg viewBox={`0 0 ${svgW} ${svgH}`} className="w-full max-w-[260px] overflow-visible">
-            {/* Grid baseline */}
-            <line x1={graphPadding} y1={svgH - graphPadding} x2={svgW - graphPadding} y2={svgH - graphPadding} stroke="var(--border)" strokeWidth={1.5} />
-            
-            {/* Shaded envelope area */}
-            <path d={pathD} fill="rgba(99, 102, 241, 0.12)" stroke="var(--primary)" strokeWidth={1.8} />
+          <ExpandableDrawing title="Bending Stress Envelope along Beam" description="Live graph plotting bending stress values along the beam length under moving loads.">
+            <svg viewBox={`0 0 ${svgW} ${svgH}`} className="w-full max-w-[260px] overflow-visible">
+              {/* Grid baseline */}
+              <line x1={graphPadding} y1={svgH - graphPadding} x2={svgW - graphPadding} y2={svgH - graphPadding} stroke="var(--border)" strokeWidth={1.5} />
+              
+              {/* Shaded envelope area */}
+              <path d={pathD} fill="rgba(99, 102, 241, 0.12)" stroke="var(--primary)" strokeWidth={1.8} />
 
-            {/* Peak label marker */}
-            <circle cx={toPxX(a)} cy={toPxY(sigmaMax)} r={3} fill="var(--destructive)" />
-            <text x={toPxX(a)} y={toPxY(sigmaMax) - 8} textAnchor="middle" className="fill-destructive text-[8px] font-bold font-mono">
-              σ_max = {sigmaMax.toFixed(1)} MPa
-            </text>
+              {/* Peak label marker */}
+              <circle cx={toPxX(a)} cy={toPxY(sigmaMax)} r={3} fill="var(--destructive)" />
+              <text x={toPxX(a)} y={toPxY(sigmaMax) - 8} textAnchor="middle" className="fill-destructive text-[8px] font-bold font-mono">
+                σ_max = {sigmaMax.toFixed(1)} MPa
+              </text>
 
-            {/* Load indicator line */}
-            <line x1={toPxX(a)} y1={graphPadding} x2={toPxX(a)} y2={svgH - graphPadding} stroke="var(--muted-foreground)" strokeWidth={0.5} strokeDasharray="2,2" opacity={0.6} />
-            
-            {/* Supports indicators */}
-            <polygon points={`${graphPadding},${svgH - graphPadding} ${graphPadding - 4},${svgH - graphPadding + 6} ${graphPadding + 4},${svgH - graphPadding + 6}`} fill="var(--foreground)" />
-            <polygon points={`${svgW - graphPadding},${svgH - graphPadding} ${svgW - graphPadding - 4},${svgH - graphPadding + 6} ${svgW - graphPadding + 4},${svgH - graphPadding + 6}`} fill="var(--foreground)" />
+              {/* Load indicator line */}
+              <line x1={toPxX(a)} y1={graphPadding} x2={toPxX(a)} y2={svgH - graphPadding} stroke="var(--muted-foreground)" strokeWidth={0.5} strokeDasharray="2,2" opacity={0.6} />
+              
+              {/* Supports indicators */}
+              <polygon points={`${graphPadding},${svgH - graphPadding} ${graphPadding - 4},${svgH - graphPadding + 6} ${graphPadding + 4},${svgH - graphPadding + 6}`} fill="var(--foreground)" />
+              <polygon points={`${svgW - graphPadding},${svgH - graphPadding} ${svgW - graphPadding - 4},${svgH - graphPadding + 6} ${svgW - graphPadding + 4},${svgH - graphPadding + 6}`} fill="var(--foreground)" />
 
-            <text x={graphPadding} y={svgH - graphPadding + 14} textAnchor="middle" className="fill-muted-foreground text-[8px] font-bold">A</text>
-            <text x={svgW - graphPadding} y={svgH - graphPadding + 14} textAnchor="middle" className="fill-muted-foreground text-[8px] font-bold">B</text>
-          </svg>
+              <text x={graphPadding} y={svgH - graphPadding + 14} textAnchor="middle" className="fill-muted-foreground text-[8px] font-bold">A</text>
+              <text x={svgW - graphPadding} y={svgH - graphPadding + 14} textAnchor="middle" className="fill-muted-foreground text-[8px] font-bold">B</text>
+            </svg>
+          </ExpandableDrawing>
         </div>
       }
     />
   );
 };
-
 export default BendingStressEnvelopeSlide;

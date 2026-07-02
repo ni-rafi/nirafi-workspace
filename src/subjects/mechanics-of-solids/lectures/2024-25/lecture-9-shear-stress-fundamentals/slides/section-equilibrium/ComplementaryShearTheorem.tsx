@@ -1,6 +1,7 @@
 import React from 'react';
 import { TwoColumnLayout } from '@/shared/layouts/TwoColumnLayout';
 import { SlideParagraph, SlideCallout } from '@/features/presentation/components/elements';
+import { ExpandableDrawing } from '@/shared/components';
 
 export const ComplementaryShearTheorem: React.FC = () => {
   return (
@@ -20,15 +21,15 @@ export const ComplementaryShearTheorem: React.FC = () => {
 
           <div className="space-y-2">
             <h4 className="text-xs font-bold text-foreground">Complementary Shear Stress:</h4>
-            <p className="text-xs text-muted-foreground">
+            <SlideParagraph variant="plain" className="text-xs text-muted-foreground">
               This leads directly to the **Complementary Shear Theorem**:
-            </p>
+            </SlideParagraph>
             <div className="bg-indigo-500/5 p-3 rounded-xl border border-indigo-500/20 text-xs text-foreground font-semibold italic">
               "Shear stress on any plane is always accompanied by an equal shear stress on a perpendicular plane at that point."
             </div>
-            <p className="text-xs text-muted-foreground">
+            <SlideParagraph variant="plain" className="text-xs text-muted-foreground">
               This proves that a vertical shear stress (τ_xy) cannot exist without inducing a longitudinal horizontal shear stress (τ_yx) of equal magnitude:
-            </p>
+            </SlideParagraph>
             <div className="font-mono text-xs text-center text-indigo-500 font-extrabold">
               τ_xy = τ_yx
             </div>
@@ -41,11 +42,13 @@ export const ComplementaryShearTheorem: React.FC = () => {
       }
       rightContent={
         <div className="flex flex-col items-center justify-center h-full">
-          {/* SVG showing vertical & horizontal complementary shear arrows */}
-          <div className="flex justify-center border border-border/30 bg-muted/5 rounded-2xl p-6 max-w-[280px] mx-auto w-full shadow-inner">
+          <ExpandableDrawing
+            title="Complementary Shear Stresses"
+            description="Stress element diagram showing equal vertical and horizontal shear stress components acting to maintain moment equilibrium."
+            className="max-w-[280px] mx-auto w-full"
+          >
             <svg viewBox="0 0 160 160" className="w-full h-full aspect-square overflow-visible">
               <g transform="translate(80, 80)">
-                {/* Element Block */}
                 <rect
                   x={-25}
                   y={-25}
@@ -56,20 +59,16 @@ export const ComplementaryShearTheorem: React.FC = () => {
                 />
                 
                 {/* Primary Vertical Arrows (Orange) */}
-                {/* Left face arrow pointing DOWN */}
                 <line x1={-30} y1={-20} x2={-30} y2={20} stroke="#f59e0b" strokeWidth={1.5} />
                 <polygon points="-30,20 -32.5,16 -27.5,16" fill="#f59e0b" />
                 
-                {/* Right face arrow pointing UP */}
                 <line x1={30} y1={20} x2={30} y2={-20} stroke="#f59e0b" strokeWidth={1.5} />
                 <polygon points="30,-20 27.5,-16 32.5,-16" fill="#f59e0b" />
 
                 {/* Complementary Horizontal Arrows (Indigo) */}
-                {/* Top face arrow pointing LEFT */}
                 <line x1={20} y1={-30} x2={-20} y2={-30} stroke="#6366f1" strokeWidth={1.5} />
                 <polygon points="-20,-30 -16,-32.5 -16,-27.5" fill="#6366f1" />
 
-                {/* Bottom face arrow pointing RIGHT */}
                 <line x1={-20} y1={30} x2={20} y2={30} stroke="#6366f1" strokeWidth={1.5} />
                 <polygon points="20,30 16,27.5 16,32.5" fill="#6366f1" />
 
@@ -88,10 +87,10 @@ export const ComplementaryShearTheorem: React.FC = () => {
                 </text>
               </g>
             </svg>
-          </div>
-          <p className="text-[10.5px] text-muted-foreground mt-2 font-mono">
+          </ExpandableDrawing>
+          <SlideParagraph variant="plain" className="text-[10.5px] text-muted-foreground mt-2 font-mono">
             Equilibrium Satisfied: τ_xy = τ_yx
-          </p>
+          </SlideParagraph>
         </div>
       }
     />

@@ -1,6 +1,7 @@
 import React from 'react';
 import { useUrlSyncedState } from '@/features/presentation/hooks/useUrlSyncedState';
 import { ParameterSlider, CalculationOutput, SlideParagraph } from '@/features/presentation/components/elements';
+import { ExpandableDrawing } from '@/shared/components';
 
 export const LogCuttingOptimizer: React.FC = () => {
   const [dVal, setDVal] = useUrlSyncedState<number>('opt_dia', 300); // mm
@@ -68,45 +69,49 @@ export const LogCuttingOptimizer: React.FC = () => {
 
           {/* Graph plot */}
           <div className="flex justify-center mb-3">
-            <svg viewBox={`0 0 ${svgW} ${svgH}`} className="w-[150px] h-[90px] overflow-visible">
-              <line x1={padding} y1={svgH - padding} x2={svgW - padding} y2={svgH - padding} stroke="var(--border)" strokeWidth={1} />
-              <line x1={padding} y1={padding} x2={padding} y2={svgH - padding} stroke="var(--border)" strokeWidth={1} />
-              
-              <path d={pathD} fill="none" stroke="var(--primary)" strokeWidth={1.5} />
-              
-              {/* Peak Marker dot */}
-              <circle cx={toPxX(bOpt)} cy={toPxY(Zmax)} r={3} fill="var(--destructive)" />
-              <text x={toPxX(bOpt)} y={toPxY(Zmax) - 6} textAnchor="middle" className="fill-destructive text-[7px] font-bold font-mono">
-                dZ/db = 0
-              </text>
-            </svg>
+            <ExpandableDrawing title="Section Modulus Optimization Curve" description="Plots Section Modulus Z relative to cut width b, demonstrating the mathematical peak where dZ/db = 0.">
+              <svg viewBox={`0 0 ${svgW} ${svgH}`} className="w-[140px] h-[80px] overflow-visible">
+                <line x1={padding} y1={svgH - padding} x2={svgW - padding} y2={svgH - padding} stroke="var(--border)" strokeWidth={1} />
+                <line x1={padding} y1={padding} x2={padding} y2={svgH - padding} stroke="var(--border)" strokeWidth={1} />
+                
+                <path d={pathD} fill="none" stroke="var(--primary)" strokeWidth={1.5} />
+                
+                {/* Peak Marker dot */}
+                <circle cx={toPxX(bOpt)} cy={toPxY(Zmax)} r={3} fill="var(--destructive)" />
+                <text x={toPxX(bOpt)} y={toPxY(Zmax) - 6} textAnchor="middle" className="fill-destructive text-[7px] font-bold font-mono">
+                  dZ/db = 0
+                </text>
+              </svg>
+            </ExpandableDrawing>
           </div>
         </div>
 
         <div className="flex justify-center items-center py-2 border-t border-border/30">
-          <svg viewBox="0 0 100 100" className="w-[70px] h-[70px] overflow-visible">
-            {/* Draw Log circle */}
-            <circle cx={50} cy={50} r={40} fill="none" stroke="var(--border)" strokeWidth={1.5} />
-            {/* Inscribed Rectangle */}
-            {(() => {
-              const scale = 40 / (dVal / 2);
-              const rectW = bOpt * scale;
-              const rectH = dOpt * scale;
-              return (
-                <rect
-                  x={50 - rectW / 2}
-                  y={50 - rectH / 2}
-                  width={rectW}
-                  height={rectH}
-                  fill="rgba(99, 102, 241, 0.08)"
-                  stroke="var(--foreground)"
-                  strokeWidth={1.2}
-                />
-              );
-            })()}
-            <line x1={50 - 40 * Math.cos(Math.PI/6)} y1={50 - 40 * Math.sin(Math.PI/6)} x2={50 + 40 * Math.cos(Math.PI/6)} y2={50 + 40 * Math.sin(Math.PI/6)} stroke="var(--primary)" strokeWidth={0.8} strokeDasharray="2,2" />
-            <text x={50} y={40} textAnchor="middle" className="fill-primary text-[8px] font-bold">D</text>
-          </svg>
+          <ExpandableDrawing title="Optimized Timber Cut Layout" description="Displays the optimal rectangular section (width b, depth d) inscribed inside a circular timber log diameter D.">
+            <svg viewBox="0 0 100 100" className="w-[60px] h-[60px] overflow-visible">
+              {/* Draw Log circle */}
+              <circle cx={50} cy={50} r={40} fill="none" stroke="var(--border)" strokeWidth={1.5} />
+              {/* Inscribed Rectangle */}
+              {(() => {
+                const scale = 40 / (dVal / 2);
+                const rectW = bOpt * scale;
+                const rectH = dOpt * scale;
+                return (
+                  <rect
+                    x={50 - rectW / 2}
+                    y={50 - rectH / 2}
+                    width={rectW}
+                    height={rectH}
+                    fill="rgba(99, 102, 241, 0.08)"
+                    stroke="var(--foreground)"
+                    strokeWidth={1.2}
+                  />
+                );
+              })()}
+              <line x1={50 - 40 * Math.cos(Math.PI/6)} y1={50 - 40 * Math.sin(Math.PI/6)} x2={50 + 40 * Math.cos(Math.PI/6)} y2={50 + 40 * Math.sin(Math.PI/6)} stroke="var(--primary)" strokeWidth={0.8} strokeDasharray="2,2" />
+              <text x={50} y={40} textAnchor="middle" className="fill-primary text-[8px] font-bold">D</text>
+            </svg>
+          </ExpandableDrawing>
         </div>
       </div>
     </div>

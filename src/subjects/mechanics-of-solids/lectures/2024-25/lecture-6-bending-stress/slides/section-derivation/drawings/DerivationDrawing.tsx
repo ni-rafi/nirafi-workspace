@@ -1,4 +1,4 @@
-import React from 'react';
+import { ExpandableDrawing } from '@/shared/components';
 
 interface DerivationDrawingProps {
   mode: 'straight' | 'bent' | 'both';
@@ -101,15 +101,19 @@ export const DerivationDrawing: React.FC<DerivationDrawingProps> = ({ mode }) =>
   };
 
   return (
-    <svg viewBox={`0 0 ${width} ${height}`} className="w-full max-w-[320px] h-auto overflow-visible">
-      {mode === 'straight' && renderStraight(80, 0.95)}
-      {mode === 'bent' && renderBent(80, 0.95)}
-      {mode === 'both' && (
-        <g>
-          {renderStraight(-10, 0.85)}
-          {renderBent(170, 0.85)}
-        </g>
-      )}
-    </svg>
+    <ExpandableDrawing title="Bending Strain Derivation Geometry" description="Defines the longitudinal fiber element dx, radius of curvature R, angle dθ, and fiber coordinate y used to derive the flexural strain equation.">
+      <div className="w-full flex justify-center items-center py-2 bg-muted/10 border border-border/40 rounded-xl">
+        <svg viewBox={`0 0 ${width} ${height}`} className="w-full max-w-[320px] h-auto overflow-visible">
+          {mode === 'straight' && renderStraight(80, 0.95)}
+          {mode === 'bent' && renderBent(80, 0.95)}
+          {mode === 'both' && (
+            <g>
+              {renderStraight(-10, 0.85)}
+              {renderBent(170, 0.85)}
+            </g>
+          )}
+        </svg>
+      </div>
+    </ExpandableDrawing>
   );
 };

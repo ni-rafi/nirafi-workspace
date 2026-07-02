@@ -1,8 +1,7 @@
-import React from 'react';
-import { TwoColumnLayout } from '@/shared/layouts/TwoColumnLayout';
-import { SlideParagraph, SlideBullet, SlideEquation } from '@/features/presentation/components/elements';
+import { SlideParagraph, SlideBullet, SlideEquation, LatexFormula, ClickReveal } from '@/features/presentation/components/elements';
 import { ShapeEfficiencyComparison } from './drawings/ShapeEfficiencyComparison';
 import { HelpCircle } from 'lucide-react';
+import TwoColumnLayout from '@/shared/layouts/TwoColumnLayout';
 
 export const SquareVsCircleSlide: React.FC = () => {
   return (
@@ -20,12 +19,14 @@ export const SquareVsCircleSlide: React.FC = () => {
               {"For equal areas, a square is structurally more efficient in bending than a circle."}
             </SlideParagraph>
           </div>
-          <div className="space-y-1.5 my-1 text-[11px]">
-            <SlideBullet text="Set Area: a² = π · d² / 4." />
-            <SlideBullet text="Solve dia: d = 2a / √π." />
-            <SlideBullet text="Substitute to find Z ratio:" />
-            <SlideEquation math="\frac{Z_{\text{sq}}}{Z_{\text{circle}}} \approx 1.18" />
-            <SlideBullet text="Square has 18% greater capacity!" />
+          <div className="space-y-1.5 my-1 text-[11px] text-left">
+            <SlideBullet text={<span>Set Area: <LatexFormula math="a^2 = \frac{\pi \cdot d^2}{4}" />.</span>} revealAt={1} />
+            <SlideBullet text={<span>Solve dia: <LatexFormula math="d = \frac{2a}{\sqrt{\pi}}" />.</span>} revealAt={2} />
+            <SlideBullet text="Substitute to find Z ratio:" revealAt={3} />
+            <ClickReveal at={4} preset="fade">
+              <SlideEquation math="\frac{Z_{\text{sq}}}{Z_{\text{circle}}} \approx 1.18" />
+            </ClickReveal>
+            <SlideBullet text="Square has 18% greater capacity!" revealAt={5} />
           </div>
         </div>
       }

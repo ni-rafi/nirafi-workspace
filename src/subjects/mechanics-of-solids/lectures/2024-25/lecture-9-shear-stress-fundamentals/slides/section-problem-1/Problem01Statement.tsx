@@ -1,12 +1,13 @@
 import React from 'react';
 import { TwoColumnLayout } from '@/shared/layouts/TwoColumnLayout';
-import { SlideCallout, ParameterSlider } from '@/features/presentation/components/elements';
+import { SlideCallout, ParameterSlider, SlideList } from '@/features/presentation/components/elements';
 import { useUrlSyncedState } from '@/features/presentation/hooks/useUrlSyncedState';
 import { ProfileShapeView } from '@/subjects/mechanics-of-solids/features/stress/components/diagrams/ProfileShapeView';
 import { ShearStressProfileChart } from '@/subjects/mechanics-of-solids/features/stress/components/diagrams/ShearStressProfileChart';
 import { CrossSectionEngine } from '@/subjects/mechanics-of-solids/cores/stress/cross-section.engine';
 import { StressSolverEngine } from '@/subjects/mechanics-of-solids/cores/stress/stress-solver.engine';
 import { StaticalMomentEngine } from '@/subjects/mechanics-of-solids/cores/stress/statical-moment.engine';
+import { ExpandableDrawing } from '@/shared/components';
 import { problem1Config } from '../../problemConfig';
 
 export const Problem01Statement: React.FC = () => {
@@ -44,18 +45,20 @@ export const Problem01Statement: React.FC = () => {
             <span className="text-[10px] font-bold text-indigo-500 uppercase tracking-widest block mb-1">
               Tutorial Problem 01
             </span>
-            <div className="bg-slate-50 dark:bg-muted/10 p-3 rounded-xl border border-border/40 text-xs leading-relaxed text-foreground">
+            <div className="bg-muted/10 p-3 rounded-xl border border-border/40 text-xs leading-relaxed text-foreground">
               <strong>Question:</strong> Find the shear stress of the rectangular beam section at the Neutral Axis (y = 0), y = ±75 mm, and y = ±150 mm if the applied vertical shear force is V = 60 kN.
             </div>
           </div>
 
           <div className="space-y-2 text-xs text-muted-foreground">
             <h4 className="font-bold text-foreground">Given Parameters:</h4>
-            <ul className="list-disc pl-4 space-y-1">
-              <li>Shear Force V = 60 kN = 60 × 10³ N</li>
-              <li>Width b = 100 mm = 0.1 m</li>
-              <li>Height h = 300 mm = 0.3 m</li>
-            </ul>
+            <SlideList
+              items={[
+                { text: 'Shear Force V = 60 kN = 60 × 10³ N' },
+                { text: 'Width b = 100 mm = 0.1 m' },
+                { text: 'Height h = 300 mm = 0.3 m' }
+              ]}
+            />
           </div>
 
           <div className="space-y-2">
@@ -77,27 +80,32 @@ export const Problem01Statement: React.FC = () => {
       }
       rightContent={
         <div className="bg-muted/30 border border-border/50 rounded-xl p-4 flex flex-col items-center justify-center h-full min-h-[250px]">
-          <svg viewBox={`0 0 ${svgW} ${svgH}`} className="w-full max-w-[250px] overflow-visible">
-            <ProfileShapeView
-              shape={shape}
-              centroid={ybar_m}
-              toPixelY={toPixelY}
-              inspectY={inspectY}
-              currentWidth={statQ.t * 1000}
-            />
-            <ShearStressProfileChart
-              shape={shape}
-              points={res.points}
-              maxTau={maxTau}
-              toPixelY={toPixelY}
-              H={H_m}
-              ybar={ybar_m}
-              V={V}
-              props={props}
-              pyInspect={pyInspect}
-              currentTau={currentTauMPa}
-            />
-          </svg>
+          <ExpandableDrawing
+            title="Shear Stress Profile Visualizer"
+            description="Interactive 2D beam cross-section showing depth slice parameter y mapped to the parabolic shear stress distribution chart."
+          >
+            <svg viewBox={`0 0 ${svgW} ${svgH}`} className="w-full max-w-[250px] overflow-visible">
+              <ProfileShapeView
+                shape={shape}
+                centroid={ybar_m}
+                toPixelY={toPixelY}
+                inspectY={inspectY}
+                currentWidth={statQ.t * 1000}
+              />
+              <ShearStressProfileChart
+                shape={shape}
+                points={res.points}
+                maxTau={maxTau}
+                toPixelY={toPixelY}
+                H={H_m}
+                ybar={ybar_m}
+                V={V}
+                props={props}
+                pyInspect={pyInspect}
+                currentTau={currentTauMPa}
+              />
+            </svg>
+          </ExpandableDrawing>
         </div>
       }
     />

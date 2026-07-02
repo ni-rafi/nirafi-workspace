@@ -1,7 +1,6 @@
-import React from 'react';
-import { TwoColumnLayout } from '@/shared/layouts/TwoColumnLayout';
-import { SlideParagraph, SlideBullet } from '@/features/presentation/components/elements';
+import { SlideParagraph, SlideBullet, LatexFormula, InteractiveCard } from '@/features/presentation/components/elements';
 import { HelpCircle } from 'lucide-react';
+import TwoColumnLayout from '@/shared/layouts/TwoColumnLayout';
 
 export const Problem02CastIronSlide: React.FC = () => {
   return (
@@ -21,21 +20,22 @@ export const Problem02CastIronSlide: React.FC = () => {
           </div>
           <div className="space-y-1.5 my-1.5">
             <span className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest block mb-0.5">Key parameters</span>
-            <SlideBullet text="Symmetric span L = 6m simply supported." />
-            <SlideBullet text="Unsymmetric I-section creates different fiber distances y_top and y_bottom." />
-            <SlideBullet text="Cast Iron has asymmetric limits: σ_t ≤ 30 MPa, σ_c ≤ 90 MPa." />
+            <SlideBullet text={<span>Symmetric span <LatexFormula math="L = 6\text{ m}" /> simply supported.</span>} revealAt={1} />
+            <SlideBullet text={<span>Unsymmetric I-section creates different fiber distances <LatexFormula math="y_{\text{top}}" /> and <LatexFormula math="y_{\text{bottom}}" />.</span>} revealAt={2} />
+            <SlideBullet text={<span>Cast Iron has asymmetric limits: <LatexFormula math="\sigma_t \le 30\text{ MPa}" />, <LatexFormula math="\sigma_c \le 90\text{ MPa}" />.</span>} revealAt={3} />
           </div>
         </div>
       }
       rightContent={
         <div className="bg-muted/30 border border-border/50 rounded-xl p-4 flex flex-col items-center justify-center h-full min-h-[250px] w-full text-[10px] text-muted-foreground leading-relaxed">
-          <div className="p-4 bg-slate-900 border border-border/40 rounded-xl w-full text-left space-y-2 font-mono">
-            <h4 className="text-indigo-400 font-bold uppercase text-[9px]">Challenge Context</h4>
-            <p>Because the bottom flange is heavy, the centroid NA shifts downwards.</p>
-            <p>Under positive bending (sagging):</p>
-            <p className="text-amber-400 font-bold">• Bottom fibers: Tension (σ_t limit)</p>
-            <p className="text-amber-400 font-bold">• Top fibers: Compression (σ_c limit)</p>
-          </div>
+          <InteractiveCard title="Challenge Context" className="w-full text-left">
+            <div className="space-y-2 text-xs text-foreground font-mono">
+              <p>Because the bottom flange is heavy, the centroid NA shifts downwards.</p>
+              <p>Under positive bending (sagging):</p>
+              <p className="text-amber-500 font-bold">• Bottom fibers: Tension (<LatexFormula math="\sigma_t" /> limit)</p>
+              <p className="text-amber-500 font-bold">• Top fibers: Compression (<LatexFormula math="\sigma_c" /> limit)</p>
+            </div>
+          </InteractiveCard>
         </div>
       }
     />

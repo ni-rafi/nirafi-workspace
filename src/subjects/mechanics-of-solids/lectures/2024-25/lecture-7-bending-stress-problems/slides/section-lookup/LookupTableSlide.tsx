@@ -1,4 +1,4 @@
-import React from 'react';
+import { LatexFormula } from '@/features/presentation/components/elements';
 import { FullWidthLayout } from '@/shared/layouts/FullWidthLayout';
 
 export const LookupTableSlide: React.FC = () => {
@@ -8,37 +8,45 @@ export const LookupTableSlide: React.FC = () => {
         <div className="overflow-x-auto border border-border/50 rounded-xl bg-muted/20 backdrop-blur-md">
           <table className="w-full text-left text-xs border-collapse">
             <thead>
-              <tr className="bg-slate-900 border-b border-border text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+              <tr className="bg-muted/40 border-b border-border text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
                 <th className="py-2.5 px-4">Beam Type</th>
                 <th className="py-2.5 px-4">Loading Diagram</th>
-                <th className="py-2.5 px-4">Max Shear (V_max)</th>
-                <th className="py-2.5 px-4">Max Moment (M_max)</th>
+                <th className="py-2.5 px-4">Max Shear (<LatexFormula math="V_{\max}" />)</th>
+                <th className="py-2.5 px-4">Max Moment (<LatexFormula math="M_{\max}" />)</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border/30 font-medium">
               <tr>
                 <td className="py-3 px-4 text-foreground font-bold">Simply Supported</td>
-                <td className="py-3 px-4 text-muted-foreground">Concentrated load P at center</td>
-                <td className="py-3 px-4 font-mono">P / 2</td>
-                <td className="py-3 px-4 font-mono text-indigo-400 font-bold">P · L / 4</td>
+                <td className="py-3 px-4 text-muted-foreground">
+                  Concentrated load <LatexFormula math="P" /> at center
+                </td>
+                <td className="py-3 px-4 font-mono"><LatexFormula math="P / 2" /></td>
+                <td className="py-3 px-4 font-mono text-indigo-400 font-bold"><LatexFormula math="P \cdot L / 4" /></td>
               </tr>
               <tr className="bg-muted/10">
                 <td className="py-3 px-4 text-foreground font-bold">Simply Supported</td>
-                <td className="py-3 px-4 text-muted-foreground">Uniformly distributed load w</td>
-                <td className="py-3 px-4 font-mono">w · L / 2</td>
-                <td className="py-3 px-4 font-mono text-indigo-400 font-bold">w · L² / 8</td>
+                <td className="py-3 px-4 text-muted-foreground">
+                  Uniformly distributed load <LatexFormula math="w" />
+                </td>
+                <td className="py-3 px-4 font-mono"><LatexFormula math="w \cdot L / 2" /></td>
+                <td className="py-3 px-4 font-mono text-indigo-400 font-bold"><LatexFormula math="w \cdot L^2 / 8" /></td>
               </tr>
               <tr>
                 <td className="py-3 px-4 text-foreground font-bold">Cantilever</td>
-                <td className="py-3 px-4 text-muted-foreground">Concentrated load P at free end</td>
-                <td className="py-3 px-4 font-mono">P</td>
-                <td className="py-3 px-4 font-mono text-indigo-400 font-bold">P · L</td>
+                <td className="py-3 px-4 text-muted-foreground">
+                  Concentrated load <LatexFormula math="P" /> at free end
+                </td>
+                <td className="py-3 px-4 font-mono"><LatexFormula math="P" /></td>
+                <td className="py-3 px-4 font-mono text-indigo-400 font-bold"><LatexFormula math="P \cdot L" /></td>
               </tr>
               <tr className="bg-muted/10">
                 <td className="py-3 px-4 text-foreground font-bold">Cantilever</td>
-                <td className="py-3 px-4 text-muted-foreground">Uniformly distributed load w</td>
-                <td className="py-3 px-4 font-mono">w · L</td>
-                <td className="py-3 px-4 font-mono text-indigo-400 font-bold">w · L² / 2</td>
+                <td className="py-3 px-4 text-muted-foreground">
+                  Uniformly distributed load <LatexFormula math="w" />
+                </td>
+                <td className="py-3 px-4 font-mono"><LatexFormula math="w \cdot L" /></td>
+                <td className="py-3 px-4 font-mono text-indigo-400 font-bold"><LatexFormula math="w \cdot L^2 / 2" /></td>
               </tr>
             </tbody>
           </table>

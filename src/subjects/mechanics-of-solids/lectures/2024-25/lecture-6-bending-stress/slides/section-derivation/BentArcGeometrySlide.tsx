@@ -1,8 +1,7 @@
 import React from 'react';
-import { TwoColumnLayout } from '@/shared/layouts/TwoColumnLayout';
-import { SlideParagraph, SlideBullet } from '@/features/presentation/components/elements';
+import { SlideParagraph, SlideList, LatexFormula, ClickHighlight } from '@/features/presentation/components/elements';
 import { DerivationDrawing } from './drawings/DerivationDrawing';
-import { Compass } from 'lucide-react';
+import { TwoColumnLayout } from '@/shared/layouts/TwoColumnLayout';
 
 export const BentArcGeometrySlide: React.FC = () => {
   return (
@@ -11,26 +10,70 @@ export const BentArcGeometrySlide: React.FC = () => {
       leftWidth="50%"
       leftContent={
         <div className="flex flex-col justify-between h-full gap-4 text-left select-text">
-          <div>
-            <div className="flex items-center space-x-1.5 text-indigo-500 font-bold text-[10px] uppercase mb-1">
-              <Compass className="h-4.5 w-4.5" />
-              <span>Deformed Geometry</span>
-            </div>
-            <SlideParagraph variant="plain" className="text-xs text-muted-foreground leading-relaxed">
-              When moments curl the beam segment, it deforms into an arc of a circle centered at O.
-            </SlideParagraph>
-          </div>
-          <div className="space-y-2 my-2">
-            <SlideBullet text="Planar faces AB and CD rotate to form angle dθ (converging at O)." />
-            <SlideBullet text="R is the Radius of Curvature measured directly to the Neutral Axis (R'S')." />
-            <SlideBullet text="Since NA has zero strain, R'S' remains equal to original length dx: R'S' = R dθ = dx." />
-          </div>
-          <div className="p-3 bg-muted/20 border border-border/50 rounded-xl text-[9px] text-muted-foreground leading-normal">
-            The radius to fiber P'Q' is:
+          <SlideList
+            title="Deformed Geometry"
+            description={
+              <span>
+                {"When moments curl the beam segment, it deforms into an arc of a circle centered at "}
+                <LatexFormula math="O" />
+                {"."}
+              </span>
+            }
+            revealMode="each-click"
+            items={[
+              {
+                text: (
+                  <span>
+                    {"Planar faces "}
+                    <LatexFormula math="AB" />
+                    {" and "}
+                    <LatexFormula math="CD" />
+                    {" rotate to form angle "}
+                    <LatexFormula math="d\theta" />
+                    {" (converging at "}
+                    <LatexFormula math="O" />
+                    {")."}
+                  </span>
+                ),
+                revealAt: 1,
+              },
+              {
+                text: (
+                  <span>
+                    <LatexFormula math="R" />
+                    {" is the Radius of Curvature measured directly to the Neutral Axis ("}
+                    <LatexFormula math="R'S'" />
+                    {")."}
+                  </span>
+                ),
+                revealAt: 2,
+              },
+              {
+                text: (
+                  <span>
+                    {"Since NA has zero strain, "}
+                    <LatexFormula math="R'S'" />
+                    {" remains equal to original length "}
+                    <LatexFormula math="dx" />
+                    {": "}
+                    <LatexFormula math="R'S' = R \, d\theta = dx" />
+                    {"."}
+                  </span>
+                ),
+                revealAt: 3,
+              },
+            ]}
+          />
+          <SlideParagraph variant="info" className="text-[10px] my-1">
+            <span>
+              The radius to fiber <LatexFormula math="P'Q'" /> is:
+            </span>
             <div className="mt-1 font-mono font-bold text-[10px] text-center text-indigo-500">
-              Radius_fiber = R - y
+              <ClickHighlight at={4} variant="paint">
+                <LatexFormula math="\text{Radius}_{\text{fiber}} = R - y" />
+              </ClickHighlight>
             </div>
-          </div>
+          </SlideParagraph>
         </div>
       }
       rightContent={

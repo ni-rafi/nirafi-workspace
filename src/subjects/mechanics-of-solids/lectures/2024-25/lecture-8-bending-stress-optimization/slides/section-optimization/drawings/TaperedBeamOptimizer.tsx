@@ -1,6 +1,6 @@
 import React from 'react';
 import { useUrlSyncedState } from '@/features/presentation/hooks/useUrlSyncedState';
-import { ParameterSlider, CalculationOutput, SlideParagraph } from '@/features/presentation/components/elements';
+import { ParameterSlider, CalculationOutput, SlideParagraph, LatexFormula } from '@/features/presentation/components/elements';
 import { ExpandableDrawing } from '@/shared/components';
 
 export const TaperedBeamOptimizer: React.FC = () => {
@@ -63,7 +63,7 @@ export const TaperedBeamOptimizer: React.FC = () => {
             Taper Parameters
           </span>
           <SlideParagraph variant="plain" className="text-[10px] text-muted-foreground leading-normal">
-            Adjust the baseline depth at the free end (h₀) and the linear taper rate (k) to locate the maximum bending stress.
+            Adjust the baseline depth at the free end (<LatexFormula math="h_0" />) and the linear taper rate (<LatexFormula math="k" />) to locate the maximum bending stress.
           </SlideParagraph>
         </div>
 

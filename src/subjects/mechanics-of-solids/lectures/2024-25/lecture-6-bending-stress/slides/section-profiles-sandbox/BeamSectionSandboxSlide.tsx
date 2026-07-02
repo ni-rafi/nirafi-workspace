@@ -2,6 +2,7 @@ import React from 'react';
 import { TwoColumnLayout } from '@/shared/layouts/TwoColumnLayout';
 import { useUrlSyncedState } from '@/features/presentation/hooks/useUrlSyncedState';
 import { ParameterSlider, CalculationOutput } from '@/features/presentation/components/elements';
+import { ExpandableDrawing } from '@/shared/components';
 import { ProfileShapeView } from '@/subjects/mechanics-of-solids/features/stress/components/diagrams/ProfileShapeView';
 import { BendingStressProfileChart } from '@/subjects/mechanics-of-solids/features/stress/components/diagrams/BendingStressProfileChart';
 import { CrossSectionEngine } from '@/subjects/mechanics-of-solids/cores/stress/cross-section.engine';
@@ -112,10 +113,12 @@ export const BeamSectionSandboxSlide: React.FC = () => {
       }
       rightContent={
         <div className="bg-muted/30 border border-border/50 rounded-xl p-4 flex flex-col items-center justify-center h-full min-h-[260px]">
-          <svg viewBox={`0 0 ${svgW} ${svgH}`} className="w-full max-w-[250px] overflow-visible">
-            <ProfileShapeView shape={shape} centroid={ybar_m} toPixelY={toPixelY} inspectY={inspectY} currentWidth={statQ.t * 1000} />
-            <BendingStressProfileChart points={res.points} maxSigma={maxSigma} toPixelY={toPixelY} H={H_m} ybar={ybar_m} sigmaTopMPa={sigmaTopMPa} sigmaBottomMPa={sigmaBottomMPa} pyInspect={pyInspect} currentSigma={sigmaMPa} />
-          </svg>
+          <ExpandableDrawing title="Bending Stress Cross-Section Profile" description="Renders the cross-section shape and corresponding linear stress distribution profile.">
+            <svg viewBox={`0 0 ${svgW} ${svgH}`} className="w-full max-w-[250px] overflow-visible">
+              <ProfileShapeView shape={shape} centroid={ybar_m} toPixelY={toPixelY} inspectY={inspectY} currentWidth={statQ.t * 1000} />
+              <BendingStressProfileChart points={res.points} maxSigma={maxSigma} toPixelY={toPixelY} H={H_m} ybar={ybar_m} sigmaTopMPa={sigmaTopMPa} sigmaBottomMPa={sigmaBottomMPa} pyInspect={pyInspect} currentSigma={sigmaMPa} />
+            </svg>
+          </ExpandableDrawing>
         </div>
       }
     />

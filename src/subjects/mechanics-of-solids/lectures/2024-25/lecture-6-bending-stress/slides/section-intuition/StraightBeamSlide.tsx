@@ -1,8 +1,6 @@
-import React from 'react';
-import { TwoColumnLayout } from '@/shared/layouts/TwoColumnLayout';
-import { SlideParagraph, SlideBullet } from '@/features/presentation/components/elements';
+import { SlideList, SlideParagraph } from '@/features/presentation/components/elements';
 import { BeamDeformationDrawing } from './drawings/BeamDeformationDrawing';
-import { Layout } from 'lucide-react';
+import TwoColumnLayout from '@/shared/layouts/TwoColumnLayout';
 
 export const StraightBeamSlide: React.FC = () => {
   return (
@@ -11,23 +9,19 @@ export const StraightBeamSlide: React.FC = () => {
       leftWidth="50%"
       leftContent={
         <div className="flex flex-col justify-between h-full gap-4 text-left select-text">
-          <div>
-            <div className="flex items-center space-x-1.5 text-indigo-500 font-bold text-[10px] uppercase mb-1">
-              <Layout className="h-4.5 w-4.5" />
-              <span>Beam Element</span>
-            </div>
-            <SlideParagraph variant="plain" className="text-xs text-muted-foreground leading-relaxed">
-              We now apply this spring intuition to a solid structural beam element.
-            </SlideParagraph>
-          </div>
-          <div className="space-y-2 my-2">
-            <SlideBullet text="Initially, the beam is straight and horizontal." />
-            <SlideBullet text="The Neutral Axis (NA) is at the center of gravity (centroid) of the cross section." />
-            <SlideBullet text="Before any load is applied, all internal normal stresses are exactly zero." />
-          </div>
-          <div className="p-3 bg-muted/20 border border-border/50 rounded-xl text-[9px] text-muted-foreground leading-normal">
-            Let's see how this horizontal reference line transforms under positive sagging moments.
-          </div>
+          <SlideList
+            title="Beam Element"
+            description="We now apply this spring intuition to a solid structural beam element."
+            revealMode="each-click"
+            items={[
+              { text: "Initially, the beam is straight and horizontal.", revealAt: 1 },
+              { text: "The Neutral Axis (NA) is at the center of gravity (centroid) of the cross section.", revealAt: 2 },
+              { text: "Before any load is applied, all internal normal stresses are exactly zero.", revealAt: 3 },
+            ]}
+          />
+          <SlideParagraph variant="info" className="text-[10px] my-1">
+            {"Let's see how this horizontal reference line transforms under positive sagging moments."}
+          </SlideParagraph>
         </div>
       }
       rightContent={

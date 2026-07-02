@@ -1,9 +1,12 @@
 import React from 'react';
 import { TwoColumnLayout } from '@/shared/layouts/TwoColumnLayout';
-import { SlideParagraph, SlideCallout, LatexFormula } from '@/features/presentation/components/elements';
-import { BuiltUpFastenersDrawing } from '@/subjects/mechanics-of-solids/features/stress/components/diagrams/BuiltUpFastenersDrawing';
+import { SlideParagraph, SlideCallout, LatexFormula, SlideList } from '@/features/presentation/components/elements';
+import { useClickStepsContext } from '@/features/presentation/context/ClickStepsContext';
+import { BuiltUpFastenersDrawing } from './drawings/BuiltUpFastenersDrawing';
 
 export const FastenersSpacing: React.FC = () => {
+  const { currentClick } = useClickStepsContext();
+
   return (
     <TwoColumnLayout
       title="Sizing Fastener Spacing"
@@ -20,17 +23,19 @@ export const FastenersSpacing: React.FC = () => {
           </div>
 
           <div className="space-y-2 text-xs text-muted-foreground">
-            <p>
+            <SlideParagraph variant="plain" className="text-xs text-muted-foreground">
               Let:
-            </p>
-            <ul className="list-disc pl-4 space-y-0.5">
-              <li>F_nail = allowable shear force capacity of a single fastener.</li>
-              <li>n = number of fasteners acting in a transverse row at any cross-section.</li>
-              <li>s = longitudinal spacing interval between fastener rows.</li>
-            </ul>
-            <p>
+            </SlideParagraph>
+            <SlideList
+              items={[
+                { text: 'F_nail = allowable shear force capacity of a single fastener.' },
+                { text: 'n = number of fasteners acting in a transverse row at any cross-section.' },
+                { text: 's = longitudinal spacing interval between fastener rows.' }
+              ]}
+            />
+            <SlideParagraph variant="plain" className="text-xs text-muted-foreground">
               The resisting shear capacity per unit length is n · F_nail / s. For equilibrium:
-            </p>
+            </SlideParagraph>
             <div className="py-2 text-center bg-indigo-500/10 rounded-xl border border-indigo-500/30 text-indigo-600 dark:text-indigo-400 font-extrabold text-xs">
               <LatexFormula math="s \\le \\frac{n \\cdot F_{\\text{nail}}}{q} = \\frac{n \\cdot F_{\\text{nail}} \\cdot I}{V \\cdot Q}" />
             </div>
@@ -44,7 +49,7 @@ export const FastenersSpacing: React.FC = () => {
       rightContent={
         <div className="bg-muted/30 border border-border/50 rounded-xl p-4 flex flex-col items-center justify-center h-full min-h-[250px]">
           <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest block mb-2">Discrete Fastener Pitch (s)</span>
-          <BuiltUpFastenersDrawing spacing={80} />
+          <BuiltUpFastenersDrawing spacing={80} currentClick={currentClick} />
         </div>
       }
     />

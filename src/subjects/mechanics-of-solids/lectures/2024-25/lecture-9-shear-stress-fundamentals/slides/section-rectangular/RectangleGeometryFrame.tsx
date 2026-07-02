@@ -1,7 +1,7 @@
 import React from 'react';
 import { TwoColumnLayout } from '@/shared/layouts/TwoColumnLayout';
-import { SlideParagraph, SlideCallout } from '@/features/presentation/components/elements';
-import { RectangularShearPlotting } from '@/subjects/mechanics-of-solids/features/stress/components/diagrams/RectangularShearPlotting';
+import { SlideParagraph, SlideCallout, SlideList } from '@/features/presentation/components/elements';
+import { RectangularShearPlotting } from './drawings/RectangularShearPlotting';
 
 export const RectangleGeometryFrame: React.FC = () => {
   return (
@@ -20,14 +20,16 @@ export const RectangleGeometryFrame: React.FC = () => {
           </div>
 
           <div className="space-y-2 text-xs text-muted-foreground">
-            <p>
+            <SlideParagraph variant="plain" className="text-xs text-muted-foreground">
               We want to calculate stress at any arbitrary height coordinate y measured from the Neutral Axis:
-            </p>
-            <ul className="list-disc pl-4 space-y-1">
-              <li>The Neutral Axis lies at centroidal height (y = 0).</li>
-              <li>The outer boundaries lie at y_max = h/2 and -y_max = -h/2.</li>
-              <li>We isolate a sliding sub-area A' representing the region from height y up to the top skin h/2.</li>
-            </ul>
+            </SlideParagraph>
+            <SlideList
+              items={[
+                { text: 'The Neutral Axis lies at centroidal height (y = 0).' },
+                { text: 'The outer boundaries lie at y_max = h/2 and -y_max = -h/2.' },
+                { text: "We isolate a sliding sub-area A' representing the region from height y up to the top skin h/2." }
+              ]}
+            />
           </div>
 
           <SlideCallout variant="info" className="py-2 px-3 text-[10px]">
@@ -38,9 +40,9 @@ export const RectangleGeometryFrame: React.FC = () => {
       rightContent={
         <div className="flex flex-col items-center justify-center h-full">
           <RectangularShearPlotting plotStep={1} />
-          <p className="text-[10.5px] text-muted-foreground mt-2 font-mono">
+          <SlideParagraph variant="plain" className="text-[10.5px] text-muted-foreground mt-2 font-mono">
             Slicing Plane at Coordinate y
-          </p>
+          </SlideParagraph>
         </div>
       }
     />

@@ -1,8 +1,6 @@
-import React from 'react';
-import { TwoColumnLayout } from '@/shared/layouts/TwoColumnLayout';
-import { SlideParagraph, SlideBullet } from '@/features/presentation/components/elements';
+import { SlideList } from '@/features/presentation/components/elements';
 import { SpringDrawing } from './drawings/SpringDrawing';
-import { Eye } from 'lucide-react';
+import { TwoColumnLayout } from '@/shared/layouts/TwoColumnLayout';
 
 export const IsolatedBoundariesSlide: React.FC = () => {
   return (
@@ -11,23 +9,16 @@ export const IsolatedBoundariesSlide: React.FC = () => {
       leftWidth="50%"
       leftContent={
         <div className="flex flex-col justify-between h-full gap-4 text-left select-text">
-          <div>
-            <div className="flex items-center space-x-1.5 text-indigo-500 font-bold text-[10px] uppercase mb-1">
-              <Eye className="h-4.5 w-4.5" />
-              <span>Geometric Isolation</span>
-            </div>
-            <SlideParagraph variant="plain" className="text-xs text-muted-foreground leading-relaxed">
-              By removing the spring coils, we isolate the boundaries to focus purely on the geometric outlines.
-            </SlideParagraph>
-          </div>
-          <div className="space-y-2 my-2">
-            <SlideBullet text="The orange parallel lines represent plane cross-sections of a beam." />
-            <SlideBullet text="Before bending, the distance between boundaries is uniform at all heights." />
-            <SlideBullet text="No normal strains are present in this undeformed condition." />
-          </div>
-          <div className="p-3 bg-muted/20 border border-border/50 rounded-xl text-[9px] text-muted-foreground leading-normal">
-            Now, let's watch these plane lines rotate when we bend the spring quadrant.
-          </div>
+          <SlideList
+            title="Geometric Isolation"
+            description="By removing the spring coils, we isolate the boundaries to focus purely on the geometric outlines."
+            revealMode="each-click"
+            items={[
+              { text: "The orange parallel lines represent plane cross-sections of a beam.", revealAt: 1 },
+              { text: "Before bending, the distance between boundaries is uniform at all heights.", revealAt: 2 },
+              { text: "No normal strains are present in this undeformed condition.", revealAt: 3 },
+            ]}
+          />
         </div>
       }
       rightContent={

@@ -1,8 +1,7 @@
 import React from 'react';
-import { TwoColumnLayout } from '@/shared/layouts/TwoColumnLayout';
-import { SlideParagraph, SlideBullet } from '@/features/presentation/components/elements';
+import { SlideParagraph, SlideList, LatexFormula } from '@/features/presentation/components/elements';
 import { DerivationDrawing } from './drawings/DerivationDrawing';
-import { Columns } from 'lucide-react';
+import { TwoColumnLayout } from '@/shared/layouts/TwoColumnLayout';
 
 export const ComparativeSynthesisSlide: React.FC = () => {
   return (
@@ -11,22 +10,46 @@ export const ComparativeSynthesisSlide: React.FC = () => {
       leftWidth="45%"
       leftContent={
         <div className="flex flex-col justify-between h-full gap-4 text-left select-text">
-          <div>
-            <div className="flex items-center space-x-1.5 text-indigo-500 font-bold text-[10px] uppercase mb-1">
-              <Columns className="h-4.5 w-4.5" />
-              <span>Comparative Tracking</span>
-            </div>
-            <SlideParagraph variant="plain" className="text-xs text-muted-foreground leading-relaxed">
-              Let's track how fiber layers map from straight to bent states:
-            </SlideParagraph>
-          </div>
-          <div className="space-y-2 my-2">
-            <SlideBullet text="Neutral Axis: RS (straight) maps to R'S' (bent). Length remains constant: RS = R'S' = dx." />
-            <SlideBullet text="Fiber at height y: PQ (straight) maps to P'Q' (bent). Length changes: PQ = dx → P'Q' = (R - y) dθ." />
-          </div>
-          <div className="p-3 bg-indigo-500/[0.03] border border-indigo-500/20 rounded-xl text-[9px] text-indigo-600 dark:text-indigo-400 leading-normal font-medium">
-            This geometric change in fiber length directly yields the normal strain formulation.
-          </div>
+          <SlideList
+            title="Comparative Tracking"
+            description="Let's track how fiber layers map from straight to bent states:"
+            revealMode="each-click"
+            items={[
+              {
+                text: (
+                  <span>
+                    {"Neutral Axis: "}
+                    <LatexFormula math="RS" />
+                    {" (straight) maps to "}
+                    <LatexFormula math="R'S'" />
+                    {" (bent). Length remains constant: "}
+                    <LatexFormula math="RS = R'S' = dx" />
+                    {"."}
+                  </span>
+                ),
+                revealAt: 1,
+              },
+              {
+                text: (
+                  <span>
+                    {"Fiber at height "}
+                    <LatexFormula math="y" />
+                    {": "}
+                    <LatexFormula math="PQ" />
+                    {" (straight) maps to "}
+                    <LatexFormula math="P'Q'" />
+                    {" (bent). Length changes: "}
+                    <LatexFormula math="PQ = dx \rightarrow P'Q' = (R - y) \, d\theta" />
+                    {"."}
+                  </span>
+                ),
+                revealAt: 2,
+              },
+            ]}
+          />
+          <SlideParagraph variant="info" className="text-[10px] my-1">
+            {"This geometric change in fiber length directly yields the normal strain formulation."}
+          </SlideParagraph>
         </div>
       }
       rightContent={

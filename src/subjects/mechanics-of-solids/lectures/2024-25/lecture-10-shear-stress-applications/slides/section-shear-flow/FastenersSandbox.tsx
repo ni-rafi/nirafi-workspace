@@ -2,7 +2,7 @@ import React from 'react';
 import { TwoColumnLayout } from '@/shared/layouts/TwoColumnLayout';
 import { SlideParagraph, SlideCallout, ParameterSlider, CalculationOutput } from '@/features/presentation/components/elements';
 import { useUrlSyncedState } from '@/features/presentation/hooks/useUrlSyncedState';
-import { BuiltUpFastenersDrawing } from '@/subjects/mechanics-of-solids/features/stress/components/diagrams/BuiltUpFastenersDrawing';
+import { BuiltUpFastenersDrawing } from './drawings/BuiltUpFastenersDrawing';
 
 export const FastenersSandbox: React.FC = () => {
   const [fastenerV, setFastenerV] = useUrlSyncedState<number>('fasteners_v', 40); // kN
@@ -87,7 +87,7 @@ export const FastenersSandbox: React.FC = () => {
       rightContent={
         <div className="bg-muted/30 border border-border/50 rounded-xl p-4 flex flex-col items-center justify-center h-full min-h-[250px]">
           <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest block mb-2">Discrete Fastener Pitch (s)</span>
-          <BuiltUpFastenersDrawing spacing={spacingClamped} />
+          <BuiltUpFastenersDrawing spacing={spacingClamped} currentClick={1} />
         </div>
       }
     />

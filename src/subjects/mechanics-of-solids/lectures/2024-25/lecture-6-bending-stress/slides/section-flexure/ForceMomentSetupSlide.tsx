@@ -1,8 +1,7 @@
 import React from 'react';
-import { TwoColumnLayout } from '@/shared/layouts/TwoColumnLayout';
-import { SlideParagraph, SlideBullet } from '@/features/presentation/components/elements';
+import { SlideParagraph, SlideList, LatexFormula } from '@/features/presentation/components/elements';
 import { CrossSectionElementDrawing } from './drawings/CrossSectionElementDrawing';
-import { ShieldCheck } from 'lucide-react';
+import { TwoColumnLayout } from '@/shared/layouts/TwoColumnLayout';
 
 export const ForceMomentSetupSlide: React.FC = () => {
   return (
@@ -11,23 +10,53 @@ export const ForceMomentSetupSlide: React.FC = () => {
       leftWidth="50%"
       leftContent={
         <div className="flex flex-col h-full justify-between gap-4 text-left select-text">
-          <div>
-            <div className="flex items-center space-x-1.5 text-indigo-500 font-bold text-[10px] uppercase mb-1">
-              <ShieldCheck className="h-4.5 w-4.5" />
-              <span>Cross-Section Analysis</span>
-            </div>
-            <SlideParagraph variant="plain" className="text-xs text-muted-foreground leading-relaxed">
-              We look at an elemental area strip dA of the cross section at a distance y from the Neutral Axis.
-            </SlideParagraph>
-          </div>
-          <div className="space-y-2 my-2">
-            <SlideBullet text="Differential force on strip dA: dF = σ dA = (E / R) y dA" />
-            <SlideBullet text="Differential resisting moment: dM = dF * y = (E / R) y² dA" />
-            <SlideBullet text="To find the total resisting moment M, we must integrate these moments across the entire area." />
-          </div>
-          <div className="p-3 bg-indigo-500/[0.03] border border-indigo-500/20 rounded-xl text-[9px] text-indigo-600 dark:text-indigo-400 leading-normal font-semibold">
-            Resisting Moment M equals the externally applied bending moment in static equilibrium.
-          </div>
+          <SlideList
+            title="Cross-Section Analysis"
+            description={
+              <span>
+                {"We look at an elemental area strip "}
+                <LatexFormula math="dA" />
+                {" of the cross section at a distance "}
+                <LatexFormula math="y" />
+                {" from the Neutral Axis."}
+              </span>
+            }
+            revealMode="each-click"
+            items={[
+              {
+                text: (
+                  <span>
+                    {"Differential force on strip "}
+                    <LatexFormula math="dA" />
+                    {": "}
+                    <LatexFormula math="dF = \sigma \, dA = \frac{E}{R} y \, dA" />
+                  </span>
+                ),
+                revealAt: 1,
+              },
+              {
+                text: (
+                  <span>
+                    {"Differential resisting moment: "}
+                    <LatexFormula math="dM = dF \cdot y = \frac{E}{R} y^2 \, dA" />
+                  </span>
+                ),
+                revealAt: 2,
+              },
+              {
+                text: (
+                  <span>
+                    {"To find the total resisting moment "}
+                    <LatexFormula math="M" />, we must integrate these moments across the entire area.
+                  </span>
+                ),
+                revealAt: 3,
+              },
+            ]}
+          />
+          <SlideParagraph variant="info" className="text-[10px] my-1">
+            {"Resisting Moment M equals the externally applied bending moment in static equilibrium."}
+          </SlideParagraph>
         </div>
       }
       rightContent={

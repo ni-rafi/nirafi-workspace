@@ -7,7 +7,7 @@ export type SlideListRevealMode = 'each-click' | 'all-click' | 'auto-stagger' | 
 
 interface SlideListProps {
   title?: string;
-  description?: string;
+  description?: React.ReactNode;
   items: Array<{
     title?: React.ReactNode;
     text: React.ReactNode;

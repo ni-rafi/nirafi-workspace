@@ -1,7 +1,8 @@
 import React from 'react';
 import { TwoColumnLayout } from '@/shared/layouts/TwoColumnLayout';
 import { useUrlSyncedState } from '@/features/presentation/hooks/useUrlSyncedState';
-import { ParameterSlider, CalculationOutput, SlideParagraph } from '@/features/presentation/components/elements';
+import { ParameterSlider, CalculationOutput, SlideParagraph, LatexFormula } from '@/features/presentation/components/elements';
+import { ExpandableDrawing } from '@/shared/components';
 
 export const CompositeBeamsSandboxSlide: React.FC = () => {
   const [b_w, setBw] = useUrlSyncedState<number>('comp_bw', 100); // wood width in mm
@@ -41,7 +42,9 @@ export const CompositeBeamsSandboxSlide: React.FC = () => {
           <div>
             <span className="text-[9px] font-bold text-indigo-500 uppercase tracking-widest block mb-1">Composite (Flitched) Beams</span>
             <SlideParagraph variant="plain" className="text-[10px] text-muted-foreground leading-normal">
-              Wood beam reinforced with steel plates on top and bottom. Transform steel to wood width using $n = E_s / E_w$.
+              {"Wood beam reinforced with steel plates on top and bottom. Transform steel to wood width using "}
+              <LatexFormula math="n = E_s / E_w" />
+              {"."}
             </SlideParagraph>
           </div>
 
@@ -61,34 +64,33 @@ export const CompositeBeamsSandboxSlide: React.FC = () => {
       }
       rightContent={
         <div className="bg-muted/30 border border-border/50 rounded-xl p-4 flex flex-col items-center justify-center h-full min-h-[260px] w-full">
-          <span className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest block mb-2">Equivalent Transformed Section</span>
+          <ExpandableDrawing title="Equivalent Transformed Section" description="Cross-section and transformed width boundaries of a composite wood beam flitched with steel plates.">
+            <svg viewBox="0 0 300 160" className="w-full max-w-[220px] overflow-visible">
+              {/* Base coordinate guides */}
+              <line x1={150} y1={10} x2={150} y2={150} stroke="var(--border)" strokeWidth={0.5} strokeDasharray="2,2" />
+              <line x1={40} y1={80} x2={260} y2={80} stroke="var(--destructive)" strokeWidth={1.0} strokeDasharray="3,1" opacity={0.6} />
+              <text x={265} y={83} className="fill-destructive text-[8px] font-bold opacity-80">N.A.</text>
 
-          <svg viewBox="0 0 300 160" className="w-full max-w-[220px] overflow-visible">
-            {/* Base coordinate guides */}
-            <line x1={150} y1={10} x2={150} y2={150} stroke="var(--border)" strokeWidth={0.5} strokeDasharray="2,2" />
-            <line x1={40} y1={80} x2={260} y2={80} stroke="var(--destructive)" strokeWidth={1.0} strokeDasharray="3,1" opacity={0.6} />
-            <text x={265} y={83} className="fill-destructive text-[8px] font-bold opacity-80">N.A.</text>
+              {/* Original wood core */}
+              <rect x={150 - b_w / 2} y={80 - h_w / 2} width={b_w} height={h_w} fill="none" stroke="var(--foreground)" strokeWidth={1.2} />
+              <text x={150} y={83} textAnchor="middle" className="fill-foreground text-[8px] font-bold">Wood Core</text>
 
-            {/* Original wood core */}
-            <rect x={150 - b_w / 2} y={80 - h_w / 2} width={b_w} height={h_w} fill="none" stroke="var(--foreground)" strokeWidth={1.2} />
-            <text x={150} y={83} textAnchor="middle" className="fill-foreground text-[8px] font-bold">Wood Core</text>
+              {/* Original steel plates (top and bottom) */}
+              <rect x={150 - b_w / 2} y={80 - h_w / 2 - t_s} width={b_w} height={t_s} fill="var(--primary)" fillOpacity={0.15} stroke="var(--primary)" strokeWidth={1.2} />
+              <rect x={150 - b_w / 2} y={80 + h_w / 2} width={b_w} height={t_s} fill="var(--primary)" fillOpacity={0.15} stroke="var(--primary)" strokeWidth={1.2} />
 
-            {/* Original steel plates (top and bottom) */}
-            <rect x={150 - b_w / 2} y={80 - h_w / 2 - t_s} width={b_w} height={t_s} fill="var(--primary)" fillOpacity={0.15} stroke="var(--primary)" strokeWidth={1.2} />
-            <rect x={150 - b_w / 2} y={80 + h_w / 2} width={b_w} height={t_s} fill="var(--primary)" fillOpacity={0.15} stroke="var(--primary)" strokeWidth={1.2} />
+              {/* Transformed width outlines */}
+              <line x1={150 - (n * b_w) / 2} y1={80 - h_w / 2 - t_s / 2} x2={150 + (n * b_w) / 2} y2={80 - h_w / 2 - t_s / 2} stroke="var(--primary)" strokeWidth={0.8} strokeDasharray="2,2" />
+              <line x1={150 - (n * b_w) / 2} y1={80 + h_w / 2 + t_s / 2} x2={150 + (n * b_w) / 2} y2={80 + h_w / 2 + t_s / 2} stroke="var(--primary)" strokeWidth={0.8} strokeDasharray="2,2" />
 
-            {/* Transformed width outlines */}
-            <line x1={150 - (n * b_w) / 2} y1={80 - h_w / 2 - t_s / 2} x2={150 + (n * b_w) / 2} y2={80 - h_w / 2 - t_s / 2} stroke="var(--primary)" strokeWidth={0.8} strokeDasharray="2,2" />
-            <line x1={150 - (n * b_w) / 2} y1={80 + h_w / 2 + t_s / 2} x2={150 + (n * b_w) / 2} y2={80 + h_w / 2 + t_s / 2} stroke="var(--primary)" strokeWidth={0.8} strokeDasharray="2,2" />
-
-            {/* Labels */}
-            <text x={150} y={80 - h_w / 2 - t_s - 4} textAnchor="middle" className="fill-primary text-[8px] font-bold">Steel Plate (ts)</text>
-            <text x={150} y={80 + h_w / 2 + t_s + 10} textAnchor="middle" className="fill-primary text-[8px] font-bold">Transformed width = n * bw</text>
-          </svg>
+              {/* Labels */}
+              <text x={150} y={80 - h_w / 2 - t_s - 4} textAnchor="middle" className="fill-primary text-[8px] font-bold">Steel Plate (ts)</text>
+              <text x={150} y={80 + h_w / 2 + t_s + 10} textAnchor="middle" className="fill-primary text-[8px] font-bold">Transformed width = n * bw</text>
+            </svg>
+          </ExpandableDrawing>
         </div>
       }
     />
   );
 };
-
 export default CompositeBeamsSandboxSlide;

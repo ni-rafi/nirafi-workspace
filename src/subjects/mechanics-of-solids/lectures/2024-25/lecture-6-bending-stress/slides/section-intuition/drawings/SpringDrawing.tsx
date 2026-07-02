@@ -1,4 +1,4 @@
-import React from 'react';
+import { ExpandableDrawing } from '@/shared/components';
 
 interface SpringDrawingProps {
   mode: 'straight' | 'bent' | 'boundaries-only';
@@ -101,8 +101,12 @@ export const SpringDrawing: React.FC<SpringDrawingProps> = ({ mode }) => {
   };
 
   return (
-    <svg viewBox={`0 0 ${width} ${height}`} className="w-full max-w-[240px] h-auto overflow-visible">
-      {mode === 'straight' || mode === 'boundaries-only' ? renderStraight() : renderBent()}
-    </svg>
+    <ExpandableDrawing title="Spring Bending Model" description="Visualizes linear and circular spring boundaries to model physical bending deformation.">
+      <div className="w-full flex justify-center items-center py-2 bg-muted/10 border border-border/40 rounded-xl">
+        <svg viewBox={`0 0 ${width} ${height}`} className="w-full max-w-[240px] h-auto overflow-visible">
+          {mode === 'straight' || mode === 'boundaries-only' ? renderStraight() : renderBent()}
+        </svg>
+      </div>
+    </ExpandableDrawing>
   );
 };

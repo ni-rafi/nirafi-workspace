@@ -1,4 +1,5 @@
 import React from 'react';
+import { ExpandableDrawing } from '@/shared/components';
 
 interface ShearDerivationDrawingProps {
   currentStep: number;
@@ -17,7 +18,11 @@ export const ShearDerivationDrawing: React.FC<ShearDerivationDrawingProps> = ({ 
   const cutY = beamY + 30;       // Horizontal cut at y_1 (y=70, 20px above NA)
 
   return (
-    <div className="flex justify-center border border-border/30 bg-muted/5 rounded-2xl p-4 max-w-[400px] mx-auto w-full shadow-inner">
+    <ExpandableDrawing
+      title="Horizontal Shear Stress Derivation"
+      description="Analytical model of a beam segment under unequal bending moments, showing longitudinal slicing plane y₁, isolated top block, and the resulting resisting shear force ΔH."
+      className="max-w-[400px] mx-auto w-full"
+    >
       <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-full aspect-[1.6] overflow-visible">
         {/* Step 1: Base Beam segment */}
         <g opacity={currentStep >= 3 ? 0.3 : 1} className="transition-opacity duration-300">
@@ -67,7 +72,7 @@ export const ShearDerivationDrawing: React.FC<ShearDerivationDrawingProps> = ({ 
             <line x1={beamX + 20} y1={naY} x2={beamX + 20} y2={cutY} className="stroke-indigo-400" strokeWidth={1} />
             <polygon points={`${beamX + 20},${cutY} ${beamX + 18},${cutY + 4} ${beamX + 22},${cutY + 4}`} className="fill-indigo-400" />
             <polygon points={`${beamX + 20},${naY} ${beamX + 18},${naY - 4} ${beamX + 22},${naY - 4}`} className="fill-indigo-400" />
-            <text x={beamX + 25} y={(naY + cutY) / 2 + 3} className="fill-indigo-500 text-[10px] font-mono font-bold">
+            <text x={beamX + 25} y={(naY + cutY) / 2 + 3} className="fill-indigo-500 text-[11px] font-mono font-bold">
               y₁
             </text>
           </g>
@@ -139,7 +144,7 @@ export const ShearDerivationDrawing: React.FC<ShearDerivationDrawingProps> = ({ 
             <text x={beamX + beamW + 45} y={beamY - 4} textAnchor="start" className="fill-red-500 text-[11px] font-mono font-bold">
               σ_d
             </text>
-            <text x={beamX + beamW + 45} y={beamY + 10} textAnchor="start" className="fill-muted-foreground text-[9px] font-mono">
+            <text x={beamX + beamW + 45} y={beamY + 10} textAnchor="start" className="fill-muted-foreground text-[11px] font-mono">
               (σ_d &gt; σ_C)
             </text>
           </g>
@@ -191,6 +196,8 @@ export const ShearDerivationDrawing: React.FC<ShearDerivationDrawingProps> = ({ 
           Δx
         </text>
       </svg>
-    </div>
+    </ExpandableDrawing>
   );
 };
+
+export default ShearDerivationDrawing;

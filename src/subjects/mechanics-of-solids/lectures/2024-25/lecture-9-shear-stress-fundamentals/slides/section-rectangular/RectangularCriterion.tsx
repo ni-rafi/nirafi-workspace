@@ -1,7 +1,7 @@
 import React from 'react';
 import { TwoColumnLayout } from '@/shared/layouts/TwoColumnLayout';
-import { SlideParagraph, SlideCallout, LatexFormula } from '@/features/presentation/components/elements';
-import { RectangularShearPlotting } from '@/subjects/mechanics-of-solids/features/stress/components/diagrams/RectangularShearPlotting';
+import { SlideParagraph, SlideCallout, LatexFormula, SlideList } from '@/features/presentation/components/elements';
+import { RectangularShearPlotting } from './drawings/RectangularShearPlotting';
 
 export const RectangularCriterion: React.FC = () => {
   return (
@@ -20,19 +20,21 @@ export const RectangularCriterion: React.FC = () => {
           </div>
 
           <div className="space-y-2 text-xs text-muted-foreground">
-            <p>
+            <SlideParagraph variant="plain" className="text-xs text-muted-foreground">
               Substituting the maximum boundary gives:
-            </p>
+            </SlideParagraph>
             <div className="py-2 text-center bg-indigo-500/10 rounded-xl border border-indigo-500/30 text-indigo-600 dark:text-indigo-400 font-extrabold text-sm">
-              <LatexFormula math="\\tau_{\\max} = \\frac{3}{2} \\cdot \\frac{V}{A} = 1.5 \\cdot \\tau_{\\text{avg}}" />
+              <LatexFormula math="\tau_{\max} = \frac{3}{2} \cdot \frac{V}{A} = 1.5 \cdot \tau_{\text{avg}}" />
             </div>
-            <p>
+            <SlideParagraph variant="plain" className="text-xs text-muted-foreground">
               This is the **Rectangular Shear Criterion**:
-            </p>
-            <ul className="list-disc pl-4 space-y-1">
-              <li>The maximum shear stress inside a solid rectangular beam occurs along the central Neutral Axis line.</li>
-              <li>This peak is always exactly **1.5 times (150%)** greater than the simple average uniform stress approximation.</li>
-            </ul>
+            </SlideParagraph>
+            <SlideList
+              items={[
+                { text: 'The maximum shear stress inside a solid rectangular beam occurs along the central Neutral Axis line.' },
+                { text: 'This peak is always exactly **1.5 times (150%)** greater than the simple average uniform stress approximation.' }
+              ]}
+            />
           </div>
 
           <SlideCallout variant="success" className="py-2 px-3 text-[10px]">
@@ -43,9 +45,9 @@ export const RectangularCriterion: React.FC = () => {
       rightContent={
         <div className="flex flex-col items-center justify-center h-full">
           <RectangularShearPlotting plotStep={5} />
-          <p className="text-[10.5px] text-muted-foreground mt-2 font-mono">
+          <SlideParagraph variant="plain" className="text-[10.5px] text-muted-foreground mt-2 font-mono">
             Maximum Stress Peak: τ_max = 1.5 * τ_avg
-          </p>
+          </SlideParagraph>
         </div>
       }
     />

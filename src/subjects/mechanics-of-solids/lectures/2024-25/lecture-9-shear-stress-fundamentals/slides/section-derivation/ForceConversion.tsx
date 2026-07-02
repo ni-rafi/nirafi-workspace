@@ -1,7 +1,7 @@
 import React from 'react';
 import { TwoColumnLayout } from '@/shared/layouts/TwoColumnLayout';
-import { SlideParagraph, SlideCallout } from '@/features/presentation/components/elements';
-import { ShearDerivationDrawing } from '@/subjects/mechanics-of-solids/features/stress/components/diagrams/ShearDerivationDrawing';
+import { SlideParagraph, SlideCallout, SlideList } from '@/features/presentation/components/elements';
+import { ShearDerivationDrawing } from './drawings/ShearDerivationDrawing';
 
 export const ForceConversion: React.FC = () => {
   return (
@@ -20,19 +20,21 @@ export const ForceConversion: React.FC = () => {
           </div>
 
           <div className="space-y-2 text-xs text-muted-foreground">
-            <p>
+            <SlideParagraph variant="plain" className="text-xs text-muted-foreground">
               For any differential area element dA on the cross-section, the force is:
-            </p>
+            </SlideParagraph>
             <div className="font-mono text-center text-foreground py-1 bg-muted/20 border border-border/40 rounded">
               dF = σ * dA
             </div>
-            <p>
+            <SlideParagraph variant="plain" className="text-xs text-muted-foreground">
               Integrating this over the shaded area A' (the area above y₁) gives:
-            </p>
-            <ul className="list-disc pl-4 space-y-1">
-              <li>Left pushing force: F_C = ∫ σ_C dA</li>
-              <li>Right pushing force: F_d = ∫ σ_d dA</li>
-            </ul>
+            </SlideParagraph>
+            <SlideList
+              items={[
+                { text: 'Left pushing force: F_C = ∫ σ_C dA' },
+                { text: 'Right pushing force: F_d = ∫ σ_d dA' }
+              ]}
+            />
           </div>
 
           <SlideCallout variant="info" className="py-2 px-3 text-[10px]">
@@ -43,9 +45,9 @@ export const ForceConversion: React.FC = () => {
       rightContent={
         <div className="flex flex-col items-center justify-center h-full">
           <ShearDerivationDrawing currentStep={4} />
-          <p className="text-[10.5px] text-muted-foreground mt-2 font-mono">
+          <SlideParagraph variant="plain" className="text-[10.5px] text-muted-foreground mt-2 font-mono">
             Step 4: Stress Distributions σ_C and σ_d
-          </p>
+          </SlideParagraph>
         </div>
       }
     />

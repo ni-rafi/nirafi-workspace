@@ -1,6 +1,7 @@
 import React from 'react';
 import { useUrlSyncedState } from '@/features/presentation/hooks/useUrlSyncedState';
 import { ParameterSlider, CalculationOutput, SlideParagraph } from '@/features/presentation/components/elements';
+import { ExpandableDrawing } from '@/shared/components';
 import { AlertCircle, CheckCircle } from 'lucide-react';
 
 export const AsymmetricMaterialLimitSolver: React.FC = () => {
@@ -89,23 +90,25 @@ export const AsymmetricMaterialLimitSolver: React.FC = () => {
         </div>
 
         <div className="flex justify-center items-center py-2 border-t border-border/30">
-          <svg viewBox="0 0 160 110" className="w-[120px] h-[95px] overflow-visible">
-            {/* Draw Asymmetric Cast Iron I-beam */}
-            <g>
-              <line x1={20} y1={90} x2={140} y2={90} stroke="var(--border)" strokeWidth={1} />
-              
-              {/* Bottom flange 160x40 -> draw width 80, thickness 20 */}
-              <rect x={80 - 40} y={90 - 20} width={80} height={20} fill="rgba(99, 102, 241, 0.12)" stroke="var(--foreground)" strokeWidth={1.2} />
-              {/* Web 20x200 -> draw width 10, thickness 100 */}
-              <rect x={80 - 5} y={90 - 120} width={10} height={100} fill="rgba(99, 102, 241, 0.12)" stroke="var(--foreground)" strokeWidth={1.2} />
-              {/* Top flange 80x20 -> draw width 40, thickness 10 */}
-              <rect x={80 - 20} y={90 - 130} width={40} height={10} fill="rgba(99, 102, 241, 0.12)" stroke="var(--foreground)" strokeWidth={1.2} />
+          <ExpandableDrawing title="Asymmetric Cast Iron Section" description="Renders the cross-section profile of the asymmetric flanged beam, mapping its shifted neutral axis location (y_bar).">
+            <svg viewBox="0 0 160 110" className="w-[120px] h-[95px] overflow-visible">
+              {/* Draw Asymmetric Cast Iron I-beam */}
+              <g>
+                <line x1={20} y1={90} x2={140} y2={90} stroke="var(--border)" strokeWidth={1} />
+                
+                {/* Bottom flange 160x40 -> draw width 80, thickness 20 */}
+                <rect x={80 - 40} y={90 - 20} width={80} height={20} fill="rgba(99, 102, 241, 0.12)" stroke="var(--foreground)" strokeWidth={1.2} />
+                {/* Web 20x200 -> draw width 10, thickness 100 */}
+                <rect x={80 - 5} y={90 - 120} width={10} height={100} fill="rgba(99, 102, 241, 0.12)" stroke="var(--foreground)" strokeWidth={1.2} />
+                {/* Top flange 80x20 -> draw width 40, thickness 10 */}
+                <rect x={80 - 20} y={90 - 130} width={40} height={10} fill="rgba(99, 102, 241, 0.12)" stroke="var(--foreground)" strokeWidth={1.2} />
 
-              {/* NA line */}
-              <line x1={15} y1={90 - ybar * 0.5} x2={145} y2={90 - ybar * 0.5} stroke="var(--destructive)" strokeWidth={1.2} strokeDasharray="3,1" opacity={0.7} />
-              <text x={148} y={90 - ybar * 0.5 + 3} className="fill-destructive text-[7px] font-bold">N.A.</text>
-            </g>
-          </svg>
+                {/* NA line */}
+                <line x1={15} y1={90 - ybar * 0.5} x2={145} y2={90 - ybar * 0.5} stroke="var(--destructive)" strokeWidth={1.2} strokeDasharray="3,1" opacity={0.7} />
+                <text x={148} y={90 - ybar * 0.5 + 3} className="fill-destructive text-[7px] font-bold">N.A.</text>
+              </g>
+            </svg>
+          </ExpandableDrawing>
         </div>
       </div>
     </div>

@@ -1,13 +1,13 @@
 import React from 'react';
 import { FullWidthLayout } from '@/shared/layouts/FullWidthLayout';
-import { SlideParagraph, SlideList } from '@/features/presentation/components/elements';
-import { Compass, BookOpen } from 'lucide-react';
+import { SlideParagraph, SlideList, LatexFormula } from '@/features/presentation/components/elements';
+import { Compass } from 'lucide-react';
 
 export const PrerequisitesSlide: React.FC = () => {
   const prerequisites = [
-    { title: 'Moment of Inertia (I)', text: 'Tracing structural stiffness properties across standard cross-sectional profiles.' },
+    { title: <span>Moment of Inertia (<LatexFormula math="I" />)</span>, text: 'Tracing structural stiffness properties across standard cross-sectional profiles.' },
     { title: 'Centroid and Area Calculations', text: 'Tracking Neutral Axis locations for composite and asymmetric flanged shapes.' },
-    { title: 'The Flexure Formula', text: 'Applying the primary normal stress equation: σ = (M * y) / I.' },
+    { title: 'The Flexure Formula', text: <span>Applying the primary normal stress equation: <LatexFormula math="\sigma = \frac{M \cdot y}{I}" />.</span> },
     { title: 'Symmetric & Asymmetric Bending Moment Demands', text: 'Resolving peak moments from BMDs to feed design stress checks.' },
   ];
 
@@ -24,12 +24,11 @@ export const PrerequisitesSlide: React.FC = () => {
           </SlideParagraph>
         </div>
         <div className="flex-1 my-2">
-          <SlideList revealMode="none" items={prerequisites} />
+          <SlideList revealMode="each-click" items={prerequisites} />
         </div>
-        <div className="bg-slate-50 dark:bg-muted/10 p-2.5 rounded-xl border border-border/60 text-[10px] text-muted-foreground flex items-center gap-1.5">
-          <BookOpen className="h-3.5 w-3.5 text-indigo-500 shrink-0" />
-          <span>Review these concepts if needed to fully grasp the upcoming material.</span>
-        </div>
+        <SlideParagraph variant="info" className="text-[10px] my-1">
+          {"Review these concepts if needed to fully grasp the upcoming material."}
+        </SlideParagraph>
       </div>
     </FullWidthLayout>
   );

@@ -1,7 +1,6 @@
-import React from 'react';
-import { TwoColumnLayout } from '@/shared/layouts/TwoColumnLayout';
-import { SlideParagraph, SlideBullet, SlideEquation } from '@/features/presentation/components/elements';
+import { SlideParagraph, SlideBullet, SlideEquation, LatexFormula, ClickReveal, ClickHighlight, InteractiveCard } from '@/features/presentation/components/elements';
 import { Settings } from 'lucide-react';
+import TwoColumnLayout from '@/shared/layouts/TwoColumnLayout';
 
 export const Step1CentroidSlide: React.FC = () => {
   return (
@@ -16,30 +15,39 @@ export const Step1CentroidSlide: React.FC = () => {
               <span>Centroid mapping</span>
             </div>
             <SlideParagraph variant="plain" className="text-xs text-muted-foreground leading-relaxed">
-              {"Formulate centroid height y_bar from the bottom of the section."}
+              {"Formulate centroid height "}
+              <LatexFormula math="\bar{y}" />
+              {" from the bottom of the section."}
             </SlideParagraph>
           </div>
-          <div className="space-y-1 my-1 text-[11px]">
-            <SlideBullet text="Segment 1 (Bottom Flange): A1 = 160x40 = 6400, y1 = 20mm" />
-            <SlideBullet text="Segment 2 (Web): A2 = 200x20 = 4000, y2 = 140mm" />
-            <SlideBullet text="Segment 3 (Top Flange): A3 = 80x20 = 1600, y3 = 250mm" />
-            <SlideBullet text="Total Area ΣA = 12,000 mm²" />
+          <div className="space-y-1 my-1 text-[11px] text-left">
+            <SlideBullet text={<span>Segment 1 (Bottom Flange): <LatexFormula math="A_1 = 160 \times 40 = 6400\text{ mm}^2" />, <LatexFormula math="y_1 = 20\text{ mm}" /></span>} revealAt={1} />
+            <SlideBullet text={<span>Segment 2 (Web): <LatexFormula math="A_2 = 200 \times 20 = 4000\text{ mm}^2" />, <LatexFormula math="y_2 = 140\text{ mm}" /></span>} revealAt={2} />
+            <SlideBullet text={<span>Segment 3 (Top Flange): <LatexFormula math="A_3 = 80 \times 20 = 1600\text{ mm}^2" />, <LatexFormula math="y_3 = 250\text{ mm}" /></span>} revealAt={3} />
+            <SlideBullet text={<span>Total Area <LatexFormula math="\Sigma A = 12,000\text{ mm}^2" /></span>} revealAt={4} />
           </div>
-          <div className="space-y-1">
-            <SlideEquation math="\bar{y} = \frac{(6400 \times 20) + (4000 \times 140) + (1600 \times 250)}{12000}" />
-            <SlideEquation math="\bar{y} = 87.11\text{ mm from bottom}" />
+          <div className="space-y-1 text-left">
+            <ClickReveal at={5} preset="fade">
+              <SlideEquation math="\bar{y} = \frac{(6400 \times 20) + (4000 \times 140) + (1600 \times 250)}{12000}" />
+            </ClickReveal>
+            <ClickReveal at={6} preset="fade">
+              <ClickHighlight at={7} variant="paint" className="block rounded-lg p-1">
+                <SlideEquation math="\bar{y} = 87.11\text{ mm from bottom}" />
+              </ClickHighlight>
+            </ClickReveal>
           </div>
         </div>
       }
       rightContent={
         <div className="bg-muted/30 border border-border/50 rounded-xl p-4 flex flex-col items-center justify-center h-full min-h-[250px] w-full text-[10px] font-mono leading-relaxed text-muted-foreground">
-          <div className="p-4 bg-slate-900 border border-border/40 rounded-xl w-full text-left space-y-2">
-            <h4 className="text-indigo-400 font-bold uppercase text-[9px] mb-1">Centroid shift</h4>
-            <p>• Total height = 260 mm</p>
-            <p className="text-emerald-400 font-bold">y_bottom = 87.11 mm</p>
-            <p className="text-emerald-400 font-bold">y_top = 172.89 mm</p>
-            <p>Because the centroid NA lies closer to the heavy bottom flange, the top fibers have double the bending distance!</p>
-          </div>
+          <InteractiveCard title="Centroid shift" className="w-full text-left">
+            <div className="space-y-2 text-xs text-foreground font-mono">
+              <p>• Total height = 260 mm</p>
+              <p className="text-emerald-500 font-bold">y_bottom = 87.11 mm</p>
+              <p className="text-emerald-500 font-bold">y_top = 172.89 mm</p>
+              <p className="text-muted-foreground text-[10px] leading-normal mt-2">Because the centroid NA lies closer to the heavy bottom flange, the top fibers have double the bending distance!</p>
+            </div>
+          </InteractiveCard>
         </div>
       }
     />

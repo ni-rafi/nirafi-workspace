@@ -1,6 +1,7 @@
 import React from 'react';
 import { useUrlSyncedState } from '@/features/presentation/hooks/useUrlSyncedState';
-import { ParameterSlider, CalculationOutput, SlideParagraph } from '@/features/presentation/components/elements';
+import { ParameterSlider, CalculationOutput, SlideParagraph, LatexFormula } from '@/features/presentation/components/elements';
+import { ExpandableDrawing } from '@/shared/components';
 import { RotateCw } from 'lucide-react';
 
 export const AsymmetricInversion: React.FC = () => {
@@ -43,7 +44,7 @@ export const AsymmetricInversion: React.FC = () => {
             </button>
           </div>
           <SlideParagraph variant="plain" className="text-[10px] text-muted-foreground leading-normal">
-            For steel (symmetric limits: σ_c = σ_t = 40 MPa), inversion yields no capacity change. Try making limits asymmetric (like cast iron) to see inversion effects!
+            For steel (symmetric limits: <LatexFormula math="\sigma_c = \sigma_t = 40\text{ MPa}" />), inversion yields no capacity change. Try making limits asymmetric (like cast iron) to see inversion effects!
           </SlideParagraph>
         </div>
 
@@ -66,41 +67,43 @@ export const AsymmetricInversion: React.FC = () => {
         </div>
 
         <div className="flex justify-center items-center py-2 border-t border-border/30">
-          <svg viewBox="0 0 160 140" className="w-[120px] h-[100px] overflow-visible">
-            {/* Draw asymmetric I-beam */}
-            {(() => {
-              const topW = isInverted ? 100 : 50;
-              const botW = isInverted ? 50 : 100;
-              const NA_y = isInverted ? 35 + 175 * 0.25 : 35 + 125 * 0.25; // mapped NA height
+          <ExpandableDrawing title="Asymmetric Section Inversion Analysis" description="Demonstrates tension and compression extreme fiber distance shifts (y_max) when the flanged section is inverted (rotated 180°).">
+            <svg viewBox="0 0 160 140" className="w-[120px] h-[90px] overflow-visible">
+              {/* Draw asymmetric I-beam */}
+              {(() => {
+                const topW = isInverted ? 100 : 50;
+                const botW = isInverted ? 50 : 100;
+                const NA_y = isInverted ? 35 + 175 * 0.25 : 35 + 125 * 0.25; // mapped NA height
 
-              return (
-                <g>
-                  {/* Base reference */}
-                  <line x1={20} y1={110} x2={140} y2={110} stroke="var(--border)" strokeWidth={1} />
-                  
-                  {/* Flanges & Web shapes */}
-                  {/* Bottom flange */}
-                  <rect x={80 - botW / 2} y={110 - 12.5} width={botW} height={12.5} fill="rgba(99, 102, 241, 0.12)" stroke="var(--foreground)" strokeWidth={1.2} />
-                  {/* Web */}
-                  <rect x={80 - 12.5} y={110 - 62.5} width={25} height={50} fill="rgba(99, 102, 241, 0.12)" stroke="var(--foreground)" strokeWidth={1.2} />
-                  {/* Top flange */}
-                  <rect x={80 - topW / 2} y={110 - 75} width={topW} height={12.5} fill="rgba(99, 102, 241, 0.12)" stroke="var(--foreground)" strokeWidth={1.2} />
+                return (
+                  <g>
+                    {/* Base reference */}
+                    <line x1={20} y1={110} x2={140} y2={110} stroke="var(--border)" strokeWidth={1} />
 
-                  {/* Neutral Axis */}
-                  <line x1={15} y1={NA_y} x2={145} y2={NA_y} stroke="var(--destructive)" strokeWidth={1.2} strokeDasharray="3,1" opacity={0.7} />
-                  <text x={148} y={NA_y + 3} className="fill-destructive text-[7px] font-bold">N.A.</text>
+                    {/* Flanges & Web shapes */}
+                    {/* Bottom flange */}
+                    <rect x={80 - botW / 2} y={110 - 12.5} width={botW} height={12.5} fill="rgba(99, 102, 241, 0.12)" stroke="var(--foreground)" strokeWidth={1.2} />
+                    {/* Web */}
+                    <rect x={80 - 12.5} y={110 - 62.5} width={25} height={50} fill="rgba(99, 102, 241, 0.12)" stroke="var(--foreground)" strokeWidth={1.2} />
+                    {/* Top flange */}
+                    <rect x={80 - topW / 2} y={110 - 75} width={topW} height={12.5} fill="rgba(99, 102, 241, 0.12)" stroke="var(--foreground)" strokeWidth={1.2} />
 
-                  {/* Fiber labels */}
-                  <text x={80} y={110 - 75 - 4} textAnchor="middle" className="fill-muted-foreground text-[7px] font-bold font-mono">
-                    Top Fiber (y = {yTop}mm)
-                  </text>
-                  <text x={80} y={110 + 10} textAnchor="middle" className="fill-muted-foreground text-[7px] font-bold font-mono">
-                    Bottom Fiber (y = {yBottom}mm)
-                  </text>
-                </g>
-              );
-            })()}
-          </svg>
+                    {/* Neutral Axis */}
+                    <line x1={15} y1={NA_y} x2={145} y2={NA_y} stroke="var(--destructive)" strokeWidth={1.2} strokeDasharray="3,1" opacity={0.7} />
+                    <text x={148} y={NA_y + 3} className="fill-destructive text-[7px] font-bold">N.A.</text>
+
+                    {/* Fiber labels */}
+                    <text x={80} y={110 - 75 - 4} textAnchor="middle" className="fill-muted-foreground text-[7px] font-bold font-mono">
+                      Top Fiber (y = {yTop}mm)
+                    </text>
+                    <text x={80} y={110 + 10} textAnchor="middle" className="fill-muted-foreground text-[7px] font-bold font-mono">
+                      Bottom Fiber (y = {yBottom}mm)
+                    </text>
+                  </g>
+                );
+              })()}
+            </svg>
+          </ExpandableDrawing>
         </div>
       </div>
     </div>

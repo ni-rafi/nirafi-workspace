@@ -1,12 +1,13 @@
 import React from 'react';
 import { TwoColumnLayout } from '@/shared/layouts/TwoColumnLayout';
-import { SlideCallout, ParameterSlider } from '@/features/presentation/components/elements';
+import { SlideCallout, ParameterSlider, SlideList } from '@/features/presentation/components/elements';
 import { useUrlSyncedState } from '@/features/presentation/hooks/useUrlSyncedState';
 import { ProfileShapeView } from '@/subjects/mechanics-of-solids/features/stress/components/diagrams/ProfileShapeView';
 import { ShearStressProfileChart } from '@/subjects/mechanics-of-solids/features/stress/components/diagrams/ShearStressProfileChart';
 import { CrossSectionEngine } from '@/subjects/mechanics-of-solids/cores/stress/cross-section.engine';
 import { StressSolverEngine } from '@/subjects/mechanics-of-solids/cores/stress/stress-solver.engine';
 import { StaticalMomentEngine } from '@/subjects/mechanics-of-solids/cores/stress/statical-moment.engine';
+import { ExpandableDrawing } from '@/shared/components';
 import { problem2Config } from '../../problemConfig';
 
 export const Problem02Statement: React.FC = () => {
@@ -43,18 +44,20 @@ export const Problem02Statement: React.FC = () => {
             <span className="text-[10px] font-bold text-indigo-500 uppercase tracking-widest block mb-1">
               Tutorial Problem 02
             </span>
-            <div className="bg-slate-50 dark:bg-muted/10 p-3 rounded-xl border border-border/40 text-xs leading-relaxed text-foreground">
+            <div className="bg-muted/10 p-3 rounded-xl border border-border/40 text-xs leading-relaxed text-foreground">
               <strong>Question:</strong> Draw the shear stress distribution over the asymmetric flanged section shown, if it is subjected to an applied vertical shear force of V = 100 kN.
             </div>
           </div>
 
           <div className="space-y-2 text-xs text-muted-foreground">
             <h4 className="font-bold text-foreground">Beam Dimensions:</h4>
-            <ul className="list-disc pl-4 space-y-1">
-              <li>Top Flange: 100 mm × 50 mm</li>
-              <li>Web: 50 mm × 200 mm</li>
-              <li>Bottom Flange: 200 mm × 50 mm</li>
-            </ul>
+            <SlideList
+              items={[
+                { text: 'Top Flange: 100 mm × 50 mm' },
+                { text: 'Web: 50 mm × 200 mm' },
+                { text: 'Bottom Flange: 200 mm × 50 mm' }
+              ]}
+            />
           </div>
 
           <div className="space-y-2">
@@ -76,27 +79,32 @@ export const Problem02Statement: React.FC = () => {
       }
       rightContent={
         <div className="bg-muted/30 border border-border/50 rounded-xl p-4 flex flex-col items-center justify-center h-full min-h-[250px]">
-          <svg viewBox={`0 0 ${svgW} ${svgH}`} className="w-full max-w-[250px] overflow-visible">
-            <ProfileShapeView
-              shape={shape}
-              centroid={ybar_m}
-              toPixelY={toPixelY}
-              inspectY={inspectY}
-              currentWidth={statQ.t * 1000}
-            />
-            <ShearStressProfileChart
-              shape={shape}
-              points={res.points}
-              maxTau={maxTau}
-              toPixelY={toPixelY}
-              H={H_m}
-              ybar={ybar_m}
-              V={V}
-              props={props}
-              pyInspect={pyInspect}
-              currentTau={currentTauMPa}
-            />
-          </svg>
+          <ExpandableDrawing
+            title="Asymmetric I-Beam Stress Profile"
+            description="Asymmetric I-beam profile visualization with dynamic shear stress profile chart mapping width discontinuities."
+          >
+            <svg viewBox={`0 0 ${svgW} ${svgH}`} className="w-full max-w-[250px] overflow-visible">
+              <ProfileShapeView
+                shape={shape}
+                centroid={ybar_m}
+                toPixelY={toPixelY}
+                inspectY={inspectY}
+                currentWidth={statQ.t * 1000}
+              />
+              <ShearStressProfileChart
+                shape={shape}
+                points={res.points}
+                maxTau={maxTau}
+                toPixelY={toPixelY}
+                H={H_m}
+                ybar={ybar_m}
+                V={V}
+                props={props}
+                pyInspect={pyInspect}
+                currentTau={currentTauMPa}
+              />
+            </svg>
+          </ExpandableDrawing>
         </div>
       }
     />
