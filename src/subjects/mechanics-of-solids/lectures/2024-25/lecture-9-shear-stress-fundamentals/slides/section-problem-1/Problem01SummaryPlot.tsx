@@ -1,6 +1,6 @@
 import React from 'react';
 import { TwoColumnLayout } from '@/shared/layouts/TwoColumnLayout';
-import { SlideParagraph, SlideCallout, SlideTable } from '@/features/presentation/components/elements';
+import { SlideParagraph, SlideCallout, SlideTable, LatexFormula } from '@/features/presentation/components/elements';
 import { useUrlSyncedState } from '@/features/presentation/hooks/useUrlSyncedState';
 import { ProfileShapeView } from '@/subjects/mechanics-of-solids/features/stress/components/diagrams/ProfileShapeView';
 import { ShearStressProfileChart } from '@/subjects/mechanics-of-solids/features/stress/components/diagrams/ShearStressProfileChart';
@@ -35,9 +35,9 @@ export const Problem01SummaryPlot: React.FC = () => {
   // Table rows
   const headers = ['Height y (mm)', 'Q (10³ mm³)', 'Stress τ (MPa)'];
   const rows = [
-    ['±150 (Top/Bot)', '0', '0.00'],
-    ['±75 (Mid-height)', '843.75', '2.25'],
-    ['0 (Neutral Axis)', '1,125.00', '3.00 (Max)']
+    [<span><LatexFormula math="\pm 150" /> (Top/Bot)</span>, '0', '0.00'],
+    [<span><LatexFormula math="\pm 75" /> (Mid-height)</span>, '843.75', '2.25'],
+    [<span>0 (Neutral Axis)</span>, '1,125.00', '3.00 (Max)']
   ];
 
   return (

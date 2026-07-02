@@ -1,6 +1,6 @@
 import React from 'react';
 import { TwoColumnLayout } from '@/shared/layouts/TwoColumnLayout';
-import { SlideCallout, ParameterSlider, SlideList } from '@/features/presentation/components/elements';
+import { SlideCallout, ParameterSlider, SlideList, LatexFormula } from '@/features/presentation/components/elements';
 import { useUrlSyncedState } from '@/features/presentation/hooks/useUrlSyncedState';
 import { ProfileShapeView } from '@/subjects/mechanics-of-solids/features/stress/components/diagrams/ProfileShapeView';
 import { ShearStressProfileChart } from '@/subjects/mechanics-of-solids/features/stress/components/diagrams/ShearStressProfileChart';
@@ -46,7 +46,7 @@ export const Problem01Statement: React.FC = () => {
               Tutorial Problem 01
             </span>
             <div className="bg-muted/10 p-3 rounded-xl border border-border/40 text-xs leading-relaxed text-foreground">
-              <strong>Question:</strong> Find the shear stress of the rectangular beam section at the Neutral Axis (y = 0), y = ±75 mm, and y = ±150 mm if the applied vertical shear force is V = 60 kN.
+              <strong>Question:</strong> Find the shear stress of the rectangular beam section at the Neutral Axis (<LatexFormula math="y = 0" />), <LatexFormula math="y = \pm 75\text{ mm}" />, and <LatexFormula math="y = \pm 150\text{ mm}" /> if the applied vertical shear force is <LatexFormula math="V = 60\text{ kN}" />.
             </div>
           </div>
 
@@ -54,9 +54,9 @@ export const Problem01Statement: React.FC = () => {
             <h4 className="font-bold text-foreground">Given Parameters:</h4>
             <SlideList
               items={[
-                { text: 'Shear Force V = 60 kN = 60 × 10³ N' },
-                { text: 'Width b = 100 mm = 0.1 m' },
-                { text: 'Height h = 300 mm = 0.3 m' }
+                { text: <span>Shear Force <LatexFormula math="V = 60\text{ kN} = 60 \times 10^3\text{ N}" /></span> },
+                { text: <span>Width <LatexFormula math="b = 100\text{ mm} = 0.1\text{ m}" /></span> },
+                { text: <span>Height <LatexFormula math="h = 300\text{ mm} = 0.3\text{ m}" /></span> }
               ]}
             />
           </div>
