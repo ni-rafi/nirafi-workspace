@@ -24,6 +24,7 @@ interface MobileHeaderActionsProps {
   scrollContainerRef: React.RefObject<HTMLDivElement | null>;
   collapsedSections: Record<string, boolean>;
   setCollapsedSections: React.Dispatch<React.SetStateAction<Record<string, boolean>>>;
+  onPrintTutorial: () => void;
 }
 
 export const MobileHeaderActions: React.FC<MobileHeaderActionsProps> = ({
@@ -33,6 +34,7 @@ export const MobileHeaderActions: React.FC<MobileHeaderActionsProps> = ({
   scrollContainerRef,
   collapsedSections,
   setCollapsedSections,
+  onPrintTutorial,
 }) => {
   const [isMobileOutlineOpen, setIsMobileOutlineOpen] = React.useState(false);
 
@@ -51,15 +53,10 @@ export const MobileHeaderActions: React.FC<MobileHeaderActionsProps> = ({
 
   return (
     <div className="flex xl:hidden items-center gap-1.5">
-      {/* Mobile Table of Slides (TOS/TOC) Outline Button */}
+      {/* Mobile Table of Slides Outline */}
       <Sheet open={isMobileOutlineOpen} onOpenChange={setIsMobileOutlineOpen}>
         <SheetTrigger asChild>
-          <Button
-            variant="outline"
-            size="icon"
-            className="h-8 w-8 rounded-md"
-            title="Table of Slides"
-          >
+          <Button variant="outline" size="icon" className="h-8 w-8 rounded-md" title="Table of Slides">
             <List className="h-4 w-4" />
           </Button>
         </SheetTrigger>
@@ -101,26 +98,20 @@ export const MobileHeaderActions: React.FC<MobileHeaderActionsProps> = ({
         <BookOpen className="h-4 w-4" />
       </Button>
 
-      {/* Start Presentation (Play) */}
+      {/* Start Presentation */}
       <Button
         size="icon"
-        onClick={() => {
-          navigateWithTransition(`/${subjectId}/${sessionId}/${lectureId}/1`);
-        }}
+        onClick={() => navigateWithTransition(`/${subjectId}/${sessionId}/${lectureId}/1`)}
         className="h-8 w-8 rounded-md"
         title="Start Presentation"
       >
         <Play className="h-4 w-4 fill-current" />
       </Button>
 
-      {/* More Actions Dropdown Menu */}
+      {/* More Actions */}
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8 rounded-full text-muted-foreground hover:text-foreground"
-          >
+          <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full text-muted-foreground hover:text-foreground">
             <MoreVertical className="h-4 w-4" />
           </Button>
         </DropdownMenuTrigger>
@@ -132,45 +123,38 @@ export const MobileHeaderActions: React.FC<MobileHeaderActionsProps> = ({
 
           <DropdownMenuItem onClick={presenterFeatures.handleToggleDark} className="flex items-center gap-2 cursor-pointer text-xs">
             {presenterFeatures.isDark ? (
-              <>
-                <Sun className="h-3.5 w-3.5 text-amber-500" />
-                <span>Light Mode</span>
-              </>
+              <><Sun className="h-3.5 w-3.5 text-amber-500" /><span>Light Mode</span></>
             ) : (
-              <>
-                <Moon className="h-3.5 w-3.5 text-muted-foreground" />
-                <span>Dark Mode</span>
-              </>
+              <><Moon className="h-3.5 w-3.5 text-muted-foreground" /><span>Dark Mode</span></>
             )}
           </DropdownMenuItem>
 
-          <DropdownMenuItem asChild className="flex items-center gap-2 cursor-pointer text-xs">
-            <a
-              href={`/${subjectId}/${sessionId}/${lectureId}?print=true`}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <Printer className="h-3.5 w-3.5 text-muted-foreground" />
-              <span>Export PDF (Normal)</span>
-            </a>
-          </DropdownMenuItem>
-
-          <DropdownMenuItem asChild className="flex items-center gap-2 cursor-pointer text-xs">
-            <a
-              href={`/${subjectId}/${sessionId}/${lectureId}?print=true&annotations=true`}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
+          {/* PDF — tutorials use react-to-print; lectures use print URL */}
+          {activeLec?.type === 'tutorial' ? (
+            <DropdownMenuItem onClick={onPrintTutorial} className="flex items-center gap-2 cursor-pointer text-xs">
               <FileDown className="h-3.5 w-3.5 text-muted-foreground" />
-              <span>Export with Annotations</span>
-            </a>
-          </DropdownMenuItem>
+              <span>Download PDF</span>
+            </DropdownMenuItem>
+          ) : (
+            <>
+              <DropdownMenuItem asChild className="flex items-center gap-2 cursor-pointer text-xs">
+                <a href={`/${subjectId}/${sessionId}/${lectureId}?print=true`} target="_blank" rel="noopener noreferrer">
+                  <Printer className="h-3.5 w-3.5 text-muted-foreground" />
+                  <span>Export PDF (Normal)</span>
+                </a>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild className="flex items-center gap-2 cursor-pointer text-xs">
+                <a href={`/${subjectId}/${sessionId}/${lectureId}?print=true&annotations=true`} target="_blank" rel="noopener noreferrer">
+                  <FileDown className="h-3.5 w-3.5 text-muted-foreground" />
+                  <span>Export with Annotations</span>
+                </a>
+              </DropdownMenuItem>
+            </>
+          )}
 
           {isAdmin && (
             <DropdownMenuItem
-              onClick={() => {
-                orchestrator.navigateWithTransition(`/playground/${subjectId}/${sessionId}/${lectureId}/shapes`);
-              }}
+              onClick={() => orchestrator.navigateWithTransition(`/playground/${subjectId}/${sessionId}/${lectureId}/shapes`)}
               className="flex items-center gap-2 cursor-pointer text-xs"
             >
               <Sparkles className="h-3.5 w-3.5 text-primary" />

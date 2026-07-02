@@ -81,6 +81,8 @@ export const LectureStatusSchema = z.object({
   hidden: z.boolean().optional().default(false),
   hash: z.string(),
   updatedAt: z.number(),
+  activeFrom: z.number().optional().default(0),
+  activeUntil: z.number().optional().default(0),
 });
 
 export type LectureStatus = z.infer<typeof LectureStatusSchema>;
@@ -111,6 +113,13 @@ export const StudentQuizAnswerSchema = z.object({
   submittedAt: z.number(),
   score: z.number().optional(),
   isOverridden: z.boolean().optional(),
+  isSkipped: z.boolean().optional(),
+  attempts: z.array(z.object({
+    answer: z.string(),
+    isCorrect: z.boolean(),
+    submittedAt: z.number(),
+    isSkipped: z.boolean().optional(),
+  })).optional(),
 });
 
 export type StudentQuizAnswer = z.infer<typeof StudentQuizAnswerSchema>;

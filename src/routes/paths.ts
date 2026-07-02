@@ -7,6 +7,8 @@ export const ROUTE_PATHS = {
   BLOG_VIEW: '/:subjectId/:sessionId/:lectureId/blog',
   SLIDE_FLAT: '/:slideNo(\\d+)', // Matches a flat slide number
   ADMIN_DASHBOARD: '/:subjectId/:sessionId/admin',
+  TUTORIAL_VIEW: '/:subjectId/:sessionId/:lectureId/tutorial',
+  TUTORIAL_ADMIN_DASHBOARD: '/:subjectId/:sessionId/:lectureId/admin/tutorial',
   DOCS: '/docs',
   SHAPES_PLAYGROUND: '/playground/:subjectId/:sessionId/:lectureId/shapes',
   SOLVER_SFD_BMD: '/mechanics-of-solids/sfd-bmd',

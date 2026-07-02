@@ -9,6 +9,8 @@ export interface PresentationContextType {
   activeSubStep: number;
   slideNo?: number;
   isThumbnail?: boolean;
+  isTutorial?: boolean;
+  tutorialLocked?: boolean;
 }
 
 export const PresentationContext = createContext<PresentationContextType | undefined>(undefined);

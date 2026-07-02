@@ -13,12 +13,14 @@ interface DesktopHeaderActionsProps {
   orchestrator: ReturnType<typeof useSlideViewerOrchestrator>;
   setIsThemePlaygroundOpen: (open: boolean) => void;
   isAdmin: boolean;
+  onPrintTutorial: () => void;
 }
 
 export const DesktopHeaderActions: React.FC<DesktopHeaderActionsProps> = ({
   orchestrator,
   setIsThemePlaygroundOpen,
   isAdmin,
+  onPrintTutorial,
 }) => {
   const {
     subjectId,
@@ -70,42 +72,55 @@ export const DesktopHeaderActions: React.FC<DesktopHeaderActionsProps> = ({
         </span>
       </Button>
 
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button
-            variant="outline"
-            size="sm"
-            className="flex items-center gap-1.5 font-semibold shadow-xs"
-          >
-            <span>Export PDF</span>
-            <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-48">
-          <DropdownMenuItem asChild>
-            <a
-              href={`/${subjectId}/${sessionId}/${lectureId}?print=true`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-2 cursor-pointer w-full text-xs"
+      {/* PDF export — tutorials use react-to-print; lectures use the existing print URL */}
+      {orchestrator.activeLec?.type === 'tutorial' ? (
+        <Button
+          variant="outline"
+          size="sm"
+          className="flex items-center gap-1.5 font-semibold shadow-xs"
+          onClick={onPrintTutorial}
+        >
+          <FileDown className="h-3.5 w-3.5 text-muted-foreground" />
+          <span>Download PDF</span>
+        </Button>
+      ) : (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="outline"
+              size="sm"
+              className="flex items-center gap-1.5 font-semibold shadow-xs"
             >
-              <Printer className="h-3.5 w-3.5 text-muted-foreground" />
-              <span>Export PDF (Normal)</span>
-            </a>
-          </DropdownMenuItem>
-          <DropdownMenuItem asChild>
-            <a
-              href={`/${subjectId}/${sessionId}/${lectureId}?print=true&annotations=true`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-2 cursor-pointer w-full text-xs"
-            >
-              <FileDown className="h-3.5 w-3.5 text-muted-foreground" />
-              <span>Export with Annotations</span>
-            </a>
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+              <span>Export PDF</span>
+              <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-48">
+            <DropdownMenuItem asChild>
+              <a
+                href={`/${subjectId}/${sessionId}/${lectureId}?print=true`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 cursor-pointer w-full text-xs"
+              >
+                <Printer className="h-3.5 w-3.5 text-muted-foreground" />
+                <span>Export PDF (Normal)</span>
+              </a>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <a
+                href={`/${subjectId}/${sessionId}/${lectureId}?print=true&annotations=true`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 cursor-pointer w-full text-xs"
+              >
+                <FileDown className="h-3.5 w-3.5 text-muted-foreground" />
+                <span>Export with Annotations</span>
+              </a>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      )}
 
       {isAdmin && (
         <Button

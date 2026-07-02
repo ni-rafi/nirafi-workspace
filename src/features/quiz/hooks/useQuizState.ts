@@ -1,15 +1,19 @@
 import { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 import { useFirebase } from '@/context/FirebaseContext';
 import { useUserContext } from '@/context';
 import type { QuizState } from '@/services/firebase/IFirebaseService';
 import { checkQuizAnswerCorrectness } from '../utils/answerChecker';
 import { parameterResolver } from '../utils/parameterResolver';
+import { usePresentation } from '@/features/presentation/context/PresentationContext';
 
 interface QuizSubmission {
   studentName: string;
   studentRegistration: string;
   answer: string;
   isCorrect: boolean;
+  isSkipped?: boolean;
+  attempts?: Array<{ answer: string; isCorrect: boolean; submittedAt: number; isSkipped?: boolean }>;
 }
 
 export interface SubQuestionDefinition {
@@ -28,8 +32,15 @@ export const useQuizState = (
 ) => {
   const firebaseService = useFirebase();
   const { userProfile, uid } = useUserContext();
+  const presentation = usePresentation();
+  const params = useParams<{ subjectId?: string; sessionId?: string }>();
+
+  const isTutorial = presentation?.isTutorial || false;
+  const tutorialLocked = presentation?.tutorialLocked || false;
 
   const isAdmin = userProfile?.role === 'admin';
+  const subjectId = params.subjectId || 'quantity-surveying';
+  const sessionId = params.sessionId || '2023-24';
 
   const normalizedQuestions: SubQuestionDefinition[] = questions || [
     {
@@ -42,6 +53,7 @@ export const useQuizState = (
   const [resolvedCorrectAnswers, setResolvedCorrectAnswers] = useState<Record<string, string | ((reg: string) => string)>>({});
   const [quizState, setQuizStateState] = useState<QuizState | null>(null);
   const [studentAnswers, setStudentAnswers] = useState<Record<string, string>>({});
+  const [correctnessMap, setCorrectnessMap] = useState<Record<string, { isCorrect: boolean; isSkipped?: boolean }>>({});
   const [hasSubmitted, setHasSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [timeLeft, setTimeLeft] = useState(0);
@@ -52,19 +64,28 @@ export const useQuizState = (
   const [bufferInput, setBufferInput] = useState(defaultBuffer);
   const [allSubmissionsMap, setAllSubmissionsMap] = useState<Record<string, QuizSubmission[]>>({});
 
-  const subjectId = 'quantity-surveying';
-  const sessionId = '2023-24';
-
   const getAnswerKey = (baseId: string, idSuffix: string) => {
     return idSuffix ? `${baseId}-${idSuffix}` : baseId;
   };
 
   // 1. Subscribe to active Quiz State
   useEffect(() => {
+    if (isTutorial) {
+      setQuizStateState({
+        status: tutorialLocked ? 'closed' : 'active',
+        activatedAt: null,
+        durationSeconds: 0,
+        quizType,
+        loadingBufferSeconds: 0,
+        isRevealed: false,
+        revealedQuestions: {},
+      });
+      return;
+    }
     return firebaseService.subscribeQuizState(quizId, (state) => {
       setQuizStateState(state);
     });
-  }, [quizId, firebaseService]);
+  }, [quizId, firebaseService, isTutorial, tutorialLocked, quizType]);
 
   // 2. Fetch student's existing answers if any
   useEffect(() => {
@@ -72,22 +93,38 @@ export const useQuizState = (
       firebaseService.getSubjectSubmissions(subjectId, sessionId, uid).then((sub) => {
         if (sub) {
           const initialAnswers: Record<string, string> = {};
-          let submittedCount = 0;
+          const cMap: Record<string, { isCorrect: boolean; isSkipped?: boolean }> = {};
+          let completedCount = 0;
           normalizedQuestions.forEach((q) => {
             const qId = getAnswerKey(quizId, q.idSuffix);
-            if (sub.answers[qId]) {
-              initialAnswers[q.idSuffix] = sub.answers[qId].answer;
-              submittedCount++;
+            const ansRecord = sub.answers[qId];
+            if (ansRecord) {
+              initialAnswers[q.idSuffix] = ansRecord.answer;
+              cMap[q.idSuffix] = {
+                isCorrect: ansRecord.isCorrect,
+                isSkipped: ansRecord.isSkipped,
+              };
+              if (isTutorial) {
+                // In tutorial mode, a step is locked/completed only if it is correct or skipped
+                if (ansRecord.isCorrect || ansRecord.isSkipped) {
+                  completedCount++;
+                }
+              } else {
+                completedCount++;
+              }
             }
           });
           setStudentAnswers(initialAnswers);
-          if (submittedCount === normalizedQuestions.length && normalizedQuestions.length > 0) {
+          setCorrectnessMap(cMap);
+          if (completedCount === normalizedQuestions.length && normalizedQuestions.length > 0) {
             setHasSubmitted(true);
+          } else {
+            setHasSubmitted(false);
           }
         }
       });
     }
-  }, [uid, quizId, isAdmin, firebaseService]);
+  }, [uid, quizId, isAdmin, firebaseService, isTutorial, subjectId, sessionId]);
 
   // 3. Subscribe to submissions for Admin view in real-time
   useEffect(() => {
@@ -128,6 +165,8 @@ export const useQuizState = (
                     studentRegistration: s.studentRegistration,
                     answer: ans.answer,
                     isCorrect,
+                    isSkipped: ans.isSkipped,
+                    attempts: ans.attempts,
                   };
                 });
             });
@@ -147,10 +186,16 @@ export const useQuizState = (
     } else {
       setAllSubmissionsMap({});
     }
-  }, [isAdmin, quizState?.status, quizId, firebaseService]);
+  }, [isAdmin, quizState?.status, quizId, firebaseService, subjectId, sessionId]);
 
   // 4. Timer Logic
   useEffect(() => {
+    if (isTutorial) {
+      setIsLagging(false);
+      setLagTimeLeft(0);
+      setTimeLeft(0);
+      return;
+    }
     if (quizState?.status === 'active' && quizState.activatedAt) {
       const activatedTime = typeof quizState.activatedAt === 'number'
         ? quizState.activatedAt
@@ -170,7 +215,6 @@ export const useQuizState = (
         } else {
           setIsLagging(false);
           setLagTimeLeft(0);
-
           const answeringElapsed = elapsed - buffer;
           const remaining = quizState.durationSeconds - answeringElapsed;
 
@@ -193,24 +237,34 @@ export const useQuizState = (
       setLagTimeLeft(0);
       setTimeLeft(0);
     }
-  }, [quizState, quizId, isAdmin, firebaseService]);
+  }, [quizState, quizId, isAdmin, firebaseService, isTutorial]);
 
   const handleStudentSubmit = async () => {
-    if (!uid || !userProfile || hasSubmitted) return;
+    if (!uid || !userProfile || (hasSubmitted && !isTutorial)) return;
     setIsSubmitting(true);
 
     const studentReg = userProfile.registration || '0000000000';
     const batchAnswers: Record<string, { answer: string; isCorrect: boolean }> = {};
+    let allCorrect = true;
+    const nextCMap = { ...correctnessMap };
+
     normalizedQuestions.forEach((q) => {
       const qId = getAnswerKey(quizId, q.idSuffix);
       const ans = studentAnswers[q.idSuffix] || '';
       const correctAnsRaw = resolvedCorrectAnswers[q.idSuffix] || '';
       const correctAns = parameterResolver.resolve(correctAnsRaw, studentReg);
       const isCorrect = checkQuizAnswerCorrectness(ans, correctAns, q.quizType);
+      
       batchAnswers[qId] = {
         answer: ans,
         isCorrect,
       };
+
+      nextCMap[q.idSuffix] = { isCorrect, isSkipped: false };
+
+      if (!isCorrect) {
+        allCorrect = false;
+      }
     });
 
     await firebaseService.submitQuizAnswersBatch(
@@ -221,7 +275,62 @@ export const useQuizState = (
       batchAnswers
     );
 
-    setHasSubmitted(true);
+    setCorrectnessMap(nextCMap);
+    window.dispatchEvent(new CustomEvent('checkpoint-submitted'));
+
+    if (allCorrect) {
+      setHasSubmitted(true);
+    } else {
+      if (!isTutorial) {
+        setHasSubmitted(true);
+      }
+    }
+    setIsSubmitting(false);
+  };
+
+  const handleSkipCheckpoint = async (idSuffix?: string) => {
+    if (!uid || !userProfile) return;
+    setIsSubmitting(true);
+
+    const suffix = idSuffix || '';
+    const qId = getAnswerKey(quizId, suffix);
+    const studentReg = userProfile.registration || '0000000000';
+
+    const batchAnswers: Record<string, { answer: string; isCorrect: boolean; isSkipped?: boolean }> = {
+      [qId]: {
+        answer: 'SKIPPED',
+        isCorrect: false,
+        isSkipped: true,
+      }
+    };
+
+    await firebaseService.submitQuizAnswersBatch(
+      subjectId,
+      sessionId,
+      uid,
+      { name: userProfile.name, reg: studentReg },
+      batchAnswers
+    );
+
+    setStudentAnswers((prev) => ({ ...prev, [suffix]: 'SKIPPED' }));
+    window.dispatchEvent(new CustomEvent('checkpoint-submitted'));
+    
+    const nextCMap = { ...correctnessMap, [suffix]: { isCorrect: false, isSkipped: true } };
+    setCorrectnessMap(nextCMap);
+    
+    // Check if all steps in this checkpoint are completed
+    const updatedAnswers = { ...studentAnswers, [suffix]: 'SKIPPED' };
+    let completedCount = 0;
+    normalizedQuestions.forEach((q) => {
+      const ans = updatedAnswers[q.idSuffix];
+      if (ans) {
+        completedCount++;
+      }
+    });
+
+    if (completedCount === normalizedQuestions.length) {
+      setHasSubmitted(true);
+    }
     setIsSubmitting(false);
   };
 
@@ -258,17 +367,27 @@ export const useQuizState = (
   };
 
   const handleAdminReset = async () => {
-    await firebaseService.setQuizState(quizId, {
-      status: 'hidden',
-      activatedAt: 0,
-      durationSeconds: durationInput,
-      quizType,
-      loadingBufferSeconds: 0,
-      isRevealed: false,
-      revealedQuestions: {},
+    if (!uid) return;
+    // Write reset in DB as well to clear the user answers
+    const batchAnswers: Record<string, null> = {};
+    normalizedQuestions.forEach((q) => {
+      const qId = getAnswerKey(quizId, q.idSuffix);
+      batchAnswers[qId] = null;
     });
+
+    // Resetting database records
+    await firebaseService.submitQuizAnswersBatch(
+      subjectId,
+      sessionId,
+      uid,
+      { name: userProfile?.name || 'Student', reg: userProfile?.registration || '0000000000' },
+      batchAnswers as unknown as Record<string, { answer: string; isCorrect: boolean }>
+    );
+
     setStudentAnswers({});
+    setCorrectnessMap({});
     setHasSubmitted(false);
+    window.dispatchEvent(new CustomEvent('checkpoint-submitted'));
   };
 
   const handleAdminReveal = async (idSuffix?: string) => {
@@ -305,6 +424,7 @@ export const useQuizState = (
     studentAnswer: studentAnswers[''] || '',
     studentAnswers,
     setStudentAnswer,
+    correctnessMap,
     hasSubmitted,
     isSubmitting,
     timeLeft,
@@ -319,6 +439,7 @@ export const useQuizState = (
     allSubmissions: allSubmissionsMap[''] || [],
     allSubmissionsMap,
     handleStudentSubmit,
+    handleSkipCheckpoint,
     handleAdminActivate,
     handleAdminReactivate,
     handleAdminClose,
@@ -328,5 +449,7 @@ export const useQuizState = (
     handleAdminReveal,
     correctAnswer: resolvedCorrectAnswers[''] || '',
     correctAnswers: resolvedCorrectAnswers,
+    isTutorial,
+    tutorialLocked,
   };
 };

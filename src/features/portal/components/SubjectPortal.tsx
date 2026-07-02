@@ -252,8 +252,11 @@ export const SubjectPortal: React.FC = () => {
                 .map((group) => {
                   const matchedCC = activeSession.courseContent?.find((cc) => cc.id === group.topic.ccId);
 
+                  const lecturesOnly = group.lectures.filter(l => l.type !== 'tutorial');
+                  const tutorialsOnly = group.lectures.filter(l => l.type === 'tutorial');
+
                   return (
-                    <section key={group.topic.id} className="flex flex-col gap-4">
+                    <section key={group.topic.id} className="flex flex-col gap-5">
                       {/* Topic Sub-Header Highlighted Banner */}
                       <div className="relative overflow-hidden rounded-xl border bg-muted/40 px-4 py-2.5 flex items-center justify-between gap-4 flex-wrap">
                         <div
@@ -275,36 +278,77 @@ export const SubjectPortal: React.FC = () => {
                         )}
                       </div>
 
-                      {/* Lecture Cards Grid (3-column layout on large screens) */}
-                      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                        {group.lectures
-                          .filter((lecture) => {
-                            if (isAdmin) return true;
-                            return !isLectureHidden(subject.id, activeSession.id, lecture.id);
-                          })
-                          .map((lecture) => {
-                            const deckUrl = `/${subject.id}/${activeSession.id}/${lecture.id}`;
-                            return (
-                              <ErrorBoundary
-                                key={lecture.id}
-                                variant="card"
-                                contextTitle={
-                                  typeof lecture.lectureNumber === 'number'
-                                    ? `Lecture ${lecture.lectureNumber}: ${lecture.title}`
-                                    : lecture.title
-                                }
-                              >
-                                <LectureCard
-                                  lecture={lecture}
-                                  deckUrl={deckUrl}
-                                  subjectColor={subject.color}
-                                  subjectId={subject.id}
-                                  sessionId={activeSession.id}
-                                />
-                              </ErrorBoundary>
-                            );
-                          })}
-                      </div>
+                      {/* Classroom Lectures Grid */}
+                      {lecturesOnly.length > 0 && (
+                        <div className="flex flex-col gap-2.5">
+                          <h4 className="text-[10px] font-black uppercase tracking-widest text-muted-foreground pl-1 select-none">
+                            Classroom Lectures
+                          </h4>
+                          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                            {lecturesOnly
+                              .filter((lecture) => {
+                                if (isAdmin) return true;
+                                return !isLectureHidden(subject.id, activeSession.id, lecture.id);
+                              })
+                              .map((lecture) => {
+                                const deckUrl = `/${subject.id}/${activeSession.id}/${lecture.id}`;
+                                return (
+                                  <ErrorBoundary
+                                    key={lecture.id}
+                                    variant="card"
+                                    contextTitle={
+                                      typeof lecture.lectureNumber === 'number'
+                                        ? `Lecture ${lecture.lectureNumber}: ${lecture.title}`
+                                        : lecture.title
+                                    }
+                                  >
+                                    <LectureCard
+                                      lecture={lecture}
+                                      deckUrl={deckUrl}
+                                      subjectColor={subject.color}
+                                      subjectId={subject.id}
+                                      sessionId={activeSession.id}
+                                    />
+                                  </ErrorBoundary>
+                                );
+                              })}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Sessional Tutorials Grid */}
+                      {tutorialsOnly.length > 0 && (
+                        <div className="flex flex-col gap-2.5">
+                          <h4 className="text-[10px] font-black uppercase tracking-widest text-muted-foreground pl-1 select-none">
+                            Sessional Tutorials
+                          </h4>
+                          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                            {tutorialsOnly
+                              .filter((lecture) => {
+                                if (isAdmin) return true;
+                                return !isLectureHidden(subject.id, activeSession.id, lecture.id);
+                              })
+                              .map((lecture) => {
+                                const deckUrl = `/${subject.id}/${activeSession.id}/${lecture.id}`;
+                                return (
+                                  <ErrorBoundary
+                                    key={lecture.id}
+                                    variant="card"
+                                    contextTitle={`Tutorial ${lecture.lectureNumber}: ${lecture.title}`}
+                                  >
+                                    <LectureCard
+                                      lecture={lecture}
+                                      deckUrl={deckUrl}
+                                      subjectColor={subject.color}
+                                      subjectId={subject.id}
+                                      sessionId={activeSession.id}
+                                    />
+                                  </ErrorBoundary>
+                                );
+                              })}
+                          </div>
+                        </div>
+                      )}
                     </section>
                   );
                 })

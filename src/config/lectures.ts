@@ -11,6 +11,12 @@ export interface Lecture {
   hidden?: boolean;
   tags?: string[];
   quizzes?: Record<string, string>;
+  type?: 'lecture' | 'tutorial';
+  fullMarks?: string | number;
+  timeLimit?: string;
+  courseNo?: string;
+  semester?: string;
+  credits?: string | number;
 }
 
 export interface CourseContentChapter {
@@ -247,8 +253,16 @@ Object.values(COURSE_SHELLS).forEach((course) => {
       const list = groups[topicId];
       if (list) {
         sortLectures(list);
-        list.forEach((lecture, idx) => {
-          lecture.lectureNumber = idx + 1; // 1-based sequential number per topic!
+        let lectureCount = 0;
+        let tutorialCount = 0;
+        list.forEach((lecture) => {
+          if (lecture.type === 'tutorial') {
+            tutorialCount++;
+            lecture.lectureNumber = tutorialCount;
+          } else {
+            lectureCount++;
+            lecture.lectureNumber = lectureCount;
+          }
         });
       }
     });

@@ -64,6 +64,9 @@ export const QuizCardOrchestrator: React.FC<QuizCardOrchestratorProps> = ({
     isRevealedMap,
     handleAdminReveal,
     correctAnswers,
+    isTutorial,
+    handleSkipCheckpoint,
+    correctnessMap,
   } = useQuizState(quizId, quizType, normalizedQuestions, defaultDuration, defaultBuffer);
 
   const formatTime = (seconds: number) => {
@@ -140,7 +143,7 @@ export const QuizCardOrchestrator: React.FC<QuizCardOrchestratorProps> = ({
   if (!isAdmin) {
     return (
       <>
-        <div className="print:hidden w-full flex justify-center">
+        <div className="quiz-print-excluded print:hidden w-full flex justify-center">
           <StudentQuizView
             status={status}
             visibilityMode={visibilityMode}
@@ -158,6 +161,10 @@ export const QuizCardOrchestrator: React.FC<QuizCardOrchestratorProps> = ({
             correctAnswers={correctAnswers}
             formatTime={formatTime}
             questions={normalizedQuestions}
+            isTutorial={isTutorial}
+            handleSkipCheckpoint={handleSkipCheckpoint}
+            handleAdminReset={handleAdminReset}
+            correctnessMap={correctnessMap}
           />
         </div>
         {renderPrintPlaceholder()}
@@ -167,9 +174,10 @@ export const QuizCardOrchestrator: React.FC<QuizCardOrchestratorProps> = ({
 
   return (
     <>
-      <div className="print:hidden w-full flex justify-center">
+      <div className="quiz-print-excluded print:hidden w-full flex justify-center">
         <AdminQuizView
           status={status}
+          isTutorial={isTutorial}
           durationInput={durationInput}
           setDurationInput={setDurationInput}
           bufferInput={bufferInput}

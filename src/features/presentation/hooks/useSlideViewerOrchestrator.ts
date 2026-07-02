@@ -110,7 +110,7 @@ export const useSlideViewerOrchestrator = () => {
   const activeQuizState = quizId ? quizStates[quizId] || null : null;
 
   const { pathname } = useLocation();
-  const isBlogMode = pathname.endsWith('/blog');
+  const isBlogMode = pathname.endsWith('/blog') || pathname.endsWith('/tutorial') || (activeLec?.type === 'tutorial' && slideNo === undefined);
 
   // Determine active viewMode and theme based on presentation states
   const isPresenting = slideNo !== undefined;

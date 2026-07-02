@@ -159,6 +159,15 @@ export class FirebaseService implements IFirebaseService {
     return this.submissionsService.subscribeAllSubmissions(subjectId, sessionId, callback);
   }
 
+  public resetStudentSubmissions(
+    subjectId: string,
+    sessionId: string,
+    studentUid: string,
+    studentInfo: { name: string; reg: string }
+  ): Promise<void> {
+    return this.submissionsService.resetStudentSubmissions(subjectId, sessionId, studentUid, studentInfo);
+  }
+
   public getPlaygroundCanvas(id: string): Promise<PlaygroundCanvasPayload | null> {
     return this.playgroundService.getPlaygroundCanvas(id);
   }

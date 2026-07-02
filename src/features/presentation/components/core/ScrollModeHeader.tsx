@@ -13,6 +13,7 @@ interface ScrollModeHeaderProps {
   scrollContainerRef: React.RefObject<HTMLDivElement | null>;
   collapsedSections: Record<string, boolean>;
   setCollapsedSections: React.Dispatch<React.SetStateAction<Record<string, boolean>>>;
+  onPrintTutorial: () => void;
 }
 
 export const ScrollModeHeader: React.FC<ScrollModeHeaderProps> = ({
@@ -21,6 +22,7 @@ export const ScrollModeHeader: React.FC<ScrollModeHeaderProps> = ({
   scrollContainerRef,
   collapsedSections,
   setCollapsedSections,
+  onPrintTutorial,
 }) => {
   const navigate = useNavigate();
   const { userProfile } = useUserContext();
@@ -57,6 +59,7 @@ export const ScrollModeHeader: React.FC<ScrollModeHeaderProps> = ({
         orchestrator={orchestrator}
         setIsThemePlaygroundOpen={setIsThemePlaygroundOpen}
         isAdmin={isAdmin}
+        onPrintTutorial={onPrintTutorial}
       />
 
       <MobileHeaderActions
@@ -66,6 +69,7 @@ export const ScrollModeHeader: React.FC<ScrollModeHeaderProps> = ({
         scrollContainerRef={scrollContainerRef}
         collapsedSections={collapsedSections}
         setCollapsedSections={setCollapsedSections}
+        onPrintTutorial={onPrintTutorial}
       />
     </header>
   );

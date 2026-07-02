@@ -25,9 +25,11 @@ export async function generateLectureStatusHash(
   lectureId: string,
   locked: boolean,
   hidden: boolean,
-  salt: string
+  salt: string,
+  activeFrom: number = 0,
+  activeUntil: number = 0
 ): Promise<string> {
-  const message = `${subjectId}_${sessionId}_${lectureId}_${locked}_${hidden}_${salt}`;
+  const message = `${subjectId}_${sessionId}_${lectureId}_${locked}_${hidden}_${activeFrom}_${activeUntil}_${salt}`;
   return computeSHA256(message);
 }
 
@@ -41,11 +43,22 @@ export async function verifyLectureStatusHash(
   locked: boolean,
   hidden: boolean,
   hash: string,
-  salt: string
+  salt: string,
+  activeFrom: number = 0,
+  activeUntil: number = 0
 ): Promise<boolean> {
   if (!hash) return false;
   try {
-    const calculated = await generateLectureStatusHash(subjectId, sessionId, lectureId, locked, hidden, salt);
+    const calculated = await generateLectureStatusHash(
+      subjectId,
+      sessionId,
+      lectureId,
+      locked,
+      hidden,
+      salt,
+      activeFrom,
+      activeUntil
+    );
     return calculated === hash;
   } catch (err) {
     console.warn(

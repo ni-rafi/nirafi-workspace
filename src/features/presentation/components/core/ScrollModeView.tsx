@@ -1,5 +1,6 @@
 import React from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { useReactToPrint } from 'react-to-print';
 import PageMetadata from './PageMetadata';
 import TwoWayGridOrchestrator from './TwoWayGridOrchestrator';
 import BlogOrchestrator from './BlogOrchestrator';
@@ -7,6 +8,7 @@ import { useSlideViewerOrchestrator } from '../../hooks/useSlideViewerOrchestrat
 import ThemePlaygroundPanel from '../tools/ThemePlaygroundPanel';
 import OnThisPage from '../layers/OnThisPage';
 import ScrollModeHeader from './ScrollModeHeader';
+
 
 interface ScrollModeViewProps {
   orchestrator: ReturnType<typeof useSlideViewerOrchestrator>;
@@ -16,7 +18,23 @@ export const ScrollModeView: React.FC<ScrollModeViewProps> = ({ orchestrator }) 
   const [isThemePlaygroundOpen, setIsThemePlaygroundOpen] = React.useState(false);
   const [collapsedSections, setCollapsedSections] = React.useState<Record<string, boolean>>({});
   const scrollContainerRef = React.useRef<HTMLDivElement | null>(null);
+  const printRef = React.useRef<HTMLDivElement | null>(null);
   const [searchParams] = useSearchParams();
+
+  const handlePrint = useReactToPrint({
+    contentRef: printRef,
+    documentTitle: `Tutorial_${orchestrator.activeLec?.lectureNumber ?? 'Sessional'}`,
+    pageStyle: `
+      @page { size: A4 portrait; margin: 15mm 12mm; }
+      @media print {
+        body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        button, [role="button"], input,
+        [class*="QuizCard"], [class*="checkpoint"],
+        [class*="section-collapse"] { display: none !important; }
+        svg { max-width: 100% !important; height: auto !important; }
+      }
+    `,
+  });
 
   React.useEffect(() => {
     const slideParam = searchParams.get('slide');
@@ -59,7 +77,9 @@ export const ScrollModeView: React.FC<ScrollModeViewProps> = ({ orchestrator }) 
         scrollContainerRef={scrollContainerRef}
         collapsedSections={collapsedSections}
         setCollapsedSections={setCollapsedSections}
+        onPrintTutorial={handlePrint}
       />
+
 
       <div className="flex-1 flex w-full min-h-0 overflow-hidden">
         <main ref={scrollContainerRef} className="flex-1 overflow-y-auto relative">
@@ -73,6 +93,7 @@ export const ScrollModeView: React.FC<ScrollModeViewProps> = ({ orchestrator }) 
               visibleSlideNumbers={visibleSlideNumbers}
               collapsedSections={collapsedSections}
               setCollapsedSections={setCollapsedSections}
+              printRef={printRef}
             />
           ) : (
             <TwoWayGridOrchestrator

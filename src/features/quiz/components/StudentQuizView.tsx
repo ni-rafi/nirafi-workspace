@@ -23,6 +23,10 @@ interface StudentQuizViewProps {
   correctAnswers: Record<string, string | ((reg: string) => string) | { formula: string; resolve: (reg: string) => string }>;
   formatTime: (seconds: number) => string;
   questions: SubQuestionDefinition[];
+  isTutorial?: boolean;
+  handleSkipCheckpoint?: (idSuffix?: string) => Promise<void>;
+  handleAdminReset?: () => Promise<void>;
+  correctnessMap?: Record<string, { isCorrect: boolean; isSkipped?: boolean }>;
 }
 
 export const StudentQuizView: React.FC<StudentQuizViewProps> = ({
@@ -39,6 +43,10 @@ export const StudentQuizView: React.FC<StudentQuizViewProps> = ({
   correctAnswers,
   formatTime,
   questions,
+  isTutorial,
+  handleSkipCheckpoint,
+  handleAdminReset,
+  correctnessMap = {},
 }) => {
   const { userProfile } = useUserContext();
   const [activeStep, setActiveStep] = React.useState(0);
@@ -57,21 +65,23 @@ export const StudentQuizView: React.FC<StudentQuizViewProps> = ({
       <div className="w-full max-w-2xl mx-auto bg-card border border-border/80 rounded-2xl p-5 md:p-6 shadow-sm flex flex-col gap-4 text-center select-none">
         <div className="flex justify-center mb-2">
           <span className="text-[10px] font-bold text-primary tracking-widest uppercase bg-primary/10 px-3 py-1 rounded-full">
-            Classroom Quiz
+            {isTutorial ? 'Tutorial Workspace' : 'Classroom Quiz'}
           </span>
         </div>
         <div className="py-8 px-4 flex flex-col items-center gap-3">
           <Clock className="h-8 w-8 text-primary animate-pulse" />
           <h3 className="text-base font-bold text-foreground">Waiting to Open</h3>
           <p className="text-xs text-muted-foreground max-w-xs">
-            Classroom Quiz - Waiting to Open. Please stay tuned during the live session.
+            {isTutorial
+              ? 'This tutorial checkpoint is currently locked or waiting to activate.'
+              : 'Classroom Quiz - Waiting to Open. Please stay tuned during the live session.'}
           </p>
         </div>
       </div>
     );
   }
 
-  if (status === 'closed' && questions.length <= 1) {
+  if (status === 'closed' && questions.length <= 1 && !isTutorial) {
     return (
       <div className="w-full max-w-2xl mx-auto bg-card border border-border/80 rounded-2xl p-5 md:p-6 shadow-sm flex flex-col gap-4 text-center select-none">
         <div className="flex justify-center mb-2">
@@ -92,7 +102,7 @@ export const StudentQuizView: React.FC<StudentQuizViewProps> = ({
     );
   }
 
-  if (status === 'active' && isLagging) {
+  if (status === 'active' && isLagging && !isTutorial) {
     return (
       <div className="w-full max-w-2xl mx-auto bg-card border border-border/80 rounded-2xl p-5 md:p-6 shadow-sm flex flex-col gap-4 text-center select-none">
         <div className="flex justify-between items-center select-none">
@@ -116,19 +126,19 @@ export const StudentQuizView: React.FC<StudentQuizViewProps> = ({
   }
 
   const registration = userProfile?.registration || '2020331000';
-
   const isMultiQuestion = questions.length > 1;
+
   const currentQuestion = questions[activeStep] || questions[0] || {
     idSuffix: '',
     questionText: '',
     quizType: 'numeric-input' as const,
     options: [] as string[],
   };
-  
+
   const curQuestionText = parameterResolver.resolve(currentQuestion.questionText, registration);
   const curOptions = parameterResolver.resolve(currentQuestion.options || [], registration);
   const curAnswer = studentAnswers[currentQuestion.idSuffix] || '';
-  
+
   const curCorrectAnswerRaw = correctAnswers[currentQuestion.idSuffix] || '';
   const curCorrectAnswer = parameterResolver.resolve(curCorrectAnswerRaw, registration);
 
@@ -145,21 +155,30 @@ export const StudentQuizView: React.FC<StudentQuizViewProps> = ({
     return isAnswerValid(ans, q.quizType);
   });
 
+  const correctness = correctnessMap[currentQuestion.idSuffix];
+  const isStepCorrect = correctness?.isCorrect || false;
+  const isStepSkipped = correctness?.isSkipped || false;
+  const isStepIncorrect = correctness !== undefined && !correctness.isCorrect && !correctness.isSkipped;
+
   return (
     <div className="w-full max-w-2xl mx-auto bg-card border border-border/80 rounded-2xl p-5 md:p-6 shadow-sm flex flex-col gap-5 text-left">
       <div className="flex justify-between items-center select-none border-b border-border/40 pb-3">
         <div className="flex flex-col gap-0.5">
-          <span className="text-[10px] font-bold text-primary tracking-widest uppercase">Classroom Quiz</span>
+          <span className="text-[10px] font-bold text-primary tracking-widest uppercase">
+            {isTutorial ? 'Tutorial Checkpoint' : 'Classroom Quiz'}
+          </span>
           {isMultiQuestion && (
             <span className="text-xs text-muted-foreground font-semibold">
-              Question {activeStep + 1} of {questions.length}
+              Step {activeStep + 1} of {questions.length}
             </span>
           )}
         </div>
-        <span className="flex items-center gap-1 text-xs font-bold text-red-500 font-mono bg-red-500/10 px-2 py-0.5 rounded-full border border-red-500/25 animate-pulse">
-          <Clock className="h-3.5 w-3.5" />
-          {formatTime(timeLeft)}
-        </span>
+        {!isTutorial && (
+          <span className="flex items-center gap-1 text-xs font-bold text-red-500 font-mono bg-red-500/10 px-2 py-0.5 rounded-full border border-red-500/25 animate-pulse">
+            <Clock className="h-3.5 w-3.5" />
+            {formatTime(timeLeft)}
+          </span>
+        )}
       </div>
 
       {isMultiQuestion && !hasSubmitted && (
@@ -172,6 +191,23 @@ export const StudentQuizView: React.FC<StudentQuizViewProps> = ({
       )}
 
       <div className="flex-1 py-1">
+        {isTutorial && isStepCorrect && (
+          <div className="mb-3 px-3 py-1 text-[10px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 rounded-md inline-flex items-center gap-1 select-none">
+            <Check className="h-3.5 w-3.5 shrink-0" />
+            Step Completed (Correct)
+          </div>
+        )}
+        {isTutorial && isStepSkipped && (
+          <div className="mb-3 px-3 py-1 text-[10px] font-bold text-amber-600 dark:text-amber-400 bg-amber-500/10 border border-amber-500/20 rounded-md inline-flex items-center gap-1 select-none">
+            Step Skipped
+          </div>
+        )}
+        {isTutorial && isStepIncorrect && (
+          <div className="mb-3 px-3 py-1 text-[10px] font-bold text-red-600 dark:text-red-400 bg-red-500/10 border border-red-500/20 rounded-md inline-flex items-center gap-1 select-none">
+            Incorrect (Try Again)
+          </div>
+        )}
+
         {currentQuestion.quizType === 'numeric-input' ? (
           <NumericQuizStudent
             key={currentQuestion.idSuffix}
@@ -182,8 +218,8 @@ export const StudentQuizView: React.FC<StudentQuizViewProps> = ({
             isSubmitting={isSubmitting}
             isLocked={status === 'closed'}
             correctAnswer={curCorrectAnswer}
-            hasSubmitted={hasSubmitted}
-            hideSubmit={isMultiQuestion}
+            hasSubmitted={isStepCorrect || isStepSkipped || hasSubmitted}
+            hideSubmit={isMultiQuestion || isTutorial}
           />
         ) : (
           <MultipleChoiceQuizStudent
@@ -196,26 +232,50 @@ export const StudentQuizView: React.FC<StudentQuizViewProps> = ({
             isSubmitting={isSubmitting}
             isLocked={status === 'closed'}
             correctAnswer={curCorrectAnswer}
-            hasSubmitted={hasSubmitted}
-            hideSubmit={isMultiQuestion}
+            hasSubmitted={isStepCorrect || isStepSkipped || hasSubmitted}
+            hideSubmit={isMultiQuestion || isTutorial}
           />
+        )}
+
+        {isTutorial && (isStepSkipped || isStepCorrect) && (
+          <div className="mt-4 select-none">
+            <button
+              type="button"
+              onClick={handleAdminReset}
+              className="px-4 py-1.5 bg-muted hover:bg-muted/80 text-foreground border rounded-lg text-xs font-bold transition-colors cursor-pointer"
+            >
+              {isStepSkipped ? 'Retry Solving this Step' : 'Clear & Retry Step'}
+            </button>
+          </div>
         )}
       </div>
 
-      {isMultiQuestion && (
+      {(isMultiQuestion || isTutorial) && (
         <div className="flex justify-between items-center border-t border-border/40 pt-4 mt-2 select-none">
           <button
             type="button"
             onClick={() => setActiveStep((prev) => Math.max(0, prev - 1))}
             disabled={activeStep === 0 || isSubmitting}
-            className="px-3 py-1.5 border rounded-lg hover:bg-muted text-xs font-bold transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1"
+            className={`px-3 py-1.5 border rounded-lg hover:bg-muted text-xs font-bold transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1 ${
+              !isMultiQuestion ? 'invisible' : ''
+            }`}
           >
             <ChevronLeft className="h-4 w-4" />
             Back
           </button>
 
-          {!hasSubmitted ? (
+          {!(isStepCorrect || isStepSkipped || hasSubmitted) ? (
             <div className="flex gap-2">
+              {isTutorial && !isStepCorrect && !isStepSkipped && (
+                <button
+                  type="button"
+                  onClick={() => handleSkipCheckpoint?.(currentQuestion.idSuffix)}
+                  disabled={isSubmitting}
+                  className="px-3 py-1.5 border border-amber-500/35 hover:bg-amber-500/5 text-amber-500 rounded-lg text-xs font-bold transition-colors cursor-pointer disabled:opacity-50"
+                >
+                  Skip Step
+                </button>
+              )}
               {activeStep < questions.length - 1 ? (
                 <button
                   type="button"
@@ -234,24 +294,37 @@ export const StudentQuizView: React.FC<StudentQuizViewProps> = ({
                   className="px-5 py-1.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg text-xs font-extrabold transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1 shadow-sm"
                 >
                   <Check className="h-4 w-4" />
-                  {isSubmitting ? 'Submitting...' : 'Submit All Answers'}
+                  {isSubmitting ? 'Submitting...' : 'Submit Answers'}
                 </button>
               )}
             </div>
           ) : (
             <div className="flex gap-1.5 items-center">
-              {questions.map((_, idx) => (
-                <button
-                  key={idx}
-                  type="button"
-                  onClick={() => setActiveStep(idx)}
-                  className={`h-6 w-6 rounded-full flex items-center justify-center text-xs font-bold transition-colors cursor-pointer ${
-                    activeStep === idx ? 'bg-primary text-white border-primary' : 'bg-muted hover:bg-muted/80 text-muted-foreground border-transparent'
-                  } border`}
-                >
-                  {idx + 1}
-                </button>
-              ))}
+              {isMultiQuestion && questions.map((_, idx) => {
+                const qSuffix = questions[idx]?.idSuffix || '';
+                const qCorrectness = correctnessMap?.[qSuffix];
+                const qCorrect = qCorrectness?.isCorrect || false;
+                const qSkipped = qCorrectness?.isSkipped || false;
+
+                return (
+                  <button
+                    key={idx}
+                    type="button"
+                    onClick={() => setActiveStep(idx)}
+                    className={`h-6 w-6 rounded-full flex items-center justify-center text-xs font-bold transition-colors cursor-pointer ${
+                      activeStep === idx
+                        ? 'bg-primary text-white border-primary'
+                        : qCorrect
+                        ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/25'
+                        : qSkipped
+                        ? 'bg-amber-500/10 text-amber-500 border-amber-500/25'
+                        : 'bg-muted hover:bg-muted/80 text-muted-foreground border-transparent'
+                    } border`}
+                  >
+                    {idx + 1}
+                  </button>
+                );
+              })}
             </div>
           )}
         </div>

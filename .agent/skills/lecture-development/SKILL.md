@@ -231,3 +231,16 @@ When authoring or modifying slides:
 - [ ] **Stable syncKeys**: Ensure every draggable widget has a stable, explicit string declared for `syncKey`.
 - [ ] **No Infinite Loops**: Verify that default values passed to hooks do not trigger infinite rendering loops. Avoid updating state parameters inside render paths.
 
+
+---
+
+## 10. Tutorial System
+
+Tutorials are a distinct `type: 'tutorial'` lecture that render as scrollable blog pages (not slide decks). They support timed access windows, per-student checkpoint quizzes, and academic PDF export — entirely client-side.
+* **tutorial-system.md**: Refer to the [Tutorial System Reference Guide](file:///d:/Websites/nirafi-workspace/.agent/skills/lecture-development/references/tutorial-system.md) for metadata fields, section structure, checkpoint quiz authoring, runtime architecture, scheduling, and PDF export rules.
+  * *Metadata*: Set `type: 'tutorial'`, `fullMarks`, and `timeLimit` in `metadata.ts`
+  * *Section roles*: Use `tutorialRole: 'statement'` (always printed) and `tutorialRole: 'checkpoint'` with `type: 'Dynamic Quiz'` (hidden from PDF)
+  * *Checkpoint quizzes*: `<QuizCardOrchestrator>` with a `parameterResolver`-based dynamic `questionText` returning JSX
+  * *Scheduling*: Admin sets `activeFrom`/`activeUntil` via the **Schedule** button on LectureCard; quizzes derive active/closed from this window in real-time
+  * *PDF export*: `react-to-print` scoped to `.tutorial-print-root`; quiz slides, cover slides, and interactive controls are automatically hidden
+

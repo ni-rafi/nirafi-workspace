@@ -19,6 +19,7 @@ interface QuizSubmission {
 
 interface AdminQuizViewProps {
   status: string;
+  isTutorial?: boolean;
   durationInput: number;
   setDurationInput: (val: number) => void;
   bufferInput: number;
@@ -46,6 +47,7 @@ interface AdminQuizViewProps {
 
 export const AdminQuizView: React.FC<AdminQuizViewProps> = ({
   status,
+  isTutorial = false,
   durationInput,
   setDurationInput,
   bufferInput,
@@ -159,8 +161,10 @@ export const AdminQuizView: React.FC<AdminQuizViewProps> = ({
   return (
     <div className="w-full max-w-2xl mx-auto bg-card border border-border/80 rounded-2xl p-5 md:p-6 shadow-sm flex flex-col gap-4 text-left">
       <div className="flex justify-between items-center select-none border-b border-border/40 pb-2">
-        <span className="text-[10px] font-bold text-primary tracking-widest uppercase">Classroom Quiz</span>
-        {status === 'active' && (
+        <span className="text-[10px] font-bold text-primary tracking-widest uppercase">
+          {isTutorial ? 'Tutorial Checkpoint' : 'Classroom Quiz'}
+        </span>
+        {!isTutorial && status === 'active' && (
           <span className={`flex items-center gap-1 text-xs font-bold font-mono px-2 py-0.5 rounded-full border ${
             isLagging
               ? 'text-amber-500 bg-amber-500/10 border-amber-500/25'
@@ -200,11 +204,23 @@ export const AdminQuizView: React.FC<AdminQuizViewProps> = ({
           previewTitle={previewTitle}
           status={status}
           isLagging={isLagging}
-          curQuestionText={curQuestionText}
+          curQuestionText={curQuestionText as React.ReactNode}
           isInspectRevealed={isInspectRevealed}
           setIsInspectRevealed={setIsInspectRevealed}
         />
 
+        {/* Tutorial mode: no Firebase quiz state, just show question preview + reg inspector */}
+        {isTutorial ? (
+          <AdminQuestionPreview
+            previewTitle="Question Preview:"
+            status="active"
+            isLagging={false}
+            curQuestionText={curQuestionText as React.ReactNode}
+            isInspectRevealed={true}
+            setIsInspectRevealed={() => {}}
+          />
+        ) : (
+          <>
         {status === 'hidden' && (
           <AdminQuizSetup
             durationInput={durationInput}
@@ -276,6 +292,8 @@ export const AdminQuizView: React.FC<AdminQuizViewProps> = ({
               </>
             )}
           </div>
+        )}
+          </>
         )}
       </div>
 

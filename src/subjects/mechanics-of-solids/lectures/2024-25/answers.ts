@@ -19,7 +19,13 @@ export const QUIZ_METADATA = [
   { id: 'mos_2024_lec9_q1', header: 'Lec 9 Checkpoint 1 (Complementary Shear)' },
   { id: 'mos_2024_lec9_q2', header: 'Lec 9 Checkpoint 2 (Rectangular Shear)' },
   { id: 'mos_2024_lec10_q1', header: 'Lec 10 Checkpoint 1 (Stress Discontinuity)' },
-  { id: 'mos_2024_lec10_q2', header: 'Lec 10 Checkpoint 2 (Fastener Spacing)' }
+  { id: 'mos_2024_lec10_q2', header: 'Lec 10 Checkpoint 2 (Fastener Spacing)' },
+  { id: 'mos_2024_tut1_q1', header: 'Tut 1 Question 1 (Reactions at B)' },
+  { id: 'mos_2024_tut1_q2', header: 'Tut 1 Question 2 (Reactions at B)' },
+  { id: 'mos_2024_tut2_q1', header: 'Tut 2 Question 1 (Reactions at A)' },
+  { id: 'mos_2024_tut2_q2', header: 'Tut 2 Question 2 (Moment at A)' },
+  { id: 'mos_2024_tut2_q4', header: 'Tut 2 Question 4 (Moment at B)' },
+  { id: 'mos_2024_tut2_q5', header: 'Tut 2 Question 5 (Reactions at B)' }
 ];
 
 export const QUIZ_ANSWERS: Record<
@@ -256,6 +262,66 @@ export const QUIZ_ANSWERS: Record<
       // q = V * Q / I = V * 0.13147
       // s = 150 / q = 1140.9 / V
       return (1140.9 / V).toFixed(3);
+    }
+  },
+  mos_2024_tut1_q1: {
+    formula: 'R_B = 23.0 + [last digit] * 1.7 kN',
+    digitsRequired: 1,
+    resolve: (reg) => {
+      const d = parameterResolver.getLastDigit(reg);
+      return (23.0 + d * 1.7).toFixed(3);
+    }
+  },
+  mos_2024_tut1_q2: {
+    formula: 'R_B = 12.5 + [last digit] * 0.667 kN',
+    digitsRequired: 1,
+    resolve: (reg) => {
+      const d = parameterResolver.getLastDigit(reg);
+      return (12.5 + d * (2 / 3)).toFixed(3);
+    }
+  },
+  mos_2024_tut2_q1: {
+    formula: 'R_A = 18.0 + [last digit] * 1.0 kN',
+    digitsRequired: 1,
+    resolve: (reg) => {
+      const d = parameterResolver.getLastDigit(reg);
+      const w = 12.0 + d * 0.5;
+      const P = 12.0 + d * 1.0;
+      const M = 24.0 + d * 2.0;
+      const Rb = (2 * w + M + 6 * P) / 4;
+      const Ra = (2 * w + P) - Rb;
+      return Ra.toFixed(3);
+    }
+  },
+  mos_2024_tut2_q2: {
+    formula: 'M_A = 28.0 + [last digit] * 1.6 kNm',
+    digitsRequired: 1,
+    resolve: (reg) => {
+      const d = parameterResolver.getLastDigit(reg);
+      const P1 = 8.0 + d * 0.4;
+      const P2 = 3.0 + d * 0.2;
+      return (2 * P1 + 4 * P2).toFixed(3);
+    }
+  },
+  mos_2024_tut2_q4: {
+    formula: 'M_B = 100.0 + [last digit] * 10.0 kNm',
+    digitsRequired: 1,
+    resolve: (reg) => {
+      const d = parameterResolver.getLastDigit(reg);
+      const w = 5.0 + d * 0.5;
+      const M = 60.0 + d * 6.0;
+      return (w * 2 * 4 + M).toFixed(3);
+    }
+  },
+  mos_2024_tut2_q5: {
+    formula: 'R_B = 7.5 + [last digit] * 0.75 kN',
+    digitsRequired: 1,
+    resolve: (reg) => {
+      const d = parameterResolver.getLastDigit(reg);
+      const wMax = 6.0 + d * 0.6;
+      const P = 6.0 + d * 0.6;
+      const W_total = 0.5 * 3 * wMax;
+      return ((W_total * 2 + P * 4.5) / 6).toFixed(3);
     }
   }
 };

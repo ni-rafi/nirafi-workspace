@@ -29,6 +29,7 @@ export interface IFirebaseService {
   overrideQuizAnswer(subjectId: string, sessionId: string, studentUid: string, quizId: string, isCorrect: boolean, score: number, isOverridden: boolean): Promise<void>;
   getAllSubmissions(subjectId: string, sessionId: string): Promise<SubjectSubmissions[]>;
   subscribeAllSubmissions(subjectId: string, sessionId: string, callback: (submissions: SubjectSubmissions[]) => void): () => void;
+  resetStudentSubmissions(subjectId: string, sessionId: string, studentUid: string, studentInfo: { name: string; reg: string }): Promise<void>;
   getPlaygroundCanvas(id: string): Promise<PlaygroundCanvasPayload | null>;
   setPlaygroundCanvas(id: string, payload: Omit<PlaygroundCanvasPayload, 'id'>): Promise<PlaygroundCanvasPayload>;
 }

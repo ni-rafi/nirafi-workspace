@@ -80,10 +80,28 @@ export class FirebaseSubmissionsService {
         answers: {},
       };
     }
+
+    const existing = submission.answers[questionId];
+    const attempts = existing?.attempts ? [...existing.attempts] : [];
+    if (existing && attempts.length === 0 && existing.answer) {
+      attempts.push({
+        answer: existing.answer,
+        isCorrect: existing.isCorrect,
+        submittedAt: existing.submittedAt,
+        isSkipped: existing.isSkipped,
+      });
+    }
+    attempts.push({
+      answer,
+      isCorrect,
+      submittedAt: Date.now(),
+    });
+
     submission.answers[questionId] = {
       answer,
       isCorrect,
       submittedAt: Date.now(),
+      attempts,
     };
 
     if (!this.subjectSubmissionsRepo) {
@@ -108,7 +126,7 @@ export class FirebaseSubmissionsService {
     sessionId: string,
     studentUid: string,
     studentInfo: { name: string; reg: string },
-    answers: Record<string, { answer: string; isCorrect: boolean }>
+    answers: Record<string, { answer: string; isCorrect: boolean; isSkipped?: boolean }>
   ): Promise<void> {
     if (studentUid === GUEST_UID) {
       console.warn('[FirebaseSubmissionsService] Guest users are not allowed to submit quiz answers.');
@@ -126,10 +144,36 @@ export class FirebaseSubmissionsService {
     }
 
     Object.entries(answers).forEach(([questionId, data]) => {
+      if (data === null || data === undefined) {
+        delete submission!.answers[questionId];
+        return;
+      }
+
+      const existing = submission!.answers[questionId];
+      const attempts = existing?.attempts ? [...existing.attempts] : [];
+
+      if (existing && attempts.length === 0 && existing.answer) {
+        attempts.push({
+          answer: existing.answer,
+          isCorrect: existing.isCorrect,
+          submittedAt: existing.submittedAt,
+          isSkipped: existing.isSkipped,
+        });
+      }
+
+      attempts.push({
+        answer: data.answer,
+        isCorrect: data.isCorrect,
+        submittedAt: Date.now(),
+        isSkipped: data.isSkipped,
+      });
+
       submission!.answers[questionId] = {
         answer: data.answer,
         isCorrect: data.isCorrect,
         submittedAt: Date.now(),
+        isSkipped: data.isSkipped,
+        attempts,
       };
     });
 
@@ -227,6 +271,25 @@ export class FirebaseSubmissionsService {
       }
     }
     return results;
+  }
+
+  public async resetStudentSubmissions(
+    subjectId: string,
+    sessionId: string,
+    studentUid: string,
+    studentInfo: { name: string; reg: string }
+  ): Promise<void> {
+    const submission = {
+      studentUid,
+      studentName: studentInfo.name,
+      studentRegistration: studentInfo.reg,
+      answers: {},
+    };
+    if (!this.subjectSubmissionsRepo) {
+      localStorage.setItem(`offline_submissions_${subjectId}_${sessionId}_${studentUid}`, JSON.stringify(submission));
+      return;
+    }
+    await this.subjectSubmissionsRepo.saveStudentSubmission(subjectId, sessionId, studentUid, submission);
   }
 
   public subscribeAllSubmissions(

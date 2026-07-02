@@ -5,7 +5,7 @@ interface AdminQuestionPreviewProps {
   previewTitle: string;
   status: string;
   isLagging: boolean;
-  curQuestionText: string;
+  curQuestionText: React.ReactNode;
   isInspectRevealed: boolean;
   setIsInspectRevealed: React.Dispatch<React.SetStateAction<boolean>>;
 }

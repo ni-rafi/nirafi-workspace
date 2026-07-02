@@ -4,7 +4,7 @@ A skill is a set of local instructions to follow that is stored in a `SKILL.md` 
 ### Available skills
 - math-engine: Guides extending the modular Quantity Surveying mathematical engine. (file: .agent/skills/math-engine/SKILL.md)
 - commit-message: Generates Conventional Commit messages following project rules. Use when creating git commits or preparing commit messages. (file: .agent/skills/commit-message/SKILL.md)
-- lecture-development: Guides folder organization, slide deck creation/registration, layout selection, visual elements, highlighting, reusable components, and URL state synchronization. (file: .agent/skills/lecture-development/SKILL.md)
+- lecture-development: Guides folder organization, slide deck creation/registration, layout selection, visual elements, highlighting, reusable components, URL state synchronization, and tutorial authoring (timed checkpoint quizzes, scheduling, and PDF export). (file: .agent/skills/lecture-development/SKILL.md)
 - lecture-activation-security: Guides managing real-time lecture activations, custom claims, and cryptographic signatures. (file: .agent/skills/lecture-activation-security/SKILL.md)
 - testing: Guides implementing unit tests for core logics, slide registry schema validations, and fixing test regressions. (file: .agent/skills/testing/SKILL.md)
 - firebase-rules: Guides managing Firestore collection schemas, repository logic, database definitions, and local security rules. (file: .agent/skills/firebase-rules/SKILL.md)

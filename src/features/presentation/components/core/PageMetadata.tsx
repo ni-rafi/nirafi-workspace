@@ -3,7 +3,7 @@ import React, { useEffect } from 'react';
 interface PageMetadataProps {
   title: string;
   subjectCode: string;
-  slideNo: number;
+  slideNo?: number;
 }
 
 /**
@@ -18,8 +18,10 @@ export const PageMetadata: React.FC<PageMetadataProps> = ({
   useEffect(() => {
     const originalTitle = document.title;
     
-    // Construct tab header: "CE-QS - Concrete Volume | Slide 3"
-    document.title = `${subjectCode.toUpperCase()} - ${title} | Slide ${slideNo}`;
+    // Construct tab header: "CE-QS - Concrete Volume | Slide 3" or "CE-QS - Concrete Volume"
+    document.title = slideNo !== undefined
+      ? `${subjectCode.toUpperCase()} - ${title} | Slide ${slideNo}`
+      : `${subjectCode.toUpperCase()} - ${title}`;
 
     // Restore original tab title on unmount
     return () => {

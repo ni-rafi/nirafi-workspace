@@ -10,6 +10,8 @@ const SubjectPortal = React.lazy(() => import('@/features/portal/components/Subj
 const SlideViewer = React.lazy(() => import('@/features/presentation/components/core/SlideViewer'));
 const RegNoGate = React.lazy(() => import('@/features/gate/components/RegNoGate'));
 const AdminClassDashboard = React.lazy(() => import('@/features/portal/components/AdminClassDashboard'));
+const TutorialAdminDashboard = React.lazy(() => import('@/features/portal/components/TutorialAdminDashboard'));
+
 const SlideCustomizationDocs = React.lazy(() => import('@/features/docs/SlideCustomizationDocs'));
 const ShapeBuilderPlayground = React.lazy(() => import('@/features/presentation/components/tools/playground/ShapeBuilderPlayground'));
 const SFDBMDSolverPage = React.lazy(() => import('./mechanics-of-solids/SFDBMDSolverPage').then((m) => ({ default: m.SFDBMDSolverPage })));
@@ -125,6 +127,14 @@ export const AppRoutes: React.FC = () => {
                 }
               />
               <Route
+                path={ROUTE_PATHS.TUTORIAL_VIEW}
+                element={
+                  <LectureRouteGuard>
+                    <SlideViewer />
+                  </LectureRouteGuard>
+                }
+              />
+              <Route
                 path={ROUTE_PATHS.SHAPES_PLAYGROUND}
                 element={
                   <AdminRouteGuard>
@@ -139,6 +149,14 @@ export const AppRoutes: React.FC = () => {
                 <Route path={ROUTE_PATHS.PORTAL} element={<LecturePortal />} />
                 <Route path={ROUTE_PATHS.SUBJECT_PORTAL} element={<SubjectPortal />} />
                 <Route path={ROUTE_PATHS.ADMIN_DASHBOARD} element={<AdminClassDashboard />} />
+                <Route
+                  path={ROUTE_PATHS.TUTORIAL_ADMIN_DASHBOARD}
+                  element={
+                    <AdminRouteGuard>
+                      <TutorialAdminDashboard />
+                    </AdminRouteGuard>
+                  }
+                />
                 <Route path={ROUTE_PATHS.PORTAL_LEGACY} element={<Navigate to={ROUTE_PATHS.PORTAL} replace />} />
                 <Route path={ROUTE_PATHS.SLIDE_FLAT} element={<FlatSlideRedirect />} />
                 <Route path={ROUTE_PATHS.DOCS} element={<SlideCustomizationDocs />} />
