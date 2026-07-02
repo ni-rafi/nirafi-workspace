@@ -28,11 +28,11 @@ export const AsymmetricInversion: React.FC = () => {
   const M_allow = Math.min(M_comp, M_tens); // kNm
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full text-left items-stretch">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full text-left items-stretch select-text">
       <div className="flex flex-col justify-between gap-3 bg-muted/10 p-4 border border-border/40 rounded-xl">
         <div>
           <div className="flex items-center justify-between mb-2">
-            <span className="text-[9px] font-bold text-indigo-500 uppercase tracking-widest">
+            <span className="text-[10px] font-bold text-indigo-500 uppercase tracking-widest">
               Orientation Analysis
             </span>
             <button
@@ -43,7 +43,7 @@ export const AsymmetricInversion: React.FC = () => {
               <span>Invert Section</span>
             </button>
           </div>
-          <SlideParagraph variant="plain" className="text-[10px] text-muted-foreground leading-normal">
+          <SlideParagraph variant="plain" className="text-[11px] text-muted-foreground leading-normal">
             For steel (symmetric limits: <LatexFormula math="\sigma_c = \sigma_t = 40\text{ MPa}" />), inversion yields no capacity change. Try making limits asymmetric (like cast iron) to see inversion effects!
           </SlideParagraph>
         </div>
@@ -56,7 +56,7 @@ export const AsymmetricInversion: React.FC = () => {
 
       <div className="flex flex-col justify-between bg-muted/20 border border-border/50 rounded-xl p-4">
         <div>
-          <span className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest block mb-3 text-center">
+          <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest block mb-3 text-center">
             Resisting Moment Capacity
           </span>
           <div className="grid grid-cols-2 gap-3 mb-2">
@@ -68,35 +68,35 @@ export const AsymmetricInversion: React.FC = () => {
 
         <div className="flex justify-center items-center py-2 border-t border-border/30">
           <ExpandableDrawing title="Asymmetric Section Inversion Analysis" description="Demonstrates tension and compression extreme fiber distance shifts (y_max) when the flanged section is inverted (rotated 180°).">
-            <svg viewBox="0 0 160 140" className="w-[120px] h-[90px] overflow-visible">
+            <svg viewBox="0 0 240 180" className="w-[200px] h-[150px] overflow-visible">
               {/* Draw asymmetric I-beam */}
               {(() => {
-                const topW = isInverted ? 100 : 50;
-                const botW = isInverted ? 50 : 100;
-                const NA_y = isInverted ? 35 + 175 * 0.25 : 35 + 125 * 0.25; // mapped NA height
+                const topW = isInverted ? 120 : 60;
+                const botW = isInverted ? 60 : 120;
+                const NA_y = isInverted ? 140 - 175 * 0.5 : 140 - 125 * 0.5;
 
                 return (
                   <g>
                     {/* Base reference */}
-                    <line x1={20} y1={110} x2={140} y2={110} stroke="var(--border)" strokeWidth={1} />
+                    <line x1={20} y1={140} x2={220} y2={140} stroke="var(--border)" strokeWidth={1} />
 
                     {/* Flanges & Web shapes */}
                     {/* Bottom flange */}
-                    <rect x={80 - botW / 2} y={110 - 12.5} width={botW} height={12.5} fill="rgba(99, 102, 241, 0.12)" stroke="var(--foreground)" strokeWidth={1.2} />
+                    <rect x={120 - botW / 2} y={140 - 18} width={botW} height={18} fill="rgba(99, 102, 241, 0.12)" stroke="var(--foreground)" strokeWidth={1.5} />
                     {/* Web */}
-                    <rect x={80 - 12.5} y={110 - 62.5} width={25} height={50} fill="rgba(99, 102, 241, 0.12)" stroke="var(--foreground)" strokeWidth={1.2} />
+                    <rect x={120 - 18} y={140 - 88} width={36} height={70} fill="rgba(99, 102, 241, 0.12)" stroke="var(--foreground)" strokeWidth={1.5} />
                     {/* Top flange */}
-                    <rect x={80 - topW / 2} y={110 - 75} width={topW} height={12.5} fill="rgba(99, 102, 241, 0.12)" stroke="var(--foreground)" strokeWidth={1.2} />
+                    <rect x={120 - topW / 2} y={140 - 106} width={topW} height={18} fill="rgba(99, 102, 241, 0.12)" stroke="var(--foreground)" strokeWidth={1.5} />
 
                     {/* Neutral Axis */}
-                    <line x1={15} y1={NA_y} x2={145} y2={NA_y} stroke="var(--destructive)" strokeWidth={1.2} strokeDasharray="3,1" opacity={0.7} />
-                    <text x={148} y={NA_y + 3} className="fill-destructive text-[7px] font-bold">N.A.</text>
+                    <line x1={15} y1={NA_y} x2={225} y2={NA_y} stroke="var(--destructive)" strokeWidth={1.5} strokeDasharray="4,2" />
+                    <text x={228} y={NA_y + 4} className="fill-destructive text-[11px] font-bold">N.A.</text>
 
                     {/* Fiber labels */}
-                    <text x={80} y={110 - 75 - 4} textAnchor="middle" className="fill-muted-foreground text-[7px] font-bold font-mono">
+                    <text x={120} y={140 - 106 - 6} textAnchor="middle" className="fill-muted-foreground text-[11px] font-bold font-mono">
                       Top Fiber (y = {yTop}mm)
                     </text>
-                    <text x={80} y={110 + 10} textAnchor="middle" className="fill-muted-foreground text-[7px] font-bold font-mono">
+                    <text x={120} y={140 + 15} textAnchor="middle" className="fill-muted-foreground text-[11px] font-bold font-mono">
                       Bottom Fiber (y = {yBottom}mm)
                     </text>
                   </g>
@@ -109,4 +109,5 @@ export const AsymmetricInversion: React.FC = () => {
     </div>
   );
 };
+
 export default AsymmetricInversion;

@@ -2,9 +2,9 @@ import React from 'react';
 import { FullWidthLayout } from '@/shared/layouts/FullWidthLayout';
 import { TaperedBeamOptimizer } from './drawings/TaperedBeamOptimizer';
 
-export const Step2CalculusPeakSlide: React.FC = () => {
+export const Problem03SandboxSlide: React.FC = () => {
   return (
-    <FullWidthLayout title="Step 2: Calculus Sizing Optimization" bgVariant="default">
+    <FullWidthLayout title="Problem 03: Tapered Cantilever Optimization Sandbox" bgVariant="default">
       <div className="w-full max-w-4xl mx-auto py-1">
         <TaperedBeamOptimizer />
       </div>
@@ -12,4 +12,4 @@ export const Step2CalculusPeakSlide: React.FC = () => {
   );
 };
 
-export default Step2CalculusPeakSlide;
+export default Problem03SandboxSlide;

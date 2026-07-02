@@ -2,9 +2,9 @@ import React from 'react';
 import { FullWidthLayout } from '@/shared/layouts/FullWidthLayout';
 import { AsymmetricMaterialLimitSolver } from './drawings/AsymmetricMaterialLimitSolver';
 
-export const Step2InertiaSlide: React.FC = () => {
+export const Problem02SandboxSlide: React.FC = () => {
   return (
-    <FullWidthLayout title="Step 2: Capacity Evaluation under Dual Limits" bgVariant="default">
+    <FullWidthLayout title="Problem 02: Asymmetric Material Limits Sandbox" bgVariant="default">
       <div className="w-full max-w-4xl mx-auto py-1">
         <AsymmetricMaterialLimitSolver />
       </div>
@@ -12,4 +12,4 @@ export const Step2InertiaSlide: React.FC = () => {
   );
 };
 
-export default Step2InertiaSlide;
+export default Problem02SandboxSlide;

@@ -10,7 +10,7 @@ import { SlideBadge, type SlideBadgeVariant } from './SlideBadge';
 export interface ClickSyncedTabItem {
   title: string;
   description: React.ReactNode;
-  badge?: string;
+  badge?: React.ReactNode;
   badgeVariant?: SlideBadgeVariant;
   badgeColor?: string;
   /** Tailwind classes applied to the tab card in its *inactive* state only.
@@ -224,9 +224,12 @@ export const ClickSyncedTabs: React.FC<ClickSyncedTabsProps> = ({
                   >
                     {/* Register click highlights implicitly in the presentation click-steps */}
                     {clickToTabMap ? (
-                      startClicks && startClicks[idx] !== undefined && startClicks[idx] > 0 && (
-                        <ClickHighlight at={startClicks[idx]} className="hidden">{' '}</ClickHighlight>
-                      )
+                      clickToTabMap.map((tabIdx, clickIdx) => {
+                        if (tabIdx === idx && clickIdx > 0) {
+                          return <ClickHighlight key={clickIdx} at={clickIdx} className="hidden">{' '}</ClickHighlight>;
+                        }
+                        return null;
+                      })
                     ) : (
                       idx > 0 && <ClickHighlight at={idx} className="hidden">{' '}</ClickHighlight>
                     )}

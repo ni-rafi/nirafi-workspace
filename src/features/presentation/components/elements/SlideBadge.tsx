@@ -3,7 +3,7 @@ import React from 'react';
 export type SlideBadgeVariant = 'default' | 'primary' | 'warning' | 'error' | 'success' | 'info';
 
 export interface SlideBadgeProps {
-  label: string;
+  label: React.ReactNode;
   variant?: SlideBadgeVariant;
   className?: string;
 }
