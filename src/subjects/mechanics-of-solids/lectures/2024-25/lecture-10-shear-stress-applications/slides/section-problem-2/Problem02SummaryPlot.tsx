@@ -1,6 +1,6 @@
 import React from 'react';
 import { TwoColumnLayout } from '@/shared/layouts/TwoColumnLayout';
-import { SlideParagraph, SlideCallout, SlideTable } from '@/features/presentation/components/elements';
+import { SlideParagraph, SlideTable, ParameterSlider } from '@/features/presentation/components/elements';
 import { useUrlSyncedState } from '@/features/presentation/hooks/useUrlSyncedState';
 import { ProfileShapeView } from '@/subjects/mechanics-of-solids/features/stress/components/diagrams/ProfileShapeView';
 import { ShearStressProfileChart } from '@/subjects/mechanics-of-solids/features/stress/components/diagrams/ShearStressProfileChart';
@@ -10,7 +10,7 @@ import { StaticalMomentEngine } from '@/subjects/mechanics-of-solids/cores/stres
 import { problem2Config } from '../../problemConfig';
 
 export const Problem02SummaryPlot: React.FC = () => {
-  const [inspectY] = useUrlSyncedState<number>('problem2_inspect_y', 0);
+  const [inspectY, setInspectY] = useUrlSyncedState<number>('problem2_inspect_y', 0);
 
   const { shape, V } = problem2Config;
   const props = CrossSectionEngine.calculateProperties(shape);
@@ -19,7 +19,7 @@ export const Problem02SummaryPlot: React.FC = () => {
   const H_m = shape.height ?? 0.3;
   const ybar_m = props.centroid;
 
-  const svgW = 280;
+  const svgW = 240;
   const svgH = 150;
   const paddingY = 20;
   const chartH = svgH - paddingY * 2;
@@ -47,36 +47,47 @@ export const Problem02SummaryPlot: React.FC = () => {
   return (
     <TwoColumnLayout
       title="Compiled Flanged Stress Profile"
-      leftWidth="55%"
+      leftWidth="52%"
       leftContent={
         <div className="flex flex-col h-full justify-between gap-3 text-left">
           <div>
             <span className="text-[10px] font-bold text-indigo-500 uppercase tracking-widest block mb-1">
               Problem Summary
             </span>
-            <SlideParagraph variant="plain" className="text-xs text-muted-foreground">
+            <SlideParagraph variant="plain" className="text-xs text-muted-foreground mb-1">
               Here is the compiled list of key stress values across the asymmetric section:
             </SlideParagraph>
           </div>
 
-          <div className="flex-1 my-1">
-            <SlideTable headers={headers} rows={rows} bordered striped />
+          <div className="flex-1 my-0.5">
+            <SlideTable headers={headers} rows={rows} bordered striped dense="tight" />
           </div>
 
-          <SlideCallout variant="success" className="py-2 px-3 text-[10px]">
-            Notice the sudden stress jumps at the junctions due to width variations, and the parabolic growth peaking at the neutral axis.
-          </SlideCallout>
+          <div className="my-1.5">
+            <ParameterSlider
+              label="Interactive NA Depth Inspector (y)"
+              value={inspectY}
+              unit="mm"
+              min={-Math.round(ybar_m * 1000)}
+              max={Math.round((H_m - ybar_m) * 1000)}
+              step={5}
+              onChange={setInspectY}
+            />
+          </div>
         </div>
       }
       rightContent={
         <div className="bg-muted/30 border border-border/50 rounded-xl p-4 flex flex-col items-center justify-center h-full min-h-[250px]">
-          <svg viewBox={`0 0 ${svgW} ${svgH}`} className="w-full max-w-[250px] overflow-visible">
+          <svg viewBox={`0 0 ${svgW} ${svgH}`} className="w-full max-w-[270px] overflow-visible">
             <ProfileShapeView
               shape={shape}
               centroid={ybar_m}
               toPixelY={toPixelY}
               inspectY={inspectY}
               currentWidth={statQ.t * 1000}
+              xSection={65}
+              sliceHeight={inspectY}
+              sliceDirection={inspectY >= 0 ? 'above' : 'below'}
             />
             <ShearStressProfileChart
               shape={shape}
@@ -89,6 +100,11 @@ export const Problem02SummaryPlot: React.FC = () => {
               props={props}
               pyInspect={pyInspect}
               currentTau={currentTauMPa}
+              xShear={180}
+              showCurve={true}
+              showJunctions={true}
+              showPeak={true}
+              showInteractiveDot={true}
             />
           </svg>
         </div>

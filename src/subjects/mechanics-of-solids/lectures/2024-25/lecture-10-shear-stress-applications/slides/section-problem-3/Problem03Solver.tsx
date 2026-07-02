@@ -1,24 +1,24 @@
 import React from 'react';
 import { ClickSyncedTabs } from '@/features/presentation/components/elements/ClickSyncedTabs';
 import { useClickStepsContext } from '@/features/presentation/context/ClickStepsContext';
-import { getProblem1SolverItems } from './problem1SolverData';
+import { getProblem3SolverItems } from './problem3SolverData';
 
-export const Problem01Solver: React.FC = () => {
+export const Problem03Solver: React.FC = () => {
   const { currentClick } = useClickStepsContext();
-  const items = getProblem1SolverItems(currentClick);
+  const items = getProblem3SolverItems(currentClick);
 
   return (
     <ClickSyncedTabs
-      title="Step-by-Step Stress Calculation Solver"
+      title="Step-by-Step Design Sizing Solver"
       items={items}
-      leftTitle="Solving Shear Stresses at Specific Depths"
+      leftTitle="Sizing Beam Width step-by-step"
       rightTitle="Solver Output & Slice Visualizer"
       leftWidth="48%"
-      visualizerHeight={185}
-      clickToTabMap={[0, 0, 1, 1, 2, 2, 3, 3]}
+      visualizerHeight={220}
+      clickToTabMap={[0, 0, 1, 1, 2, 3, 3]}
       dense={true}
     />
   );
 };
 
-export default Problem01Solver;
+export default Problem03Solver;

@@ -1,6 +1,6 @@
 import React from 'react';
 import { TwoColumnLayout } from '@/shared/layouts/TwoColumnLayout';
-import { SlideParagraph, SlideCallout, ParameterSlider, CalculationOutput } from '@/features/presentation/components/elements';
+import { SlideParagraph, SlideCallout, ParameterSlider, CalculationOutput, LatexFormula } from '@/features/presentation/components/elements';
 import { useUrlSyncedState } from '@/features/presentation/hooks/useUrlSyncedState';
 import { BuiltUpFastenersDrawing } from './drawings/BuiltUpFastenersDrawing';
 
@@ -27,14 +27,13 @@ export const FastenersSandbox: React.FC = () => {
 
   // Spacing s (mm)
   const spacing_mm = q_N_mm > 0.001 ? (fastenerN * F_N) / q_N_mm : 200;
-  const spacingClamped = Math.min(250, Math.max(10, spacing_mm));
 
   return (
     <TwoColumnLayout
       title="Interactive Fastener Spacing Sandbox"
-      leftWidth="50%"
+      leftWidth="48%"
       leftContent={
-        <div className="flex flex-col h-full justify-between gap-3 text-left">
+        <div className="flex flex-col h-full justify-between gap-3 text-left select-text">
           <div>
             <span className="text-[10px] font-bold text-indigo-500 uppercase tracking-widest block mb-1">
               Live Parameter Tuning
@@ -75,19 +74,19 @@ export const FastenersSandbox: React.FC = () => {
           </div>
 
           <div className="grid grid-cols-2 gap-2">
-            <CalculationOutput title="Shear Flow q" value={q_kN_m.toFixed(2)} unit="kN/m" />
-            <CalculationOutput title="Nail Spacing s" value={spacing_mm.toFixed(1)} unit="mm" />
+            <CalculationOutput title="Shear Flow q" value={q_kN_m.toFixed(2)} unit="kN/m" variant="compact" />
+            <CalculationOutput title="Nail Spacing s" value={spacing_mm.toFixed(1)} unit="mm" variant="compact" />
           </div>
 
-          <SlideCallout variant="info" className="py-2 px-3 text-[10px]">
-            <strong>Observation:</strong> Increasing the shear load \(V\) increases the shear flow \(q\), requiring nails to be placed closer together (smaller spacing \(s\)).
-          </SlideCallout>
         </div>
       }
       rightContent={
-        <div className="bg-muted/30 border border-border/50 rounded-xl p-4 flex flex-col items-center justify-center h-full min-h-[250px]">
-          <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest block mb-2">Discrete Fastener Pitch (s)</span>
-          <BuiltUpFastenersDrawing spacing={spacingClamped} currentClick={1} />
+        <div className='flex flex-col justify-between gap-3'>
+          <BuiltUpFastenersDrawing spacing={spacing_mm} currentClick={1} unit="mm" />
+
+          <SlideCallout variant="info" className="py-2 px-3 text-[10px]">
+            <strong>Observation:</strong> Increasing the shear load <LatexFormula math="V" /> increases the shear flow <LatexFormula math="q" />, requiring nails to be placed closer together (smaller spacing <LatexFormula math="s" />).
+          </SlideCallout>
         </div>
       }
     />

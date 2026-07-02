@@ -4,12 +4,18 @@ import { SlideParagraph, SlideCallout, LatexFormula, SlideList } from '@/feature
 import { BuiltUpFastenersDrawing } from './drawings/BuiltUpFastenersDrawing';
 
 export const ShearFlowConcept: React.FC = () => {
+  const propertiesList = [
+    { text: <span>Units: Force per unit length (<LatexFormula math="\text{N/m}" /> or <LatexFormula math="\text{kN/m}" />).</span> },
+    { text: <span><LatexFormula math="Q" /> is calculated for the connected flange block being secured.</span> },
+    { text: <span>Notice that width <LatexFormula math="b" /> is absent, as we integrate across the contact width.</span> }
+  ];
+
   return (
     <TwoColumnLayout
       title="The Concept of Shear Flow (q)"
-      leftWidth="55%"
+      leftWidth="48%"
       leftContent={
-        <div className="flex flex-col h-full justify-between gap-3 text-left">
+        <div className="flex flex-col h-full justify-start gap-3.5 text-left select-text">
           <div>
             <span className="text-[10px] font-bold text-indigo-500 uppercase tracking-widest block mb-1">
               Horizontal interface flow
@@ -19,34 +25,31 @@ export const ShearFlowConcept: React.FC = () => {
             </SlideParagraph>
           </div>
 
-          <div className="space-y-2 text-xs text-muted-foreground">
+          <div className="space-y-3 text-[11px] text-muted-foreground">
             <SlideParagraph variant="plain" className="text-xs text-muted-foreground">
-              Rather than tracking localized stress (τ), we measure the total horizontal shear force acting per unit length of the beam. This is **Shear Flow** (q):
+              Rather than tracking localized stress (<LatexFormula math="\tau" />), we measure the total horizontal shear force acting per unit length of the beam. This is <strong>Shear Flow</strong> (<LatexFormula math="q" />):
             </SlideParagraph>
-            <div className="py-2 text-center bg-indigo-500/10 rounded-xl border border-indigo-500/30 text-indigo-600 dark:text-indigo-400 font-extrabold text-xs">
-              <LatexFormula math="q = \\tau \\cdot b = \\frac{V \\cdot Q}{I}" />
+            <div className="py-2 text-center bg-indigo-500/10 rounded-xl border border-indigo-500/20 text-indigo-500 font-extrabold text-[12px]">
+              <LatexFormula math="q = \tau \cdot b = \frac{V \cdot Q}{I}" />
             </div>
-            <SlideParagraph variant="plain" className="text-xs text-muted-foreground">
-              **Properties of Shear Flow:**
-            </SlideParagraph>
-            <SlideList
-              items={[
-                { text: 'Units: Force per unit length (N/m or kN/m).' },
-                { text: "Q is calculated for the connected flange block being secured." },
-                { text: 'Notice that width b is absent, as we integrate across the contact width.' }
-              ]}
-            />
           </div>
 
-          <SlideCallout variant="info" className="py-2 px-3 text-[10px]">
+          <SlideCallout variant="info" className="py-2 px-3 text-[10px] w-full">
             Shear flow represents the continuous sliding force that must be resisted by connectors like nails, screws, bolts, or glue.
           </SlideCallout>
         </div>
       }
       rightContent={
-        <div className="bg-muted/30 border border-border/50 rounded-xl p-4 flex flex-col items-center justify-center h-full min-h-[250px]">
-          <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest block mb-2">Built-Up T-Section Interface</span>
+        <div className="flex flex-col h-full justify-start gap-3 text-left w-full select-text">
           <BuiltUpFastenersDrawing spacing={60} currentClick={0} />
+
+          {/* Properties list below diagram */}
+          <div className="space-y-1.5 w-full">
+            <SlideParagraph variant="plain" className="font-bold text-foreground text-[11px] uppercase tracking-wider">
+              Properties of Shear Flow:
+            </SlideParagraph>
+            <SlideList items={propertiesList} revealMode="none" />
+          </div>
         </div>
       }
     />

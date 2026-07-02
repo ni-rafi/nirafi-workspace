@@ -1,6 +1,7 @@
 import React from 'react';
 import { LectureSummaryLayout, type SummaryItem, type SummaryOutcome } from '@/shared/layouts/LectureSummaryLayout';
 import { CheckCircle2 } from 'lucide-react';
+import { LatexFormula } from '@/features/presentation/components/elements';
 
 export const LectureSummarySlide: React.FC = () => {
   const summaryItems: SummaryItem[] = [
@@ -21,7 +22,7 @@ export const LectureSummarySlide: React.FC = () => {
     },
     {
       title: 'Shear Flow & Fasteners Spacing',
-      description: 'Calculating interface shear flow q and spacing connectors using the formula: s ≤ (n * F_nail) / q.',
+      description: <span>Calculating interface shear flow <LatexFormula math="q" /> and spacing connectors using the formula: <LatexFormula math="s \le \frac{n \cdot F_{\text{nail}}}{q}" />.</span>,
       icon: <CheckCircle2 className="h-4.5 w-4.5 text-indigo-500" />
     }
   ];

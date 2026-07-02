@@ -11,6 +11,7 @@ interface BendingStressProfileChartProps {
   sigmaBottomMPa: number;
   pyInspect: number;
   currentSigma: number;
+  xBending?: number;
 }
 
 export const BendingStressProfileChart: React.FC<BendingStressProfileChartProps> = ({
@@ -23,8 +24,9 @@ export const BendingStressProfileChart: React.FC<BendingStressProfileChartProps>
   sigmaBottomMPa,
   pyInspect,
   currentSigma,
+  xBending: xBendingProp,
 }) => {
-  const xBending = 160;
+  const xBending = xBendingProp ?? 160;
   const paddingY = 20;
   const chartH = 110;
 

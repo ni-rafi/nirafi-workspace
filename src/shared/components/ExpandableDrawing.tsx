@@ -331,7 +331,7 @@ export const ExpandableDrawing: React.FC<ExpandableDrawingProps> = ({
   return (
     <div ref={containerRef} className={wrapperClasses} onClick={onClick}>
       <div className={isBlog ? 'w-full' : 'w-full h-full p-2'}>
-        <div className="w-full h-full expandable-inner-target">
+        <div className="w-full h-full flex items-center justify-center expandable-inner-target">
           {(!isOpen || isBlog) && children}
         </div>
       </div>

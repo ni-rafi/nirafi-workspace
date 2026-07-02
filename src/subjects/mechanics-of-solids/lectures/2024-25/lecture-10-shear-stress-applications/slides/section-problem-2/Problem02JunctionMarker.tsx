@@ -1,6 +1,6 @@
 import React from 'react';
 import { TwoColumnLayout } from '@/shared/layouts/TwoColumnLayout';
-import { SlideParagraph, SlideCallout, SlideList } from '@/features/presentation/components/elements';
+import { SlideCallout, SlideList, ClickReveal, LatexFormula } from '@/features/presentation/components/elements';
 import { useClickStepsContext } from '@/features/presentation/context/ClickStepsContext';
 import { FlangedJunctionExplodedView } from './drawings/FlangedJunctionExplodedView';
 import { problem2Config } from '../../problemConfig';
@@ -16,38 +16,33 @@ export const Problem02JunctionMarker: React.FC = () => {
       title="Approaching Flange-to-Web Junction"
       leftWidth="50%"
       leftContent={
-        <div className="flex flex-col h-full justify-between gap-3 text-left">
-          <div>
-            <span className="text-[10px] font-bold text-amber-500 uppercase tracking-widest block mb-1">
-              Junction point warning
-            </span>
-            <SlideParagraph variant="plain" className="text-xs text-muted-foreground">
-              When we analyze flanged shapes like I-beams, the junction where the wide flange merges into the thin web is a critical location.
-            </SlideParagraph>
-          </div>
-
-          <div className="space-y-2 text-xs text-muted-foreground">
-            <h4 className="font-bold text-foreground">Junction Coordinate (y = +125 mm):</h4>
-            <SlideParagraph variant="plain" className="text-xs text-muted-foreground">
-              At this exact height level, the material experiences a sudden geometrical change:
-            </SlideParagraph>
-            <SlideList
-              items={[
-                { text: `Just above the line (in the flange), the width is wide: b = ${b_flange.toFixed(0)} mm.` },
-                { text: `Just below the line (in the web), the width is narrow: b = ${b_web.toFixed(0)} mm.` }
-              ]}
-            />
-          </div>
-
-          <SlideCallout variant="warning" className="py-2 px-3 text-[10px]">
-            <strong>Stress Discontinuity:</strong> Since the width b is in the denominator of the shear formula, this sudden narrowing will trigger a sudden jump in shear stress!
-          </SlideCallout>
+        <div className="flex flex-col gap-4 text-left">
+          <SlideList
+            title="Junction Point Warning"
+            description={
+              <span>
+                {"When we analyze flanged shapes like I-beams, the junction where the wide flange merges into the thin web is a critical location. At the junction coordinate ("}
+                <LatexFormula math="y = +125\text{ mm}" />
+                {"), the material experiences a sudden geometrical change:"}
+              </span>
+            }
+            revealMode="each-click"
+            items={[
+              { text: <span>Just above the line (in the flange), the width is wide: <LatexFormula math={`b_{\\text{flange}} = ${b_flange.toFixed(0)}\\text{ mm}`} />.</span>, revealAt: 1 },
+              { text: <span>Just below the line (in the web), the width is narrow: <LatexFormula math={`b_{\\text{web}} = ${b_web.toFixed(0)}\\text{ mm}`} />.</span>, revealAt: 2 },
+              { text: <span>Width parameter <LatexFormula math="b" /> behaves inversely to stress: <LatexFormula math="\tau \propto \frac{1}{b}" />.</span>, revealAt: 3 }
+            ]}
+          />
         </div>
       }
       rightContent={
-        <div className="bg-muted/30 border border-border/50 rounded-xl p-4 flex flex-col items-center justify-center h-full min-h-[250px]">
-          <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest block mb-3">Junction Interface Details</span>
+        <div className="flex flex-col items-center justify-center h-full gap-3">
           <FlangedJunctionExplodedView currentClick={currentClick} />
+          <ClickReveal at={4} className="w-full">
+            <SlideCallout variant="warning" className="py-2 px-3 text-[10px] w-full">
+              <strong>Stress Discontinuity:</strong> Since the width <LatexFormula math="b" /> is in the denominator of the shear formula, this sudden narrowing will trigger a sudden jump in shear stress!
+            </SlideCallout>
+          </ClickReveal>
         </div>
       }
     />

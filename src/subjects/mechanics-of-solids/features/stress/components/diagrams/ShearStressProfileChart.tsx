@@ -14,6 +14,11 @@ interface ShearStressProfileChartProps {
   props: ISectionProperties;
   pyInspect: number;
   currentTau: number;
+  xShear?: number;
+  showCurve?: boolean;
+  showJunctions?: boolean;
+  showPeak?: boolean;
+  showInteractiveDot?: boolean;
 }
 
 export const ShearStressProfileChart: React.FC<ShearStressProfileChartProps> = ({
@@ -27,13 +32,20 @@ export const ShearStressProfileChart: React.FC<ShearStressProfileChartProps> = (
   props,
   pyInspect,
   currentTau,
+  xShear: xShearProp,
+  showCurve = true,
+  showJunctions = true,
+  showPeak = true,
+  showInteractiveDot = true,
 }) => {
-  const xShear = 280;
+  const xShear = xShearProp ?? 280;
   const paddingY = 20;
   const chartH = 110;
 
-  // Solve peak shear stress
-  const maxTauPoint = points.reduce((max, p) => Math.abs(p.tau) > Math.abs(max.tau) ? p : max, points[0]!);
+  // Solve peak shear stress safely (with fallback if points array is empty)
+  const maxTauPoint = points.length > 0
+    ? points.reduce((max, p) => Math.abs(p.tau) > Math.abs(max.tau) ? p : max, points[0]!)
+    : { y: 0, tau: 0, sigma: 0 };
   const maxTauMPa = maxTauPoint.tau / 1e6;
   const pxMaxTau = xShear + (maxTauPoint.tau / maxTau) * 30;
   const pyMaxTau = toPixelY(maxTauPoint.y);
@@ -50,16 +62,26 @@ export const ShearStressProfileChart: React.FC<ShearStressProfileChartProps> = (
   // Shift peak label upward if bottom junction is very close to it
   const yPeakLabel = isJBotNearPeak ? pyMaxTau - 5 : pyMaxTau + 2.5;
 
-  // Shear stress path (drawn as polygon shaded from baseline xShear)
-  let shearCurvePath = '';
-  let shearAreaPath = `M ${xShear} ${toPixelY(points[0]!.y)}`;
+  // Group points into contiguous segments where consecutive points are close (y-distance <= 0.025m)
+  const segments: IStressPoint[][] = [];
+  let currentSegment: IStressPoint[] = [];
+
   points.forEach((pt: IStressPoint, idx: number) => {
-    const px = xShear + (pt.tau / maxTau) * 30;
-    const py = toPixelY(pt.y);
-    shearCurvePath += `${idx === 0 ? 'M' : 'L'} ${px} ${py}`;
-    shearAreaPath += ` L ${px} ${py}`;
+    if (idx === 0) {
+      currentSegment.push(pt);
+    } else {
+      const prevPt = points[idx - 1]!;
+      if (Math.abs(pt.y - prevPt.y) > 0.025) {
+        segments.push(currentSegment);
+        currentSegment = [pt];
+      } else {
+        currentSegment.push(pt);
+      }
+    }
   });
-  shearAreaPath += ` L ${xShear} ${toPixelY(points[points.length - 1]!.y)} Z`;
+  if (currentSegment.length > 0) {
+    segments.push(currentSegment);
+  }
 
   // Exact coordinates for interactive marker dot
   const pxShearDot = xShear + ((currentTau * 1e6) / maxTau) * 30;
@@ -95,31 +117,60 @@ export const ShearStressProfileChart: React.FC<ShearStressProfileChartProps> = (
         SHEAR STRESS (τ)
       </text>
 
-      {/* Shaded Area */}
-      <path d={shearAreaPath} fill="rgba(245, 158, 11, 0.12)" stroke="none" />
+      {/* Shaded Area and Outline Curve Segments */}
+      {showCurve && segments.map((seg, segIdx) => {
+        if (seg.length <= 1) return null;
+        let shearCurvePath = '';
+        let shearAreaPath = `M ${xShear} ${toPixelY(seg[0]!.y)}`;
+        seg.forEach((pt: IStressPoint, idx: number) => {
+          const px = xShear + (pt.tau / maxTau) * 30;
+          const py = toPixelY(pt.y);
+          shearCurvePath += `${idx === 0 ? 'M' : 'L'} ${px} ${py}`;
+          shearAreaPath += ` L ${px} ${py}`;
+        });
+        shearAreaPath += ` L ${xShear} ${toPixelY(seg[seg.length - 1]!.y)} Z`;
 
-      {/* Outline Curve */}
-      <path d={shearCurvePath} fill="none" stroke="#f59e0b" strokeWidth={1.5} />
+        return (
+          <g key={segIdx}>
+            <path
+              d={shearAreaPath}
+              fill="rgba(245, 158, 11, 0.12)"
+              stroke="none"
+              className="transition-all duration-500 ease-in-out animate-in fade-in"
+            />
+            <path
+              d={shearCurvePath}
+              fill="none"
+              stroke="#f59e0b"
+              strokeWidth={1.5}
+              className="transition-all duration-500 ease-in-out animate-in fade-in"
+            />
+          </g>
+        );
+      })}
 
       {/* Baseline */}
       <line x1={xShear} y1={paddingY} x2={xShear} y2={paddingY + chartH} stroke="var(--border)" strokeWidth={1} />
 
       {/* Neutral Axis line */}
-      <line
-        x1={xShear - 10}
-        y1={toPixelY(0)}
-        x2={xShear + 35}
-        y2={toPixelY(0)}
-        stroke="var(--destructive)"
-        strokeWidth={1}
-        strokeDasharray="3,1"
-        opacity={0.6}
-      />
+      {showPeak && (
+        <line
+          x1={xShear - 10}
+          y1={toPixelY(0)}
+          x2={xShear + 35}
+          y2={toPixelY(0)}
+          stroke="var(--destructive)"
+          strokeWidth={1}
+          strokeDasharray="3,1"
+          opacity={0.6}
+          className="animate-in fade-in duration-500"
+        />
+      )}
 
       {/* Peak Shear Stress dot & label */}
-      {Math.abs(maxTauMPa) > 0.01 && (
-        <g>
-          <circle cx={pxMaxTau} cy={pyMaxTau} r={1.8} fill="#f59e0b" />
+      {showPeak && Math.abs(maxTauMPa) > 0.01 && (
+        <g className="animate-in fade-in zoom-in-95 duration-500">
+          <circle cx={pxMaxTau} cy={pyMaxTau} r={1.8} fill="#f59e0b" className="transition-all duration-500 ease-in-out" />
           <text
             x={pxMaxTau + (maxTauMPa >= 0 ? 5 : -5)}
             y={yPeakLabel}
@@ -132,7 +183,7 @@ export const ShearStressProfileChart: React.FC<ShearStressProfileChartProps> = (
       )}
 
       {/* Shear Stress Junction Labels */}
-      {(() => {
+      {showJunctions && points.length > 0 && (() => {
         const labels: { y: number; tauFlange: number; tauWeb: number; flangeW: number }[] = [];
         if (shape.type === 'i-beam' || shape.type === 'channel') {
           const tfVal = shape.thicknessFlange ?? 0.01;
@@ -160,7 +211,11 @@ export const ShearStressProfileChart: React.FC<ShearStressProfileChartProps> = (
           labels.push({ y: yTop, tauFlange: tauFlangeTop, tauWeb: tauWebTop, flangeW: shape.width ?? 0.15 });
         }
 
-        return labels.map((lbl, idx) => {
+        const minY = Math.min(...points.map(pt => pt.y));
+        const maxY = Math.max(...points.map(pt => pt.y));
+        const filteredLabels = labels.filter(lbl => lbl.y >= minY - 1e-4 && lbl.y <= maxY + 1e-4);
+
+        return filteredLabels.map((lbl, idx) => {
           const pyJ = toPixelY(lbl.y);
           const pxFlange = xShear + (lbl.tauFlange / maxTau) * 30;
           const pxWeb = xShear + (lbl.tauWeb / maxTau) * 30;
@@ -174,6 +229,9 @@ export const ShearStressProfileChart: React.FC<ShearStressProfileChartProps> = (
 
           const isBottomJunction = (shape.type === 'i-beam' || shape.type === 'channel') && idx === 0;
 
+          // Check if web-side stress point has been solved/appended
+          const isWebActive = points.some(pt => Math.abs(pt.y - lbl.y) < 1e-4 && Math.abs(pt.tau * 1e6 - lbl.tauWeb) < 1000);
+
           let yWebLabel = pyJ - 3;
           let yFlangeLabel = pyJ + 8;
 
@@ -183,9 +241,9 @@ export const ShearStressProfileChart: React.FC<ShearStressProfileChartProps> = (
           }
 
           return (
-            <g key={idx} opacity={0.8}>
+            <g key={idx} opacity={0.8} className="animate-in fade-in zoom-in-95 duration-500">
               {/* Flange point & label */}
-              <circle cx={pxFlange} cy={pyJ} r={1.8} fill="#f59e0b" />
+              <circle cx={pxFlange} cy={pyJ} r={1.8} fill="#f59e0b" className="transition-all duration-500 ease-in-out" />
               {Math.abs(valFlange) > 0.01 && (
                 <text
                   x={pxFlange + textOffset}
@@ -196,17 +254,21 @@ export const ShearStressProfileChart: React.FC<ShearStressProfileChartProps> = (
                   {valFlange >= 0 ? '+' : ''}{valFlange.toFixed(2)} MPa
                 </text>
               )}
-              {/* Web point & label */}
-              <circle cx={pxWeb} cy={pyJ} r={1.8} fill="#f59e0b" />
-              {Math.abs(valWeb) > 0.01 && (
-                <text
-                  x={pxWeb + textOffset}
-                  y={yWebLabel}
-                  textAnchor={textAnchor}
-                  className="fill-amber-600/90 text-[7.5px] font-mono font-black"
-                >
-                  {valWeb >= 0 ? '+' : ''}{valWeb.toFixed(2)} MPa
-                </text>
+              {/* Web point & label (conditional) */}
+              {isWebActive && (
+                <g className="animate-in fade-in duration-300">
+                  <circle cx={pxWeb} cy={pyJ} r={1.8} fill="#f59e0b" className="transition-all duration-500 ease-in-out" />
+                  {Math.abs(valWeb) > 0.01 && (
+                    <text
+                      x={pxWeb + textOffset}
+                      y={yWebLabel}
+                      textAnchor={textAnchor}
+                      className="fill-amber-600/90 text-[7.5px] font-mono font-black"
+                    >
+                      {valWeb >= 0 ? '+' : ''}{valWeb.toFixed(2)} MPa
+                    </text>
+                  )}
+                </g>
               )}
             </g>
           );
@@ -214,15 +276,19 @@ export const ShearStressProfileChart: React.FC<ShearStressProfileChartProps> = (
       })()}
 
       {/* Interactive Inspection value marker & label */}
-      <circle cx={pxShearDot} cy={pyInspect} r={2.5} fill="#f59e0b" />
-      <text
-        x={pxShearDot + (currentTau < 0 ? 5 : -5)}
-        y={yInspectLabelShear}
-        textAnchor={currentTau < 0 ? 'start' : 'end'}
-        className="fill-amber-500 text-[9.5px] font-mono font-bold"
-      >
-        {currentTau >= 0 ? '+' : ''}{currentTau.toFixed(2)} MPa
-      </text>
+      {showInteractiveDot && (
+        <g className="transition-all duration-300 ease-out">
+          <circle cx={pxShearDot} cy={pyInspect} r={2.5} fill="#f59e0b" className="transition-all duration-300 ease-out" />
+          <text
+            x={pxShearDot + (currentTau < 0 ? 5 : -5)}
+            y={yInspectLabelShear}
+            textAnchor={currentTau < 0 ? 'start' : 'end'}
+            className="fill-amber-500 text-[9.5px] font-mono font-bold animate-in fade-in duration-300"
+          >
+            {currentTau >= 0 ? '+' : ''}{currentTau.toFixed(2)} MPa
+          </text>
+        </g>
+      )}
     </g>
   );
 };

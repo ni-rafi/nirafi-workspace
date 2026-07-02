@@ -42,13 +42,6 @@ export const TimberBeamDesignDrawing: React.FC<TimberBeamDesignDrawingProps> = (
           <circle cx={endX + 2} cy={beamY + 7.5} r={1.2} className="fill-muted-foreground stroke-none" />
           <text x={endX} y={beamY + 16} className="fill-muted-foreground text-[11px] font-mono" textAnchor="middle">B</text>
 
-          {/* Concentrated Load at center */}
-          <line x1={midX} y1={beamY - 18} x2={midX} y2={beamY} className="stroke-rose-500" strokeWidth={1.5} />
-          <polygon points={`${midX},${beamY} ${midX - 2.5},${beamY - 5} ${midX + 2.5},${beamY - 5}`} className="fill-rose-500" />
-          <text x={midX} y={beamY - 21} className="fill-rose-500 text-[11px] font-mono font-bold" textAnchor="middle">
-            P
-          </text>
-
           {/* UDL (Uniform Load) */}
           <path
             d={`M ${startX} ${beamY - 6} Q ${startX + 10} ${beamY - 12} ${startX + 20} ${beamY - 6}
@@ -62,14 +55,14 @@ export const TimberBeamDesignDrawing: React.FC<TimberBeamDesignDrawingProps> = (
             className="fill-none stroke-blue-400"
             strokeWidth={0.8}
           />
-          <text x={startX + 30} y={beamY - 14} className="fill-blue-500 text-[11px] font-mono" textAnchor="middle">
-            w
+          <text x={midX} y={beamY - 14} className="fill-blue-500 text-[11px] font-mono font-bold" textAnchor="middle">
+            w = 10 kN/m
           </text>
 
-          {/* Span Dimension (20 ft) */}
+          {/* Span Dimension (3 m) */}
           <line x1={startX} y1={beamY - 25} x2={endX} y2={beamY - 25} className="stroke-muted-foreground/30" strokeWidth={0.6} />
           <text x={midX} y={beamY - 28} className="fill-muted-foreground text-[11px] font-mono" textAnchor="middle">
-            L = 20 ft
+            L = 3 m
           </text>
         </g>
 
@@ -77,7 +70,7 @@ export const TimberBeamDesignDrawing: React.FC<TimberBeamDesignDrawingProps> = (
         <g opacity={currentClick >= 1 ? 1 : 0.05} className="transition-opacity duration-300">
           <line x1={startX} y1={sfdY} x2={endX} y2={sfdY} className="stroke-border" strokeWidth={0.8} />
           <path
-            d={`M ${startX} ${sfdY} L ${startX} ${sfdY - 15} L ${midX} ${sfdY - 8} L ${midX} ${sfdY + 12} L ${endX} ${sfdY + 5} L ${endX} ${sfdY}`}
+            d={`M ${startX} ${sfdY} L ${startX} ${sfdY - 15} L ${endX} ${sfdY + 15} L ${endX} ${sfdY}`}
             fill="rgba(59, 130, 246, 0.08)"
             className="stroke-blue-500"
             strokeWidth={1}
@@ -95,7 +88,7 @@ export const TimberBeamDesignDrawing: React.FC<TimberBeamDesignDrawingProps> = (
         <g opacity={currentClick >= 2 ? 1 : 0.05} className="transition-opacity duration-300">
           <line x1={startX} y1={bmdY} x2={endX} y2={bmdY} className="stroke-border" strokeWidth={0.8} />
           <path
-            d={`M ${startX} ${bmdY} Q ${startX + 35} ${bmdY - 22} ${midX} ${bmdY - 25} Q ${endX - 35} ${bmdY - 22} ${endX} ${bmdY}`}
+            d={`M ${startX} ${bmdY} Q ${midX} ${bmdY - 25} ${endX} ${bmdY}`}
             fill="rgba(245, 158, 11, 0.08)"
             className="stroke-amber-500"
             strokeWidth={1}
@@ -117,16 +110,16 @@ export const TimberBeamDesignDrawing: React.FC<TimberBeamDesignDrawingProps> = (
           <line x1={235} y1={40} x2={280} y2={40} className="stroke-muted-foreground/40" strokeWidth={0.8} />
           <line x1={235} y1={37} x2={235} y2={43} className="stroke-muted-foreground/60" strokeWidth={1} />
           <line x1={280} y1={37} x2={280} y2={43} className="stroke-muted-foreground/60" strokeWidth={1} />
-          <text x={257.5} y={32} className="fill-foreground text-[11px] font-mono font-bold" textAnchor="middle">
-            10 in.
+          <text x={257.5} y={32} className="fill-blue-500 text-[11px] font-mono font-black" textAnchor="middle">
+            b = ?
           </text>
 
           {/* Depth Dimension */}
           <line x1={288} y1={45} x2={288} y2={135} className="stroke-muted-foreground/40" strokeWidth={0.8} />
           <line x1={285} y1={45} x2={291} y2={45} className="stroke-muted-foreground/60" strokeWidth={1} />
           <line x1={285} y1={135} x2={291} y2={135} className="stroke-muted-foreground/60" strokeWidth={1} />
-          <text x={295} y={93.5} className="fill-amber-500 text-[11px] font-mono font-black" textAnchor="start">
-            d = ?
+          <text x={295} y={93.5} className="fill-foreground text-[11px] font-mono font-bold" textAnchor="start">
+            h = 300 mm
           </text>
 
           {/* Material Label */}

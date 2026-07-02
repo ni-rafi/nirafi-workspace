@@ -2,13 +2,14 @@ import React from 'react';
 import { ExpandableDrawing } from '@/shared/components';
 
 interface BuiltUpFastenersDrawingProps {
-  spacing: number; // in inches
+  spacing: number; 
   currentClick?: number;
+  unit?: 'in' | 'mm';
 }
 
-export const BuiltUpFastenersDrawing: React.FC<BuiltUpFastenersDrawingProps> = ({ spacing, currentClick = 0 }) => {
+export const BuiltUpFastenersDrawing: React.FC<BuiltUpFastenersDrawingProps> = ({ spacing, currentClick = 0, unit = 'in' }) => {
   const width = 320;
-  const height = 180;
+  const height = 135;
 
   const scale = 5.0; 
 
@@ -25,7 +26,21 @@ export const BuiltUpFastenersDrawing: React.FC<BuiltUpFastenersDrawingProps> = (
   const sideY = csY;
   const sideW = 160;
   
-  const pxSpacing = Math.max(15, spacing * 10);
+  // Calculate pixel spacing based on unit to keep nails within the drawing bounds
+  let pxSpacing = 60;
+  let labelText = '';
+
+  if (unit === 'mm') {
+    // Map millimeter spacing (clamped to 10-250 for rendering) to pixels (20 to 115)
+    pxSpacing = 20 + (Math.min(250, Math.max(10, spacing)) - 10) * (95 / 240);
+    labelText = `mm`;
+  } else {
+    // Support default inch behavior (inputs like 60/80 or 6.0/8.0)
+    const val = spacing > 15 ? spacing / 10 : spacing;
+    pxSpacing = val * 10;
+    labelText = `in.`;
+  }
+
   const nails: number[] = [];
   let nailX = sideX + 15;
   while (nailX < sideX + sideW - 10) {
@@ -39,7 +54,7 @@ export const BuiltUpFastenersDrawing: React.FC<BuiltUpFastenersDrawingProps> = (
       description="Cross-section and side elevation of a built-up T-beam showing the shear flow interface line and dynamically spaced nails at pitch s."
       className="max-w-[450px] mx-auto w-full"
     >
-      <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-full aspect-[1.78] overflow-visible">
+      <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-full aspect-[2.37] overflow-visible">
         {/* LEFT: Cross-Section */}
         <g>
           <rect
@@ -80,7 +95,7 @@ export const BuiltUpFastenersDrawing: React.FC<BuiltUpFastenersDrawingProps> = (
             <line x1={csX - 3} y1={csY - 5} x2={csX + 3} y2={csY - 5} className="stroke-indigo-400" strokeWidth={1.5} />
           </g>
 
-          <text x={csX} y={height - 20} className="fill-foreground text-[11px] font-mono font-bold" textAnchor="middle">
+          <text x={csX} y={height - 18} className="fill-foreground text-[11px] font-mono font-bold" textAnchor="middle">
             Cross-Section
           </text>
           <text x={csX + 22} y={interfaceY + 2} className="fill-amber-500 text-[11px] font-bold">
@@ -89,7 +104,7 @@ export const BuiltUpFastenersDrawing: React.FC<BuiltUpFastenersDrawingProps> = (
         </g>
 
         {/* Separator */}
-        <line x1={125} y1={20} x2={125} y2={160} className="stroke-border/30" strokeWidth={0.8} strokeDasharray="3,1" />
+        <line x1={125} y1={20} x2={125} y2={120} className="stroke-border/30" strokeWidth={0.8} strokeDasharray="3,1" />
 
         {/* RIGHT: Side Elevation */}
         <g>
@@ -138,16 +153,16 @@ export const BuiltUpFastenersDrawing: React.FC<BuiltUpFastenersDrawingProps> = (
                 <text
                   x={(nails[0]! + nails[1]!) / 2}
                   y={sideY - 20}
-                  className="fill-indigo-500 text-[11px] font-mono font-black"
+                  className="fill-indigo-500 text-[10px] font-sans font-bold"
                   textAnchor="middle"
                 >
-                  s = {spacing.toFixed(1)} in.
+                  <tspan fontStyle="italic">s</tspan> = {unit === 'mm' ? spacing.toFixed(1) : (spacing > 15 ? spacing / 10 : spacing).toFixed(1)} {labelText}
                 </text>
               </g>
             )}
           </g>
 
-          <text x={sideX + sideW / 2} y={height - 20} className="fill-foreground text-[11px] font-mono font-bold" textAnchor="middle">
+          <text x={sideX + sideW / 2} y={height - 18} className="fill-foreground text-[11px] font-mono font-bold" textAnchor="middle">
             Side Elevation (Nail Spacing)
           </text>
         </g>

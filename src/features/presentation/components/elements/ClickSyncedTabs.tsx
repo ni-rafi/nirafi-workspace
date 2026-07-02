@@ -18,7 +18,11 @@ export interface ClickSyncedTabItem {
    *  e.g. 'border-l-[3px] border-l-indigo-500 bg-indigo-500/5 dark:bg-indigo-500/[0.08]'
    */
   tintClass?: string;
+  /** Fixed-position visualizer rendered in the stable top zone of the right column. */
+  rightVisualizer?: React.ReactNode;
+  /** Flexible text description rendered below the fixed visualizer zone. */
   rightContent: React.ReactNode;
+  leftBottomContent?: React.ReactNode;
 }
 
 interface ClickSyncedTabsProps {
@@ -30,6 +34,8 @@ interface ClickSyncedTabsProps {
   bgVariant?: 'default' | 'calculation' | 'gallery';
   clickToTabMap?: number[];
   dense?: boolean;
+  /** Fixed pixel height for the visualizer zone. When omitted, the zone sizes to its natural content height. */
+  visualizerHeight?: number;
 }
 
 /** Automatic per-tab color palette — cycles by index when the slide omits tintClass / badgeColor. */
@@ -69,6 +75,7 @@ export const ClickSyncedTabs: React.FC<ClickSyncedTabsProps> = ({
   bgVariant = 'default',
   clickToTabMap,
   dense = false,
+  visualizerHeight,
 }) => {
   const clickContext = useClickStepsContext();
   const { currentClick, setClick } = clickContext;
@@ -192,68 +199,85 @@ export const ClickSyncedTabs: React.FC<ClickSyncedTabsProps> = ({
       bgVariant={bgVariant}
       leftWidth={leftWidth}
       leftContent={
-        <div className="flex flex-col gap-2 select-text">
-          {leftTitle && (
-            <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest block mb-1">
-              {leftTitle}
-            </span>
-          )}
-          <div className={`flex flex-col ${dense ? 'gap-1.5' : 'gap-2'}`}>
-            {items.map((item, idx) => {
-              const isActive = activeIndex === idx;
-              const auto = AUTO_COLORS[idx % AUTO_COLORS.length]!;
-              const resolvedTintClass = item.tintClass ?? auto.tintClass;
-              const resolvedBadgeColor = item.badgeColor ?? auto.badgeColor;
-              return (
-                <div
-                  key={idx}
-                  onClick={() => handleItemClick(idx)}
-                  className={`${dense ? 'p-1.5' : 'p-2.5'} rounded-lg border transition-all duration-300 cursor-pointer ${
-                    isActive
-                      ? 'bg-accent text-accent-foreground border-primary shadow-sm translate-x-1'
-                      : `${resolvedTintClass} text-card-foreground hover:bg-accent/40 opacity-80 hover:opacity-100`
-                  }`}
-                >
-                  {/* Register click highlights implicitly in the presentation click-steps */}
-                  {clickToTabMap ? (
-                    startClicks && startClicks[idx] !== undefined && startClicks[idx] > 0 && (
-                      <ClickHighlight at={startClicks[idx]} className="hidden">{' '}</ClickHighlight>
-                    )
-                  ) : (
-                    idx > 0 && <ClickHighlight at={idx} className="hidden">{' '}</ClickHighlight>
-                  )}
-
-                  <div className="flex justify-between items-center mb-0.5">
-                    <h4 className={`text-xs font-bold ${isActive ? 'text-primary' : 'text-foreground'} ${dense ? 'text-[11px]' : ''}`}>
-                      {item.title}
-                    </h4>
-                    {item.badge && (
-                      <SlideBadge
-                        label={item.badge}
-                        variant={item.badgeVariant || 'default'}
-                        className={resolvedBadgeColor}
-                      />
+        <div className="flex flex-col gap-4 select-text">
+          <div className="flex flex-col gap-2">
+            {leftTitle && (
+              <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest block mb-1">
+                {leftTitle}
+              </span>
+            )}
+            <div className={`flex flex-col ${dense ? 'gap-1.5' : 'gap-2'}`}>
+              {items.map((item, idx) => {
+                const isActive = activeIndex === idx;
+                const auto = AUTO_COLORS[idx % AUTO_COLORS.length]!;
+                const resolvedTintClass = item.tintClass ?? auto.tintClass;
+                const resolvedBadgeColor = item.badgeColor ?? auto.badgeColor;
+                return (
+                  <div
+                    key={idx}
+                    onClick={() => handleItemClick(idx)}
+                    className={`${dense ? 'p-1.5' : 'p-2.5'} rounded-lg border transition-all duration-300 cursor-pointer ${
+                      isActive
+                        ? 'bg-accent text-accent-foreground border-primary shadow-sm translate-x-1'
+                        : `${resolvedTintClass} text-card-foreground hover:bg-accent/40 opacity-80 hover:opacity-100`
+                    }`}
+                  >
+                    {/* Register click highlights implicitly in the presentation click-steps */}
+                    {clickToTabMap ? (
+                      startClicks && startClicks[idx] !== undefined && startClicks[idx] > 0 && (
+                        <ClickHighlight at={startClicks[idx]} className="hidden">{' '}</ClickHighlight>
+                      )
+                    ) : (
+                      idx > 0 && <ClickHighlight at={idx} className="hidden">{' '}</ClickHighlight>
                     )}
+
+                    <div className="flex justify-between items-center mb-0.5">
+                      <h4 className={`text-xs font-bold ${isActive ? 'text-primary' : 'text-foreground'} ${dense ? 'text-[11px]' : ''}`}>
+                        {item.title}
+                      </h4>
+                      {item.badge && (
+                        <SlideBadge
+                          label={item.badge}
+                          variant={item.badgeVariant || 'default'}
+                          className={resolvedBadgeColor}
+                        />
+                      )}
+                    </div>
+                    <p className={`${dense ? 'text-[10px] leading-tight' : 'text-[11px] leading-normal'} text-muted-foreground`}>
+                      {item.description}
+                    </p>
                   </div>
-                  <p className={`${dense ? 'text-[10px] leading-tight' : 'text-[11px] leading-normal'} text-muted-foreground`}>
-                    {item.description}
-                  </p>
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
           </div>
+          {items[activeIndex ?? 0]?.leftBottomContent && (
+            <div className="pt-2 animate-in fade-in duration-300">
+              {items[activeIndex ?? 0]?.leftBottomContent}
+            </div>
+          )}
         </div>
       }
       rightContent={
-        <div className="flex flex-col gap-2 select-text h-full justify-center">
+        <div className="flex flex-col gap-2 select-text h-full">
           {rightTitle && (
             <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest text-center block">
               {rightTitle}
             </span>
           )}
-          <div className={`flex-1 flex items-center justify-center border border-border/50 rounded-lg bg-muted/30 ${dense ? 'p-3 min-h-[160px]' : 'p-4 min-h-[220px]'}`}>
-            {items[activeIndex ?? 0]?.rightContent || null}
+          {/* Fixed-height visualizer zone — position stays stable across tab changes */}
+          <div
+            className="flex items-center justify-center flex-shrink-0 animate-in fade-in duration-300"
+            style={visualizerHeight !== undefined ? { height: `${visualizerHeight}px` } : undefined}
+          >
+            {items[activeIndex ?? 0]?.rightVisualizer ?? items[activeIndex ?? 0]?.rightContent ?? null}
           </div>
+          {/* Only render the text description zone when rightVisualizer is used */}
+          {items[activeIndex ?? 0]?.rightVisualizer && (
+            <div className="flex-1 flex flex-col justify-start animate-in fade-in duration-200 text-left">
+              {items[activeIndex ?? 0]?.rightContent}
+            </div>
+          )}
         </div>
       }
     />
